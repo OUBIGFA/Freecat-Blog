@@ -1,0 +1,1498 @@
+/* From Uiverse.io by catraco - Modified for compatibility */
+.copy-btn-container {
+    --color: #cbd5e1;
+    /* Slate-300 - softer color */
+    --size: 18px;
+    /* Slightly smaller */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+    font-size: var(--size);
+    user-select: none;
+    fill: var(--color);
+    width: 28px;
+    /* Slightly smaller */
+    height: 28px;
+    /* Slightly smaller */
+    opacity: 0.6;
+    /* More subtle default state */
+    transition: opacity 0.2s ease;
+}
+
+.dark .copy-btn-container {
+    --color: #64748b;
+    /* Slate-500 - softer in dark mode */
+    opacity: 0.5;
+    /* Even more subtle in dark mode */
+}
+
+.copy-btn-container:hover {
+    --color: #94a3b8;
+    /* Slightly brighter on hover */
+    opacity: 0.9;
+    /* More visible on hover */
+}
+
+.dark .copy-btn-container:hover {
+    --color: #94a3b8;
+    /* Brighter in dark mode hover */
+    opacity: 0.8;
+}
+
+.copy-btn-container .clipboard {
+    position: absolute;
+    animation: keyframes-fill .3s ease-out;
+    /* Faster, smoother animation */
+    transition: fill 0.15s ease;
+}
+
+.copy-btn-container .clipboard-check {
+    position: absolute;
+    display: none;
+    animation: keyframes-fill .3s ease-out;
+    /* Faster, smoother */
+    fill: #10b981;
+    /* Keep emerald color for success feedback */
+    opacity: 0.8;
+    /* Slightly softer */
+}
+
+/* ------ On check event ------ */
+.copy-btn-container input:checked~.clipboard {
+    display: none;
+}
+
+.copy-btn-container input:checked~.clipboard-check {
+    display: block;
+}
+
+/* ------ Hide the default checkbox ------ */
+.copy-btn-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* ------ Animation ------ */
+@keyframes keyframes-fill {
+    0% {
+        transform: scale(0.8);
+        /* Less dramatic start */
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.05);
+        /* Gentler bounce */
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Loader from Uiverse.io by Fernando-sv */
+.loader {
+    border: 4px solid rgba(0, 0, 0, .1);
+    border-left-color: transparent;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    animation: spin89345 1s linear infinite;
+}
+
+.dark .loader {
+    border-color: rgba(255, 255, 255, 0.6);
+    border-left-color: transparent;
+}
+
+@keyframes spin89345 {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* 自定义滚动条样式 */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 4px;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #475569;
+}
+
+/* ===== 黄金比例阅读间距系统 =====
+   基于科学的黄金比例 (φ = 1.618) 设计
+   - 段落间距 (p → p): 1.618em (大间距，区分不同段落)
+   - 标题到正文 (h → p): 0.618em (小间距，保持标题与内容的紧密关联)
+   - 新段落到标题 (p → h): 2.618em (最大间距，明确区分不同章节)
+*/
+
+/* Post Title Responsive Styles */
+.post-title {
+    line-height: 1.2 !important;
+    margin-top: 1.25rem !important;
+    margin-bottom: 2rem !important;
+    font-size: 2.25rem !important;
+}
+
+@media (min-width: 768px) {
+    .post-title {
+        margin-bottom: 3.5rem !important;
+        font-size: 3.51rem !important;
+    }
+}
+
+.dark .post-title {
+    color: #e2e8f0 !important;
+    /* Slate-200 */
+}
+
+/* 段落样式：段落之间使用黄金比例间距 */
+.prose {
+    font-size: 1.15rem !important;
+}
+
+@media (min-width: 768px) {
+    .prose {
+        font-size: 1.25rem !important;
+    }
+}
+
+.prose p {
+    color: #334155 !important;
+    /* Slate-700 */
+    margin-bottom: 1.75rem !important;
+    /* 从 2rem 减少到 1.75rem (28px) */
+    line-height: 1.8 !important;
+    /* 默认左对齐，通过类名控制具体对齐方式 */
+    text-align: left;
+    /* 防止孤行标点：允许标点溢出容器边缘 */
+    hanging-punctuation: allow-end last;
+    /* 严格换行规则：防止标点出现在行首 */
+    line-break: strict;
+    /* 允许长单词/URL换行但优先保持完整 */
+    overflow-wrap: break-word;
+    /* 强制不使用连字符换行 */
+    -webkit-hyphens: none !important;
+    -ms-hyphens: none !important;
+    hyphens: none !important;
+}
+
+/* 纯中文段落：两端对齐 */
+.prose p.text-justify-cjk {
+    text-align: justify !important;
+    text-align-last: left !important;
+    /* 优化中文排版 */
+    text-justify: inter-ideograph;
+    /* 防止孤行标点：允许标点溢出容器边缘 */
+    hanging-punctuation: allow-end last;
+    /* 严格换行规则 */
+    line-break: strict;
+}
+
+/* 英文/混排段落：左对齐 */
+.prose p.text-align-left {
+    text-align: left !important;
+    /* 继承防止孤行标点的规则 */
+}
+
+.dark .prose p {
+    color: #94a3b8 !important;
+    /* Slate-400 */
+}
+
+/* 移除段落末尾多余间距 */
+.prose p:last-child {
+    margin-bottom: 0 !important;
+}
+
+
+
+/* 列表样式优化：增加列表项间距使其与 2.2 行高协调 */
+.prose ul,
+.prose ol {
+    margin-bottom: 2rem !important;
+}
+
+.prose li {
+    margin-bottom: 1.25rem !important;
+    /* 列表项内部间距 */
+    line-height: 1.8 !important;
+}
+
+.prose li:last-child {
+    margin-bottom: 0 !important;
+}
+
+/* 软换行 (Shift+Enter / <br>) 使用正常行间距 */
+.prose br {
+    display: block !important;
+    content: "" !important;
+    margin: 0 !important;
+    /* 行间距由 line-height 控制，不添加额外间距 */
+}
+
+.prose .katex {
+    font-size: 1em;
+}
+
+.prose .katex-display {
+    color: #334155 !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.2rem 0;
+    margin: 2rem 0 !important;
+    /* 统一使用 2rem */
+}
+
+.dark .prose .katex-display {
+    color: #94a3b8 !important;
+}
+
+.prose .katex-display::-webkit-scrollbar {
+    height: 6px;
+}
+
+.prose .katex-display::-webkit-scrollbar-thumb {
+    background-color: rgba(100, 116, 139, .35);
+    border-radius: 4px;
+}
+
+.dark .prose .katex-display::-webkit-scrollbar-thumb {
+    background-color: rgba(148, 163, 184, .25);
+}
+
+.prose .katex-display>.katex {
+    white-space: nowrap;
+}
+
+/* H1 标题 - Highest Level */
+.prose h1 {
+    font-size: 2.0rem !important;
+    /* Mobile */
+    line-height: 1.2 !important;
+    margin-bottom: 0.618em !important;
+    margin-top: 1.618em !important;
+    font-weight: 900 !important;
+}
+
+/* H2 标题 */
+.prose h2 {
+    font-size: 1.75rem !important;
+    /* Mobile */
+    line-height: 1.3 !important;
+    margin-bottom: 0.618em !important;
+    margin-top: 1.618em !important;
+    font-weight: 800 !important;
+}
+
+/* H3 标题 */
+.prose h3 {
+    font-size: 1.5rem !important;
+    /* Mobile */
+    line-height: 1.4 !important;
+    margin-bottom: 0.618em !important;
+    margin-top: 1.618em !important;
+    font-weight: 700 !important;
+}
+
+/* H4 标题 */
+.prose h4 {
+    font-size: 1.25rem !important;
+    /* Mobile */
+    line-height: 1.5 !important;
+    margin-bottom: 0.618em !important;
+    margin-top: 1.618em !important;
+    font-weight: 600 !important;
+}
+
+/* H5 标题 */
+.prose h5 {
+    font-size: 1.15rem !important;
+    /* Mobile */
+    line-height: 1.5 !important;
+    margin-bottom: 0.618em !important;
+    margin-top: 1.618em !important;
+    font-weight: 600 !important;
+}
+
+/* H6 标题 */
+.prose h6 {
+    font-size: 1.05rem !important;
+    /* Mobile */
+    line-height: 1.5 !important;
+    margin-bottom: 0.618em !important;
+    margin-top: 1.618em !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.05em;
+}
+
+/* Dark Mode Headings Color Update */
+.dark .prose h1,
+.dark .prose h2,
+.dark .prose h3,
+.dark .prose h4,
+.dark .prose h5,
+.dark .prose h6 {
+    color: #94a3b8 !important;
+    /* Slate-400 */
+}
+
+/* Desktop Golden Ratio Overrides */
+@media (min-width: 768px) {
+    .prose h1 {
+        font-size: 3.51rem !important;
+    }
+
+    .prose h2 {
+        font-size: 2.808rem !important;
+    }
+
+    .prose h3 {
+        font-size: 2.246rem !important;
+    }
+
+    .prose h4 {
+        font-size: 1.797rem !important;
+    }
+
+    .prose h5 {
+        font-size: 1.438rem !important;
+    }
+
+    .prose h6 {
+        font-size: 1.15rem !important;
+    }
+}
+
+/* 确保第一个标题没有顶部间距 */
+.prose>h1:first-child,
+.prose>h2:first-child,
+.prose>h3:first-child,
+.prose>h4:first-child,
+.prose>h5:first-child,
+.prose>h6:first-child {
+    margin-top: 0 !important;
+}
+
+/* ===== 核心逻辑：只有段落或标题后的标题才使用大间距 ===== */
+/* 段落后面的标题使用大间距，明确区分章节 */
+.prose p+h1,
+.prose p+h2,
+.prose p+h3,
+.prose p+h4,
+.prose p+h5,
+.prose p+h6 {
+    margin-top: 2.618em !important;
+}
+
+/* 标题后面的标题使用大间距（区分不同章节） */
+.prose h1+h1,
+.prose h2+h2,
+.prose h3+h3,
+.prose h4+h4,
+.prose h5+h5,
+.prose h6+h6 {
+    margin-top: 2.618em !important;
+}
+
+/* 连续标题之间的间距（如 h2 紧跟 h3）使用中等间距 */
+.prose h1+h2,
+.prose h2+h3,
+.prose h3+h4,
+.prose h4+h5,
+.prose h5+h6 {
+    margin-top: 1.25rem !important;
+    /* 稍微增加一点，与行高协调 */
+}
+
+/* 列表、引用块、代码块后的标题使用大间距 */
+.prose ul+h1,
+.prose ul+h2,
+.prose ul+h3,
+.prose ul+h4,
+.prose ul+h5,
+.prose ul+h6,
+.prose ol+h1,
+.prose ol+h2,
+.prose ol+h3,
+.prose ol+h4,
+.prose ol+h5,
+.prose ol+h6,
+.prose blockquote+h1,
+.prose blockquote+h2,
+.prose blockquote+h3,
+.prose blockquote+h4,
+.prose blockquote+h5,
+.prose blockquote+h6,
+.prose pre+h1,
+.prose pre+h2,
+.prose pre+h3,
+.prose pre+h4,
+.prose pre+h5,
+.prose pre+h6 {
+    margin-top: 2.618em !important;
+}
+
+/* center、table 等 HTML 元素后的标题保持正常段落间距 */
+/* 默认已经是 1.618em，不需要额外规则 */
+
+/* 链接样式：下划线 + 灰色区分 + 无悬停变色 */
+.prose a {
+    color: #6b7280 !important;
+    /* 中灰色 */
+    text-decoration: underline !important;
+    text-underline-offset: 4px !important;
+    transition: opacity 0.2s ease !important;
+}
+
+.dark .prose a {
+    color: #94a3b8 !important;
+    /* Slate-400 */
+}
+
+.prose a:hover {
+    opacity: 0.8 !important;
+    /* 仅轻微透明度变化 */
+}
+
+/* 优化正文对齐方式 */
+.prose {
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+}
+
+
+
+/* ===== 图片容器间距规则 - 像段落一样的行为 ===== */
+/* 图片容器的间距逻辑：
+   - margin-top: 0（上方间距由前置元素的 margin-bottom 提供）
+   - margin-bottom: 1.618em（像段落一样，给下方元素基础间距）
+   - 后续元素（标题）会根据自身的 margin-top 规则添加额外间距
+*/
+.prose .relative.w-full.inline-block {
+    margin-top: 0 !important;
+    margin-bottom: 2rem !important;
+    /* 统一 */
+    display: inline-block;
+    width: 100%;
+}
+
+.prose figure.post-image {
+    margin-top: 0 !important;
+    margin-bottom: 2rem !important;
+    /* 统一 */
+    display: block;
+    width: 100%;
+}
+
+/* 图片后面的标题：重置 margin-top，保持与段落相同的间距 */
+.prose .relative.w-full.inline-block+h1,
+.prose .relative.w-full.inline-block+h2,
+.prose .relative.w-full.inline-block+h3,
+.prose .relative.w-full.inline-block+h4,
+.prose .relative.w-full.inline-block+h5,
+.prose .relative.w-full.inline-block+h6 {
+    margin-top: 0 !important;
+    /* 使用图片自己的 margin-bottom (1.618em) 作为唯一间距 */
+}
+
+.prose figure.post-image+h1,
+.prose figure.post-image+h2,
+.prose figure.post-image+h3,
+.prose figure.post-image+h4,
+.prose figure.post-image+h5,
+.prose figure.post-image+h6 {
+    margin-top: 0 !important;
+}
+
+/* 确保图片不会溢出 */
+.prose img {
+    width: 100% !important;
+    height: auto;
+    border-radius: 0.75rem;
+    margin-top: 0 !important;
+    /* 间距已由容器处理，img 自身不需要 margin */
+}
+
+.prose .image-caption {
+    margin-top: 0.35rem !important;
+    line-height: 1.6 !important;
+}
+
+/* 允许 MD 中可能残留的 HTML 标签保留部分原生样式 */
+.prose font {
+    font-family: inherit;
+}
+
+/* 优化 Markdown 中嵌入的 HTML center 和 table 色块组合 */
+.prose center {
+    display: block !important;
+    width: 100% !important;
+    margin-bottom: 2rem !important;
+    /* 使用统一的大间距 */
+}
+
+.prose center table {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    display: table !important;
+    width: 100% !important;
+    /* 强制铺满全宽 */
+    border: none !important;
+    /* 移除外边框 */
+    background-color: transparent !important;
+    /* 防止双重背景 */
+}
+
+.prose center table td {
+    border: none !important;
+    padding: 0.5rem 1rem !important;
+    /* 增加一点内边距让色块更好看 */
+    text-align: center !important;
+    /* 保持文字居中 */
+}
+
+/* Dark Mode adaptation for legacy HTML bgcolor attributes */
+.dark .prose td[bgcolor] {
+    background-color: #1e293b !important;
+    /* Slate-800 */
+    color: #b6c2cf !important;
+}
+
+/* ===== Mermaid 图表容器样式 ===== */
+.mermaid {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    background-color: #f8fafc !important;
+    /* Slate-50 */
+    border: 1px solid #e2e8f0 !important;
+    /* Slate-200 */
+    border-radius: 0.75rem !important;
+    padding: 2rem 1rem !important;
+    margin: 2rem auto !important;
+    overflow-x: auto !important;
+    /* 优雅的水平滚动条 */
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+.dark .mermaid {
+    background-color: #0f172a !important;
+    /* Slate-900 */
+    border-color: #334155 !important;
+    /* Slate-700 */
+    scrollbar-color: #475569 transparent;
+}
+
+.mermaid {
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+}
+
+.mermaid svg {
+    display: block;
+    height: auto !important;
+    max-width: none !important;
+}
+
+.mermaid foreignObject {
+    overflow: visible;
+}
+
+.mermaid .edgeLabel {
+    white-space: nowrap;
+}
+
+/* ===== 代码块样式 ===== */
+.prose :not(pre)>code {
+    background-color: #f1f5f9 !important;
+    color: #475569 !important;
+    padding: 0.14em 0.4em !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 0.375rem !important;
+    font-size: 0.9em !important;
+    font-family: inherit !important;
+    font-weight: 600 !important;
+}
+
+.dark .prose :not(pre)>code {
+    background-color: #0f172a !important;
+    color: #b6c2cf !important;
+    border-color: #233044 !important;
+}
+
+/* 代码块容器内的 pre 样式重置 */
+.prose pre {
+    background-color: transparent !important;
+    color: #334155 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    overflow-x: auto !important;
+    font-size: 0.875rem !important;
+    line-height: 1.7 !important;
+    white-space: pre-wrap !important;
+    /* 核心：支持自动换行 */
+    word-break: break-all !important;
+    /* 配合换行 */
+}
+
+.dark .prose pre {
+    color: #b6c2cf !important;
+}
+
+.prose pre code {
+    background-color: transparent !important;
+    color: #1e293b !important;
+    /* 深灰色，确保清晰可读 */
+    padding: 0 !important;
+    border: none !important;
+    /* 核心：移除代码块内容的边框 */
+    font-size: inherit !important;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+    white-space: pre-wrap !important;
+    /* 核心：支持自动换行 */
+}
+
+/* 深色模式下代码块文字颜色 */
+.dark .prose pre code {
+    color: #cbd5e1 !important;
+    /* 柔和的浅灰色 */
+}
+
+/* ===== 引用块样式 (Blockquote) ===== */
+.prose blockquote {
+    border-left: 3px solid #64748b !important;
+    background-color: #f8fafc !important;
+    padding: 0.95em 1.15em !important;
+    margin: 1.618em 0 !important;
+    border-radius: 0 !important;
+    color: #475569 !important;
+}
+
+.dark .prose blockquote {
+    background-color: #121a28 !important;
+    border-left-color: #334155 !important;
+    color: #94a3b8 !important;
+}
+
+.prose .callout {
+    --callout-accent: #64748b;
+    --callout-bg: #f8fafc;
+    --callout-border: #e2e8f0;
+    --callout-title: #0f172a;
+    --callout-text: #334155;
+    margin: 1.618em 0 !important;
+    padding: 1em 1.1em !important;
+    border-radius: 0.9rem !important;
+    border: 1px solid var(--callout-border) !important;
+    border-left: 3px solid var(--callout-accent) !important;
+    background-color: var(--callout-bg) !important;
+    color: var(--callout-text) !important;
+    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04) !important;
+}
+
+.dark .prose .callout {
+    --callout-bg: #121a28;
+    --callout-border: #233044;
+    --callout-title: #b6c2cf;
+    --callout-text: #94a3b8;
+    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.2) !important;
+}
+
+.prose .callout-title {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    font-weight: 700 !important;
+    font-size: 0.95em !important;
+    letter-spacing: 0.02em !important;
+    color: var(--callout-title) !important;
+    margin-bottom: 0.6em !important;
+}
+
+.prose .callout-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.05em !important;
+    color: var(--callout-accent) !important;
+}
+
+.prose .callout.callout-note {
+    --callout-accent: #3b82f6;
+}
+
+.dark .prose .callout.callout-note {
+    --callout-accent: #60a5fa;
+}
+
+.prose .callout.callout-tip {
+    --callout-accent: #10b981;
+}
+
+.dark .prose .callout.callout-tip {
+    --callout-accent: #34d399;
+}
+
+.prose .callout.callout-important {
+    --callout-accent: #8b5cf6;
+}
+
+.dark .prose .callout.callout-important {
+    --callout-accent: #a78bfa;
+}
+
+.prose .callout.callout-warning {
+    --callout-accent: #f59e0b;
+}
+
+.dark .prose .callout.callout-warning {
+    --callout-accent: #fbbf24;
+}
+
+.prose .callout.callout-caution {
+    --callout-accent: #ef4444;
+}
+
+.dark .prose .callout.callout-caution {
+    --callout-accent: #f87171;
+}
+
+.prose .footnotes {
+    margin-top: 2em !important;
+    font-size: 0.95em !important;
+    color: #475569 !important;
+}
+
+.dark .prose .footnotes {
+    color: #94a3b8 !important;
+}
+
+.prose .footnotes ol {
+    padding-left: 1.4em !important;
+}
+
+.prose .footnote-ref a {
+    text-decoration: none !important;
+    border-bottom: 1px solid #cbd5e1 !important;
+    color: inherit !important;
+}
+
+.prose .footnote-ref {
+    scroll-margin-top: 6rem !important;
+}
+
+.dark .prose .footnote-ref a {
+    border-bottom-color: #475569 !important;
+}
+
+.prose .footnote-backref {
+    margin-left: 0.4em !important;
+    text-decoration: none !important;
+    color: inherit !important;
+    opacity: 0.75 !important;
+}
+
+.prose .footnote-backrefs {
+    margin-left: 0.25em !important;
+    white-space: nowrap !important;
+}
+
+.prose .footnote-backref:hover {
+    opacity: 1 !important;
+}
+
+.prose .callout-content p {
+    margin-bottom: 0.9em !important;
+}
+
+.prose .callout-content>*:last-child {
+    margin-bottom: 0 !important;
+}
+
+.prose blockquote p {
+    margin: 0.45em 0 !important;
+}
+
+.prose blockquote p:last-child {
+    margin-bottom: 0 !important;
+}
+
+.prose blockquote p:first-child {
+    margin-top: 0 !important;
+}
+
+/* 嵌套引用 */
+.prose blockquote blockquote {
+    margin: 0.9em 0 0 0.75em !important;
+    border-left-color: #94a3b8 !important;
+    background-color: #f1f5f9 !important;
+    color: #475569 !important;
+    border-radius: 0 !important;
+}
+
+.dark .prose blockquote blockquote {
+    border-left-color: #475569 !important;
+    background-color: #0f172a !important;
+    color: #94a3b8 !important;
+}
+
+.prose blockquote blockquote blockquote {
+    margin-left: 0.7em !important;
+    border-left-color: #cbd5e1 !important;
+    background-color: #e2e8f0 !important;
+    color: #475569 !important;
+    border-radius: 0 !important;
+}
+
+.dark .prose blockquote blockquote blockquote {
+    border-left-color: #64748b !important;
+    background-color: #0b1220 !important;
+    color: #94a3b8 !important;
+}
+
+/* ===== 列表样式 ===== */
+/* 无序列表 */
+.prose ul {
+    list-style-type: disc !important;
+    padding-left: 1.5em !important;
+    margin: 1em 0 1.618em 0 !important;
+}
+
+.prose ul ul {
+    list-style-type: circle !important;
+    margin: 0.5em 0 !important;
+}
+
+.prose ul ul ul {
+    list-style-type: square !important;
+}
+
+/* 有序列表 */
+.prose ol {
+    list-style-type: decimal !important;
+    padding-left: 1.5em !important;
+    margin: 1em 0 1.618em 0 !important;
+}
+
+.prose ol ol {
+    list-style-type: lower-alpha !important;
+    margin: 0.5em 0 !important;
+}
+
+/* 列表项 */
+.prose li {
+    margin-bottom: 0.5em !important;
+    line-height: 1.7 !important;
+    color: #334155 !important;
+    /* Slate-700 */
+}
+
+.prose>ul>li,
+.prose>ol>li {
+    margin-bottom: 0.85em !important;
+}
+
+.prose>ul>li:last-child,
+.prose>ol>li:last-child {
+    margin-bottom: 0 !important;
+}
+
+.dark .prose li {
+    color: #cbd5e1 !important;
+    /* Slate-300 */
+}
+
+.prose li::marker {
+    color: #9ca3af !important;
+    /* 中灰色 */
+}
+
+.dark .prose li::marker {
+    color: #6b7280 !important;
+    /* 深色模式中灰色 */
+}
+
+.prose li>p {
+    margin: 0 0 0.35em 0 !important;
+}
+
+.prose li>p:last-child {
+    margin-bottom: 0 !important;
+}
+
+.prose li>p+ul,
+.prose li>p+ol {
+    margin-top: 0.35em !important;
+}
+
+.prose ul ul,
+.prose ol ol {
+    margin: 0.35em 0 !important;
+}
+
+/* 任务列表 (Checkbox) */
+.prose input[type="checkbox"] {
+    margin-right: 0.5em !important;
+    accent-color: #6b7280 !important;
+    /* 中灰色 */
+}
+
+/* ===== 表格样式 ===== */
+.prose table {
+    width: 100% !important;
+    display: table !important;
+    border-collapse: collapse !important;
+    margin: 1.618em 0 !important;
+    font-size: 0.9em !important;
+    overflow-x: auto !important;
+}
+
+.prose thead {
+    background-color: #f1f5f9 !important;
+}
+
+.dark .prose thead {
+    background-color: #334155 !important;
+}
+
+.prose th,
+.prose td {
+    padding: 0.75em 1em !important;
+    border: 1px solid #e2e8f0 !important;
+    text-align: left;
+    color: #334155 !important;
+}
+
+.dark .prose th,
+.dark .prose td {
+    border-color: #475569 !important;
+    color: #94a3b8 !important;
+}
+
+.prose th {
+    font-weight: 600 !important;
+    color: #1e293b !important;
+}
+
+.dark .prose th {
+    color: #b6c2cf !important;
+}
+
+.prose th[align="left"],
+.prose td[align="left"] {
+    text-align: left !important;
+}
+
+.prose th[align="center"],
+.prose td[align="center"] {
+    text-align: center !important;
+}
+
+.prose th[align="right"],
+.prose td[align="right"] {
+    text-align: right !important;
+}
+
+.prose tbody tr:nth-child(even) {
+    background-color: #f8fafc !important;
+}
+
+.dark .prose tbody tr:nth-child(even) {
+    background-color: #1e293b !important;
+}
+
+/* ===== 水平分割线 ===== */
+.prose hr {
+    border: none !important;
+    border-top: 2px solid #e2e8f0 !important;
+    margin: 2.618em 0 !important;
+}
+
+.dark .prose hr {
+    border-top-color: #475569 !important;
+}
+
+/* ===== 删除线 ===== */
+.prose del,
+.prose s {
+    text-decoration: line-through !important;
+    color: #94a3b8 !important;
+}
+
+/* ===== 加粗和斜体 ===== */
+.prose strong {
+    font-weight: 700 !important;
+    color: #1e293b !important;
+}
+
+/* Dark Mode for Strong/Bold */
+.dark .prose strong,
+.dark .prose b {
+    color: #b6c2cf !important;
+}
+
+
+
+.prose em {
+    font-style: italic !important;
+}
+
+/* ===== 标记/高亮 ===== */
+.prose mark {
+    background-color: #fef08a;
+    color: #854d0e;
+    padding: 0.1em 0.3em;
+    border-radius: 0.2em;
+}
+
+.dark .prose mark {
+    background-color: rgba(245, 158, 11, 0.18);
+    color: #b6c2cf;
+}
+
+/* Dark Mode Adaptation for Legacy HTML Blocks (tables & fonts) */
+/* Force transparent background for the outer table wrapper if any */
+.dark .prose table {
+    background-color: transparent !important;
+}
+
+/* Override bgcolor cell colors to Slate-800 */
+.dark .prose td[bgcolor] {
+    background-color: #1e293b !important;
+    /* Slate-800 */
+    color: #b6c2cf !important;
+    border-radius: 6px;
+    /* Smooth corners */
+    border: 1px solid #334155;
+    /* Slate-700 border for definition */
+}
+
+/* Override font color attributes to Slate-200 */
+.dark .prose font[color],
+.dark .prose font[size],
+.dark .prose font[face] {
+    color: inherit !important;
+}
+
+/* Light Mode Details/Summary Styling */
+.prose details {
+    border: 1px solid #cbd5e1;
+    /* Slate-300 */
+    background-color: #f8fafc;
+    /* Slate-50 */
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    margin: 1em 0;
+}
+
+.prose summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: #1e293b !important;
+    /* Slate-800 */
+}
+
+/* Comprehensive Dark Mode Text Color Automation */
+/* 1. Override Tailwind Prose CSS Variables for Dark Mode */
+.dark .prose {
+    --tw-prose-body: #94a3b8;
+    /* Slate-400 */
+    --tw-prose-headings: #94a3b8;
+    /* Slate-400 */
+    --tw-prose-lead: #94a3b8;
+    --tw-prose-links: #38bdf8;
+    /* Sky-400 */
+    --tw-prose-bold: #94a3b8;
+    /* Slate-400 */
+    --tw-prose-counters: #94a3b8;
+    --tw-prose-bullets: #94a3b8;
+    /* Slate-400 */
+    --tw-prose-hr: #475569;
+    --tw-prose-quotes: #b6c2cf;
+    --tw-prose-quote-borders: #475569;
+    --tw-prose-captions: #94a3b8;
+    --tw-prose-code: #b6c2cf;
+    --tw-prose-pre-code: #b6c2cf;
+    --tw-prose-pre-bg: transparent;
+
+    /* Force base color to Slate-400 */
+    color: #94a3b8 !important;
+}
+
+/* 2. Target specific HTML elements to ensure they use the variable/color */
+.dark .prose li,
+.dark .prose ul,
+.dark .prose ol,
+.dark .prose details,
+.dark .prose summary,
+.dark .prose div,
+.dark .prose span:not([class*="hljs-"]) {
+    /* Exclude syntax highlighting */
+    color: inherit !important;
+}
+
+/* 3. Specific fix for Details/Summary */
+.dark .prose details {
+    border-color: #475569;
+    background-color: #1e293b;
+    /* Slate-800 */
+}
+
+.dark .prose summary {
+    color: #94a3b8 !important;
+    /* Slate-400 */
+}
+
+.prose mark {
+    background-color: #fef08a !important;
+    color: #1e293b !important;
+    padding: 0.1em 0.3em !important;
+    border-radius: 0.25rem !important;
+}
+
+.dark .prose mark {
+    background-color: rgba(245, 158, 11, 0.18) !important;
+    color: #b6c2cf !important;
+}
+
+/* ===== 脚注样式 ===== */
+.prose sup {
+    font-size: 0.75em !important;
+    vertical-align: super !important;
+}
+
+.prose sub {
+    font-size: 0.75em !important;
+    vertical-align: sub !important;
+}
+
+/* ===== 定义列表 ===== */
+.prose dl {
+    margin: 1.618em 0 !important;
+}
+
+.prose dt {
+    font-weight: 600 !important;
+    margin-bottom: 0.25em !important;
+}
+
+.prose dd {
+    margin-left: 1.5em !important;
+    margin-bottom: 1em !important;
+    color: #64748b !important;
+}
+
+.dark .prose dd {
+    color: #94a3b8 !important;
+}
+
+/* ===== Article Reading Hierarchy Override ===== */
+.prose {
+    --article-body-size: 1.15rem;
+    --article-line-height: 1.86;
+    --article-rhythm: calc(var(--article-body-size) * var(--article-line-height));
+    font-size: var(--article-body-size) !important;
+    line-height: var(--article-line-height) !important;
+    color: #334155 !important;
+    letter-spacing: 0 !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+}
+
+@media (min-width: 768px) {
+    .prose {
+        --article-body-size: 1.25rem;
+        --article-line-height: 1.9;
+    }
+}
+
+.dark .prose {
+    color: #aebacc !important;
+}
+
+.prose p {
+    margin: 0 0 calc(var(--article-rhythm) * 0.8) !important;
+    line-height: var(--article-line-height) !important;
+    color: #334155 !important;
+    text-align: left;
+    hanging-punctuation: allow-end last;
+    line-break: strict;
+    overflow-wrap: break-word;
+    -webkit-hyphens: none !important;
+    -ms-hyphens: none !important;
+    hyphens: none !important;
+}
+
+.dark .prose p {
+    color: #aebacc !important;
+}
+
+.prose p.text-justify-cjk {
+    text-align: justify !important;
+    text-align-last: left !important;
+    text-justify: inter-ideograph;
+}
+
+.prose p.text-align-left {
+    text-align: left !important;
+}
+
+.prose .article-heading {
+    color: #0f172a !important;
+    letter-spacing: 0 !important;
+    scroll-margin-top: 6rem;
+}
+
+.dark .prose .article-heading {
+    color: #e2e8f0 !important;
+}
+
+.prose .article-heading-depth-1 {
+    position: relative;
+    font-size: 1.75rem !important;
+    line-height: 1.3 !important;
+    font-weight: 800 !important;
+    margin: calc(var(--article-rhythm) * 1.9) 0 calc(var(--article-rhythm) * 0.62) !important;
+    padding-top: 0;
+    border-top: 0 !important;
+}
+
+.prose .article-heading-depth-1::before {
+    content: "";
+    position: absolute;
+    top: 0.5em;
+    left: calc(var(--article-body-size) * -1.55);
+    width: calc(var(--article-body-size) * 0.55);
+    height: calc(var(--article-body-size) * 0.55);
+    border-radius: 50%;
+    background: #111827;
+}
+
+.prose .article-heading-depth-2 {
+    font-size: 1.45rem !important;
+    line-height: 1.35 !important;
+    font-weight: 800 !important;
+    margin: calc(var(--article-rhythm) * 1.35) 0 calc(var(--article-rhythm) * 0.45) !important;
+}
+
+.prose .article-heading-depth-3 {
+    font-size: 1.2rem !important;
+    line-height: 1.45 !important;
+    font-weight: 750 !important;
+    margin: calc(var(--article-rhythm) * 1.05) 0 calc(var(--article-rhythm) * 0.35) !important;
+    color: #1e293b !important;
+}
+
+.prose .article-heading-depth-4 {
+    font-size: 1.05rem !important;
+    line-height: 1.5 !important;
+    font-weight: 800 !important;
+    margin: calc(var(--article-rhythm) * 0.9) 0 calc(var(--article-rhythm) * 0.28) !important;
+    color: #475569 !important;
+}
+
+@media (min-width: 768px) {
+    .prose .article-heading-depth-1 {
+        font-size: 2.808rem !important;
+    }
+
+    .prose .article-heading-depth-1::before {
+        top: 0.5em;
+        left: calc(var(--article-body-size) * -1.85);
+    }
+
+    .prose .article-heading-depth-2 {
+        font-size: 1.72rem !important;
+    }
+
+    .prose .article-heading-depth-3 {
+        font-size: 1.35rem !important;
+    }
+
+    .prose .article-heading-depth-4 {
+        font-size: 1.12rem !important;
+    }
+}
+
+.dark .prose .article-heading-depth-1::before {
+    background: #e2e8f0;
+}
+
+.dark .prose .article-heading-depth-3 {
+    color: #d6deea !important;
+}
+
+.dark .prose .article-heading-depth-4 {
+    color: #bac6d6 !important;
+}
+
+.prose>.article-heading:first-child {
+    margin-top: 0 !important;
+    padding-top: 0;
+    border-top: 0;
+}
+
+.prose .article-heading+.article-heading {
+    margin-top: calc(var(--article-rhythm) * 0.5) !important;
+}
+
+.prose p+.article-heading-depth-1,
+.prose ul+.article-heading-depth-1,
+.prose ol+.article-heading-depth-1,
+.prose blockquote+.article-heading-depth-1,
+.prose .code-block-container+.article-heading-depth-1,
+.prose figure.post-image+.article-heading-depth-1 {
+    margin-top: calc(var(--article-rhythm) * 2.6) !important;
+}
+
+.prose hr+.article-heading-depth-1 {
+    margin-top: calc(var(--article-rhythm) * 0.95) !important;
+    padding-top: 0 !important;
+}
+
+.prose ul,
+.prose ol {
+    margin: calc(var(--article-rhythm) * 0.45) 0 calc(var(--article-rhythm) * 0.95) !important;
+    padding-left: 1.35em !important;
+}
+
+.prose ul {
+    list-style-type: disc !important;
+}
+
+.prose ol {
+    list-style-type: decimal !important;
+}
+
+.prose ul ul,
+.prose ol ol,
+.prose ul ol,
+.prose ol ul {
+    margin: calc(var(--article-rhythm) * 0.2) 0 calc(var(--article-rhythm) * 0.28) !important;
+    padding-left: 1.15em !important;
+}
+
+.prose ul ul {
+    list-style-type: circle !important;
+}
+
+.prose ul ul ul {
+    list-style-type: square !important;
+}
+
+.prose li {
+    margin: 0 0 calc(var(--article-rhythm) * 0.34) !important;
+    line-height: 1.72 !important;
+    color: #334155 !important;
+}
+
+.prose>ul>li,
+.prose>ol>li {
+    margin-bottom: calc(var(--article-rhythm) * 0.52) !important;
+}
+
+.prose li>p {
+    margin: 0 0 calc(var(--article-rhythm) * 0.22) !important;
+    line-height: 1.72 !important;
+}
+
+.prose li::marker {
+    color: #94a3b8 !important;
+}
+
+.dark .prose li {
+    color: #c5d0df !important;
+}
+
+.dark .prose li::marker {
+    color: #64748b !important;
+}
+
+.prose li>strong:first-child {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+}
+
+.dark .prose li>strong:first-child {
+    color: #e2e8f0 !important;
+}
+
+.prose blockquote {
+    margin: calc(var(--article-rhythm) * 0.9) 0 !important;
+    padding: calc(var(--article-rhythm) * 0.35) 0 calc(var(--article-rhythm) * 0.35) 1.1em !important;
+    border-left: 3px solid #cbd5e1 !important;
+    color: #475569 !important;
+    background: transparent !important;
+}
+
+.dark .prose blockquote {
+    border-left-color: #475569 !important;
+    color: #cbd5e1 !important;
+    background: transparent !important;
+}
+
+.prose blockquote p {
+    margin-bottom: calc(var(--article-rhythm) * 0.38) !important;
+}
+
+.prose strong,
+.prose b {
+    color: #0f172a !important;
+    font-weight: 760 !important;
+}
+
+.dark .prose strong,
+.dark .prose b {
+    color: #e2e8f0 !important;
+}
+
+.prose hr {
+    margin: calc(var(--article-rhythm) * 1.8) 0 !important;
+    border-top: 1px solid #e2e8f0 !important;
+}
+
+.dark .prose hr {
+    border-top-color: #334155 !important;
+}
+
+.prose table,
+.prose .code-block-container,
+.prose figure.post-image,
+.prose details,
+.prose .callout,
+.prose .katex-display {
+    margin-top: calc(var(--article-rhythm) * 0.7) !important;
+    margin-bottom: calc(var(--article-rhythm) * 1.05) !important;
+}
+
+.prose table {
+    font-size: 0.88em !important;
+    line-height: 1.6 !important;
+}
+
+.prose :not(pre)>code {
+    font-size: 0.86em !important;
+}

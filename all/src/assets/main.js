@@ -1,6 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 0. 代码块复制功能
-    function copyText(text) {
+    // ============================================================
+    // 共享工具：构建期 build.js 与浏览器期共用，避免重复实现
+    // 见 ./shared.js（必须先于 main.js 加载）
+    // ============================================================
+    const shared = window.FreecatShared || {};
+    const escapeHtml = shared.escapeHtml || function (t) {
+        const div = document.createElement('div');
+        div.textContent = t == null ? '' : String(t);
+        return div.innerHTML;
+    };
+    const processTitleHtml = shared.processTitleHtml || function (t) {
+        return String(t || '').replace(/\|/g, '<span class="font-normal mx-[1px]">|</span>');
+    };
+    const renderTagSpan = shared.renderTagSpan;
+    const copyText = shared.copyText || function (text) {
         if (navigator.clipboard && window.isSecureContext) {
             return navigator.clipboard.writeText(text);
         }
@@ -21,7 +34,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 textarea.remove();
             }
         });
-    }
+    };
+
+    // ============================================================
+    // [Feature] 代码块复制按钮（首页/全部/搜索页可能也有代码片段）
+    // ============================================================
 
     document.addEventListener('change', (e) => {
         if (!e.target.classList.contains('copy-checkbox')) return;
@@ -55,6 +72,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeToggleBtn = document.getElementById('theme-toggle');
     const html = document.documentElement;
 
+    // ============================================================
+    // [Feature] Mermaid 图表渲染（文章页用，但加载在 main.js 里因为依赖主题切换联动）
+    // ============================================================
     function normalizeMermaidBlocks() {
         const selector = [
             'pre > code.language-mermaid',
@@ -136,7 +156,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
-    // Replace broken images with fallback.
+    // ============================================================
+    // [Feature] 全局图片加载失败兜底（事件捕获阶段拦截，防止重复触发）
+    // ============================================================
     document.addEventListener('error', (e) => {
         const target = e.target;
         if (!target || target.tagName !== 'IMG') return;
@@ -148,178 +170,14 @@ document.addEventListener('DOMContentLoaded', () => {
         target.src = fallback;
     }, true);
 
-    // === Animation Utilities ===
-    const animationStyleId = 'global-animation-styles';
-    function ensureAnimationStyles() {
-        if (document.getElementById(animationStyleId)) return;
-        const style = document.createElement('style');
-        style.id = animationStyleId;
-        style.textContent = `
-            :root {
-                --dropdown-open-dur: 250ms;
-                --dropdown-close-dur: 150ms;
-                --dropdown-pre-scale: 0.97;
-                --dropdown-closing-scale: 0.99;
-                --dropdown-ease: cubic-bezier(0.22, 1, 0.36, 1);
-                --panel-open-dur: 400ms;
-                --panel-close-dur: 350ms;
-                --panel-translate-y: 32px;
-                --panel-blur: 2px;
-                --panel-ease: cubic-bezier(0.22, 1, 0.36, 1);
-                --page-slide-dur: 200ms;
-                --page-fade-dur: 200ms;
-                --page-slide-distance: 8px;
-                --page-blur: 3px;
-                --page-slide-ease: cubic-bezier(0.22, 1, 0.36, 1);
-                --page-fade-ease: cubic-bezier(0.22, 1, 0.36, 1);
-                --icon-swap-dur: 200ms;
-                --icon-swap-blur: 2px;
-                --icon-swap-start-scale: 0.25;
-                --icon-swap-ease: ease-in-out;
-            }
-            /* 始终预留垂直滚动条宽度，避免 body.overflow:hidden 切换时
-               视口宽度变化导致 fixed header 内的导航按钮整体抖动 */
-            html {
-                scrollbar-gutter: stable;
-            }
-            @keyframes fadeInUp {
-                from { opacity: 0; transform: translate3d(0, 10px, 0); }
-                to { opacity: 1; transform: translate3d(0, 0, 0); }
-            }
-            .animate-fade-in-up {
-                animation: fadeInUp 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
-                opacity: 0;
-            }
-            .t-panel-slide {
-                transform: translateY(var(--panel-translate-y));
-                opacity: 0;
-                filter: blur(var(--panel-blur));
-                pointer-events: none;
-                transition:
-                    transform var(--panel-close-dur) var(--panel-ease),
-                    opacity var(--panel-close-dur) var(--panel-ease),
-                    filter var(--panel-close-dur) var(--panel-ease);
-                will-change: transform, opacity, filter;
-            }
-            .t-panel-slide[data-open="true"] {
-                transform: translateY(0);
-                opacity: 1;
-                filter: blur(0);
-                pointer-events: auto;
-                transition:
-                    transform var(--panel-open-dur) var(--panel-ease),
-                    opacity var(--panel-open-dur) var(--panel-ease),
-                    filter var(--panel-open-dur) var(--panel-ease);
-            }
-            .t-dropdown {
-                transform-origin: top right;
-                transform: scale(var(--dropdown-pre-scale));
-                opacity: 0;
-                pointer-events: none;
-                transition:
-                    transform var(--dropdown-open-dur) var(--dropdown-ease),
-                    opacity var(--dropdown-open-dur) var(--dropdown-ease);
-                will-change: transform, opacity;
-            }
-            .t-dropdown[data-origin="top-left"] { transform-origin: top left; }
-            .t-dropdown[data-origin="top-center"] { transform-origin: top center; }
-            .t-dropdown[data-origin="top-right"] { transform-origin: top right; }
-            .t-dropdown[data-origin="bottom-left"] { transform-origin: bottom left; }
-            .t-dropdown[data-origin="bottom-center"] { transform-origin: bottom center; }
-            .t-dropdown[data-origin="bottom-right"] { transform-origin: bottom right; }
-            .t-dropdown.is-open {
-                transform: scale(1);
-                opacity: 1;
-                pointer-events: auto;
-            }
-            .t-dropdown.is-closing {
-                transform: scale(var(--dropdown-closing-scale));
-                opacity: 0;
-                pointer-events: none;
-                transition:
-                    transform var(--dropdown-close-dur) var(--dropdown-ease),
-                    opacity var(--dropdown-close-dur) var(--dropdown-ease);
-            }
-            .page-transitioning-out {
-                opacity: 0;
-                transform: translateX(calc(var(--page-slide-distance) * -1));
-                filter: blur(var(--page-blur));
-                transition:
-                    opacity var(--page-fade-dur) var(--page-fade-ease),
-                    transform var(--page-slide-dur) var(--page-slide-ease),
-                    filter var(--page-slide-dur) var(--page-slide-ease);
-            }
-            .page-transitioning-in {
-                animation: pageSlideIn var(--page-slide-dur) var(--page-slide-ease) both;
-            }
-            @keyframes pageSlideIn {
-                from {
-                    opacity: 0;
-                    transform: translateX(var(--page-slide-distance));
-                    filter: blur(var(--page-blur));
-                }
-                to {
-                    opacity: 1;
-                    transform: translateX(0);
-                    filter: blur(0);
-                }
-            }
-            .icon-breathe {
-                transition:
-                    transform var(--icon-swap-dur) var(--icon-swap-ease),
-                    opacity var(--icon-swap-dur) var(--icon-swap-ease),
-                    filter var(--icon-swap-dur) var(--icon-swap-ease);
-                will-change: transform, opacity, filter;
-            }
-            body.search-active {
-                overflow: hidden !important;
-            }
-            body.search-active .page-blur-target {
-                filter: blur(4px);
-                opacity: 0.22;
-                pointer-events: none;
-                transition:
-                    filter var(--page-slide-dur) var(--page-slide-ease),
-                    opacity var(--page-fade-dur) var(--page-fade-ease);
-                position: relative;
-            }
-            body.search-active .page-blur-target::before {
-                content: '';
-                position: fixed;
-                inset: 0;
-                background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.62) 0%, rgba(255, 255, 255, 0.94) 100%);
-                pointer-events: none;
-                z-index: 1;
-            }
-            .dark body.search-active .page-blur-target::before,
-            .dark.search-active .page-blur-target::before {
-                background: radial-gradient(ellipse at center, rgba(8, 12, 20, 0.5) 0%, rgba(8, 12, 20, 0.82) 100%);
-            }
-            #search-results-overlay {
-                backdrop-filter: blur(10px);
-                overflow-y: auto;
-                pointer-events: auto;
-                transition:
-                    opacity var(--panel-open-dur) var(--panel-ease),
-                    transform var(--panel-open-dur) var(--panel-ease),
-                    filter var(--panel-open-dur) var(--panel-ease);
-            }
-            @media (prefers-reduced-motion: reduce) {
-                .animate-fade-in-up { animation: none !important; opacity: 1 !important; }
-                .t-panel-slide,
-                .t-dropdown,
-                .page-transitioning-out,
-                .page-transitioning-in,
-                .icon-breathe,
-                #search-results-overlay,
-                body.search-active .page-blur-target {
-                    transition: none !important;
-                    animation: none !important;
-                }
-            }
-        `;
-        document.head.appendChild(style);
-    }
+    // ============================================================
+    // [Feature] 全局动画样式 + 通用工具
+    // 注：所有共享的动画类（fadeInUp / t-panel-slide / t-dropdown /
+    //     page-transitioning-* / icon-breathe / body.search-active 遮罩）
+    //     已迁移到 src/assets/transitions.css，由 head-base.html 静态加载。
+    //     这里仅保留运行时工具函数。
+    // ============================================================
+    function ensureAnimationStyles() { /* no-op：样式已外置 */ }
 
     function applyStaggeredAnimations(selector, delayStep = 120) {
         const elements = document.querySelectorAll(selector);
@@ -339,7 +197,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return fallback;
     }
 
+    // ============================================================
+    // [Feature] 主题系统（深 / 浅 / 系统）+ 标签颜色随主题更新
     // === 1. 主题系统核心逻辑 ===
+    // ============================================================
     // (使用已声明的 themeToggleBtn 和 html)
 
 
@@ -419,7 +280,10 @@ document.addEventListener('DOMContentLoaded', () => {
         initMermaid();
     }
 
+    // ============================================================
+    // [Feature] 无感分页（点击/跳转输入框 → 异步抓取下一页 HTML 并替换）
     // 3. 无感分页实现
+    // ============================================================
     const postsList = document.getElementById('posts-list');
     const paginationContainer = document.getElementById('pagination-buttons');
     const pageTransitionInMs = getCssDurationMs('--page-slide-dur', 200);
@@ -504,7 +368,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ============================================================
+    // [Feature] 顶栏搜索：滑入式输入 + 实时过滤 + overlay 结果展示
     // === 4. 搜索功能实现 ===
+    // ============================================================
     const searchToggle = document.getElementById('search-toggle');
     const searchClose = document.getElementById('search-close');
     const searchContainer = document.getElementById('search-container');
@@ -745,32 +612,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // === 5. 搜索结果渲染辅助函数 ===
-    // 统一生成带样式的标签 HTML，确保与 build.js 逻辑一致
+    // 标签 HTML：直接复用 shared.renderTagSpan，保持与构建期一致
     function generateTagsHtml(tags) {
         if (!tags) return '';
-        function hashTagColor(tagName) {
-            let hash = 0;
-            const str = (tagName || 'default').toLowerCase();
-            for (let i = 0; i < str.length; i++) {
-                hash = str.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            const hue = Math.abs(hash % 360);
-            return {
-                bg: `hsl(${hue}, 70%, 95%)`,
-                bgDark: `hsl(${hue}, 50%, 20%)`,
-                text: `hsl(${hue}, 70%, 35%)`,
-                textDark: `hsl(${hue}, 60%, 75%)`
-            };
-        }
-
-        return (tags || []).map(tag => {
-            const colors = hashTagColor(tag);
-            // 使用直接内联样式确保标签有颜色和悬停效果
-            return `<span class="tag-span relative z-10 inline-flex items-center px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider cursor-pointer hover:brightness-95 transition-[filter] duration-200 ease-out whitespace-nowrap" 
-                style="background: ${colors.bg}; color: ${colors.text};" 
-                data-bg-light="${colors.bg}" data-text-light="${colors.text}" data-bg-dark="${colors.bgDark}" data-text-dark="${colors.textDark}"
-                onclick="event.preventDefault(); event.stopPropagation(); window.location.href='/search.html?tag=' + encodeURIComponent('${tag.replace(/'/g, "\\'")}');">${escapeHtml(tag)}</span>`;
-        }).join('');
+        if (!renderTagSpan) return ''; // shared.js 未加载，理论上不会发生
+        return tags.map(tag => renderTagSpan(tag, { withDataAttrs: true, escapeText: true })).join('');
     }
 
     // 显示搜索结果覆盖层
@@ -828,41 +674,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const renderer = window.PostCardTemplate && typeof window.PostCardTemplate.renderPostCard === 'function';
         const resultsHtml = results.map(post => {
             const tagsHtml = generateTagsHtml(post.tags);
-            if (renderer) {
-                return window.PostCardTemplate.renderPostCard({
-                    link: post.link,
-                    titleHtml: escapeHtml(post.title).replace(/\|/g, '<span class="font-normal mx-[1px]">|</span>'),
-                    excerptHtml: escapeHtml(post.excerpt),
-                    date: post.date,
-                    modifiedDate: post.modifiedDate,
-                    tagsHtml,
-                    cover: post.cover,
-                    pinned: post.pinned
-                });
-            }
-
-            return `
-            <a href="${post.link}" class="post-card block mb-6 md:mb-10 group cursor-pointer">
-                    <div class="relative flex flex-col md:flex-row items-stretch justify-between gap-6 md:gap-8 rounded-2xl bg-white dark:bg-card-dark p-5 md:p-8 shadow-sm transition-shadow duration-300 ease-out group-hover:shadow-2xl group-hover:shadow-gray-400/20 dark:group-hover:shadow-black/40 md:h-80">
-                        <div class="flex min-w-0 flex-1 flex-col justify-between overflow-hidden">
-                            <div class="flex flex-col gap-3 md:gap-4">
-                                <div class="flex flex-wrap items-center gap-3 md:gap-4 text-[#616f89] dark:text-gray-400 text-[10px] md:text-xs font-semibold">
-                                    <div class="flex items-center gap-1.5">
-                                        <span class="material-symbols-outlined text-sm md:text-base">calendar_today</span>
-                                        <span>${post.date}</span>
-                                    </div>
-                                    <div class="flex flex-wrap gap-2">
-                                        ${tagsHtml}
-                                    </div>
-                                </div>
-                                <h3 class="text-[#111318] dark:text-slate-200 text-xl md:text-3xl font-black leading-tight line-clamp-2">
-                                    ${escapeHtml(post.title).replace(/\|/g, '<span class="font-normal mx-[1px]">|</span>')}
-                                </h3>
-                                <p class="text-[#616f89] dark:text-gray-400 text-sm md:text-lg font-normal leading-relaxed line-clamp-3 md:line-clamp-3">${escapeHtml(post.excerpt)}</p>
-                            </div>
-                        </div>
-                    </div>
-            </a>`;
+            // PostCardTemplate 在所有模板中都会随主 script 一起加载；这里没有 fallback 路径
+            return renderer ? window.PostCardTemplate.renderPostCard({
+                link: post.link,
+                titleHtml: processTitleHtml(escapeHtml(post.title)),
+                excerptHtml: escapeHtml(post.excerpt),
+                date: post.date,
+                modifiedDate: post.modifiedDate,
+                tagsHtml,
+                cover: post.cover,
+                pinned: post.pinned
+            }) : '';
         }).join('');
 
         overlay.innerHTML = `
@@ -901,14 +723,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (overlay) updateSearchOverlayOffset(overlay);
     });
 
-    // HTML 转义函数
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
+    // HTML 转义函数：复用 shared.escapeHtml（已在文件顶部解构）。
 
+    // ============================================================
+    // [Feature] 搜索页（search.html）专属：从 URL ?q= 或 ?tag= 读取并渲染结果
     // === 5. 搜索页专属逻辑 ===
+    // ============================================================
     // 如果在搜索页，从 URL 参数读取查询并执行搜索
     const searchResultsContainer = document.getElementById('search-results');
     const currentQueryDisplay = document.getElementById('current-query');
@@ -962,41 +782,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const renderer = window.PostCardTemplate && typeof window.PostCardTemplate.renderPostCard === 'function';
         const html = results.map(post => {
             const tagsHtml = generateTagsHtml(post.tags);
-            if (renderer) {
-                return window.PostCardTemplate.renderPostCard({
-                    link: post.link,
-                    titleHtml: escapeHtml(post.title).replace(/\|/g, '<span class="font-normal mx-[1px]">|</span>'),
-                    excerptHtml: escapeHtml(post.excerpt),
-                    date: post.date,
-                    modifiedDate: post.modifiedDate,
-                    tagsHtml,
-                    cover: post.cover,
-                    pinned: post.pinned
-                });
-            }
-
-            return `
-            < a href = "${post.link}" class="block mb-6 md:mb-10 group cursor-pointer" >
-                <div class="relative flex flex-col md:flex-row items-stretch justify-between gap-6 md:gap-8 rounded-2xl bg-white dark:bg-card-dark p-5 md:p-8 shadow-sm transition-shadow duration-300 ease-out group-hover:shadow-2xl group-hover:shadow-gray-400/20 dark:group-hover:shadow-black/40 md:h-80">
-                    <div class="flex min-w-0 flex-1 flex-col justify-between overflow-hidden">
-                        <div class="flex flex-col gap-3 md:gap-4">
-                            <div class="flex flex-wrap items-center gap-3 md:gap-4 text-[#616f89] dark:text-gray-400 text-[10px] md:text-xs font-semibold">
-                                <div class="flex items-center gap-1.5">
-                                    <span class="material-symbols-outlined text-sm md:text-base">calendar_today</span>
-                                    <span>${post.date}</span>
-                                </div>
-                                <div class="flex flex-wrap gap-2">
-                                    ${tagsHtml}
-                                </div>
-                            </div>
-                            <h3 class="text-[#111318] dark:text-slate-200 text-xl md:text-3xl font-black leading-tight line-clamp-2">
-                                ${escapeHtml(post.title).replace(/\|/g, '<span class="font-normal mx-[1px]">|</span>')}
-                            </h3>
-                            <p class="text-[#616f89] dark:text-gray-400 text-sm md:text-lg font-normal leading-relaxed line-clamp-3 md:line-clamp-3">${escapeHtml(post.excerpt)}</p>
-                        </div>
-                    </div>
-                </div>
-            </a > `;
+            return renderer ? window.PostCardTemplate.renderPostCard({
+                link: post.link,
+                titleHtml: processTitleHtml(escapeHtml(post.title)),
+                excerptHtml: escapeHtml(post.excerpt),
+                date: post.date,
+                modifiedDate: post.modifiedDate,
+                tagsHtml,
+                cover: post.cover,
+                pinned: post.pinned
+            }) : '';
         }).join('');
 
         searchResultsContainer.innerHTML = html;
@@ -1006,7 +801,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fitTagRows();
 
+    // ============================================================
+    // [Feature] 头像光影动效（首页 hero / 关于页 hero）
     // === 6. 头像动效阴影 (Avatar Dynamic Shadow) ===
+    // ============================================================
     const heroAvatar = document.getElementById('hero-avatar');
     const avatarTriggerArea = document.getElementById('avatar-trigger-area');
     if (heroAvatar && avatarTriggerArea) {

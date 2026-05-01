@@ -1,0 +1,323 @@
+/* src/assets/transitions.css
+ *
+ * 站点级运动设计令牌 + 可复用 .t-* 类（参考 transitions.dev 设计语汇）。
+ * 所有交互按钮统一通过 .t-btn / .t-btn-icon / .t-btn-primary 取得动效，
+ * 不再各自手写 transition / hover lift / shadow。
+ *
+ * 时长 / 缓动统一用 CSS 自定义属性表达，便于全局微调。
+ *
+ * 入口约定：
+ *   - <link rel="stylesheet" href="...assets/transitions.css"> 由 head-base.html
+ *     与 template_post.html 引入，所有页面都能命中。
+ *   - .t-btn        外形/填充按钮（Share / Go Back / View All / 分页器）
+ *   - .t-btn-icon   圆形图标按钮（顶栏搜索 / 主题切换 / 浮动按钮 / 复制按钮）
+ *   - .t-btn-primary 与 .t-btn 叠加：hover 时附加品牌色光晕
+ *   - .is-disabled  与 disabled / aria-disabled="true" 等价：禁用 hover/active
+ */
+
+:root {
+    /* ===== Button motion tokens ===== */
+    --t-btn-dur: 220ms;
+    --t-btn-press-dur: 90ms;
+    --t-btn-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --t-btn-press-ease: cubic-bezier(0.4, 0, 0.6, 1);
+
+    --t-btn-lift: -1.5px;
+    --t-btn-press-scale: 0.96;
+    --t-btn-icon-press-scale: 0.92;
+}
+
+/* ============================================================
+ * .t-btn —— 外形/填充按钮统一动效
+ * 适用：Share / Go Back / View All / 分页 Prev/Next / 分页页码
+ * 行为：hover 抬升；active 下沉 + 缩放，press_dur 更短给更"实"的触感
+ *      （不使用 box-shadow，纯 transform + 颜色过渡）
+ * ============================================================ */
+.t-btn {
+    transition:
+        transform var(--t-btn-dur) var(--t-btn-ease),
+        background-color var(--t-btn-dur) var(--t-btn-ease),
+        border-color var(--t-btn-dur) var(--t-btn-ease),
+        color var(--t-btn-dur) var(--t-btn-ease),
+        opacity var(--t-btn-dur) var(--t-btn-ease),
+        filter var(--t-btn-dur) var(--t-btn-ease);
+    will-change: transform;
+}
+
+.t-btn:not(.is-disabled):not([disabled]):not([aria-disabled="true"]):hover {
+    transform: translateY(var(--t-btn-lift));
+}
+
+.t-btn:not(.is-disabled):not([disabled]):not([aria-disabled="true"]):active {
+    transform: translateY(0) scale(var(--t-btn-press-scale));
+    transition:
+        transform var(--t-btn-press-dur) var(--t-btn-press-ease);
+}
+
+.t-btn.is-disabled,
+.t-btn[disabled],
+.t-btn[aria-disabled="true"] {
+    opacity: 0.4;
+    pointer-events: none;
+    transform: none;
+}
+
+/* 内部图标的 hover 微动效（向左 / 向右 / 抬升等），由父 .group 控制 */
+.t-btn .t-btn-icon-rot,
+.t-btn-icon .t-btn-icon-rot {
+    transition: transform var(--t-btn-dur) var(--t-btn-ease);
+}
+.t-btn:hover .t-btn-arrow-prev,
+.t-btn-icon:hover .t-btn-arrow-prev {
+    transform: translateX(-2px);
+}
+.t-btn:hover .t-btn-arrow-next,
+.t-btn-icon:hover .t-btn-arrow-next {
+    transform: translateX(2px);
+}
+.t-btn:hover .t-btn-arrow-up,
+.t-btn-icon:hover .t-btn-arrow-up {
+    transform: translateY(-2px);
+}
+.t-btn:hover .t-btn-arrow-down,
+.t-btn-icon:hover .t-btn-arrow-down {
+    transform: translateY(2px);
+}
+
+/* ============================================================
+ * .t-btn-icon —— 圆形图标按钮（无抬升，仅按压缩放）
+ * 适用：顶栏搜索 / 主题 / 移动端 about / 文章页浮动按钮 / 折叠按钮
+ * ============================================================ */
+.t-btn-icon {
+    transition:
+        transform var(--t-btn-dur) var(--t-btn-ease),
+        background-color var(--t-btn-dur) var(--t-btn-ease),
+        border-color var(--t-btn-dur) var(--t-btn-ease),
+        color var(--t-btn-dur) var(--t-btn-ease),
+        opacity var(--t-btn-dur) var(--t-btn-ease),
+        filter var(--t-btn-dur) var(--t-btn-ease);
+    will-change: transform, color;
+}
+
+.t-btn-icon:not(.is-disabled):not([disabled]):not([aria-disabled="true"]):active {
+    transform: scale(var(--t-btn-icon-press-scale));
+    transition:
+        transform var(--t-btn-press-dur) var(--t-btn-press-ease);
+}
+
+/* ============================================================
+ * .t-btn-primary —— 视觉补充（仅作分类标记，目前与 .t-btn 行为一致）
+ * 保留类名是为了未来可单独区分，无需立刻去除
+ * ============================================================ */
+
+/* ============================================================
+ * Reduced motion guard
+ * ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+    .t-btn,
+    .t-btn-icon,
+    .t-btn .t-btn-icon-rot,
+    .t-btn-icon .t-btn-icon-rot {
+        transition: none !important;
+    }
+
+    .t-btn:hover,
+    .t-btn:active,
+    .t-btn-icon:hover,
+    .t-btn-icon:active,
+    .t-btn:hover .t-btn-arrow-prev,
+    .t-btn:hover .t-btn-arrow-next,
+    .t-btn:hover .t-btn-arrow-up,
+    .t-btn:hover .t-btn-arrow-down {
+        transform: none !important;
+    }
+}
+
+/* ============================================================
+ * 全站共享动画 / 状态类（曾经在 main.js 运行时注入，现移到此处避免 FOUC）
+ * 包含：fadeInUp / t-panel-slide / t-dropdown / page-transitioning-* /
+ *      icon-breathe / body.search-active 遮罩
+ * ============================================================ */
+
+:root {
+    --dropdown-open-dur: 250ms;
+    --dropdown-close-dur: 150ms;
+    --dropdown-pre-scale: 0.97;
+    --dropdown-closing-scale: 0.99;
+    --dropdown-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --panel-open-dur: 400ms;
+    --panel-close-dur: 350ms;
+    --panel-translate-y: 32px;
+    --panel-blur: 2px;
+    --panel-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --page-slide-dur: 200ms;
+    --page-fade-dur: 200ms;
+    --page-slide-distance: 8px;
+    --page-blur: 3px;
+    --page-slide-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --page-fade-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --icon-swap-dur: 200ms;
+    --icon-swap-blur: 2px;
+    --icon-swap-start-scale: 0.25;
+    --icon-swap-ease: ease-in-out;
+}
+
+/* 始终预留垂直滚动条宽度，避免 body.overflow:hidden 切换时
+   视口宽度变化导致 fixed header 内的导航按钮整体抖动 */
+html {
+    scrollbar-gutter: stable;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translate3d(0, 10px, 0); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+    opacity: 0;
+}
+
+.t-panel-slide {
+    transform: translateY(var(--panel-translate-y));
+    opacity: 0;
+    filter: blur(var(--panel-blur));
+    pointer-events: none;
+    transition:
+        transform var(--panel-close-dur) var(--panel-ease),
+        opacity var(--panel-close-dur) var(--panel-ease),
+        filter var(--panel-close-dur) var(--panel-ease);
+    will-change: transform, opacity, filter;
+}
+
+.t-panel-slide[data-open="true"] {
+    transform: translateY(0);
+    opacity: 1;
+    filter: blur(0);
+    pointer-events: auto;
+    transition:
+        transform var(--panel-open-dur) var(--panel-ease),
+        opacity var(--panel-open-dur) var(--panel-ease),
+        filter var(--panel-open-dur) var(--panel-ease);
+}
+
+.t-dropdown {
+    transform-origin: top right;
+    transform: scale(var(--dropdown-pre-scale));
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        transform var(--dropdown-open-dur) var(--dropdown-ease),
+        opacity var(--dropdown-open-dur) var(--dropdown-ease);
+    will-change: transform, opacity;
+}
+
+.t-dropdown[data-origin="top-left"] { transform-origin: top left; }
+.t-dropdown[data-origin="top-center"] { transform-origin: top center; }
+.t-dropdown[data-origin="top-right"] { transform-origin: top right; }
+.t-dropdown[data-origin="bottom-left"] { transform-origin: bottom left; }
+.t-dropdown[data-origin="bottom-center"] { transform-origin: bottom center; }
+.t-dropdown[data-origin="bottom-right"] { transform-origin: bottom right; }
+
+.t-dropdown.is-open {
+    transform: scale(1);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.t-dropdown.is-closing {
+    transform: scale(var(--dropdown-closing-scale));
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        transform var(--dropdown-close-dur) var(--dropdown-ease),
+        opacity var(--dropdown-close-dur) var(--dropdown-ease);
+}
+
+.page-transitioning-out {
+    opacity: 0;
+    transform: translateX(calc(var(--page-slide-distance) * -1));
+    filter: blur(var(--page-blur));
+    transition:
+        opacity var(--page-fade-dur) var(--page-fade-ease),
+        transform var(--page-slide-dur) var(--page-slide-ease),
+        filter var(--page-slide-dur) var(--page-slide-ease);
+}
+
+.page-transitioning-in {
+    animation: pageSlideIn var(--page-slide-dur) var(--page-slide-ease) both;
+}
+
+@keyframes pageSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(var(--page-slide-distance));
+        filter: blur(var(--page-blur));
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+        filter: blur(0);
+    }
+}
+
+.icon-breathe {
+    transition:
+        transform var(--icon-swap-dur) var(--icon-swap-ease),
+        opacity var(--icon-swap-dur) var(--icon-swap-ease),
+        filter var(--icon-swap-dur) var(--icon-swap-ease);
+    will-change: transform, opacity, filter;
+}
+
+body.search-active {
+    overflow: hidden !important;
+}
+
+body.search-active .page-blur-target {
+    filter: blur(4px);
+    opacity: 0.22;
+    pointer-events: none;
+    transition:
+        filter var(--page-slide-dur) var(--page-slide-ease),
+        opacity var(--page-fade-dur) var(--page-fade-ease);
+    position: relative;
+}
+
+body.search-active .page-blur-target::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.62) 0%, rgba(255, 255, 255, 0.94) 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.dark body.search-active .page-blur-target::before,
+.dark.search-active .page-blur-target::before {
+    background: radial-gradient(ellipse at center, rgba(8, 12, 20, 0.5) 0%, rgba(8, 12, 20, 0.82) 100%);
+}
+
+#search-results-overlay {
+    backdrop-filter: blur(10px);
+    overflow-y: auto;
+    pointer-events: auto;
+    transition:
+        opacity var(--panel-open-dur) var(--panel-ease),
+        transform var(--panel-open-dur) var(--panel-ease),
+        filter var(--panel-open-dur) var(--panel-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-fade-in-up { animation: none !important; opacity: 1 !important; }
+    .t-panel-slide,
+    .t-dropdown,
+    .page-transitioning-out,
+    .page-transitioning-in,
+    .icon-breathe,
+    #search-results-overlay,
+    body.search-active .page-blur-target {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+

@@ -1,11 +1,19 @@
-/* global window */
+/* global window, self */
+/**
+ * 文章卡片渲染（首页 / 全部 / 搜索 三处共用）。
+ * 同时支持 Node 构建期 (require) 与浏览器期 (window.PostCardTemplate)。
+ */
 (function (root, factory) {
     if (typeof module === 'object' && module.exports) {
-        module.exports = factory();
+        const shared = require('./shared.js');
+        module.exports = factory(shared);
     } else {
-        root.PostCardTemplate = factory();
+        root.PostCardTemplate = factory(root.FreecatShared || {});
     }
-}(typeof self !== 'undefined' ? self : this, function () {
+}(typeof self !== 'undefined' ? self : this, function (shared) {
+    const IMG_FALLBACK_ATTR = (shared && shared.IMG_FALLBACK_ATTR) ||
+        "onerror=\"if(this.dataset.fallbackApplied!=='true'){this.dataset.fallbackApplied='true';this.removeAttribute('srcset');this.src='/image/404.png';}\"";
+
     function renderPostCard(post) {
         const link = post.link || '#';
         const titleHtml = post.titleHtml || '';
@@ -18,14 +26,10 @@
 
         const imageDiv = cover
             ? `<div class="w-full h-48 md:h-full md:w-[40%] md:max-w-[480px] rounded-lg md:order-last overflow-hidden">
-                <img src="${cover}" 
-                    alt="Cover" 
+                <img src="${cover}"
+                    alt="Cover"
                     class="w-full h-full object-cover"
-                    onerror="if(this.dataset.fallbackApplied!=='true'){
-                        this.dataset.fallbackApplied='true';
-                        this.removeAttribute('srcset');
-                        this.src='/image/404.png';
-                    }"
+                    ${IMG_FALLBACK_ATTR}
                     loading="lazy" />
                </div>`
             : '';

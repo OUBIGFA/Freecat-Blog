@@ -1,0 +1,45 @@
+<!-- partials/head-base.html · 4 个非 post 模板共用的 head 内容
+     模板里用 INCLUDE 注释引入；template_index 在此基础上额外追加 OG meta 与 fade 动画样式。 -->
+<script><!-- THEME_SCRIPT --></script>
+<meta charset="utf-8" />
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<!-- 网站图标 -->
+<link rel="icon" href="<!-- SITE_FAVICON -->" />
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" />
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" />
+<link rel="stylesheet" href="./assets/transitions.css" />
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+<script id="tailwind-config">
+    /* TAILWIND_CONFIG_PLACEHOLDER */
+</script>
+<style>
+    /* Loader from Uiverse.io by Fernando-sv */
+    .loader {
+        border: 4px solid rgba(0, 0, 0, .1);
+        border-left-color: transparent;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        animation: spin89345 1s linear infinite;
+    }
+
+    .dark .loader {
+        border-color: rgba(255, 255, 255, .1);
+        border-left-color: transparent;
+    }
+
+    @keyframes spin89345 {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
