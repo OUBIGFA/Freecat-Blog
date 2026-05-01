@@ -29,6 +29,20 @@ https://blog.freeorg.dpdns.org
 
 ---
 
+## 准备工作清单
+
+正式开始前，先把这三件东西准备齐：
+
+| 项目 | 是否必需 | 说明 |
+| --- | --- | --- |
+| GitHub 账户 | 必需 | 用于托管你的博客私有仓库 |
+| GitHub Desktop | 必需 | 本地同步工具，[下载地址](https://desktop.github.com/download) |
+| Cloudflare 或 Vercel 账户 | 二选一 | 用于自动构建和发布网站，新手推荐 `Cloudflare Pages` |
+
+> 三样都备齐再继续往下看，能把后面的步骤省一半。
+
+---
+
 ## 这套博客到底是怎么工作的
 
 逻辑非常简单，只有 3 步：
@@ -165,9 +179,76 @@ GitHub 负责云备份，也负责通知部署平台重新构建。
 
 ## 新手正式开始前的准备
 
-先创建一个私有 GitHub 仓库，再把 FreeBlog 的代码放进去。
+接下来要把 FreeBlog 的代码放进**你自己的私有 GitHub 仓库**里。这一步有两条路线：
 
-### 第一步：先注册并登录 GitHub
+| 路线 | 是否保留 Git 历史 | 能否一条命令同步上游更新 | 适合谁 |
+| --- | --- | --- | --- |
+| **推荐：GitHub Importer 一键导入** | 是 | 能 | 所有人，新手也无压力 |
+| 备选：下载 ZIP + 复制粘贴 | 否 | 不能 | 网络打不开 Importer，或已经这样做完了 |
+
+**两条路线只能选一条。** 不要又导入又复制粘贴。
+
+> 想未来跟上 FreeBlog 的修复和升级 → 选`推荐路线`。
+> 完全不在乎升级，只想先跑起来 → `备选路线`也行。
+
+---
+
+## 推荐路线：GitHub Importer 一键创建私有仓库（保留上游 Git 历史）
+
+GitHub 自带的 Importer 工具可以把一个公开仓库**完整克隆**进你自己的私有仓库，包括所有 commit 历史。这意味着以后想升级 FreeBlog，只要一条 `git merge upstream/main` 就能搞定。
+
+### 第 1 步：先登录 GitHub
+
+1. 打开 https://github.com/
+2. 登录你自己的账号
+3. 还没账号？先完成注册再回来
+
+### 第 2 步：打开 Importer 页面
+
+浏览器访问：
+https://github.com/new/import
+
+### 第 3 步：填写导入表单
+
+按下表逐项填好：
+
+| 字段 | 应填写的值 |
+| --- | --- |
+| `Your old repository's clone URL` | `https://github.com/OUBIGFA/FreeBlog` |
+| `Owner` | 选你自己的 GitHub 账户 |
+| `Repository name` | 起一个名字，比如 `my-freecat-blog` |
+| `Privacy` | 选 `Private` |
+
+> 如果浏览器打不开 `https://github.com/OUBIGFA/FreeBlog`，说明 GitHub 网络不通；先解决网络问题，或者跳到下面的备选路线。
+
+### 第 4 步：开始导入
+
+1. 点击页面底部的 `Begin import`
+2. 屏幕上会出现进度条
+3. 一般 30 秒到 2 分钟就完成
+4. 看到 `Your new repository ... is ready` 这一行，就成功了
+5. 点进新仓库看一眼，文件应该和 `OUBIGFA/FreeBlog` 一模一样
+
+### 第 5 步：用 GitHub Desktop 把仓库下载到本地
+
+1. 安装并登录 `GitHub Desktop`（下载地址在文章开头的「准备工作清单」里）
+2. 点击 `File` → `Clone repository`
+3. 选择你刚导入好的私有仓库
+4. 选一个你自己容易找到的本地位置
+5. 点击 `Clone`
+
+到这里你的本地文件夹里就是完整的 FreeBlog 项目，**直接跳到下面的「不论走哪条路线，接下来都一样」一节继续**。
+
+---
+
+<details>
+<summary><b>📦 备选路线：下载 ZIP + 复制粘贴（不保留 Git 历史） — 点击展开</b></summary>
+
+<br>
+
+> 提示：用这种方式建出来的仓库，未来**没法用 `git pull` 拉取上游更新**。如果你不在乎这点，或者 Importer 因为网络问题打不开，可以走这条路。
+
+### 第 1 步：先注册并登录 GitHub
 
 项目地址：
 https://github.com/OUBIGFA/FreeBlog
@@ -176,7 +257,7 @@ https://github.com/OUBIGFA/FreeBlog
 2. 如果还没有账号，先完成注册
 3. 登录后先停在 GitHub 首页
 
-### 第二步：新建一个你自己的私有仓库
+### 第 2 步：新建一个你自己的私有仓库
 
 1. 打开 [https://github.com/new](https://github.com/new)
 2. 在 `Repository name` 里输入一个名字
@@ -185,7 +266,7 @@ https://github.com/OUBIGFA/FreeBlog
 5. 勾选 `Add a README file`
 6. 点击 `Create repository`
 
-### 第三步：下载 FreeBlog 的代码压缩包
+### 第 3 步：下载 FreeBlog 的代码压缩包
 
 1. 打开原项目地址
 2. 进入 [https://github.com/OUBIGFA/FreeBlog](https://github.com/OUBIGFA/FreeBlog)
@@ -193,17 +274,16 @@ https://github.com/OUBIGFA/FreeBlog
 4. 点击 `Download ZIP`
 5. 等待 ZIP 文件下载完成
 
-### 第四步：把 ZIP 文件解压到电脑里
+### 第 4 步：把 ZIP 文件解压到电脑里
 
 1. 找到刚下载好的 ZIP 文件
 2. 右键它
 3. 选择 `解压到当前文件夹`，或者选择类似的解压选项
 4. 解压后打开新出现的文件夹
 
-### 第五步：安装并使用 GitHub Desktop，把私有仓库下载到本地
+### 第 5 步：安装并使用 GitHub Desktop，把私有仓库下载到本地
 
-下载地址：
-https://desktop.github.com/download
+如果还没装，下载地址在文章开头的`准备工作清单`里。
 
 你要做的事：
 
@@ -215,7 +295,7 @@ https://desktop.github.com/download
 
 本地仓库文件夹里通常只有一个 `README.md`。
 
-### 第六步：把 FreeBlog 的源码复制进你自己的本地仓库
+### 第 6 步：把 FreeBlog 的源码复制进你自己的本地仓库
 
 1. 打开刚才解压出来的 `FreeBlog` 文件夹
 2. 进入最里面那一层真正放源码的目录
@@ -229,9 +309,9 @@ https://desktop.github.com/download
 
 - 不要把最外层整个 `FreeBlog` 文件夹丢进去
 - 要复制的是“里面的内容”
-- 否则你的仓库里会多套一层目录，后面部署就会出错
+- 否则你的仓库里会多套一层目录，部署平台找不到 `all/`，构建必然失败
 
-### 第七步：第一次提交到 GitHub
+### 第 7 步：第一次提交到 GitHub
 
 1. 回到 `GitHub Desktop`
 2. 左侧会看到很多新增文件
@@ -246,14 +326,20 @@ GitHub 官方文档当前写明：
 
 而这套项目文件很多，直接走本地同步更稳，也更适合后面长期更新。
 
-### 第八步：开始写文章和改配置
+</details>
+
+---
+
+## 不论走哪条路线，接下来都一样
+
+### 开始写文章和改配置
 
 接下来你主要做两件事：
 
 1. 写文章
 2. 改 `Control` 文件夹里的配置
 
-### 第九步：每次改完记得同步到 GitHub
+### 每次改完记得同步到 GitHub
 
 在 `GitHub Desktop` 里：
 
@@ -396,7 +482,10 @@ https://dash.cloudflare.com/
 
 ---
 
-## 方案二：Vercel 详细小白教程
+<details>
+<summary><b>🚀 方案二：Vercel 详细小白教程 — 点击展开</b></summary>
+
+<br>
 
 如果你已经有 Vercel 账户，或者你就是习惯用 Vercel，这个方案也完全没问题。
 
@@ -486,6 +575,8 @@ https://vercel.com/
 ### Vercel 一句话版
 
 `导入 GitHub 仓库 -> Root Directory 填 all -> Build Command 填 npm run build -> Output Directory 填 dist -> 部署`
+
+</details>
 
 ---
 
@@ -590,6 +681,9 @@ https://vercel.com/
 你可以把 `Control` 文件夹理解成：  
 `不改代码，也能改网站核心信息的控制区`。
 
+> 编辑规则：所有参数都写在文件最顶部 `---` 包裹的 Frontmatter 区块里，格式是 `键: 值`，冒号后必须保留一个空格。  
+> 文件里那些以 `_01`、`_02`、`_03` 开头的字段是注释行，仅用来说明上一行参数的作用，**不要删除也不要改名**。
+
 ### 1. `site_网站属性`
 
 这里通常负责网站的基础属性，比如：
@@ -606,6 +700,30 @@ https://vercel.com/
 - 你刚搭好博客，准备换成自己的名字
 - 想替换成自己的头像、Logo、站点图标
 - 想统一网站整体气质
+
+#### `site_网站属性` 全参数详解
+
+| 参数 | 默认值 | 说明 |
+| --- | --- | --- |
+| `site_title` | `FreeCat Blog` | 浏览器标签页上显示的网页标题 |
+| `site_favicon` | 空 | 浏览器标签页上显示的网页图标 URL；留空就用内置图标 |
+| `site_name` | `FreeCat` | 站内顶部显示的站位名称 |
+| `site_logo_icon` | 空 | 站内 Logo 图标，可填 SVG 链接；留空使用默认图标 |
+| `hero_title` | `Hi, I'm FreeCat.创建自己的博客 & 创作自己的文字` | 首页主标题 / Slogan |
+| `hero_subtitle` | 一段中英文介绍 | 首页详情介绍文案 |
+| `hero_avatar` | 空 | 首页个人头像 URL |
+| `posts_per_page` | 空 | 首页文章显示数量；空 = 默认 `8`；填 `0` = 全部显示 |
+| `footer_copyright` | `© FreeCat \| Curiosity is the best motivation.` | 网站底部版权信息 |
+| `theme_system` | `true` | 跟随系统：根据浏览器或操作系统设置自动切换明暗 |
+| `theme_light` | `false` | 浅色模式：全站强制使用明亮风格 |
+| `theme_dark` | `false` | 深色模式：全站强制使用暗黑风格 |
+| `site_url` | `https://blog.freeorg.dpdns.org` | 网站正式域名，用于生成 Sitemap 和 Canonical 标签 |
+
+主题三个开关的搭配规则：
+
+- `theme_system`、`theme_light`、`theme_dark` 三个里只把其中一个写成 `true`，另外两个保持 `false`
+- 三个都是 `false` 时，会自动回退到跟随系统
+- 不要三个一起写 `true`，会冲突
 
 ### 2. `social_社交媒体`
 
@@ -629,6 +747,31 @@ https://vercel.com/
 - 你想放公众号、频道、社媒链接
 - 你想加朋友网站或合作入口
 
+#### `social_社交媒体` 全参数详解
+
+每个社交平台都对应 3 个参数：是否启用、自定义图标、跳转链接。
+
+| 平台 | 启用开关 | 自定义图标 | 主页链接 |
+| --- | --- | --- | --- |
+| Twitter / X | `twitter_enabled` | `twitter_icon_url` | `twitter_url` |
+| Instagram | `instagram_enabled` | `instagram_icon_url` | `instagram_url` |
+| GitHub | `github_enabled` | `github_icon_url` | `github_url` |
+| Behance | `behance_enabled` | `behance_icon_url` | `behance_url` |
+| TikTok | `tiktok_enabled` | `tiktok_icon_url` | `tiktok_url` |
+| Facebook | `facebook_enabled` | `facebook_icon_url` | `facebook_url` |
+
+填写说明：
+
+- `*_enabled`：填 `true` 显示该社交图标，填 `false` 直接隐藏
+- `*_icon_url`：留空时使用项目内置的官方图标；想换风格可以填一个图标 URL（推荐 SVG 或正方形 PNG）
+- `*_url`：填你自己的社交主页地址，比如 `https://x.com/yourname`
+
+实战建议：
+
+- 默认开启的是 `Twitter`、`Instagram`、`GitHub`，你可以直接把 `_url` 改成自己的主页
+- 用不到的平台，把对应的 `_enabled` 改成 `false` 就行，不用整段删
+- 要新增其他平台时，建议先把这套已有的字段填完整，再考虑改代码扩展
+
 ### 3. `about_关于页面`
 
 这里通常负责“关于我”页面的单独内容。
@@ -646,6 +789,27 @@ https://vercel.com/
 - 不要一开始写太长
 - 先把身份、内容方向、联系方式写清楚
 - 后面再慢慢补充
+
+#### `about_关于页面` 全参数详解
+
+| 参数 | 说明 |
+| --- | --- |
+| `about_hero_title` | About 页面的标题；留空则自动使用主页 `hero_title` |
+| `about_hero_subtitle` | About 页面的详情介绍；留空则自动使用主页 `hero_subtitle` |
+| `about_hero_avatar` | About 页面的头像；留空则自动使用主页 `hero_avatar` |
+
+使用建议：
+
+- 想让 About 页和首页保持完全一致 —— 三个字段都留空
+- 只想换其中一个（比如换张头像）—— 只填那一项，其他保持空白
+- 长篇“关于我”内容仍然推荐另写一篇普通文章，再在导航或社交区指向它
+
+### Control 文件夹通用注意事项
+
+- 改完任何一个 `Control` 文件，记得用 `GitHub Desktop` 提交并同步，否则线上不会变化
+- 留空的字段直接保留 `键:` 这种写法即可，不要把整行删掉
+- 看到 `_01`、`_02` 这种带下划线的字段不要慌，它们只是注释行，构建时会被忽略
+- 改完上线没生效时，先强制刷新浏览器（Ctrl + F5）再判断
 
 ---
 

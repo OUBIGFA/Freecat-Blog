@@ -43,10 +43,6 @@ You never write web page code directly, and you never need to maintain your own 
 - **Auto deployment**: every push to GitHub triggers a fresh build on the platform
 - **Completely free**: Cloudflare Pages and Vercel free tiers are more than enough for a personal blog
 
-## Live Demo
-
-[https://blog.freeorg.dpdns.org](https://blog.freeorg.dpdns.org)
-
 ## Prerequisites
 
 Before you start, get the following accounts ready:
@@ -71,7 +67,64 @@ Note: once the root directory is set to `all`, the output directory is just `dis
 
 ## Quick Start
 
-### Step 1: Create your own private repository
+There are two routes — **always prefer the recommended one**:
+
+| Route | Keeps Git history | Can `git pull` upstream updates | Best for |
+| --- | --- | --- | --- |
+| Recommended: GitHub Importer | Yes | Yes | Everyone, including beginners |
+| Fallback: ZIP + copy & paste | No | No (see [FAQ](#faq)) | Network can't reach Importer, or you already finished this way |
+
+> Pick **only one** of the two routes — never do both, they conflict.
+
+---
+
+### Recommended route: Use GitHub Importer to create your private repo (keeps upstream Git history)
+
+GitHub's built-in Importer copies a public repository **completely** into your own private repository, including all commit history. That means future upgrades from FreeBlog only take a single command.
+
+#### Step 1: Open the Importer page
+
+1. Sign in to GitHub
+2. Open in your browser: [https://github.com/new/import](https://github.com/new/import)
+
+#### Step 2: Fill in the import form
+
+| Field | Value |
+| --- | --- |
+| `Your old repository's clone URL` | `https://github.com/OUBIGFA/FreeBlog` |
+| `Owner` | Your GitHub account |
+| `Repository name` | A name like `my-freecat-blog` |
+| `Privacy` | `Private` |
+
+> If you cannot reach `https://github.com/OUBIGFA/FreeBlog` in the browser, GitHub itself is unreachable on your network — fix that first or take the fallback route.
+
+#### Step 3: Run the import
+
+1. Click `Begin import`
+2. A progress bar appears, usually finishes between 30 seconds and 2 minutes
+3. When you see `Your new repository... is ready`, you're done
+4. Click into the new repo and confirm the file list looks identical to OUBIGFA/FreeBlog
+
+#### Step 4: Clone the repo locally with GitHub Desktop
+
+1. Install and sign in to [GitHub Desktop](https://desktop.github.com/download)
+2. In GitHub Desktop, click `File` → `Clone repository`
+3. Pick the private repo you just imported
+4. Choose a local folder (somewhere you can find easily)
+5. Click `Clone`
+
+You now have the full FreeBlog project locally — **skip ahead to [Write articles](#write-articles)**.
+
+---
+
+<details>
+<summary><b>📦 Fallback route: Download ZIP + copy & paste (no Git history preserved) — click to expand</b></summary>
+
+<br>
+
+> Heads-up: A repo created this way **cannot use `git pull` to fetch upstream updates**. Take this route only if you don't need that, or the Importer page is unreachable on your network.
+
+#### Step 1: Create your own private repository
 
 Project URL: [https://github.com/OUBIGFA/FreeBlog](https://github.com/OUBIGFA/FreeBlog)
 
@@ -82,21 +135,21 @@ Project URL: [https://github.com/OUBIGFA/FreeBlog](https://github.com/OUBIGFA/Fr
 5. Turn on `Add a README file`
 6. Click `Create repository`
 
-### Step 2: Download the FreeBlog ZIP package
+#### Step 2: Download the FreeBlog ZIP package
 
 1. Open the original project page: [https://github.com/OUBIGFA/FreeBlog](https://github.com/OUBIGFA/FreeBlog)
 2. Click `Code`
 3. Click `Download ZIP`
 4. Wait for the ZIP file to finish downloading
 
-### Step 3: Extract the ZIP file
+#### Step 3: Extract the ZIP file
 
 1. Find the ZIP file on your computer
 2. Right-click it
 3. Extract it
 4. Open the extracted folder
 
-### Step 4: Install GitHub Desktop and clone your private repository
+#### Step 4: Install GitHub Desktop and clone your private repository
 
 1. Install and sign in with your GitHub account
 2. Open GitHub Desktop
@@ -106,7 +159,7 @@ Project URL: [https://github.com/OUBIGFA/FreeBlog](https://github.com/OUBIGFA/Fr
 
 The local folder usually contains only a `README.md`.
 
-### Step 5: Copy the FreeBlog source files into your local private repository
+#### Step 5: Copy the FreeBlog source files into your local private repository
 
 1. Open the extracted `FreeBlog` folder
 2. Go into the innermost folder that actually contains the source files
@@ -122,7 +175,7 @@ Note:
 - Paste the contents inside it
 - Otherwise you will end up with one extra folder layer and deployment will fail
 
-### Step 6: Commit the source code to GitHub
+#### Step 6: Commit the source code to GitHub
 
 1. Go back to GitHub Desktop
 2. You will see many new files in the left panel
@@ -132,14 +185,18 @@ Note:
 
 GitHub's web UI can upload up to `100` files at a time, and this project contains many more files, so local sync is the safer path.
 
-### Step 7: Write articles
+</details>
 
-You will mostly work in two folders:
+---
+
+### Write articles
+
+Both routes converge here. You'll mostly work in two folders:
 
 - `writing/` — Markdown articles
-- `Control/` — site configuration
+- `Control/` — site configuration (see "Customize via the Control Folder" below)
 
-### Step 8: Sync updates later
+### Sync updates later
 
 In GitHub Desktop:
 
@@ -179,7 +236,10 @@ Best for long-term, stable hosting, especially with custom domains.
 
 The flow is even smoother if your domain is already on Cloudflare.
 
-## Deploy with Vercel
+<details>
+<summary><b>🚀 Deploy with Vercel — click to expand</b></summary>
+
+<br>
 
 A good fit if you already have a Vercel account or prefer Vercel's dashboard.
 
@@ -205,6 +265,8 @@ A good fit if you already have a Vercel account or prefer Vercel's dashboard.
 1. Open project settings → `Domains`
 2. Add your domain and follow Vercel's DNS instructions
 
+</details>
+
 ## Choosing a Platform
 
 | Situation | Recommendation |
@@ -222,6 +284,127 @@ Once everything is deployed, updating the blog is just 5 steps:
 3. Commit and push from GitHub Desktop
 4. Wait for the platform to rebuild
 5. Open the site to verify
+
+## Sync Upstream FreeBlog Updates
+
+When upstream [OUBIGFA/FreeBlog](https://github.com/OUBIGFA/FreeBlog) ships a bug fix, a new feature, or a style tweak, you can pull those updates into your private repo.
+
+> **Prerequisite**: you must have built your repo via the **recommended route (GitHub Importer)**. If you went with ZIP + paste, jump to the "Fallback" section below.
+
+### Recommended: `git remote add upstream` to pull updates
+
+Steps 1–3 only run once; afterwards just steps 4–7 every time.
+
+#### Step 1: Open a terminal
+
+- Windows: `Win + R`, type `cmd`, press Enter
+- macOS: open `Terminal`
+
+#### Step 2: Enter your local repo directory
+
+```bash
+cd /full/path/to/your/local/repo
+```
+
+Don't know the path? In GitHub Desktop, click `Repository` → `Show in Explorer / Finder`, then copy the path from the address bar.
+
+#### Step 3: Register the upstream remote (one-time, persistent)
+
+```bash
+git remote add upstream https://github.com/OUBIGFA/FreeBlog.git
+```
+
+Verify:
+
+```bash
+git remote -v
+```
+
+You should see two `origin` lines and two `upstream` lines, like:
+
+```
+origin    https://github.com/your-name/my-freecat-blog.git (fetch)
+origin    https://github.com/your-name/my-freecat-blog.git (push)
+upstream  https://github.com/OUBIGFA/FreeBlog.git (fetch)
+upstream  https://github.com/OUBIGFA/FreeBlog.git (push)
+```
+
+#### Step 4: Fetch upstream updates
+
+```bash
+git fetch upstream
+```
+
+Downloads upstream changes to local cache only — **none of your files change yet**.
+
+#### Step 5: Inspect what's new (optional)
+
+```bash
+git log HEAD..upstream/main --oneline
+```
+
+Lists every new upstream commit since your last sync. No output means nothing to merge.
+
+#### Step 6: Merge upstream into your branch
+
+```bash
+git merge upstream/main
+```
+
+Three possible outcomes:
+
+1. **`Already up to date.`** — nothing to do, finished.
+2. **`Fast-forward` or `Merge made by the 'recursive' strategy`** — clean merge, go to step 7.
+3. **Conflict** (`CONFLICT` in the output) — you and upstream changed the same lines. See "Resolving conflicts" below.
+
+#### Step 7: Push the merged result
+
+```bash
+git push origin main
+```
+
+The deployment platform auto-rebuilds and the site updates.
+
+### Resolving conflicts
+
+Most common case: you edited `Control/site_网站属性.md` (your site name / avatar) and upstream also touched the same file.
+
+The conflicting file will look like:
+
+```
+<<<<<<< HEAD
+your side (what you wrote)
+=======
+upstream side (what OUBIGFA/FreeBlog changed)
+>>>>>>> upstream/main
+```
+
+How to resolve:
+
+1. Open the conflicting file in any editor
+2. Decide which side wins (usually keep your own values in `Control/`, take upstream changes in `all/`)
+3. Delete the `<<<<<<<`, `=======`, `>>>>>>>` lines and keep only what you want
+
+After all conflicts are resolved:
+
+```bash
+git add .
+git commit -m "Merge upstream FreeBlog updates"
+git push origin main
+```
+
+### Fallback: Manual ZIP overwrite (for repos built via the fallback route)
+
+If you originally built the repo with ZIP + copy & paste, `git remote add upstream` does not work cleanly (forcing it triggers `refusing to merge unrelated histories` and conflicts every file). Workaround:
+
+1. Re-download the latest ZIP from [OUBIGFA/FreeBlog](https://github.com/OUBIGFA/FreeBlog)
+2. Extract it
+3. Overwrite **template / build files** (`all/`, `README.md`, `README.en.md`, etc.) into your local repo
+4. **Never overwrite `Control/`, `writing/`, `image/`** — those are your own content
+5. Use GitHub Desktop to review the diff and confirm no content was clobbered
+6. Commit + push
+
+> For a permanent fix, rebuild the repo via the recommended route when you have time, and migrate your content folders. One small migration buys cheap upgrades forever.
 
 ## Project Structure
 
@@ -307,6 +490,70 @@ The `Control/` folder is the no-code control panel for the site:
 | `social_社交媒体.md` | Social media links, friend links, contact, promo links |
 | `about_关于页面.md` | Standalone copy for the "About" page |
 
+> Editing rule: every parameter lives inside the YAML frontmatter (between the `---` lines) at the top of the file. Keep one space after the `:` in `key: value`. Lines that start with an underscore (`_01`, `_02`, ...) are inline comments — **do not delete or rename them**, they only render as helper hints.
+
+#### 1. `site_网站属性.md` — full parameter list
+
+| Field | Default | Description |
+| --- | --- | --- |
+| `site_title` | `FreeCat Blog` | Page title shown on the browser tab |
+| `site_favicon` | empty | Favicon URL shown on the browser tab; falls back to the bundled icon when empty |
+| `site_name` | `FreeCat` | Site brand name displayed in the header |
+| `site_logo_icon` | empty | Logo URL (SVG recommended); falls back to the default icon when empty |
+| `hero_title` | `Hi, I'm FreeCat...` | Home page slogan / hero title |
+| `hero_subtitle` | bilingual intro line | Home page subtitle / intro paragraph |
+| `hero_avatar` | empty | Home page avatar URL |
+| `posts_per_page` | empty | How many posts to show on the home page; empty = `8`, `0` = show all |
+| `footer_copyright` | `© FreeCat \| Curiosity is the best motivation.` | Footer copyright text |
+| `theme_system` | `true` | Follow OS / browser theme automatically |
+| `theme_light` | `false` | Force light theme site-wide |
+| `theme_dark` | `false` | Force dark theme site-wide |
+| `site_url` | `https://blog.freeorg.dpdns.org` | Canonical site URL used for sitemap and canonical tags |
+
+Theme rule: set exactly one of `theme_system` / `theme_light` / `theme_dark` to `true` and keep the other two as `false`. If all three are `false`, the site falls back to the system theme.
+
+#### 2. `social_社交媒体.md` — full parameter list
+
+Each social platform exposes the same 3 fields: an enable switch, an optional custom icon URL, and the profile URL.
+
+| Platform | Enable flag | Custom icon | Profile URL |
+| --- | --- | --- | --- |
+| Twitter / X | `twitter_enabled` | `twitter_icon_url` | `twitter_url` |
+| Instagram | `instagram_enabled` | `instagram_icon_url` | `instagram_url` |
+| GitHub | `github_enabled` | `github_icon_url` | `github_url` |
+| Behance | `behance_enabled` | `behance_icon_url` | `behance_url` |
+| TikTok | `tiktok_enabled` | `tiktok_icon_url` | `tiktok_url` |
+| Facebook | `facebook_enabled` | `facebook_icon_url` | `facebook_url` |
+
+How to fill them in:
+
+- `*_enabled`: `true` shows the icon, `false` hides it
+- `*_icon_url`: leave empty to use the bundled icon, or paste an icon URL (SVG or square PNG works best)
+- `*_url`: your own profile URL, e.g. `https://x.com/yourname`
+
+To hide a platform you do not use, just flip `*_enabled` to `false` — no need to delete the whole block.
+
+#### 3. `about_关于页面.md` — full parameter list
+
+| Field | Description |
+| --- | --- |
+| `about_hero_title` | Title on the About page; falls back to the home `hero_title` when empty |
+| `about_hero_subtitle` | Intro paragraph on the About page; falls back to the home `hero_subtitle` when empty |
+| `about_hero_avatar` | Avatar on the About page; falls back to the home `hero_avatar` when empty |
+
+Tips:
+
+- To keep the About page in sync with the home page, leave all three fields empty
+- To override only one of them (for example a different avatar), fill in just that one field and keep the rest empty
+- For longer "About me" content, consider writing it as a regular article and linking to it from your social or navigation area
+
+#### General notes for the Control folder
+
+- **You must push**: any change inside `Control/` must be committed and pushed via GitHub Desktop, otherwise the deployment platform will not rebuild
+- **Empty fields keep `key:`**: leave the line in place when a value is empty, do not delete the whole line, or the frontmatter structure will break
+- **Do not touch `_01`, `_02` lines**: those underscore lines are inline comments and are stripped at build time
+- **Not seeing the update**: hard refresh the browser first (Ctrl + F5 on Windows, Cmd + Shift + R on macOS) before assuming the deploy failed
+
 ### Beyond Blogging
 
 The same pipeline also works for:
@@ -338,6 +585,18 @@ Yes. The content lives on your machine and on GitHub. Nothing locks you in.
 **Q: Which fields are easiest to fill incorrectly?**
 - Root Directory must be `all`
 - Output Directory must be `dist`, not `all/dist`
+
+**Q: I already built my repo via ZIP + paste — can I switch to the Importer route?**
+Yes. The safest path is to **build a brand-new private repo** via the recommended route, copy your content folders (`Control/`, `writing/`, `image/`) over, and then point Cloudflare/Vercel at the new repo (or create a fresh project there). Keep the old repo around until the new one is verified deployable.
+
+**Q: Does the Importer pull upstream README and example articles into my new repo?**
+Yes. The new repo is a complete clone of upstream, including the upstream README and the sample articles in `writing/`. You can edit or delete them freely — those changes only affect your repo.
+
+**Q: `git remote add upstream` says `remote upstream already exists`?**
+You added it before. Either run `git remote set-url upstream https://github.com/OUBIGFA/FreeBlog.git` to overwrite, or `git remote remove upstream` first and re-add.
+
+**Q: `git merge upstream/main` says `refusing to merge unrelated histories`?**
+Your repo wasn't built via the Importer route, so it has no shared history with upstream. Use the "Fallback" workflow in "Sync Upstream FreeBlog Updates", or rebuild the repo.
 
 ## License
 
