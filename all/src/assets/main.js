@@ -177,6 +177,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 --icon-swap-start-scale: 0.25;
                 --icon-swap-ease: ease-in-out;
             }
+            /* 始终预留垂直滚动条宽度，避免 body.overflow:hidden 切换时
+               视口宽度变化导致 fixed header 内的导航按钮整体抖动 */
+            html {
+                scrollbar-gutter: stable;
+            }
             @keyframes fadeInUp {
                 from { opacity: 0; transform: translate3d(0, 10px, 0); }
                 to { opacity: 1; transform: translate3d(0, 0, 0); }
@@ -290,14 +295,6 @@ document.addEventListener('DOMContentLoaded', () => {
             .dark.search-active .page-blur-target::before {
                 background: radial-gradient(ellipse at center, rgba(8, 12, 20, 0.5) 0%, rgba(8, 12, 20, 0.82) 100%);
             }
-            body.search-active .header-blur-target {
-                opacity: 0;
-                pointer-events: none;
-                transition: opacity var(--page-fade-dur) var(--page-fade-ease);
-            }
-            body.search-active header {
-                transition: height var(--page-slide-dur) var(--page-slide-ease);
-            }
             #search-results-overlay {
                 backdrop-filter: blur(10px);
                 overflow-y: auto;
@@ -315,9 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .page-transitioning-in,
                 .icon-breathe,
                 #search-results-overlay,
-                body.search-active .page-blur-target,
-                body.search-active .header-blur-target,
-                body.search-active header {
+                body.search-active .page-blur-target {
                     transition: none !important;
                     animation: none !important;
                 }
@@ -525,7 +520,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const style = document.createElement('style');
         style.id = searchBlurStyleId;
         style.textContent = `
-            /* Header Expansion & Transition - Snappy 0.2s */
             body.search-active {
                 overflow: hidden !important;
             }
@@ -533,30 +527,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 overflow: visible;
             }
 
-            /* Center Search Box & Scale Up */
             .search-active #search-container {
-                position: fixed;
-                top: 1.25rem;
+                position: absolute;
                 left: 50%;
+                top: 50%;
                 right: auto;
-                transform: translateX(-50%);
-                width: min(720px, calc(100vw - 2rem));
-                max-width: 720px;
-                justify-content: center;
+                transform: translate(-50%, -50%);
+                width: min(680px, calc(100vw - 8rem));
+                max-width: 680px;
                 z-index: 80;
-                padding: 0.375rem;
-                background: rgba(255, 255, 255, 0.96);
-                border: 1px solid rgba(226, 232, 240, 0.95);
-                box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
-                backdrop-filter: blur(18px);
             }
-            .dark .search-active #search-container {
-                background: rgba(15, 23, 42, 0.92);
-                border-color: rgba(51, 65, 85, 0.95);
-                box-shadow: 0 24px 60px rgba(2, 6, 23, 0.45);
+            @media (max-width: 767px) {
+                .search-active #search-container {
+                    width: calc(100vw - 5.5rem);
+                    min-width: 0;
+                }
             }
             
-            /* Blur & Hide other elements - Optimized Performance 0.2s */
             .search-active .page-blur-target {
                 filter: blur(4px);
                 opacity: 0.18;
@@ -565,12 +552,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 position: relative;
             }
             
-            /* 白色渐变遮罩层 - 浅色模式更白、更实 */
             .search-active .page-blur-target::before {
                 content: '';
                 position: fixed;
-                top: 0;
                 left: 0;
+                top: 0;
                 right: 0;
                 bottom: 0;
                 background: radial-gradient(
@@ -590,11 +576,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 );
             }
             .search-active .header-blur-target {
-                opacity: 1;
-                pointer-events: auto;
+                opacity: 0;
+                pointer-events: none;
+                /* 不加 transition：搜索打开时直接隐藏，关闭时也直接复位，
+                   避免取消搜索后导航栏图标延迟出现 */
             }
-
-            /* Adjust Search Results Position */
              #search-results-overlay {
                 position: fixed;
                 inset-inline: 0;
@@ -790,11 +776,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 显示搜索结果覆盖层
     function updateSearchOverlayOffset(overlay) {
         const header = document.querySelector('header');
-        let offset = header ? header.offsetHeight + 8 : 0;
+        let offset = header ? header.offsetHeight + 12 : 0;
         const searchBox = document.getElementById('search-container');
         if (searchBox && !searchBox.classList.contains('hidden')) {
             const rect = searchBox.getBoundingClientRect();
-            offset = Math.max(offset, rect.bottom + 16);
+            offset = Math.max(offset, rect.bottom + 12);
         }
         overlay.style.top = `${offset}px`;
         overlay.style.height = `calc(100vh - ${offset}px)`;
