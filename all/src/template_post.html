@@ -1,0 +1,2924 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <script><!-- THEME_SCRIPT --></script>
+    <script src="https://cdn.jsdelivr.net/npm/beautiful-mermaid/dist/beautiful-mermaid.browser.global.js"></script>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title><!-- TITLE_PLACEHOLDER --> - <!-- SITE_TITLE --></title>
+    <meta name="description" content="<!-- POST_DESCRIPTION -->" />
+    <meta name="keywords" content="<!-- POST_KEYWORDS -->" />
+    <link rel="canonical" href="<!-- POST_CANONICAL_URL -->" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="<!-- POST_CANONICAL_URL -->" />
+    <meta property="og:title" content="<!-- TITLE_PLACEHOLDER --> - <!-- SITE_TITLE -->" />
+    <meta property="og:description" content="<!-- POST_DESCRIPTION -->" />
+    <meta property="og:image" content="<!-- POST_IMAGE -->" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="<!-- POST_CANONICAL_URL -->" />
+    <meta property="twitter:title" content="<!-- TITLE_PLACEHOLDER --> - <!-- SITE_TITLE -->" />
+    <meta property="twitter:description" content="<!-- POST_DESCRIPTION -->" />
+    <meta property="twitter:image" content="<!-- POST_IMAGE -->" />
+
+    <link rel="icon" href="<!-- SITE_FAVICON -->" />
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" />
+    <style>
+        .dark .hljs {
+            background: transparent !important;
+            color: #d6deeb !important;
+        }
+
+        .dark .hljs-comment,
+        .dark .hljs-quote {
+            color: #9aa8bd !important;
+        }
+
+        .dark .hljs-keyword,
+        .dark .hljs-selector-tag,
+        .dark .hljs-literal,
+        .dark .hljs-built_in,
+        .dark .hljs-type {
+            color: #9cbde7 !important;
+        }
+
+        .dark .hljs-string,
+        .dark .hljs-regexp,
+        .dark .hljs-symbol,
+        .dark .hljs-template-variable,
+        .dark .hljs-addition {
+            color: #a8d5c6 !important;
+        }
+
+        .dark .hljs-title,
+        .dark .hljs-section,
+        .dark .hljs-attr,
+        .dark .hljs-attribute {
+            color: #e6c38a !important;
+        }
+
+        .dark .hljs-number,
+        .dark .hljs-bullet {
+            color: #e7a5a5 !important;
+        }
+
+        .dark .hljs-variable,
+        .dark .hljs-name,
+        .dark .hljs-selector-id,
+        .dark .hljs-selector-class,
+        .dark .hljs-meta,
+        .dark .hljs-link,
+        .dark .hljs-deletion {
+            color: #b8b0dd !important;
+        }
+
+        .dark .hljs-subst,
+        .dark .hljs-tag,
+        .dark .hljs-doctag,
+        .dark .hljs-meta-keyword,
+        .dark .hljs-meta-string,
+        .dark .hljs-params,
+        .dark .hljs-emphasis,
+        .dark .hljs-strong {
+            color: #d6deeb !important;
+        }
+    </style>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <script id="tailwind-config">
+        /* TAILWIND_CONFIG_PLACEHOLDER */
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark font-display text-[#111318] dark:text-slate-200 transition-colors duration-200">
+    <div class="relative flex h-auto min-h-screen w-full flex-col">
+
+        <header
+            class="fixed top-0 left-0 w-full z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-[#f0f2f4] dark:border-gray-800 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md px-4 py-3 md:px-10 md:py-4 lg:px-40">
+            <div class="header-blur-target flex w-full items-center justify-between whitespace-nowrap">
+                <a href="/" class="flex items-center gap-4 text-[#111318] dark:text-slate-200">
+                    <div class="size-6 text-gray-700 dark:text-gray-300">
+                        <!-- SITE_LOGO_ICON -->
+                    </div>
+                    <h2 class="text-base md:text-lg font-bold leading-tight tracking-[-0.015em]"><!-- SITE_NAME --></h2>
+                </a>
+                <div class="flex flex-1 justify-end gap-2 md:gap-8">
+                    <div id="nav-links" class="hidden md:flex items-center gap-6 lg:gap-9">
+                        <a class="text-sm font-medium leading-normal text-gray-700 dark:text-gray-300" href="/">Home</a>
+                        <a class="text-[#111318] dark:text-gray-300 text-sm font-medium leading-normal hover:text-gray-700 dark:hover:text-gray-400 transition-colors"
+                            href="/about.html">About</a>
+                    </div>
+                    <!-- Search Button -->
+                    <button aria-label="Search"
+                        class="group relative flex items-center justify-center rounded-full size-9 md:size-10 bg-[#f0f2f4] dark:bg-gray-800 text-[#111318] dark:text-slate-200 hover:text-primary dark:hover:text-primary transition-all duration-300"
+                        id="search-toggle">
+                        <svg class="icon-breathe text-lg md:text-xl transition-transform duration-300 group-hover:rotate-12 text-gray-700 dark:text-gray-400"
+                            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em"
+                            height="1em">
+                            <path
+                                d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z">
+                            </path>
+                        </svg>
+                    </button>
+                    <a href="/about.html" aria-label="About"
+                        class="group relative flex md:hidden items-center justify-center rounded-full size-9 bg-[#f0f2f4] dark:bg-gray-800 text-[#111318] dark:text-slate-200 border border-gray-200 dark:border-gray-700 hover:text-primary dark:hover:text-primary transition-all duration-300">
+                        <svg class="icon-breathe text-lg transition-transform duration-300 group-hover:rotate-6 text-gray-700 dark:text-gray-400"
+                            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em"
+                            height="1em">
+                            <path
+                                d="M20 22H18V20C18 18.3431 16.6569 17 15 17H9C7.34315 17 6 18.3431 6 20V22H4V20C4 17.2386 6.23858 15 9 15H15C17.7614 15 20 17.2386 20 20V22ZM12 13C8.68629 13 6 10.3137 6 7C6 3.68629 8.68629 1 12 1C15.3137 1 18 3.68629 18 7C18 10.3137 15.3137 13 12 13ZM12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z">
+                            </path>
+                        </svg>
+                    </a>
+                    <button aria-label="Toggle theme"
+                        class="group relative flex items-center justify-center rounded-full size-9 md:size-10 bg-[#f0f2f4] dark:bg-gray-800 text-[#111318] dark:text-slate-200 border border-gray-200 dark:border-gray-700 hover:text-primary dark:hover:text-primary transition-all duration-300"
+                        id="theme-toggle">
+                        <svg class="icon-breathe text-lg md:text-xl transition-transform duration-300 group-hover:rotate-12 text-gray-700 dark:text-gray-400"
+                            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em"
+                            height="1em">
+                            <path
+                                d="M12 18C8.68629 18 6 15.3137 6 12C6 8.68629 8.68629 6 12 6C15.3137 6 18 8.68629 18 12C18 15.3137 15.3137 18 12 18ZM12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16ZM11 1H13V4H11V1ZM11 20H13V23H11V20ZM3.51472 4.92893L4.92893 3.51472L7.05025 5.63604L5.63604 7.05025L3.51472 4.92893ZM16.9497 18.364L18.364 16.9497L20.4853 19.0711L19.0711 20.4853L16.9497 18.364ZM19.0711 3.51472L20.4853 4.92893L18.364 7.05025L16.9497 5.63604L19.0711 3.51472ZM5.63604 16.9497L7.05025 18.364L4.92893 20.4853L3.51472 19.0711L5.63604 16.9497ZM23 11V13H20V11H23ZM4 11V13H1V11H4Z">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- Search Box (hidden by default, slides in from right) -->
+            <div id="search-container" data-open="false"
+                class="hidden items-center gap-3 flex-1 max-w-md w-auto animate-slide-in absolute left-4 right-4 sm:left-6 sm:right-6 top-full mt-1 z-50 rounded-full bg-white/95 dark:bg-background-dark/95 p-1 backdrop-blur md:static md:mt-0 md:w-auto md:bg-transparent md:p-0 md:border-0">
+                <input type="text" id="search-input" placeholder="Search articles..."
+                    class="flex-1 min-w-0 md:w-auto px-4 py-2 rounded-full bg-[#f0f2f4] dark:bg-gray-800 text-base md:text-sm text-[#111318] dark:text-slate-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-0 border-none outline-none focus:border-none ring-0 transition-all" />
+                <button id="search-close" aria-label="Close search"
+                    class="group relative flex items-center justify-center rounded-full size-9 md:size-10 bg-[#f0f2f4] dark:bg-gray-800 text-[#111318] dark:text-slate-200 hover:opacity-60 transition-opacity duration-300">
+                    <svg class="text-lg md:text-xl text-gray-700 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em">
+                        <path
+                            d="M11.9997 10.5865L16.9495 5.63672L18.3637 7.05093L13.4139 12.0007L18.3637 16.9504L16.9495 18.3646L11.9997 13.4149L7.04996 18.3646L5.63574 16.9504L10.5855 12.0007L5.63574 7.05093L7.04996 5.63672L11.9997 10.5865Z">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <style>
+            /* From Uiverse.io by catraco - Modified for compatibility */
+            .copy-btn-container {
+                --color: #cbd5e1;
+                /* Slate-300 - softer color */
+                --size: 18px;
+                /* Slightly smaller */
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: relative;
+                cursor: pointer;
+                font-size: var(--size);
+                user-select: none;
+                fill: var(--color);
+                width: 28px;
+                /* Slightly smaller */
+                height: 28px;
+                /* Slightly smaller */
+                opacity: 0.6;
+                /* More subtle default state */
+                transition: opacity 0.2s ease;
+            }
+
+            .dark .copy-btn-container {
+                --color: #64748b;
+                /* Slate-500 - softer in dark mode */
+                opacity: 0.5;
+                /* Even more subtle in dark mode */
+            }
+
+            .copy-btn-container:hover {
+                --color: #94a3b8;
+                /* Slightly brighter on hover */
+                opacity: 0.9;
+                /* More visible on hover */
+            }
+
+            .dark .copy-btn-container:hover {
+                --color: #94a3b8;
+                /* Brighter in dark mode hover */
+                opacity: 0.8;
+            }
+
+            .copy-btn-container .clipboard {
+                position: absolute;
+                animation: keyframes-fill .3s ease-out;
+                /* Faster, smoother animation */
+                transition: fill 0.15s ease;
+            }
+
+            .copy-btn-container .clipboard-check {
+                position: absolute;
+                display: none;
+                animation: keyframes-fill .3s ease-out;
+                /* Faster, smoother */
+                fill: #10b981;
+                /* Keep emerald color for success feedback */
+                opacity: 0.8;
+                /* Slightly softer */
+            }
+
+            /* ------ On check event ------ */
+            .copy-btn-container input:checked~.clipboard {
+                display: none;
+            }
+
+            .copy-btn-container input:checked~.clipboard-check {
+                display: block;
+            }
+
+            /* ------ Hide the default checkbox ------ */
+            .copy-btn-container input {
+                position: absolute;
+                opacity: 0;
+                cursor: pointer;
+                height: 0;
+                width: 0;
+            }
+
+            /* ------ Animation ------ */
+            @keyframes keyframes-fill {
+                0% {
+                    transform: scale(0.8);
+                    /* Less dramatic start */
+                    opacity: 0;
+                }
+
+                50% {
+                    transform: scale(1.05);
+                    /* Gentler bounce */
+                }
+
+                100% {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+            }
+
+            /* Loader from Uiverse.io by Fernando-sv */
+            .loader {
+                border: 4px solid rgba(0, 0, 0, .1);
+                border-left-color: transparent;
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                animation: spin89345 1s linear infinite;
+            }
+
+            .dark .loader {
+                border-color: rgba(255, 255, 255, 0.6);
+                border-left-color: transparent;
+            }
+
+            @keyframes spin89345 {
+                0% {
+                    transform: rotate(0deg);
+                }
+
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            /* 自定义滚动条样式 */
+            .custom-scrollbar::-webkit-scrollbar {
+                width: 4px;
+            }
+
+            .custom-scrollbar::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            .custom-scrollbar::-webkit-scrollbar-thumb {
+                background-color: #cbd5e1;
+                border-radius: 4px;
+            }
+
+            .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+                background-color: #475569;
+            }
+
+            /* ===== 黄金比例阅读间距系统 =====
+               基于科学的黄金比例 (φ = 1.618) 设计
+               - 段落间距 (p → p): 1.618em (大间距，区分不同段落)
+               - 标题到正文 (h → p): 0.618em (小间距，保持标题与内容的紧密关联)
+               - 新段落到标题 (p → h): 2.618em (最大间距，明确区分不同章节)
+            */
+
+            /* Post Title Responsive Styles */
+            .post-title {
+                line-height: 1.2 !important;
+                margin-top: 1.25rem !important;
+                margin-bottom: 2rem !important;
+                font-size: 2.25rem !important;
+            }
+
+            @media (min-width: 768px) {
+                .post-title {
+                    margin-bottom: 3.5rem !important;
+                    font-size: 3.51rem !important;
+                }
+            }
+
+            .dark .post-title {
+                color: #e2e8f0 !important;
+                /* Slate-200 */
+            }
+
+            /* 段落样式：段落之间使用黄金比例间距 */
+            .prose {
+                font-size: 1.15rem !important;
+            }
+
+            @media (min-width: 768px) {
+                .prose {
+                    font-size: 1.25rem !important;
+                }
+            }
+
+            .prose p {
+                color: #334155 !important;
+                /* Slate-700 */
+                margin-bottom: 1.75rem !important;
+                /* 从 2rem 减少到 1.75rem (28px) */
+                line-height: 1.8 !important;
+                /* 默认左对齐，通过类名控制具体对齐方式 */
+                text-align: left;
+                /* 防止孤行标点：允许标点溢出容器边缘 */
+                hanging-punctuation: allow-end last;
+                /* 严格换行规则：防止标点出现在行首 */
+                line-break: strict;
+                /* 允许长单词/URL换行但优先保持完整 */
+                overflow-wrap: break-word;
+                /* 强制不使用连字符换行 */
+                -webkit-hyphens: none !important;
+                -ms-hyphens: none !important;
+                hyphens: none !important;
+            }
+
+            /* 纯中文段落：两端对齐 */
+            .prose p.text-justify-cjk {
+                text-align: justify !important;
+                text-align-last: left !important;
+                /* 优化中文排版 */
+                text-justify: inter-ideograph;
+                /* 防止孤行标点：允许标点溢出容器边缘 */
+                hanging-punctuation: allow-end last;
+                /* 严格换行规则 */
+                line-break: strict;
+            }
+
+            /* 英文/混排段落：左对齐 */
+            .prose p.text-align-left {
+                text-align: left !important;
+                /* 继承防止孤行标点的规则 */
+            }
+
+            .dark .prose p {
+                color: #94a3b8 !important;
+                /* Slate-400 */
+            }
+
+            /* 移除段落末尾多余间距 */
+            .prose p:last-child {
+                margin-bottom: 0 !important;
+            }
+
+
+
+            /* 列表样式优化：增加列表项间距使其与 2.2 行高协调 */
+            .prose ul,
+            .prose ol {
+                margin-bottom: 2rem !important;
+            }
+
+            .prose li {
+                margin-bottom: 1.25rem !important;
+                /* 列表项内部间距 */
+                line-height: 1.8 !important;
+            }
+
+            .prose li:last-child {
+                margin-bottom: 0 !important;
+            }
+
+            /* 软换行 (Shift+Enter / <br>) 使用正常行间距 */
+            .prose br {
+                display: block !important;
+                content: "" !important;
+                margin: 0 !important;
+                /* 行间距由 line-height 控制，不添加额外间距 */
+            }
+
+            .prose .katex {
+                font-size: 1em;
+            }
+
+            .prose .katex-display {
+                color: #334155 !important;
+                overflow-x: auto;
+                overflow-y: hidden;
+                padding: 0.2rem 0;
+                margin: 2rem 0 !important;
+                /* 统一使用 2rem */
+            }
+
+            .dark .prose .katex-display {
+                color: #94a3b8 !important;
+            }
+
+            .prose .katex-display::-webkit-scrollbar {
+                height: 6px;
+            }
+
+            .prose .katex-display::-webkit-scrollbar-thumb {
+                background-color: rgba(100, 116, 139, .35);
+                border-radius: 4px;
+            }
+
+            .dark .prose .katex-display::-webkit-scrollbar-thumb {
+                background-color: rgba(148, 163, 184, .25);
+            }
+
+            .prose .katex-display>.katex {
+                white-space: nowrap;
+            }
+
+            /* H1 标题 - Highest Level */
+            .prose h1 {
+                font-size: 2.0rem !important;
+                /* Mobile */
+                line-height: 1.2 !important;
+                margin-bottom: 0.618em !important;
+                margin-top: 1.618em !important;
+                font-weight: 900 !important;
+            }
+
+            /* H2 标题 */
+            .prose h2 {
+                font-size: 1.75rem !important;
+                /* Mobile */
+                line-height: 1.3 !important;
+                margin-bottom: 0.618em !important;
+                margin-top: 1.618em !important;
+                font-weight: 800 !important;
+            }
+
+            /* H3 标题 */
+            .prose h3 {
+                font-size: 1.5rem !important;
+                /* Mobile */
+                line-height: 1.4 !important;
+                margin-bottom: 0.618em !important;
+                margin-top: 1.618em !important;
+                font-weight: 700 !important;
+            }
+
+            /* H4 标题 */
+            .prose h4 {
+                font-size: 1.25rem !important;
+                /* Mobile */
+                line-height: 1.5 !important;
+                margin-bottom: 0.618em !important;
+                margin-top: 1.618em !important;
+                font-weight: 600 !important;
+            }
+
+            /* H5 标题 */
+            .prose h5 {
+                font-size: 1.15rem !important;
+                /* Mobile */
+                line-height: 1.5 !important;
+                margin-bottom: 0.618em !important;
+                margin-top: 1.618em !important;
+                font-weight: 600 !important;
+            }
+
+            /* H6 标题 */
+            .prose h6 {
+                font-size: 1.05rem !important;
+                /* Mobile */
+                line-height: 1.5 !important;
+                margin-bottom: 0.618em !important;
+                margin-top: 1.618em !important;
+                font-weight: 700 !important;
+                letter-spacing: 0.05em;
+            }
+
+            /* Dark Mode Headings Color Update */
+            .dark .prose h1,
+            .dark .prose h2,
+            .dark .prose h3,
+            .dark .prose h4,
+            .dark .prose h5,
+            .dark .prose h6 {
+                color: #94a3b8 !important;
+                /* Slate-400 */
+            }
+
+            /* Desktop Golden Ratio Overrides */
+            @media (min-width: 768px) {
+                .prose h1 {
+                    font-size: 3.51rem !important;
+                }
+
+                .prose h2 {
+                    font-size: 2.808rem !important;
+                }
+
+                .prose h3 {
+                    font-size: 2.246rem !important;
+                }
+
+                .prose h4 {
+                    font-size: 1.797rem !important;
+                }
+
+                .prose h5 {
+                    font-size: 1.438rem !important;
+                }
+
+                .prose h6 {
+                    font-size: 1.15rem !important;
+                }
+            }
+
+            /* 确保第一个标题没有顶部间距 */
+            .prose>h1:first-child,
+            .prose>h2:first-child,
+            .prose>h3:first-child,
+            .prose>h4:first-child,
+            .prose>h5:first-child,
+            .prose>h6:first-child {
+                margin-top: 0 !important;
+            }
+
+            /* ===== 核心逻辑：只有段落或标题后的标题才使用大间距 ===== */
+            /* 段落后面的标题使用大间距，明确区分章节 */
+            .prose p+h1,
+            .prose p+h2,
+            .prose p+h3,
+            .prose p+h4,
+            .prose p+h5,
+            .prose p+h6 {
+                margin-top: 2.618em !important;
+            }
+
+            /* 标题后面的标题使用大间距（区分不同章节） */
+            .prose h1+h1,
+            .prose h2+h2,
+            .prose h3+h3,
+            .prose h4+h4,
+            .prose h5+h5,
+            .prose h6+h6 {
+                margin-top: 2.618em !important;
+            }
+
+            /* 连续标题之间的间距（如 h2 紧跟 h3）使用中等间距 */
+            .prose h1+h2,
+            .prose h2+h3,
+            .prose h3+h4,
+            .prose h4+h5,
+            .prose h5+h6 {
+                margin-top: 1.25rem !important;
+                /* 稍微增加一点，与行高协调 */
+            }
+
+            /* 列表、引用块、代码块后的标题使用大间距 */
+            .prose ul+h1,
+            .prose ul+h2,
+            .prose ul+h3,
+            .prose ul+h4,
+            .prose ul+h5,
+            .prose ul+h6,
+            .prose ol+h1,
+            .prose ol+h2,
+            .prose ol+h3,
+            .prose ol+h4,
+            .prose ol+h5,
+            .prose ol+h6,
+            .prose blockquote+h1,
+            .prose blockquote+h2,
+            .prose blockquote+h3,
+            .prose blockquote+h4,
+            .prose blockquote+h5,
+            .prose blockquote+h6,
+            .prose pre+h1,
+            .prose pre+h2,
+            .prose pre+h3,
+            .prose pre+h4,
+            .prose pre+h5,
+            .prose pre+h6 {
+                margin-top: 2.618em !important;
+            }
+
+            /* center、table 等 HTML 元素后的标题保持正常段落间距 */
+            /* 默认已经是 1.618em，不需要额外规则 */
+
+            /* 链接样式：下划线 + 灰色区分 + 无悬停变色 */
+            .prose a {
+                color: #6b7280 !important;
+                /* 中灰色 */
+                text-decoration: underline !important;
+                text-underline-offset: 4px !important;
+                transition: opacity 0.2s ease !important;
+            }
+
+            .dark .prose a {
+                color: #94a3b8 !important;
+                /* Slate-400 */
+            }
+
+            .prose a:hover {
+                opacity: 0.8 !important;
+                /* 仅轻微透明度变化 */
+            }
+
+            /* 优化正文对齐方式 */
+            .prose {
+                word-break: break-word !important;
+                overflow-wrap: break-word !important;
+            }
+
+
+
+            /* ===== 图片容器间距规则 - 像段落一样的行为 ===== */
+            /* 图片容器的间距逻辑：
+               - margin-top: 0（上方间距由前置元素的 margin-bottom 提供）
+               - margin-bottom: 1.618em（像段落一样，给下方元素基础间距）
+               - 后续元素（标题）会根据自身的 margin-top 规则添加额外间距
+            */
+            .prose .relative.w-full.inline-block {
+                margin-top: 0 !important;
+                margin-bottom: 2rem !important;
+                /* 统一 */
+                display: inline-block;
+                width: 100%;
+            }
+
+            .prose figure.post-image {
+                margin-top: 0 !important;
+                margin-bottom: 2rem !important;
+                /* 统一 */
+                display: block;
+                width: 100%;
+            }
+
+            /* 图片后面的标题：重置 margin-top，保持与段落相同的间距 */
+            .prose .relative.w-full.inline-block+h1,
+            .prose .relative.w-full.inline-block+h2,
+            .prose .relative.w-full.inline-block+h3,
+            .prose .relative.w-full.inline-block+h4,
+            .prose .relative.w-full.inline-block+h5,
+            .prose .relative.w-full.inline-block+h6 {
+                margin-top: 0 !important;
+                /* 使用图片自己的 margin-bottom (1.618em) 作为唯一间距 */
+            }
+
+            .prose figure.post-image+h1,
+            .prose figure.post-image+h2,
+            .prose figure.post-image+h3,
+            .prose figure.post-image+h4,
+            .prose figure.post-image+h5,
+            .prose figure.post-image+h6 {
+                margin-top: 0 !important;
+            }
+
+            /* 确保图片不会溢出 */
+            .prose img {
+                width: 100% !important;
+                height: auto;
+                border-radius: 0.75rem;
+                margin-top: 0 !important;
+                /* 间距已由容器处理，img 自身不需要 margin */
+            }
+
+            .prose .image-caption {
+                margin-top: 0.35rem !important;
+                line-height: 1.6 !important;
+            }
+
+            /* 允许 MD 中可能残留的 HTML 标签保留部分原生样式 */
+            .prose font {
+                font-family: inherit;
+            }
+
+            /* 优化 Markdown 中嵌入的 HTML center 和 table 色块组合 */
+            .prose center {
+                display: block !important;
+                width: 100% !important;
+                margin-bottom: 2rem !important;
+                /* 使用统一的大间距 */
+            }
+
+            .prose center table {
+                margin-left: auto !important;
+                margin-right: auto !important;
+                display: table !important;
+                width: 100% !important;
+                /* 强制铺满全宽 */
+                border: none !important;
+                /* 移除外边框 */
+                background-color: transparent !important;
+                /* 防止双重背景 */
+            }
+
+            .prose center table td {
+                border: none !important;
+                padding: 0.5rem 1rem !important;
+                /* 增加一点内边距让色块更好看 */
+                text-align: center !important;
+                /* 保持文字居中 */
+            }
+
+            /* Dark Mode adaptation for legacy HTML bgcolor attributes */
+            .dark .prose td[bgcolor] {
+                background-color: #1e293b !important;
+                /* Slate-800 */
+                color: #b6c2cf !important;
+            }
+
+            /* ===== Mermaid 图表容器样式 ===== */
+            .mermaid {
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+                background-color: #f8fafc !important;
+                /* Slate-50 */
+                border: 1px solid #e2e8f0 !important;
+                /* Slate-200 */
+                border-radius: 0.75rem !important;
+                padding: 2rem 1rem !important;
+                margin: 2rem auto !important;
+                overflow-x: auto !important;
+                /* 优雅的水平滚动条 */
+                scrollbar-width: thin;
+                scrollbar-color: #cbd5e1 transparent;
+            }
+
+            .dark .mermaid {
+                background-color: #0f172a !important;
+                /* Slate-900 */
+                border-color: #334155 !important;
+                /* Slate-700 */
+                scrollbar-color: #475569 transparent;
+            }
+
+            .mermaid {
+                overflow-y: hidden !important;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .mermaid svg {
+                display: block;
+                height: auto !important;
+                max-width: none !important;
+            }
+
+            .mermaid foreignObject {
+                overflow: visible;
+            }
+
+            .mermaid .edgeLabel {
+                white-space: nowrap;
+            }
+
+            /* ===== 代码块样式 ===== */
+            .prose :not(pre)>code {
+                background-color: #f1f5f9 !important;
+                color: #475569 !important;
+                padding: 0.14em 0.4em !important;
+                border: 1px solid #e2e8f0 !important;
+                border-radius: 0.375rem !important;
+                font-size: 0.9em !important;
+                font-family: inherit !important;
+                font-weight: 600 !important;
+            }
+
+            .dark .prose :not(pre)>code {
+                background-color: #0f172a !important;
+                color: #b6c2cf !important;
+                border-color: #233044 !important;
+            }
+
+            /* 代码块容器内的 pre 样式重置 */
+            .prose pre {
+                background-color: transparent !important;
+                color: #334155 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border-radius: 0 !important;
+                overflow-x: auto !important;
+                font-size: 0.875rem !important;
+                line-height: 1.7 !important;
+                white-space: pre-wrap !important;
+                /* 核心：支持自动换行 */
+                word-break: break-all !important;
+                /* 配合换行 */
+            }
+
+            .dark .prose pre {
+                color: #b6c2cf !important;
+            }
+
+            .prose pre code {
+                background-color: transparent !important;
+                color: #1e293b !important;
+                /* 深灰色，确保清晰可读 */
+                padding: 0 !important;
+                border: none !important;
+                /* 核心：移除代码块内容的边框 */
+                font-size: inherit !important;
+                font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+                white-space: pre-wrap !important;
+                /* 核心：支持自动换行 */
+            }
+
+            /* 深色模式下代码块文字颜色 */
+            .dark .prose pre code {
+                color: #cbd5e1 !important;
+                /* 柔和的浅灰色 */
+            }
+
+            /* ===== 引用块样式 (Blockquote) ===== */
+            .prose blockquote {
+                border-left: 3px solid #64748b !important;
+                background-color: #f8fafc !important;
+                padding: 0.95em 1.15em !important;
+                margin: 1.618em 0 !important;
+                border-radius: 0 !important;
+                color: #475569 !important;
+            }
+
+            .dark .prose blockquote {
+                background-color: #121a28 !important;
+                border-left-color: #334155 !important;
+                color: #94a3b8 !important;
+            }
+
+            .prose .callout {
+                --callout-accent: #64748b;
+                --callout-bg: #f8fafc;
+                --callout-border: #e2e8f0;
+                --callout-title: #0f172a;
+                --callout-text: #334155;
+                margin: 1.618em 0 !important;
+                padding: 1em 1.1em !important;
+                border-radius: 0.9rem !important;
+                border: 1px solid var(--callout-border) !important;
+                border-left: 3px solid var(--callout-accent) !important;
+                background-color: var(--callout-bg) !important;
+                color: var(--callout-text) !important;
+                box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04) !important;
+            }
+
+            .dark .prose .callout {
+                --callout-bg: #121a28;
+                --callout-border: #233044;
+                --callout-title: #b6c2cf;
+                --callout-text: #94a3b8;
+                box-shadow: 0 1px 0 rgba(15, 23, 42, 0.2) !important;
+            }
+
+            .prose .callout-title {
+                display: flex !important;
+                align-items: center !important;
+                gap: 0.5rem !important;
+                font-weight: 700 !important;
+                font-size: 0.95em !important;
+                letter-spacing: 0.02em !important;
+                color: var(--callout-title) !important;
+                margin-bottom: 0.6em !important;
+            }
+
+            .prose .callout-icon {
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                font-size: 1.05em !important;
+                color: var(--callout-accent) !important;
+            }
+
+            .prose .callout.callout-note {
+                --callout-accent: #3b82f6;
+            }
+
+            .dark .prose .callout.callout-note {
+                --callout-accent: #60a5fa;
+            }
+
+            .prose .callout.callout-tip {
+                --callout-accent: #10b981;
+            }
+
+            .dark .prose .callout.callout-tip {
+                --callout-accent: #34d399;
+            }
+
+            .prose .callout.callout-important {
+                --callout-accent: #8b5cf6;
+            }
+
+            .dark .prose .callout.callout-important {
+                --callout-accent: #a78bfa;
+            }
+
+            .prose .callout.callout-warning {
+                --callout-accent: #f59e0b;
+            }
+
+            .dark .prose .callout.callout-warning {
+                --callout-accent: #fbbf24;
+            }
+
+            .prose .callout.callout-caution {
+                --callout-accent: #ef4444;
+            }
+
+            .dark .prose .callout.callout-caution {
+                --callout-accent: #f87171;
+            }
+
+            .prose .footnotes {
+                margin-top: 2em !important;
+                font-size: 0.95em !important;
+                color: #475569 !important;
+            }
+
+            .dark .prose .footnotes {
+                color: #94a3b8 !important;
+            }
+
+            .prose .footnotes ol {
+                padding-left: 1.4em !important;
+            }
+
+            .prose .footnote-ref a {
+                text-decoration: none !important;
+                border-bottom: 1px solid #cbd5e1 !important;
+                color: inherit !important;
+            }
+
+            .prose .footnote-ref {
+                scroll-margin-top: 6rem !important;
+            }
+
+            .dark .prose .footnote-ref a {
+                border-bottom-color: #475569 !important;
+            }
+
+            .prose .footnote-backref {
+                margin-left: 0.4em !important;
+                text-decoration: none !important;
+                color: inherit !important;
+                opacity: 0.75 !important;
+            }
+
+            .prose .footnote-backrefs {
+                margin-left: 0.25em !important;
+                white-space: nowrap !important;
+            }
+
+            .prose .footnote-backref:hover {
+                opacity: 1 !important;
+            }
+
+            .prose .callout-content p {
+                margin-bottom: 0.9em !important;
+            }
+
+            .prose .callout-content>*:last-child {
+                margin-bottom: 0 !important;
+            }
+
+            .prose blockquote p {
+                margin: 0.45em 0 !important;
+            }
+
+            .prose blockquote p:last-child {
+                margin-bottom: 0 !important;
+            }
+
+            .prose blockquote p:first-child {
+                margin-top: 0 !important;
+            }
+
+            /* 嵌套引用 */
+            .prose blockquote blockquote {
+                margin: 0.9em 0 0 0.75em !important;
+                border-left-color: #94a3b8 !important;
+                background-color: #f1f5f9 !important;
+                color: #475569 !important;
+                border-radius: 0 !important;
+            }
+
+            .dark .prose blockquote blockquote {
+                border-left-color: #475569 !important;
+                background-color: #0f172a !important;
+                color: #94a3b8 !important;
+            }
+
+            .prose blockquote blockquote blockquote {
+                margin-left: 0.7em !important;
+                border-left-color: #cbd5e1 !important;
+                background-color: #e2e8f0 !important;
+                color: #475569 !important;
+                border-radius: 0 !important;
+            }
+
+            .dark .prose blockquote blockquote blockquote {
+                border-left-color: #64748b !important;
+                background-color: #0b1220 !important;
+                color: #94a3b8 !important;
+            }
+
+            /* ===== 列表样式 ===== */
+            /* 无序列表 */
+            .prose ul {
+                list-style-type: disc !important;
+                padding-left: 1.5em !important;
+                margin: 1em 0 1.618em 0 !important;
+            }
+
+            .prose ul ul {
+                list-style-type: circle !important;
+                margin: 0.5em 0 !important;
+            }
+
+            .prose ul ul ul {
+                list-style-type: square !important;
+            }
+
+            /* 有序列表 */
+            .prose ol {
+                list-style-type: decimal !important;
+                padding-left: 1.5em !important;
+                margin: 1em 0 1.618em 0 !important;
+            }
+
+            .prose ol ol {
+                list-style-type: lower-alpha !important;
+                margin: 0.5em 0 !important;
+            }
+
+            /* 列表项 */
+            .prose li {
+                margin-bottom: 0.5em !important;
+                line-height: 1.7 !important;
+                color: #334155 !important;
+                /* Slate-700 */
+            }
+
+            .prose>ul>li,
+            .prose>ol>li {
+                margin-bottom: 0.85em !important;
+            }
+
+            .prose>ul>li:last-child,
+            .prose>ol>li:last-child {
+                margin-bottom: 0 !important;
+            }
+
+            .dark .prose li {
+                color: #cbd5e1 !important;
+                /* Slate-300 */
+            }
+
+            .prose li::marker {
+                color: #9ca3af !important;
+                /* 中灰色 */
+            }
+
+            .dark .prose li::marker {
+                color: #6b7280 !important;
+                /* 深色模式中灰色 */
+            }
+
+            .prose li>p {
+                margin: 0 0 0.35em 0 !important;
+            }
+
+            .prose li>p:last-child {
+                margin-bottom: 0 !important;
+            }
+
+            .prose li>p+ul,
+            .prose li>p+ol {
+                margin-top: 0.35em !important;
+            }
+
+            .prose ul ul,
+            .prose ol ol {
+                margin: 0.35em 0 !important;
+            }
+
+            /* 任务列表 (Checkbox) */
+            .prose input[type="checkbox"] {
+                margin-right: 0.5em !important;
+                accent-color: #6b7280 !important;
+                /* 中灰色 */
+            }
+
+            /* ===== 表格样式 ===== */
+            .prose table {
+                width: 100% !important;
+                display: table !important;
+                border-collapse: collapse !important;
+                margin: 1.618em 0 !important;
+                font-size: 0.9em !important;
+                overflow-x: auto !important;
+            }
+
+            .prose thead {
+                background-color: #f1f5f9 !important;
+            }
+
+            .dark .prose thead {
+                background-color: #334155 !important;
+            }
+
+            .prose th,
+            .prose td {
+                padding: 0.75em 1em !important;
+                border: 1px solid #e2e8f0 !important;
+                text-align: left;
+                color: #334155 !important;
+            }
+
+            .dark .prose th,
+            .dark .prose td {
+                border-color: #475569 !important;
+                color: #94a3b8 !important;
+            }
+
+            .prose th {
+                font-weight: 600 !important;
+                color: #1e293b !important;
+            }
+
+            .dark .prose th {
+                color: #b6c2cf !important;
+            }
+
+            .prose th[align="left"],
+            .prose td[align="left"] {
+                text-align: left !important;
+            }
+
+            .prose th[align="center"],
+            .prose td[align="center"] {
+                text-align: center !important;
+            }
+
+            .prose th[align="right"],
+            .prose td[align="right"] {
+                text-align: right !important;
+            }
+
+            .prose tbody tr:nth-child(even) {
+                background-color: #f8fafc !important;
+            }
+
+            .dark .prose tbody tr:nth-child(even) {
+                background-color: #1e293b !important;
+            }
+
+            /* ===== 水平分割线 ===== */
+            .prose hr {
+                border: none !important;
+                border-top: 2px solid #e2e8f0 !important;
+                margin: 2.618em 0 !important;
+            }
+
+            .dark .prose hr {
+                border-top-color: #475569 !important;
+            }
+
+            /* ===== 删除线 ===== */
+            .prose del,
+            .prose s {
+                text-decoration: line-through !important;
+                color: #94a3b8 !important;
+            }
+
+            /* ===== 加粗和斜体 ===== */
+            .prose strong {
+                font-weight: 700 !important;
+                color: #1e293b !important;
+            }
+
+            /* Dark Mode for Strong/Bold */
+            .dark .prose strong,
+            .dark .prose b {
+                color: #b6c2cf !important;
+            }
+
+
+
+            .prose em {
+                font-style: italic !important;
+            }
+
+            /* ===== 标记/高亮 ===== */
+            .prose mark {
+                background-color: #fef08a;
+                color: #854d0e;
+                padding: 0.1em 0.3em;
+                border-radius: 0.2em;
+            }
+
+            .dark .prose mark {
+                background-color: rgba(245, 158, 11, 0.18);
+                color: #b6c2cf;
+            }
+
+            /* Dark Mode Adaptation for Legacy HTML Blocks (tables & fonts) */
+            /* Force transparent background for the outer table wrapper if any */
+            .dark .prose table {
+                background-color: transparent !important;
+            }
+
+            /* Override bgcolor cell colors to Slate-800 */
+            .dark .prose td[bgcolor] {
+                background-color: #1e293b !important;
+                /* Slate-800 */
+                color: #b6c2cf !important;
+                border-radius: 6px;
+                /* Smooth corners */
+                border: 1px solid #334155;
+                /* Slate-700 border for definition */
+            }
+
+            /* Override font color attributes to Slate-200 */
+            .dark .prose font[color],
+            .dark .prose font[size],
+            .dark .prose font[face] {
+                color: inherit !important;
+            }
+
+            /* Light Mode Details/Summary Styling */
+            .prose details {
+                border: 1px solid #cbd5e1;
+                /* Slate-300 */
+                background-color: #f8fafc;
+                /* Slate-50 */
+                border-radius: 0.5rem;
+                padding: 0.5rem 1rem;
+                margin: 1em 0;
+            }
+
+            .prose summary {
+                cursor: pointer;
+                font-weight: 700;
+                color: #1e293b !important;
+                /* Slate-800 */
+            }
+
+            /* Comprehensive Dark Mode Text Color Automation */
+            /* 1. Override Tailwind Prose CSS Variables for Dark Mode */
+            .dark .prose {
+                --tw-prose-body: #94a3b8;
+                /* Slate-400 */
+                --tw-prose-headings: #94a3b8;
+                /* Slate-400 */
+                --tw-prose-lead: #94a3b8;
+                --tw-prose-links: #38bdf8;
+                /* Sky-400 */
+                --tw-prose-bold: #94a3b8;
+                /* Slate-400 */
+                --tw-prose-counters: #94a3b8;
+                --tw-prose-bullets: #94a3b8;
+                /* Slate-400 */
+                --tw-prose-hr: #475569;
+                --tw-prose-quotes: #b6c2cf;
+                --tw-prose-quote-borders: #475569;
+                --tw-prose-captions: #94a3b8;
+                --tw-prose-code: #b6c2cf;
+                --tw-prose-pre-code: #b6c2cf;
+                --tw-prose-pre-bg: transparent;
+
+                /* Force base color to Slate-400 */
+                color: #94a3b8 !important;
+            }
+
+            /* 2. Target specific HTML elements to ensure they use the variable/color */
+            .dark .prose li,
+            .dark .prose ul,
+            .dark .prose ol,
+            .dark .prose details,
+            .dark .prose summary,
+            .dark .prose div,
+            .dark .prose span:not([class*="hljs-"]) {
+                /* Exclude syntax highlighting */
+                color: inherit !important;
+            }
+
+            /* 3. Specific fix for Details/Summary */
+            .dark .prose details {
+                border-color: #475569;
+                background-color: #1e293b;
+                /* Slate-800 */
+            }
+
+            .dark .prose summary {
+                color: #94a3b8 !important;
+                /* Slate-400 */
+            }
+
+            .prose mark {
+                background-color: #fef08a !important;
+                color: #1e293b !important;
+                padding: 0.1em 0.3em !important;
+                border-radius: 0.25rem !important;
+            }
+
+            .dark .prose mark {
+                background-color: rgba(245, 158, 11, 0.18) !important;
+                color: #b6c2cf !important;
+            }
+
+            /* ===== 脚注样式 ===== */
+            .prose sup {
+                font-size: 0.75em !important;
+                vertical-align: super !important;
+            }
+
+            .prose sub {
+                font-size: 0.75em !important;
+                vertical-align: sub !important;
+            }
+
+            /* ===== 定义列表 ===== */
+            .prose dl {
+                margin: 1.618em 0 !important;
+            }
+
+            .prose dt {
+                font-weight: 600 !important;
+                margin-bottom: 0.25em !important;
+            }
+
+            .prose dd {
+                margin-left: 1.5em !important;
+                margin-bottom: 1em !important;
+                color: #64748b !important;
+            }
+
+            .dark .prose dd {
+                color: #94a3b8 !important;
+            }
+
+            /* ===== Article Reading Hierarchy Override ===== */
+            .prose {
+                --article-body-size: 1.15rem;
+                --article-line-height: 1.86;
+                --article-rhythm: calc(var(--article-body-size) * var(--article-line-height));
+                font-size: var(--article-body-size) !important;
+                line-height: var(--article-line-height) !important;
+                color: #334155 !important;
+                letter-spacing: 0 !important;
+                word-break: break-word !important;
+                overflow-wrap: break-word !important;
+            }
+
+            @media (min-width: 768px) {
+                .prose {
+                    --article-body-size: 1.25rem;
+                    --article-line-height: 1.9;
+                }
+            }
+
+            .dark .prose {
+                color: #aebacc !important;
+            }
+
+            .prose p {
+                margin: 0 0 calc(var(--article-rhythm) * 0.8) !important;
+                line-height: var(--article-line-height) !important;
+                color: #334155 !important;
+                text-align: left;
+                hanging-punctuation: allow-end last;
+                line-break: strict;
+                overflow-wrap: break-word;
+                -webkit-hyphens: none !important;
+                -ms-hyphens: none !important;
+                hyphens: none !important;
+            }
+
+            .dark .prose p {
+                color: #aebacc !important;
+            }
+
+            .prose p.text-justify-cjk {
+                text-align: justify !important;
+                text-align-last: left !important;
+                text-justify: inter-ideograph;
+            }
+
+            .prose p.text-align-left {
+                text-align: left !important;
+            }
+
+            .prose .article-heading {
+                color: #0f172a !important;
+                letter-spacing: 0 !important;
+                scroll-margin-top: 6rem;
+            }
+
+            .dark .prose .article-heading {
+                color: #e2e8f0 !important;
+            }
+
+            .prose .article-heading-depth-1 {
+                position: relative;
+                font-size: 1.75rem !important;
+                line-height: 1.3 !important;
+                font-weight: 800 !important;
+                margin: calc(var(--article-rhythm) * 1.9) 0 calc(var(--article-rhythm) * 0.62) !important;
+                padding-top: 0;
+                border-top: 0 !important;
+            }
+
+            .prose .article-heading-depth-1::before {
+                content: "";
+                position: absolute;
+                top: 0.36em;
+                left: calc(var(--article-body-size) * -1.8);
+                width: var(--article-body-size);
+                height: var(--article-body-size);
+                border-radius: 1px;
+                background: #111827;
+            }
+
+            .prose .article-heading-depth-2 {
+                font-size: 1.45rem !important;
+                line-height: 1.35 !important;
+                font-weight: 800 !important;
+                margin: calc(var(--article-rhythm) * 1.35) 0 calc(var(--article-rhythm) * 0.45) !important;
+            }
+
+            .prose .article-heading-depth-3 {
+                font-size: 1.2rem !important;
+                line-height: 1.45 !important;
+                font-weight: 750 !important;
+                margin: calc(var(--article-rhythm) * 1.05) 0 calc(var(--article-rhythm) * 0.35) !important;
+                color: #1e293b !important;
+            }
+
+            .prose .article-heading-depth-4 {
+                font-size: 1.05rem !important;
+                line-height: 1.5 !important;
+                font-weight: 800 !important;
+                margin: calc(var(--article-rhythm) * 0.9) 0 calc(var(--article-rhythm) * 0.28) !important;
+                color: #475569 !important;
+            }
+
+            @media (min-width: 768px) {
+                .prose .article-heading-depth-1 {
+                    font-size: 2.808rem !important;
+                }
+
+                .prose .article-heading-depth-1::before {
+                    top: 0.36em;
+                    left: calc(var(--article-body-size) * -2.25);
+                }
+
+                .prose .article-heading-depth-2 {
+                    font-size: 1.72rem !important;
+                }
+
+                .prose .article-heading-depth-3 {
+                    font-size: 1.35rem !important;
+                }
+
+                .prose .article-heading-depth-4 {
+                    font-size: 1.12rem !important;
+                }
+            }
+
+            .dark .prose .article-heading-depth-1::before {
+                background: #e2e8f0;
+            }
+
+            .dark .prose .article-heading-depth-3 {
+                color: #d6deea !important;
+            }
+
+            .dark .prose .article-heading-depth-4 {
+                color: #bac6d6 !important;
+            }
+
+            .prose>.article-heading:first-child {
+                margin-top: 0 !important;
+                padding-top: 0;
+                border-top: 0;
+            }
+
+            .prose .article-heading+.article-heading {
+                margin-top: calc(var(--article-rhythm) * 0.5) !important;
+            }
+
+            .prose p+.article-heading-depth-1,
+            .prose ul+.article-heading-depth-1,
+            .prose ol+.article-heading-depth-1,
+            .prose blockquote+.article-heading-depth-1,
+            .prose .code-block-container+.article-heading-depth-1,
+            .prose figure.post-image+.article-heading-depth-1 {
+                margin-top: calc(var(--article-rhythm) * 2.6) !important;
+            }
+
+            .prose hr+.article-heading-depth-1 {
+                margin-top: calc(var(--article-rhythm) * 0.95) !important;
+                padding-top: 0 !important;
+            }
+
+            .prose ul,
+            .prose ol {
+                margin: calc(var(--article-rhythm) * 0.45) 0 calc(var(--article-rhythm) * 0.95) !important;
+                padding-left: 1.35em !important;
+            }
+
+            .prose ul {
+                list-style-type: disc !important;
+            }
+
+            .prose ol {
+                list-style-type: decimal !important;
+            }
+
+            .prose ul ul,
+            .prose ol ol,
+            .prose ul ol,
+            .prose ol ul {
+                margin: calc(var(--article-rhythm) * 0.2) 0 calc(var(--article-rhythm) * 0.28) !important;
+                padding-left: 1.15em !important;
+            }
+
+            .prose ul ul {
+                list-style-type: circle !important;
+            }
+
+            .prose ul ul ul {
+                list-style-type: square !important;
+            }
+
+            .prose li {
+                margin: 0 0 calc(var(--article-rhythm) * 0.34) !important;
+                line-height: 1.72 !important;
+                color: #334155 !important;
+            }
+
+            .prose>ul>li,
+            .prose>ol>li {
+                margin-bottom: calc(var(--article-rhythm) * 0.52) !important;
+            }
+
+            .prose li>p {
+                margin: 0 0 calc(var(--article-rhythm) * 0.22) !important;
+                line-height: 1.72 !important;
+            }
+
+            .prose li::marker {
+                color: #94a3b8 !important;
+            }
+
+            .dark .prose li {
+                color: #c5d0df !important;
+            }
+
+            .dark .prose li::marker {
+                color: #64748b !important;
+            }
+
+            .prose li>strong:first-child {
+                color: #0f172a !important;
+                font-weight: 800 !important;
+            }
+
+            .dark .prose li>strong:first-child {
+                color: #e2e8f0 !important;
+            }
+
+            .prose blockquote {
+                margin: calc(var(--article-rhythm) * 0.9) 0 !important;
+                padding: calc(var(--article-rhythm) * 0.35) 0 calc(var(--article-rhythm) * 0.35) 1.1em !important;
+                border-left: 3px solid #cbd5e1 !important;
+                color: #475569 !important;
+                background: transparent !important;
+            }
+
+            .dark .prose blockquote {
+                border-left-color: #475569 !important;
+                color: #cbd5e1 !important;
+                background: transparent !important;
+            }
+
+            .prose blockquote p {
+                margin-bottom: calc(var(--article-rhythm) * 0.38) !important;
+            }
+
+            .prose strong,
+            .prose b {
+                color: #0f172a !important;
+                font-weight: 760 !important;
+            }
+
+            .dark .prose strong,
+            .dark .prose b {
+                color: #e2e8f0 !important;
+            }
+
+            .prose hr {
+                margin: calc(var(--article-rhythm) * 1.8) 0 !important;
+                border-top: 1px solid #e2e8f0 !important;
+            }
+
+            .dark .prose hr {
+                border-top-color: #334155 !important;
+            }
+
+            .prose table,
+            .prose .code-block-container,
+            .prose figure.post-image,
+            .prose details,
+            .prose .callout,
+            .prose .katex-display {
+                margin-top: calc(var(--article-rhythm) * 0.7) !important;
+                margin-bottom: calc(var(--article-rhythm) * 1.05) !important;
+            }
+
+            .prose table {
+                font-size: 0.88em !important;
+                line-height: 1.6 !important;
+            }
+
+            .prose :not(pre)>code {
+                font-size: 0.86em !important;
+            }
+        </style>
+
+
+        <main class="page-blur-target flex-grow mt-[40px] md:mt-[60px]">
+            <div class="max-w-[1440px] mx-auto px-8 sm:px-10 lg:px-8 pt-3 pb-36 md:pt-4 lg:pb-48">
+                <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,768px)_minmax(0,1fr)] gap-12">
+                    <!-- Left Spacer: Sticky container for floating Go Back button -->
+                    <div class="hidden lg:block relative">
+                        <div class="sticky top-1/2 -translate-y-1/2 flex flex-col items-center">
+                            <button id="floating-go-back" aria-label="Go Back"
+                                class="group relative flex items-center justify-center rounded-full size-12 bg-[#fcfcfd] dark:bg-card-dark text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-primary transition-[transform,opacity,color,box-shadow] duration-300 shadow-sm hover:shadow opacity-0 invisible -translate-x-4">
+                                <span class="text-2xl transition-transform duration-300 group-hover:-translate-x-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                        width="1em" height="1em">
+                                        <path
+                                            d="M10.8284 12.0007L15.7782 16.9504L14.364 18.3646L8 12.0007L14.364 5.63672L15.7782 7.05093L10.8284 12.0007Z">
+                                        </path>
+                                    </svg>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <article class="min-w-0">
+                        <header class="mb-8 pt-6">
+                            <a href="/"
+                                onclick="if(document.referrer && document.referrer.includes(window.location.host)){history.back();return false;}"
+                                class="group inline-flex items-center gap-2 px-4 h-10 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-primary hover:text-slate-50 hover:border-primary transition-[transform,color,background-color,border-color,box-shadow] duration-300 shadow-sm mb-12 hover:-translate-y-0.5">
+                                <svg class="text-xl transition-transform group-hover:-translate-x-0.5 text-slate-400 dark:text-slate-500"
+                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                    width="1em" height="1em">
+                                    <path
+                                        d="M10.8284 12.0007L15.7782 16.9504L14.364 18.3646L8 12.0007L14.364 5.63672L15.7782 7.05093L10.8284 12.0007Z">
+                                    </path>
+                                </svg>
+                                <span class="text-sm font-bold">Go Back</span>
+                            </a>
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <!-- TAGS_PLACEHOLDER -->
+                            </div>
+                            <h1 class="post-title font-black tracking-tight text-slate-900 dark:text-slate-200">
+                                <!-- TITLE_H1_PLACEHOLDER -->
+                            </h1>
+                            <div class="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+                                <div class="flex items-center gap-2">
+                                    <svg class="text-[18px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                        fill="currentColor" width="1em" height="1em">
+                                        <path
+                                            d="M7 3V1H9V3H15V1H17V3H21C21.5523 3 22 3.44772 22 4V9H20V5H17V7H15V5H9V7H7V5H4V19H10V21H3C2.44772 21 2 20.5523 2 20V4C2 3.44772 2.44772 3 3 3H7ZM17 12C14.7909 12 13 13.7909 13 16C13 18.2091 14.7909 20 17 20C19.2091 20 21 18.2091 21 16C21 13.7909 19.2091 12 17 12ZM11 16C11 12.6863 13.6863 10 17 10C20.3137 10 23 12.6863 23 16C23 19.3137 20.3137 22 17 22C13.6863 22 11 19.3137 11 16ZM16 13V16.4142L18.2929 18.7071L19.7071 17.2929L18 15.5858V13H16Z">
+                                        </path>
+                                    </svg>
+                                    <time><!-- DATE_PLACEHOLDER --></time>
+                                </div>
+                                <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></span>
+                                <div class="flex items-center gap-2">
+                                    <svg class="text-[18px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                        fill="currentColor" width="1em" height="1em">
+                                        <path
+                                            d="M6.93912 14.0328C6.7072 14.6563 6.51032 15.2331 6.33421 15.8155C7.29345 15.1189 8.43544 14.6767 9.75193 14.5121C12.2652 14.198 14.4976 12.5385 15.6279 10.4537L14.1721 8.99888L15.5848 7.58417C15.9185 7.25004 16.2521 6.91614 16.5858 6.58248C17.0151 6.15312 17.5 5.35849 18.0129 4.2149C12.4197 5.08182 8.99484 8.50647 6.93912 14.0328ZM17 8.99739L18 9.99669C17 12.9967 14 15.9967 10 16.4967C7.33146 16.8303 5.66421 18.6636 4.99824 21.9967H3C4 15.9967 6 1.99669 21 1.99669C20.0009 4.99402 19.0018 6.99313 18.0027 7.99402C17.6662 8.33049 17.3331 8.66382 17 8.99739Z">
+                                        </path>
+                                    </svg>
+                                    <span>最后编辑: <!-- MODIFIED_PLACEHOLDER --></span>
+                                </div>
+                            </div>
+                            <!-- 粗横线分隔线 -->
+                            <div class="w-full h-1 bg-slate-200 dark:bg-slate-700 rounded-full mt-6"></div>
+                        </header>
+
+                        <!-- COVER_PLACEHOLDER -->
+
+                        <div
+                            class="prose prose-2xl dark:prose-invert !mt-0 max-w-none prose-p:text-slate-600 dark:prose-p:text-slate-300 prose-headings:text-slate-900 dark:prose-headings:text-slate-400 prose-a:text-primary prose-a:underline prose-a:underline-offset-4 hover:prose-a:text-blue-500 prose-strong:text-slate-900 dark:prose-strong:text-slate-200">
+                            <!-- CONTENT_PLACEHOLDER -->
+                        </div>
+
+                        <!-- Share Button -->
+                        <div class="flex justify-center mt-12 mb-8">
+                            <button id="share-btn" aria-label="Share Article"
+                                class="group relative inline-flex items-center gap-3 px-6 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-primary hover:text-white hover:border-primary dark:hover:bg-primary dark:hover:text-white dark:hover:border-primary transition-[transform,color,background-color,border-color,box-shadow] duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5">
+                                <svg class="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1"
+                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                        d="M13 14H11C7.54202 14 4.53953 15.9502 3.03239 18.8107C3.01093 18.5433 3 18.2729 3 18C3 12.4772 7.47715 8 13 8V3L23 11L13 19V14Z">
+                                    </path>
+                                </svg>
+                                <span class="text-sm font-bold">分享文章</span>
+                            </button>
+                        </div>
+                    </article>
+
+                    <div class="hidden lg:block relative">
+                        <aside
+                            class="w-64 flex-shrink-0 sticky top-32 h-[calc(100vh-300px)] self-start relative group/toc lg:mt-[68px]">
+                            <!-- 目录标题固定 -->
+                            <h3 class="text-sm font-bold tracking-wider text-slate-500 dark:text-slate-400 mb-4">
+                                目录
+                            </h3>
+                            <!-- 只有列表区域可滚动，美化滚动条 -->
+                            <div id="toc-container" class="max-h-[calc(100vh-320px)] overflow-y-auto pr-2 custom-scrollbar">
+                                <nav class="flex flex-col gap-1 border-l border-slate-200 dark:border-slate-700">
+                                    <!-- TOC_PLACEHOLDER -->
+                                </nav>
+                            </div>
+                        </aside>
+                        <div class="pointer-events-none sticky top-1/2 -translate-y-1/2 flex justify-end">
+                            <div class="pointer-events-auto -mr-16 flex flex-col gap-4">
+                                <button id="back-to-top" aria-label="Back to Top"
+                                    class="group relative flex items-center justify-center rounded-full size-12 bg-[#fcfcfd] dark:bg-card-dark text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-primary transition-[transform,opacity,color,box-shadow] duration-300 shadow-sm hover:shadow opacity-0 invisible translate-x-4">
+                                    <span class="text-2xl transition-transform duration-300 group-hover:-translate-y-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                            width="1em" height="1em">
+                                            <path
+                                                d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z">
+                                            </path>
+                                        </svg>
+                                    </span>
+                                </button>
+                                <button id="scroll-to-bottom" aria-label="Scroll to Bottom"
+                                    class="group relative flex items-center justify-center rounded-full size-12 bg-[#fcfcfd] dark:bg-card-dark text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-primary transition-[transform,opacity,color,box-shadow] duration-300 shadow-sm hover:shadow opacity-0 invisible translate-x-4">
+                                    <span class="text-2xl transition-transform duration-300 group-hover:translate-y-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                            width="1em" height="1em">
+                                            <path
+                                                d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z">
+                                            </path>
+                                        </svg>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer
+            class="page-blur-target mt-auto w-full border-t border-[#f0f2f4] dark:border-gray-800 bg-white dark:bg-background-dark py-10 px-8 md:px-20 lg:px-40">
+            <div class="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="flex flex-col gap-2 text-center md:text-left">
+                    <p class="text-[#111318] dark:text-slate-200 font-bold text-lg"><!-- SITE_NAME --></p>
+                    <p class="text-[#616f89] dark:text-gray-500 text-sm"><!-- FOOTER_COPYRIGHT --></p>
+                </div>
+                <div class="flex items-center gap-6">
+                    <!-- SOCIAL_LINKS -->
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="../assets/post-card-template.js"></script>
+    <script src="../assets/main.js"></script>
+
+    <!-- 代码块复制功能 - 内联脚本确保可靠性 -->
+    <script>
+        (function () {
+            // 使用 fallback 方法复制到剪贴板
+            function copyToClipboard(text) {
+                // 尝试使用现代 API
+                if (navigator.clipboard && window.isSecureContext) {
+                    return navigator.clipboard.writeText(text);
+                }
+                // Fallback: 使用 textarea + execCommand
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.left = '-9999px';
+                textarea.style.top = '-9999px';
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+                return new Promise((resolve, reject) => {
+                    try {
+                        document.execCommand('copy') ? resolve() : reject();
+                    } catch (err) {
+                        reject(err);
+                    } finally {
+                        textarea.remove();
+                    }
+                });
+            }
+
+            // 绑定点击事件
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest('.copy-btn');
+                if (btn) {
+                    var container = btn.closest('.code-block-container');
+                    if (!container) return;
+
+                    var codeEl = container.querySelector('.code-content code') ||
+                        container.querySelector('pre code') ||
+                        container.querySelector('code');
+                    if (!codeEl) return;
+
+                    var textToCopy = codeEl.textContent || codeEl.innerText || '';
+
+                    copyToClipboard(textToCopy).then(function () {
+                        btn.style.transition = 'transform 0.1s ease-out';
+                        btn.style.transform = 'scale(0.92)';
+                        setTimeout(function () {
+                            btn.style.transition = 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                            btn.style.transform = 'scale(1)';
+                        }, 50);
+                    }).catch(function (err) {
+                        console.error('Copy failed:', err);
+                    });
+                    return;
+                }
+
+                var foldBtn = e.target.closest('.fold-toggle-btn');
+                if (foldBtn) {
+                    var container = foldBtn.closest('.code-block-container');
+                    var wrapper = container.querySelector('.code-content');
+                    var controls = container.querySelector('.code-fold-controls');
+                    var isFolded = container.classList.contains('collapsed-code');
+                    var expandIcon = foldBtn.querySelector('.fold-icon-expand');
+                    var collapseIcon = foldBtn.querySelector('.fold-icon-collapse');
+
+                    if (isFolded) {
+                        // Expand
+                        container.classList.remove('collapsed-code');
+                        wrapper.style.maxHeight = wrapper.scrollHeight + 'px';
+                        controls.classList.remove('absolute', 'bottom-0', 'h-20', 'bg-gradient-to-t');
+                        controls.classList.add('flex', 'justify-center', 'py-2', 'border-t', 'border-slate-200/50', 'dark:border-slate-700/50', 'bg-slate-50/50', 'dark:bg-transparent');
+
+                        if (expandIcon) expandIcon.classList.add('hidden');
+                        if (collapseIcon) collapseIcon.classList.remove('hidden');
+
+                        setTimeout(function () {
+                            wrapper.style.maxHeight = 'none';
+                        }, 300);
+                    } else {
+                        // Collapse
+                        wrapper.style.maxHeight = wrapper.scrollHeight + 'px';
+                        // Force reflow
+                        wrapper.offsetHeight;
+                        container.classList.add('collapsed-code');
+                        wrapper.style.maxHeight = '400px';
+                        controls.classList.add('absolute', 'bottom-0', 'h-20', 'bg-gradient-to-t');
+                        controls.classList.remove('py-4', 'border-t', 'border-slate-200/50', 'dark:border-slate-700/50', 'bg-slate-50/50', 'dark:bg-transparent');
+
+                        if (expandIcon) expandIcon.classList.remove('hidden');
+                        if (collapseIcon) collapseIcon.classList.add('hidden');
+
+                        // Scroll back to container top if the button is far away
+                        const rect = container.getBoundingClientRect();
+                        if (rect.top < 0) {
+                            window.scrollTo({
+                                top: window.scrollY + rect.top - 100,
+                                behavior: 'smooth'
+                            });
+                        }
+                    }
+                }
+            });
+
+            // 初始化代码块折叠检测
+            function initCodeFolding() {
+                var blocks = document.querySelectorAll('.code-block-container.code-fold');
+                blocks.forEach(function (block) {
+                    var content = block.querySelector('.code-content');
+                    var controls = block.querySelector('.code-fold-controls');
+
+                    if (content.scrollHeight > 500) { // 如果内容高度大于 500px 则折叠
+                        block.classList.add('collapsed-code');
+                        content.style.maxHeight = '400px';
+                        controls.classList.remove('hidden');
+                    } else {
+                        block.classList.remove('code-fold'); // 不需要折叠功能
+                    }
+                });
+            }
+
+            // 在页面加载后和 DOM 可能改变后运行
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initCodeFolding);
+            } else {
+                initCodeFolding();
+            }
+
+            // CSS 动态注入 (为了减少 HTML 侵入)
+            const foldStyles = `
+                .collapsed-code .code-content {
+                    overflow-y: hidden !important;
+                }
+                .collapsed-code .code-fold-controls {
+                    display: flex !important;
+                }
+            `;
+            const styleSheet = document.createElement("style");
+            styleSheet.innerText = foldStyles;
+            document.head.appendChild(styleSheet);
+
+            // Back to Top & Scroll to Bottom & Floating Go Back 逻辑
+            var backToTopBtn = document.getElementById('back-to-top');
+            var scrollToBottomBtn = document.getElementById('scroll-to-bottom');
+            var floatingGoBackBtn = document.getElementById('floating-go-back');
+
+            function toggleNavButtons() {
+                var scrollY = window.scrollY;
+                if (scrollY > 500) {
+                    if (backToTopBtn) {
+                        backToTopBtn.classList.remove('opacity-0', 'invisible', 'translate-x-4');
+                        backToTopBtn.classList.add('opacity-100', 'visible', 'translate-x-0');
+                    }
+                    if (scrollToBottomBtn) {
+                        scrollToBottomBtn.classList.remove('opacity-0', 'invisible', 'translate-x-4');
+                        scrollToBottomBtn.classList.add('opacity-100', 'visible', 'translate-x-0');
+                    }
+                    if (floatingGoBackBtn) {
+                        floatingGoBackBtn.classList.remove('opacity-0', 'invisible', '-translate-x-4');
+                        floatingGoBackBtn.classList.add('opacity-100', 'visible', 'translate-x-0');
+                    }
+                } else {
+                    if (backToTopBtn) {
+                        backToTopBtn.classList.add('opacity-0', 'invisible', 'translate-x-4');
+                        backToTopBtn.classList.remove('opacity-100', 'visible', 'translate-x-0');
+                    }
+                    if (scrollToBottomBtn) {
+                        scrollToBottomBtn.classList.add('opacity-0', 'invisible', 'translate-x-4');
+                        scrollToBottomBtn.classList.remove('opacity-100', 'visible', 'translate-x-0');
+                    }
+                    if (floatingGoBackBtn) {
+                        floatingGoBackBtn.classList.add('opacity-0', 'invisible', '-translate-x-4');
+                        floatingGoBackBtn.classList.remove('opacity-100', 'visible', 'translate-x-0');
+                    }
+                }
+            }
+
+            if (backToTopBtn || scrollToBottomBtn || floatingGoBackBtn) {
+                window.addEventListener('scroll', toggleNavButtons);
+
+                if (backToTopBtn) {
+                    backToTopBtn.addEventListener('click', function () {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        var tocContainer = document.getElementById('toc-container');
+                        if (tocContainer) {
+                            tocContainer.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                    });
+                }
+
+                if (scrollToBottomBtn) {
+                    scrollToBottomBtn.addEventListener('click', function () {
+                        const article = document.querySelector('article');
+                        if (article) {
+                            const articleBottom = article.offsetTop + article.offsetHeight;
+                            // Calculate "Footer Safe" maximum scroll position (buffer 60px)
+                            const articleEndScrollY = articleBottom - window.innerHeight + 60;
+                            window.scrollTo({
+                                top: Math.max(0, articleEndScrollY),
+                                behavior: 'smooth'
+                            });
+                        } else {
+                            // Fallback for non-article pages
+                            window.scrollTo({
+                                top: document.documentElement.scrollHeight,
+                                behavior: 'smooth'
+                            });
+                        }
+                    });
+                }
+
+                if (floatingGoBackBtn) {
+                    floatingGoBackBtn.addEventListener('click', function () {
+                        if (document.referrer && document.referrer.includes(window.location.host)) {
+                            history.back();
+                        } else {
+                            window.location.href = '/';
+                        }
+                    });
+                }
+            }
+
+            // Share Button Functionality
+            var shareBtn = document.getElementById('share-btn');
+            if (shareBtn) {
+                shareBtn.addEventListener('click', function () {
+                    var articleUrl = window.location.href;
+                    var articleTitle = document.querySelector('.post-title')?.textContent || document.title;
+
+                    // Check if Web Share API is available (typically on mobile)
+                    if (navigator.share) {
+                        navigator.share({
+                            title: articleTitle,
+                            url: articleUrl
+                        }).then(function () {
+                            console.log('Share successful');
+                        }).catch(function (error) {
+                            console.log('Share failed:', error);
+                            // Fallback to copy on mobile if share fails
+                            copyUrlToClipboard(articleUrl);
+                        });
+                    } else {
+                        // Desktop: Copy to clipboard
+                        copyUrlToClipboard(articleUrl);
+                    }
+                });
+
+                function copyUrlToClipboard(url) {
+                    copyToClipboard(url).then(function () {
+                        // Visual feedback: change button text temporarily
+                        var btnText = shareBtn.querySelector('span');
+                        var originalText = btnText.textContent;
+                        btnText.textContent = '已复制链接！';
+
+                        // Add success animation
+                        shareBtn.style.transition = 'transform 0.15s ease-out';
+                        shareBtn.style.transform = 'scale(0.95)';
+
+                        setTimeout(function () {
+                            shareBtn.style.transition = 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                            shareBtn.style.transform = 'scale(1)';
+                        }, 100);
+
+                        setTimeout(function () {
+                            btnText.textContent = originalText;
+                        }, 2000);
+                    }).catch(function (err) {
+                        console.error('Copy failed:', err);
+                        // Show error feedback
+                        var btnText = shareBtn.querySelector('span');
+                        var originalText = btnText.textContent;
+                        btnText.textContent = '复制失败';
+                        setTimeout(function () {
+                            btnText.textContent = originalText;
+                        }, 2000);
+                    });
+                }
+            }
+            // TOC History Optimization & Last Item Sync: Prevent anchor clicks from adding to history
+            // and sync last item with scroll-to-bottom behavior.
+            var tocLinks = document.querySelectorAll('nav a[href^="#"]');
+            tocLinks.forEach((anchor, index) => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    const article = document.querySelector('article');
+
+                    if (targetElement && article) {
+                        const headerOffset = 100; // Top offset for sticky header
+                        const articleBottom = article.offsetTop + article.offsetHeight;
+
+                        // 1. Calculate intended scroll position for the heading
+                        const headingScrollY = targetElement.offsetTop - headerOffset;
+
+                        // 2. Calculate "Footer Safe" maximum scroll position
+                        const articleEndScrollY = articleBottom - window.innerHeight + 60;
+
+                        // 3. Choice: Use whichever is higher (smaller Y value) to hide footer
+                        const finalScrollY = Math.min(headingScrollY, articleEndScrollY);
+
+                        window.scrollTo({
+                            top: Math.max(0, finalScrollY),
+                            behavior: 'smooth'
+                        });
+
+                        // Use replaceState to update URL without pushing to history
+                        history.replaceState(null, null, '#' + targetId);
+                    }
+                });
+            });
+        })();
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.hljs) {
+                window.hljs.highlightAll();
+            }
+        });
+    </script>
+
+    <!-- Audio Player Styles -->
+    <style>
+        /* Audio Player Container */
+        .audio-player-container {
+            margin: 1.618em 0;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        .dark .audio-player-container {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-color: #334155;
+        }
+
+        .audio-player-container:hover {
+            border-color: #cbd5e1;
+        }
+
+        .dark .audio-player-container:hover {
+            border-color: #475569;
+        }
+
+        /* Audio Title */
+        .audio-player-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .audio-player-title-left {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .dark .audio-player-title {
+            color: #cbd5e1;
+        }
+
+        .audio-player-icon {
+            font-size: 1.25rem;
+            color: #475569;
+        }
+
+        /* Progress Bar Container */
+        .audio-progress-container {
+            position: relative;
+            width: 100%;
+            height: 6px;
+            background-color: #cbd5e1;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+
+        .dark .audio-progress-container {
+            background-color: #475569;
+        }
+
+        /* Progress Bar Fill */
+        .audio-progress-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: linear-gradient(90deg, #475569 0%, #64748b 100%);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        /* Progress Bar Thumb */
+        .audio-progress-thumb {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 14px;
+            height: 14px;
+            background: white;
+            border: 2px solid #475569;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .audio-progress-container:hover .audio-progress-thumb {
+            opacity: 1;
+        }
+
+        /* Progress Bar Time Tooltip */
+        .audio-progress-tooltip {
+            position: absolute;
+            bottom: calc(100% + 0.5rem);
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 10;
+        }
+
+        .dark .audio-progress-tooltip {
+            background: rgba(255, 255, 255, 0.95);
+            color: #020617;
+        }
+
+        .audio-progress-tooltip.visible {
+            opacity: 1;
+        }
+
+        .audio-progress-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.85);
+        }
+
+        .dark .audio-progress-tooltip::after {
+            border-top-color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Controls Container */
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        /* Left Controls */
+        .audio-controls-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* Play/Pause Button */
+        .audio-play-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #475569 0%, #334155 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+        }
+
+        .audio-play-btn:hover {
+            background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+        }
+
+        .audio-play-btn:active {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        }
+
+        .audio-play-icon {
+            font-size: 1.25rem;
+        }
+
+        /* Time Display */
+        .audio-time {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 500;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        .dark .audio-time {
+            color: #94a3b8;
+        }
+
+        /* Right Controls */
+        .audio-controls-right {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* Volume Control */
+        .audio-volume-control {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .audio-volume-btn {
+            background: none;
+            border: none;
+            padding: 0;
+            color: #64748b;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .dark .audio-volume-btn {
+            color: #94a3b8;
+        }
+
+        .audio-volume-btn:hover {
+            color: #334155;
+            transform: scale(1.1);
+        }
+
+        .audio-volume-slider-wrapper {
+            width: 0;
+            height: 24px;
+            /* Ensure enough height for the slider thumb */
+            overflow: hidden;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            opacity: 0;
+        }
+
+        .audio-volume-control:hover .audio-volume-slider-wrapper,
+        .audio-volume-control:focus-within .audio-volume-slider-wrapper {
+            width: 80px;
+            /* Slightly increase width for better usability */
+            opacity: 1;
+            margin-left: 0.5rem;
+            margin-right: 0.5rem;
+        }
+
+        .audio-volume-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(to right, #475569 0%, #475569 var(--volume-percent, 60%), #cbd5e1 var(--volume-percent, 60%), #cbd5e1 100%);
+            border-radius: 2px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .dark .audio-volume-slider {
+            background: linear-gradient(to right, #94a3b8 0%, #94a3b8 var(--volume-percent, 60%), #334155 var(--volume-percent, 60%), #334155 100%);
+        }
+
+        .audio-volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: #475569;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            border: 2px solid white;
+        }
+
+        .dark .audio-volume-slider::-webkit-slider-thumb {
+            border-color: #1e293b;
+        }
+
+        .audio-volume-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.25);
+        }
+
+        /* Speed Control */
+        .audio-speed-control {
+            position: relative;
+        }
+
+        .audio-speed-btn {
+            padding: 0.4rem 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            background: white;
+            color: #475569;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .dark .audio-speed-btn {
+            background: #334155;
+            border-color: #475569;
+            color: #cbd5e1;
+        }
+
+        .audio-speed-btn:hover {
+            border-color: #334155;
+            color: #334155;
+        }
+
+        .dark .audio-speed-btn:hover {
+            border-color: #cbd5e1;
+            color: #cbd5e1;
+        }
+
+        /* Speed Dropdown */
+        .audio-speed-dropdown {
+            position: absolute;
+            bottom: calc(100% + 0.5rem);
+            right: 0;
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.97);
+            transform-origin: bottom right;
+            transition:
+                transform 250ms cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 250ms cubic-bezier(0.22, 1, 0.36, 1);
+            will-change: transform, opacity;
+            z-index: 10;
+        }
+
+        .dark .audio-speed-dropdown {
+            background: #1e293b;
+            border-color: #475569;
+        }
+
+        .audio-speed-dropdown.is-open {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+
+        .audio-speed-dropdown.is-closing {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.99);
+            transition:
+                transform 150ms cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 150ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .audio-speed-option {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            color: #475569;
+            cursor: pointer;
+            transition: color 0.2s ease, background-color 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .dark .audio-speed-option {
+            color: #cbd5e1;
+        }
+
+        .audio-speed-option:hover {
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        .dark .audio-speed-option:hover {
+            background: #334155;
+            color: #cbd5e1;
+        }
+
+        .audio-speed-option.active {
+            background: #f1f5f9;
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        .dark .audio-speed-option.active {
+            background: #334155;
+            color: #f8fafc;
+        }
+
+        /* Loading State */
+        .audio-player-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            color: #64748b;
+        }
+
+        .dark .audio-player-loading {
+            color: #94a3b8;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 640px) {
+            .audio-player-container {
+                padding: 1rem;
+            }
+
+            .audio-player-title {
+                font-size: 0.875rem;
+            }
+
+            .audio-time {
+                font-size: 0.75rem;
+            }
+
+            .audio-speed-btn {
+                padding: 0.35rem 0.6rem;
+                font-size: 0.75rem;
+            }
+
+            .audio-controls {
+                gap: 0.5rem;
+            }
+
+            .audio-controls-left,
+            .audio-controls-right {
+                gap: 0.5rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .audio-speed-dropdown {
+                transition: none !important;
+            }
+        }
+    </style>
+
+    <!-- Audio Player Script -->
+    <script>
+        (function () {
+            'use strict';
+
+            const PLAY_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1.5rem" height="1.5rem"><path d="M9 8.48216V15.518L15.0307 12.0001L9 8.48216ZM7.75194 5.43872L18.2596 11.5682C18.4981 11.7073 18.5787 12.0135 18.4396 12.252C18.3961 12.3265 18.3341 12.3885 18.2596 12.432L7.75194 18.5615C7.51341 18.7006 7.20725 18.62 7.06811 18.3815C7.0235 18.305 7 18.2181 7 18.1296V5.87061C7 5.59446 7.22386 5.37061 7.5 5.37061C7.58853 5.37061 7.67547 5.39411 7.75194 5.43872Z"></path></svg>`;
+            const PAUSE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1.5rem" height="1.5rem"><path d="M15 7C15 6.44772 15.4477 6 16 6C16.5523 6 17 6.44772 17 7V17C17 17.5523 16.5523 18 16 18C15.4477 18 15 17.5523 15 17V7ZM7 7C7 6.44772 7.44772 6 8 6C8.55228 6 9 6.44772 9 7V17C9 17.5523 8.55228 18 8 18C7.44772 18 7 17.5523 7 17V7Z"></path></svg>`;
+            const VOLUME_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1.25rem" height="1.25rem"><path d="M6.60282 10.0001L10 7.22056V16.7796L6.60282 14.0001H3V10.0001H6.60282ZM2 16.0001H5.88889L11.1834 20.3319C11.2727 20.405 11.3846 20.4449 11.5 20.4449C11.7761 20.4449 12 20.2211 12 19.9449V4.05519C12 3.93977 11.9601 3.8279 11.887 3.73857C11.7121 3.52485 11.3971 3.49335 11.1834 3.66821L5.88889 8.00007H2C1.44772 8.00007 1 8.44778 1 9.00007V15.0001C1 15.5524 1.44772 16.0001 2 16.0001ZM23 12C23 15.292 21.5539 18.2463 19.2622 20.2622L17.8445 18.8444C19.7758 17.1937 21 14.7398 21 12C21 9.26016 19.7758 6.80629 17.8445 5.15557L19.2622 3.73779C21.5539 5.75368 23 8.70795 23 12ZM18 12C18 10.0883 17.106 8.38548 15.7133 7.28673L14.2842 8.71584C15.3213 9.43855 16 10.64 16 12C16 13.36 15.3213 14.5614 14.2842 15.2841L15.7133 16.7132C17.106 15.6145 18 13.9116 18 12Z"></path></svg>`;
+            const MUTE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1.25rem" height="1.25rem"><path d="M10 7.22056L6.60282 10.0001H3V14.0001H6.60282L10 16.7796V7.22056ZM5.88889 16.0001H2C1.44772 16.0001 1 15.5524 1 15.0001V9.00007C1 8.44778 1.44772 8.00007 2 8.00007H5.88889L11.1834 3.66821C11.3971 3.49335 11.7121 3.52485 11.887 3.73857C11.9601 3.8279 12 3.93977 12 4.05519V19.9449C12 20.2211 11.7761 20.4449 11.5 20.4449C11.3846 20.4449 11.2727 20.405 11.1834 20.3319L5.88889 16.0001ZM20.4142 12.0001L23.9497 15.5356L22.5355 16.9498L19 13.4143L15.4645 16.9498L14.0503 15.5356L17.5858 12.0001L14.0503 8.46454L15.4645 7.05032L19 10.5859L22.5355 7.05032L23.9497 8.46454L20.4142 12.0001Z"></path></svg>`;
+            const TITLE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1.25rem" height="1.25rem"><path d="M11 21V19.9291C7.60771 19.4439 5 16.5265 5 13V8C5 4.13401 8.13401 1 12 1C15.866 1 19 4.13401 19 8V13C19 16.5265 16.3923 19.4439 13 19.9291V21H17V23H7V21H11ZM12 9C11.4477 9 11 8.55228 11 8C11 7.44772 11.4477 7 12 7C12.5523 7 13 7.44772 13 8C13 8.55228 12.5523 9 12 9ZM12 11C13.6569 11 15 9.65685 15 8C15 6.34315 13.6569 5 12 5C10.3431 5 9 6.34315 9 8C9 9.65685 10.3431 11 12 11Z"></path></svg>`;
+
+            // Wait for DOM to be ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initAudioPlayers);
+            } else {
+                initAudioPlayers();
+            }
+
+            function initAudioPlayers() {
+                // Find all blockquotes with audio links
+                const blockquotes = document.querySelectorAll('blockquote');
+
+                blockquotes.forEach(blockquote => {
+                    const link = blockquote.querySelector('a');
+                    if (!link) return;
+
+                    const linkText = link.textContent.trim();
+                    const linkUrl = link.href;
+
+                    // Check if this is an audio link
+                    if (isAudioLink(linkText, linkUrl)) {
+                        // Replace blockquote with audio player
+                        const audioPlayer = createAudioPlayer(linkText, linkUrl);
+                        blockquote.parentNode.replaceChild(audioPlayer, blockquote);
+                    }
+                });
+            }
+
+            function isAudioLink(text, url) {
+                // Check if the link text contains the music emoji 🎵
+                if (text.includes('🎵')) {
+                    return true;
+                }
+
+                // Audio file extensions - check URL for audio formats
+                const audioExtensions = ['.mp3', '.m4a', '.wav', '.ogg', '.aac', '.flac', '.opus'];
+                return audioExtensions.some(ext => url.toLowerCase().includes(ext));
+            }
+
+            function createAudioPlayer(title, audioUrl) {
+                // Remove the trigger emoji 🎵 from the title and trim whitespace
+                const cleanTitle = title.replace(/🎵/g, '').trim();
+                const container = document.createElement('div');
+                container.className = 'audio-player-container';
+
+                container.innerHTML = `
+                    <div class="audio-player-title">
+                        <div class="audio-player-title-left">
+                            <span class="audio-player-icon flex items-center justify-center">${TITLE_ICON}</span>
+                            <span>${escapeHtml(cleanTitle)}</span>
+                        </div>
+                        <span class="audio-time">
+                            <span class="audio-current-time">0:00</span>
+                            <span> / </span>
+                            <span class="audio-duration">0:00</span>
+                        </span>
+                    </div>
+                    <div class="audio-progress-container">
+                        <div class="audio-progress-bar"></div>
+                        <div class="audio-progress-thumb"></div>
+                        <div class="audio-progress-tooltip">0:00</div>
+                    </div>
+                    <div class="audio-controls">
+                        <div class="audio-controls-left">
+                            <button class="audio-play-btn" aria-label="Play/Pause">
+                                <span class="audio-play-icon flex items-center justify-center">${PLAY_ICON}</span>
+                            </button>
+                            <div class="audio-volume-control">
+                                <button class="audio-volume-btn" aria-label="Volume control">
+                                    ${VOLUME_ICON}
+                                </button>
+                                <div class="audio-volume-slider-wrapper">
+                                    <input type="range" class="audio-volume-slider" min="0" max="1" step="0.01" value="0.6">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="audio-controls-right">
+                            <div class="audio-speed-control">
+                                <button class="audio-speed-btn" aria-label="Playback speed">1.0x</button>
+                                <div class="audio-speed-dropdown t-dropdown" data-origin="bottom-right">
+                                    <div class="audio-speed-option" data-speed="0.5">0.5x</div>
+                                    <div class="audio-speed-option" data-speed="0.75">0.75x</div>
+                                    <div class="audio-speed-option active" data-speed="1">1.0x</div>
+                                    <div class="audio-speed-option" data-speed="1.25">1.25x</div>
+                                    <div class="audio-speed-option" data-speed="1.5">1.5x</div>
+                                    <div class="audio-speed-option" data-speed="1.75">1.75x</div>
+                                    <div class="audio-speed-option" data-speed="2">2.0x</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <audio preload="auto">
+                        <source src="${escapeHtml(audioUrl)}" type="${getAudioType(audioUrl)}">
+                        Your browser does not support the audio element.
+                    </audio>
+                `;
+
+                // Get elements
+                const audio = container.querySelector('audio');
+                const playBtn = container.querySelector('.audio-play-btn');
+                const playIcon = container.querySelector('.audio-play-icon');
+                const progressContainer = container.querySelector('.audio-progress-container');
+                const progressBar = container.querySelector('.audio-progress-bar');
+                const progressThumb = container.querySelector('.audio-progress-thumb');
+                const progressTooltip = container.querySelector('.audio-progress-tooltip');
+                const currentTimeEl = container.querySelector('.audio-current-time');
+                const durationEl = container.querySelector('.audio-duration');
+                const volumeBtn = container.querySelector('.audio-volume-btn');
+                const volumeWrapper = container.querySelector('.audio-volume-slider-wrapper');
+                const volumeSlider = container.querySelector('.audio-volume-slider');
+                const speedBtn = container.querySelector('.audio-speed-btn');
+                const speedDropdown = container.querySelector('.audio-speed-dropdown');
+                const speedOptions = container.querySelectorAll('.audio-speed-option');
+
+                // Set initial volume
+                audio.volume = 0.6;
+                let lastVolume = 0.6;
+
+                // Show loading state during seeking
+                audio.addEventListener('seeking', () => {
+                    // Visual feedback: slightly dim the button during seeking
+                    playBtn.style.opacity = '0.6';
+                });
+
+                audio.addEventListener('seeked', () => {
+                    // Restore button opacity when seek completes
+                    playBtn.style.opacity = '1';
+                });
+
+                // Play/Pause functionality
+                playBtn.addEventListener('click', () => {
+                    if (audio.paused) {
+                        audio.play();
+                    } else {
+                        audio.pause();
+                    }
+                });
+
+                // Listen for playing state to update UI and pause others
+                audio.addEventListener('play', () => {
+                    playIcon.innerHTML = PAUSE_ICON;
+                    // Pause all other audio elements on the page
+                    document.querySelectorAll('audio').forEach(otherAudio => {
+                        if (otherAudio !== audio && !otherAudio.paused) {
+                            otherAudio.pause();
+                        }
+                    });
+                });
+
+                // Listen for pause state to update UI
+                audio.addEventListener('pause', () => {
+                    playIcon.innerHTML = PLAY_ICON;
+                });
+
+                // Update progress bar
+                audio.addEventListener('timeupdate', () => {
+                    const progress = (audio.currentTime / audio.duration) * 100;
+                    progressBar.style.width = progress + '%';
+                    progressThumb.style.left = progress + '%';
+                    currentTimeEl.textContent = formatTime(audio.currentTime);
+                });
+
+                // Set duration when metadata is loaded
+                audio.addEventListener('loadedmetadata', () => {
+                    durationEl.textContent = formatTime(audio.duration);
+                });
+
+                // Progress bar click and drag to seek
+                let isDragging = false;
+                let hasDragged = false;
+
+                progressContainer.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    hasDragged = false;
+                    updateProgress(e);
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (isDragging) {
+                        hasDragged = true;
+                        updateProgress(e);
+                    }
+                });
+
+                document.addEventListener('mouseup', () => {
+                    isDragging = false;
+                });
+
+                function updateProgress(e) {
+                    const rect = progressContainer.getBoundingClientRect();
+                    const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                    audio.currentTime = pos * audio.duration;
+                    audio.play();
+                }
+
+                // Progress bar hover tooltip
+                progressContainer.addEventListener('mousemove', (e) => {
+                    if (!audio.duration) return;
+                    const rect = progressContainer.getBoundingClientRect();
+                    const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                    const time = pos * audio.duration;
+                    progressTooltip.textContent = formatTime(time);
+                    progressTooltip.style.left = (pos * 100) + '%';
+                    progressTooltip.classList.add('visible');
+                });
+
+                progressContainer.addEventListener('mouseleave', () => {
+                    progressTooltip.classList.remove('visible');
+                });
+
+                // Volume control
+                volumeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isMuted = !audio.muted;
+                    audio.muted = isMuted;
+
+                    if (isMuted) {
+                        volumeBtn.innerHTML = MUTE_ICON;
+                        volumeSlider.value = 0;
+                        volumeSlider.style.setProperty('--volume-percent', '0%');
+                        volumeBtn.style.opacity = '0.5';
+                    } else {
+                        volumeBtn.innerHTML = VOLUME_ICON;
+                        volumeSlider.value = lastVolume;
+                        volumeSlider.style.setProperty('--volume-percent', (lastVolume * 100) + '%');
+                        volumeBtn.style.opacity = '1';
+                    }
+                });
+
+                volumeSlider.addEventListener('input', (e) => {
+                    const volume = parseFloat(e.target.value);
+                    audio.volume = volume;
+                    lastVolume = volume;
+
+                    if (volume > 0) {
+                        audio.muted = false;
+                        volumeBtn.innerHTML = VOLUME_ICON;
+                        volumeBtn.style.opacity = '1';
+                    } else {
+                        audio.muted = true;
+                        volumeBtn.innerHTML = MUTE_ICON;
+                        volumeBtn.style.opacity = '0.5';
+                    }
+
+                    // Update slider color
+                    volumeSlider.style.setProperty('--volume-percent', (volume * 100) + '%');
+                });
+
+                volumeSlider.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+
+                const dropdownCloseMs = 150;
+
+                function openSpeedDropdown() {
+                    speedDropdown.classList.remove('is-closing');
+                    speedDropdown.classList.add('is-open');
+                }
+
+                function closeSpeedDropdown() {
+                    speedDropdown.classList.remove('is-open');
+                    speedDropdown.classList.add('is-closing');
+                    setTimeout(() => {
+                        speedDropdown.classList.remove('is-closing');
+                    }, dropdownCloseMs);
+                }
+
+                // Speed control
+                speedBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (speedDropdown.classList.contains('is-open')) {
+                        closeSpeedDropdown();
+                    } else {
+                        openSpeedDropdown();
+                    }
+                });
+
+                // Close dropdowns when clicking outside
+                document.addEventListener('click', () => {
+                    closeSpeedDropdown();
+                });
+
+                speedOptions.forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const speed = parseFloat(option.dataset.speed);
+                        audio.playbackRate = speed;
+                        speedBtn.textContent = speed + 'x';
+
+                        // Update active state
+                        speedOptions.forEach(opt => opt.classList.remove('active'));
+                        option.classList.add('active');
+
+                        closeSpeedDropdown();
+                    });
+                });
+
+                return container;
+            }
+
+            function formatTime(seconds) {
+                if (isNaN(seconds)) return '0:00';
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return mins + ':' + (secs < 10 ? '0' : '') + secs;
+            }
+
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            function getAudioType(url) {
+                const urlLower = url.toLowerCase();
+                if (urlLower.includes('.mp3')) return 'audio/mpeg';
+                if (urlLower.includes('.m4a')) return 'audio/mp4';
+                if (urlLower.includes('.wav')) return 'audio/wav';
+                if (urlLower.includes('.ogg')) return 'audio/ogg';
+                if (urlLower.includes('.aac')) return 'audio/aac';
+                if (urlLower.includes('.flac')) return 'audio/flac';
+                if (urlLower.includes('.opus')) return 'audio/opus';
+                return 'audio/mpeg'; // Default
+            }
+        })();
+    </script>
+</body>
+
+</html>

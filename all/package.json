@@ -1,0 +1,14 @@
+{
+  "name": "free-blog",
+  "version": "1.0.0",
+  "scripts": {
+    "extract-dates": "node extract-git-dates.js",
+    "build": "node build.js"
+  },
+  "dependencies": {
+    "dayjs": "^1.11.19",
+    "gray-matter": "^4.0.3",
+    "katex": "^0.16.22",
+    "marked": "^12.0.0"
+  }
+}
