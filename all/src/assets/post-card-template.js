@@ -12,7 +12,7 @@
     }
 }(typeof self !== 'undefined' ? self : this, function (shared) {
     const IMG_FALLBACK_ATTR = (shared && shared.IMG_FALLBACK_ATTR) ||
-        "onerror=\"if(this.dataset.fallbackApplied!=='true'){this.dataset.fallbackApplied='true';this.removeAttribute('srcset');this.src='/image/404.png';}\"";
+        "onerror=\"if(this.dataset.fallbackApplied!=='true'){this.dataset.fallbackApplied='true';this.removeAttribute('srcset');this.src='./image/404.png';}\"";
 
     function renderPostCard(post) {
         const link = post.link || '#';

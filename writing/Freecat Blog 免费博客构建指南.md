@@ -179,23 +179,23 @@ GitHub 负责云备份，也负责通知部署平台重新构建。
 
 ## 新手正式开始前的准备
 
-接下来要把 FreeBlog 的代码放进**你自己的私有 GitHub 仓库**里。这一步有两条路线：
+接下来要把 FreeBlog 的代码放进**你自己的私有 GitHub 仓库**里。这一步有两条路线：**有技术背景、想长期同步模板更新，推荐 GitHub Importer；完全小白，推荐下载 ZIP + 复制粘贴**。
 
 | 路线 | 是否保留 Git 历史 | 能否一条命令同步上游更新 | 适合谁 |
 | --- | --- | --- | --- |
-| **推荐：GitHub Importer 一键导入** | 是 | 能 | 所有人，新手也无压力 |
-| 备选：下载 ZIP + 复制粘贴 | 否 | 不能 | 网络打不开 Importer，或已经这样做完了 |
+| **有技术背景推荐：GitHub Importer 一键导入** | 是 | 能 | 熟悉 GitHub / Git，想保留历史并长期同步上游更新的人 |
+| **小白推荐：下载 ZIP + 复制粘贴** | 否 | 不能 | 完全新手，只想尽快搭起来；或网络打不开 Importer 的人 |
 
 **两条路线只能选一条。** 不要又导入又复制粘贴。
 
-> 想未来跟上 FreeBlog 的修复和升级 → 选`推荐路线`。
-> 完全不在乎升级，只想先跑起来 → `备选路线`也行。
+> 有 GitHub / Git 基础，想未来跟上 FreeBlog 的修复和升级 → 选 `GitHub Importer`。
+> 完全小白，只想先跑起来 → 选 `下载 ZIP + 复制粘贴`。
 
 ---
 
-## 推荐路线：GitHub Importer 一键创建私有仓库（保留上游 Git 历史）
+## 有技术背景推荐：GitHub Importer 一键创建私有仓库（保留上游 Git 历史）
 
-GitHub 自带的 Importer 工具可以把一个公开仓库**完整克隆**进你自己的私有仓库，包括所有 commit 历史。这意味着以后想升级 FreeBlog，只要一条 `git merge upstream/main` 就能搞定。
+GitHub 自带的 Importer 工具可以把一个公开仓库**完整克隆**进你自己的私有仓库，包括所有 commit 历史。这意味着以后想升级 FreeBlog，只要一条 `git merge upstream/main` 就能搞定。这个路线更适合对 GitHub / Git 有一点基础的人。
 
 ### 第 1 步：先登录 GitHub
 

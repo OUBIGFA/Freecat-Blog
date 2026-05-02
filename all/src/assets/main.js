@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('error', (e) => {
         const target = e.target;
         if (!target || target.tagName !== 'IMG') return;
-        const fallback = '/image/404.png';
+        const fallback = './image/404.png';
         if (target.dataset.fallbackApplied === 'true') return;
         if (target.src && target.src.indexOf(fallback) !== -1) return;
         target.dataset.fallbackApplied = 'true';
@@ -195,6 +195,34 @@ document.addEventListener('DOMContentLoaded', () => {
         if (raw.endsWith('ms')) return parseFloat(raw);
         if (raw.endsWith('s')) return parseFloat(raw) * 1000;
         return fallback;
+    }
+
+    // ============================================================
+    // [Fix] 固定顶栏遮挡内容：按实际 header 高度动态同步内容区上边距
+    // ============================================================
+    function updateContentTopOffset() {
+        const header = document.querySelector('header.fixed');
+        if (!header) return;
+        const headerHeight = Math.ceil(header.getBoundingClientRect().height);
+        const extraGap = window.innerWidth < 768 ? 8 : 12;
+        const topOffset = `${headerHeight + extraGap}px`;
+        document.documentElement.style.setProperty('--freecat-header-height', `${headerHeight}px`);
+        const targets = document.querySelectorAll('.layout-container.page-blur-target, main.page-blur-target');
+        targets.forEach((el) => {
+            // 首页的首屏自己消费 header 高度，不额外叠加外层 marginTop。
+            if (el.querySelector('.freecat-home-hero')) {
+                el.style.marginTop = '0px';
+                return;
+            }
+            el.style.marginTop = topOffset;
+        });
+    }
+
+    function observeHeaderOffsetChanges() {
+        const header = document.querySelector('header.fixed');
+        if (!header || typeof ResizeObserver === 'undefined') return;
+        const observer = new ResizeObserver(() => updateContentTopOffset());
+        observer.observe(header);
     }
 
     // ============================================================
@@ -243,6 +271,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 初始执行
     applyTheme();
+    updateContentTopOffset();
+    observeHeaderOffsetChanges();
     ensureAnimationStyles(); // Ensure global animation styles are present
 
     // Apply staggered animation to existing post cards on load
@@ -271,6 +301,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.key === 'theme') {
             applyTheme();
         }
+    });
+
+    window.addEventListener('resize', updateContentTopOffset);
+    window.addEventListener('load', updateContentTopOffset);
+    requestAnimationFrame(() => {
+        updateContentTopOffset();
+        requestAnimationFrame(updateContentTopOffset);
     });
 
     // 确保 Mermaid 在合适时机初始化

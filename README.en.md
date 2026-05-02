@@ -67,20 +67,20 @@ Note: once the root directory is set to `all`, the output directory is just `dis
 
 ## Quick Start
 
-There are two routes — **always prefer the recommended one**:
+There are two routes: **if you have some technical background and want long-term template updates, use GitHub Importer; if you are a complete beginner, use ZIP + copy & paste**.
 
 | Route | Keeps Git history | Can `git pull` upstream updates | Best for |
 | --- | --- | --- | --- |
-| Recommended: GitHub Importer | Yes | Yes | Everyone, including beginners |
-| Fallback: ZIP + copy & paste | No | No (see [FAQ](#faq)) | Network can't reach Importer, or you already finished this way |
+| Recommended for technical users: GitHub Importer | Yes | Yes | People comfortable with GitHub / Git who want history and long-term upstream updates |
+| Recommended for beginners: ZIP + copy & paste | No | No (see [FAQ](#faq)) | Complete beginners who just want to get online quickly, or anyone who cannot reach Importer |
 
 > Pick **only one** of the two routes — never do both, they conflict.
 
 ---
 
-### Recommended route: Use GitHub Importer to create your private repo (keeps upstream Git history)
+### Recommended for technical users: Use GitHub Importer to create your private repo (keeps upstream Git history)
 
-GitHub's built-in Importer copies a public repository **completely** into your own private repository, including all commit history. That means future upgrades from FreeBlog only take a single command.
+GitHub's built-in Importer copies a public repository **completely** into your own private repository, including all commit history. That means future upgrades from FreeBlog only take a single command. This route is better for people who already have some basic GitHub / Git experience.
 
 #### Step 1: Open the Importer page
 
@@ -289,7 +289,7 @@ Once everything is deployed, updating the blog is just 5 steps:
 
 When upstream [OUBIGFA/FreeBlog](https://github.com/OUBIGFA/FreeBlog) ships a bug fix, a new feature, or a style tweak, you can pull those updates into your private repo.
 
-> **Prerequisite**: you must have built your repo via the **recommended route (GitHub Importer)**. If you went with ZIP + paste, jump to the "Fallback" section below.
+> **Prerequisite**: you must have built your repo via the **technical-user route (GitHub Importer)**. If you went with ZIP + paste, jump to the "Fallback" section below.
 
 ### Recommended: `git remote add upstream` to pull updates
 

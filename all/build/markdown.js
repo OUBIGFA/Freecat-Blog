@@ -499,7 +499,7 @@ function buildRenderer() {
     };
 
     renderer.image = (href, title, text) => {
-        const fallbackSrc = '/image/404.png';
+        const fallbackSrc = './image/404.png';
         const safeHref = (href || '').replace(/"/g, '&quot;');
         const safeAlt = (text || '').replace(/"/g, '&quot;');
         const safeTitle = title ? ` title="${title.replace(/"/g, '&quot;')}"` : '';

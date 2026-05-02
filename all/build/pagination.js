@@ -53,7 +53,7 @@ function generatePaginationHtml(currentPage, totalPages) {
                 ? 'bg-primary text-slate-50 border-primary scale-105 cursor-default pointer-events-none'
                 : 't-btn t-btn-primary border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-primary hover:text-primary dark:hover:border-primary';
             html += `
-                    <a href="${link}" class="${variantClass} flex items-center justify-center min-w-[32px] md:min-w-[40px] h-10 px-1 md:px-3 rounded-full border font-bold text-sm">
+                    <a href="${link}" class="${variantClass} flex shrink-0 items-center justify-center w-10 h-10 p-0 rounded-full border font-bold text-sm">
                         ${p}
                     </a>`;
         }
