@@ -53,7 +53,14 @@ function generateAll({ posts, template, postsPerPage, outputDir }) {
         } else {
             const pageDir = path.join(outputDir, 'page', String(page));
             if (!fs.existsSync(pageDir)) fs.mkdirSync(pageDir, { recursive: true });
-            fs.writeFileSync(path.join(pageDir, 'index.html'), outputHtml);
+            // 分页页面位于 /page/N/index.html，比 dist 根多一层目录。
+            // partials/head-base.html 与 partials/scripts-end.html 里的资源
+            // 用的是 ./assets/... 这种相对路径，对根目录 index.html 解析为
+            // /assets/...（OK），但在 /page/N/ 下会被解析成 /page/N/assets/...
+            // 直接刷新该 URL 时 CSS/JS 全部 404，首屏崩溃；
+            // 这里把这些相对引用矫正成 ../../assets/...，让刷新也能正常加载。
+            const adjustedHtml = outputHtml.replace(/(['"])\.\/assets\//g, '$1../../assets/');
+            fs.writeFileSync(path.join(pageDir, 'index.html'), adjustedHtml);
         }
     }
 }
