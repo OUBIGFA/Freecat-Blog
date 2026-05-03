@@ -22,11 +22,6 @@ _09: 🔹 显示文章：是否在全站展示此文章
 
 > 确保先准备好 `GitHub 账户`，然后二选一再准备 `Cloudflare 账户` 或 `Vercel 账户`。
 
-成品演示站：
-https://blog.freeorg.dpdns.org
-
-![速览](https://cdn.img2ipfs.com/ipfs/QmNxBPYGDuwD5MYyvyzJWZBzW6dFQoYAgXvXdKJP5sumE5?filename=freecat.gif)
-
 ---
 
 ## 准备工作清单
@@ -391,25 +386,25 @@ https://dash.cloudflare.com/
 0. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)
 1. 创建应用程序
 
-![01](all\image\Tutorial\01.png)
+![01](../all/image/Tutorial/01.png)
 
 2. 部署 Pages
 
-![02](all\image\Tutorial\02.png)
+![02](../all/image/Tutorial/02.png)
 
 3. 选择导入现有 Git 储存库
 
-![03](all\image\Tutorial\03.png)
+![03](../all/image/Tutorial/03.png)
 
 4. 选择目标仓库
 
-![04](all\image\Tutorial\04.png)
+![04](../all/image/Tutorial/04.png)
 
 ### 第 3 步：填写构建配置并部署
 
 填写对应参数，项目名称可以自由设置，然后点击 `Save and Deploy（保存并部署）`，等待构建完成。
 
-![05](all\image\Tutorial\05.png)
+![05](../all/image/Tutorial/05.png)
 
 Cloudflare 后台如果显示中文，通常就是下面这些字段：
 
@@ -425,7 +420,7 @@ Cloudflare 后台如果显示中文，通常就是下面这些字段：
 
 部署完成后就可以访问 Cloudflare 给你的默认网址。
 
-![06](all\image\Tutorial\06.png)
+![06](../all/image/Tutorial/06.png)
 
 ### 第 5 步：以后怎么更新网站
 

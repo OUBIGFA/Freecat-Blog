@@ -1,5 +1,5 @@
 ﻿<div align="center">
-  <img src="all\image\freecat_web_icon.png" width="120" alt="Freecat Blog Preview">
+  <img src="all/image/freecat_web_icon.png" width="120" alt="Freecat Blog Preview">
   <h1>Freecat Blog</h1>
   <p>本地优先 + 云同步的免费个人博客方案</p>
   <p>
@@ -184,15 +184,15 @@ GitHub 网页一次最多上传 `100` 个文件，而这个项目文件很多，
 ### 配置步骤
 0. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)
 1. 创建应用程序
-![01](all\image\Tutorial\01.png)
+![01](all/image/Tutorial/01.png)
 2. 部署pages
-![02](all\image\Tutorial\02.png)
+![02](all/image/Tutorial/02.png)
 3. 选择导入现有 Git 储存库
-![03](all\image\Tutorial\03.png)
+![03](all/image/Tutorial/03.png)
 4. 选择目标仓库
-![04](all\image\Tutorial\04.png)
+![04](all/image/Tutorial/04.png)
 5. 填写对应参数，项目名称自由设置，点击 `Save and Deploy（保持并部署）`，等待构建完成
-![05](all\image\Tutorial\05.png)
+![05](all/image/Tutorial/05.png)
 
 | Cloudflare 界面中文 | Cloudflare UI English | 值 |
 | --- | --- | --- |
@@ -203,7 +203,7 @@ GitHub 网页一次最多上传 `100` 个文件，而这个项目文件很多，
 | 环境变量（可选） | Environment variables (optional) | `NODE_VERSION` = `20` |
 
 6. 完成并可访问默认网址
-![06](all\image\Tutorial\06.png)
+![06](all/image/Tutorial/06.png)
 
 ### 绑定自定义域名
 
@@ -265,8 +265,8 @@ GitHub 网页一次最多上传 `100` 个文件，而这个项目文件很多，
 2. 填写提交说明
 3. 点击 Commit
 4. 点击 Push 同步到 GitHub
-![08](all\image\Tutorial\08.png)
-![09](all\image\Tutorial\09.png)
+![08](all/image/Tutorial/08.png)
+![09](all/image/Tutorial/09.png)
 
 只要同步成功，部署平台就会自动重新构建。
 

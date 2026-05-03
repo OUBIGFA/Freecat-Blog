@@ -217,15 +217,15 @@ Best for long-term, stable hosting, especially for plain static blogs and custom
 ### Configuration
 0. Sign in to [Cloudflare Dashboard](https://dash.cloudflare.com/)
 1. Create an application
-![01](all\image\Tutorial\01.png)
+![01](all/image/Tutorial/01.png)
 2. Choose Pages deployment
-![02](all\image\Tutorial\02.png)
+![02](all/image/Tutorial/02.png)
 3. Choose to import an existing Git repository
-![03](all\image\Tutorial\03.png)
+![03](all/image/Tutorial/03.png)
 4. Select your target repository
-![04](all\image\Tutorial\04.png)
+![04](all/image/Tutorial/04.png)
 5. Fill in the build settings. The project name can be anything you want. Then click `Save and Deploy` and wait for the build to finish
-![05](all\image\Tutorial\05.png)
+![05](all/image/Tutorial/05.png)
 
 | Cloudflare UI Chinese | Cloudflare UI English | Value |
 | --- | --- | --- |
@@ -236,7 +236,7 @@ Best for long-term, stable hosting, especially for plain static blogs and custom
 | 环境变量（可选） | Environment variables (optional) | `NODE_VERSION` = `20` |
 
 6. Deployment completed and the default URL becomes available
-![06](all\image\Tutorial\06.png)
+![06](all/image/Tutorial/06.png)
 
 ### Custom Domain
 
