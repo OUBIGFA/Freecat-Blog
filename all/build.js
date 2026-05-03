@@ -59,7 +59,13 @@ if (fs.existsSync(tailwindConfigPath)) {
     tailwindConfigContent = fs.readFileSync(tailwindConfigPath, 'utf-8');
 }
 
-const gitDates = gitDatesModule.load(path.join(__dirname, 'git-dates.json'));
+// 构建时实时从 git 提取最后提交时间，避免依赖手动生成的 git-dates.json 快照过期。
+// 在 git 不可用 / 浅克隆等场景下，自动回退到 git-dates.json，再不行就 fs.statSync(mtime)。
+const gitDates = gitDatesModule.collect({
+    repoRoot: path.join(__dirname, '..'),
+    postsDir: DIRS.posts,
+    fallbackJson: path.join(__dirname, 'git-dates.json')
+});
 
 // ===== 3. 加载配置（site / social / about） =====
 console.log('⚙️ Loading site configuration...');

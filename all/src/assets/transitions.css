@@ -25,6 +25,27 @@
     --t-btn-lift: -1.5px;
     --t-btn-press-scale: 0.96;
     --t-btn-icon-press-scale: 0.92;
+
+    /* ===== 全站统一：固定顶栏的占位与安全间距 =====
+       所有页面以此为内容起点的最小上偏移；JS 会按真实 header 高度做实时同步。
+       --freecat-page-top-offset 是“header 高度 + 安全间距”的合成值，
+       任何主内容容器的 margin-top / padding-top 都应优先使用它，
+       避免出现"hardcode 40px / 60px 但 header 实际更高"导致的遮挡。 */
+    --freecat-header-height: 72px;
+    --freecat-header-safe-gap: clamp(20px, 3vh, 36px);
+    --freecat-page-top-offset: calc(var(--freecat-header-height) + var(--freecat-header-safe-gap));
+}
+
+@media (min-width: 768px) {
+    :root {
+        --freecat-header-height: 80px;
+    }
+}
+
+@media (max-width: 640px) {
+    :root {
+        --freecat-header-safe-gap: clamp(16px, 2.4vh, 24px);
+    }
 }
 
 /* ============================================================

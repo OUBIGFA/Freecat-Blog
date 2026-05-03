@@ -82,7 +82,7 @@ function renderPostPage({ post, template, siteConfig }) {
             <img alt="${post.title}" class="w-full h-auto object-cover" src="${post.cover}"
                 onerror="if(this.dataset.fallbackApplied!=='true'){
                     this.dataset.fallbackApplied='true';
-                    this.src='./image/404.png';
+                    this.src='/image/404.png';
                     const loader = this.previousElementSibling;
                     if(loader && loader.classList.contains('loader')) loader.style.display='block';
                 }"

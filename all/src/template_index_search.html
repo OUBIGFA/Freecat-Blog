@@ -12,9 +12,10 @@
 
         <!-- INCLUDE:header -->
 
-        <!-- 主内容区 -->
+        <!-- 主内容区
+             同其它模板：用 --freecat-page-top-offset 防止首屏渲染被固定顶栏遮挡。 -->
         <div
-            class="layout-container page-blur-target mt-[40px] md:mt-[60px] flex h-full grow flex-col px-8 md:px-20 lg:px-40 pt-3 pb-3 md:pt-4">
+            class="layout-container page-blur-target mt-[var(--freecat-page-top-offset)] flex h-full grow flex-col px-8 md:px-20 lg:px-40 pt-3 pb-3 md:pt-4">
             <div class="layout-content-container flex flex-col max-w-[1200px] flex-1 mx-auto w-full">
 
                 <!-- Go Back 按钮 (Moved to Header) -->

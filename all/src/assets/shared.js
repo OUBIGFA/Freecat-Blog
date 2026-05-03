@@ -62,7 +62,7 @@
         "onerror=\"if(this.dataset.fallbackApplied!=='true'){" +
         "this.dataset.fallbackApplied='true';" +
         "this.removeAttribute('srcset');" +
-        "this.src='./image/404.png';}\"";
+        "this.src='/image/404.png';}\"";
 
     function renderTagSpan(tag, opts) {
         const options = opts || {};

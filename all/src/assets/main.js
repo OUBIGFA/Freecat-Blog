@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('error', (e) => {
         const target = e.target;
         if (!target || target.tagName !== 'IMG') return;
-        const fallback = './image/404.png';
+        const fallback = '/image/404.png';
         if (target.dataset.fallbackApplied === 'true') return;
         if (target.src && target.src.indexOf(fallback) !== -1) return;
         target.dataset.fallbackApplied = 'true';
@@ -199,14 +199,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ============================================================
     // [Fix] 固定顶栏遮挡内容：按实际 header 高度动态同步内容区上边距
+    // 安全间距与 transitions.css 中 --freecat-header-safe-gap 的下限保持一致：
+    // 移动端 ≥16px，桌面 ≥24px，避免 hero 内容紧贴顶栏。
     // ============================================================
     function updateContentTopOffset() {
         const header = document.querySelector('header.fixed');
         if (!header) return;
         const headerHeight = Math.ceil(header.getBoundingClientRect().height);
-        const extraGap = window.innerWidth < 768 ? 8 : 12;
+        const extraGap = window.innerWidth < 768 ? 16 : 24;
         const topOffset = `${headerHeight + extraGap}px`;
         document.documentElement.style.setProperty('--freecat-header-height', `${headerHeight}px`);
+        document.documentElement.style.setProperty('--freecat-header-safe-gap', `${extraGap}px`);
+        document.documentElement.style.setProperty('--freecat-page-top-offset', topOffset);
         const targets = document.querySelectorAll('.layout-container.page-blur-target, main.page-blur-target');
         targets.forEach((el) => {
             if (el.querySelector('.freecat-hero-bg, .freecat-home-hero')) {
