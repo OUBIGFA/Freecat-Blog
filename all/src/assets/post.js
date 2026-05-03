@@ -159,7 +159,7 @@
 
         setVisibility(backToTopBtn, 'translate-x-4');
         setVisibility(scrollToBottomBtn, 'translate-x-4');
-        setVisibility(floatingGoBackBtn, '-translate-x-4');
+        setVisibility(floatingGoBackBtn, 'translate-x-4');
     }
 
     if (backToTopBtn || scrollToBottomBtn || floatingGoBackBtn) {
