@@ -209,8 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.documentElement.style.setProperty('--freecat-header-height', `${headerHeight}px`);
         const targets = document.querySelectorAll('.layout-container.page-blur-target, main.page-blur-target');
         targets.forEach((el) => {
-            // 首页的首屏自己消费 header 高度，不额外叠加外层 marginTop。
-            if (el.querySelector('.freecat-home-hero')) {
+            if (el.querySelector('.freecat-hero-bg, .freecat-home-hero')) {
                 el.style.marginTop = '0px';
                 return;
             }

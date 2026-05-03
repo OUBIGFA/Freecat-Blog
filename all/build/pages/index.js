@@ -27,7 +27,7 @@ function renderPostCardForList(post) {
 function renderViewAllLink(totalPages) {
     if (totalPages <= 1) return '';
     return `
-            <a href="/all.html" class="t-btn t-btn-primary group flex items-center gap-2 px-4 h-10 rounded-full border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-primary hover:text-slate-50 hover:border-primary -mb-2">
+            <a href="/all.html" class="flex items-center gap-2 h-10 text-gray-700 dark:text-gray-300 -mb-2">
                 <span class="text-sm font-bold">View All</span>
                 <svg class="text-xl t-btn-arrow-next" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path></svg>
             </a>`;

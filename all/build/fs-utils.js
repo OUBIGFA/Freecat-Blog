@@ -13,8 +13,15 @@ function copyDir(src, dest) {
 }
 
 function ensureCleanDir(dir) {
-    if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true });
-    fs.mkdirSync(dir);
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+        return;
+    }
+
+    const entries = fs.readdirSync(dir);
+    for (const entry of entries) {
+        fs.rmSync(path.join(dir, entry), { recursive: true, force: true });
+    }
 }
 
 module.exports = { copyDir, ensureCleanDir };

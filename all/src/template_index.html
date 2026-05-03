@@ -51,7 +51,10 @@
 
         :root {
             --freecat-header-height: 72px;
-            --freecat-hero-height: clamp(400px, 48vh, 520px);
+            --freecat-hero-safe-gap: clamp(16px, 2.5vh, 28px);
+            --freecat-hero-height: clamp(430px, 56vh, 560px);
+            --freecat-posts-edge-gap: clamp(6px, 1.2vw, 14px);
+            --freecat-posts-gap: clamp(18px, 3vw, 36px);
             --freecat-canvas: #f6f6f8;
             --freecat-hero-canvas: #fafbfc;
             --freecat-line: #d7dde5;
@@ -74,16 +77,19 @@
             isolation: isolate;
         }
 
-        .freecat-home-hero {
-            position: relative;
+        .freecat-hero-bg {
+            position: fixed;
+            inset: 0 0 auto 0;
             z-index: 0;
-            padding-top: calc(var(--freecat-header-height) + clamp(18px, 3vw, 34px));
-            padding-bottom: clamp(18px, 3vw, 34px);
+            height: calc(var(--freecat-header-height) + var(--freecat-hero-height));
+            overflow: hidden;
             background: var(--freecat-hero-canvas);
+            padding-top: calc(var(--freecat-header-height) + var(--freecat-hero-safe-gap));
         }
 
-        .freecat-home-hero-shell {
-            min-height: clamp(320px, 40vh, 430px);
+        .freecat-hero-spacer {
+            height: calc(var(--freecat-header-height) + var(--freecat-hero-height));
+            flex: 0 0 auto;
         }
 
         .freecat-hero-avatar {
@@ -100,19 +106,22 @@
             position: relative;
             z-index: 10;
             min-height: 100vh;
-            padding-top: clamp(0px, 1vw, 12px);
+            padding-top: var(--freecat-posts-edge-gap);
             background: var(--freecat-canvas);
         }
 
         @media (max-width: 863px) {
             :root {
-                --freecat-hero-height: clamp(430px, 60vh, 560px);
+                --freecat-hero-height: clamp(430px, 58vh, 560px);
             }
         }
 
         @media (max-width: 640px) {
             :root {
-                --freecat-hero-height: clamp(440px, 62vh, 580px);
+                --freecat-hero-height: clamp(360px, 56vh, 460px);
+                --freecat-hero-safe-gap: clamp(10px, 1.6vh, 16px);
+                --freecat-posts-edge-gap: 0px;
+                --freecat-posts-gap: 0px;
             }
         }
 
@@ -122,6 +131,14 @@
             margin: 0;
             padding: 0;
             border: 0;
+        }
+
+        #posts-list {
+            padding-top: var(--freecat-posts-gap);
+        }
+
+        #view-all-header:not(:empty) + #posts-list {
+            padding-top: 0;
         }
     </style>
 </head>
@@ -134,14 +151,14 @@
 
         <!-- 主内容区 -->
         <div class="layout-container page-blur-target flex h-full grow flex-col">
-            <section id="avatar-trigger-area" class="freecat-home-hero w-full">
+            <div id="avatar-trigger-area" class="freecat-hero-bg w-full">
                 <div class="px-8 md:px-20 lg:px-40 h-full">
-                    <div class="layout-content-container flex flex-col max-w-[1200px] flex-1 mx-auto w-full h-full">
+                    <div class="layout-content-container flex flex-col max-w-[1200px] flex-1 mx-auto w-full h-[var(--freecat-hero-height)]">
 
                         <!-- Hero Section (只在第一页显示，或者保留不动) -->
-                        <div id="hero-section" class="freecat-home-hero-shell @container h-full">
+                        <div id="hero-section" class="@container h-full">
                             <div
-                                class="flex h-full flex-col-reverse gap-6 pt-4 pb-4 @[480px]:gap-8 @[480px]:pt-6 @[480px]:pb-8 @[864px]:flex-row @[864px]:items-center @[864px]:pt-0 @[864px]:pb-0">
+                                class="flex h-full flex-col-reverse gap-6 pt-8 pb-6 @[480px]:gap-8 @[480px]:py-12 @[864px]:flex-row @[864px]:items-center @[864px]:pt-0 @[864px]:pb-0">
                                 <div class="flex flex-col gap-6 @[480px]:min-w-[400px] @[480px]:gap-8 flex-1">
                                     <div class="flex flex-col gap-4 text-left">
                                         <h1
@@ -165,13 +182,15 @@
                         <!-- 文章列表标题 -->
                     </div>
                 </div>
-            </section>
+            </div>
+
+            <div class="freecat-hero-spacer" aria-hidden="true"></div>
 
             <section class="freecat-posts-plane w-full">
-                <div class="w-full px-8 md:px-20 lg:px-40">
+                <div class="w-full px-8 md:px-20 lg:px-28">
                     <div class="layout-content-container flex flex-col max-w-[1200px] flex-1 mx-auto w-full">
                     <div id="view-all-header"
-                        class="flex items-baseline justify-start pb-6 pt-0 mb-12">
+                        class="flex items-baseline justify-start pb-2 pt-0 mb-5">
                         <!-- PAGINATION_PLACEHOLDER -->
                     </div>
                     <!-- === 动态文章注入区 === -->
