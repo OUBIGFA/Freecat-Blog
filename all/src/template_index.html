@@ -52,10 +52,15 @@
         :root {
             /* 注：--freecat-header-height / --freecat-header-safe-gap / --freecat-page-top-offset
                已在 assets/transitions.css 中作为全站默认值定义，这里只补充首页专属变量。 */
-            --freecat-hero-ideal-height: clamp(430px, 56svh, 560px);
-            --freecat-hero-content-min-height: 420px;
+            --freecat-hero-content-fallback-height: 420px;
             --freecat-hero-bottom-safe-gap: clamp(44px, 8svh, 88px);
-            --freecat-hero-height: max(var(--freecat-hero-ideal-height), calc(var(--freecat-hero-content-min-height) + var(--freecat-hero-bottom-safe-gap)));
+            --freecat-hero-slot-height: 0px;
+            --freecat-hero-avatar-size: 20rem;
+            --freecat-hero-title-size: clamp(2.5rem, 3.2vw, 3rem);
+            --freecat-hero-height: max(
+                var(--freecat-hero-slot-height),
+                var(--freecat-hero-measured-height, calc(var(--freecat-hero-content-fallback-height) + var(--freecat-hero-bottom-safe-gap)))
+            );
             --freecat-posts-edge-gap: clamp(6px, 1.2vw, 14px);
             --freecat-posts-gap: clamp(18px, 3vw, 36px);
             --freecat-canvas: #f6f6f8;
@@ -107,19 +112,31 @@
             background: var(--freecat-canvas);
         }
 
+        .freecat-hero-layout {
+            min-height: var(--freecat-hero-slot-height);
+        }
+
         @media (min-width: 641px) and (max-width: 1183px) {
             :root {
-                --freecat-hero-ideal-height: clamp(660px, 78svh, 760px);
-                --freecat-hero-content-min-height: 638px;
+                --freecat-hero-content-fallback-height: 638px;
                 --freecat-hero-bottom-safe-gap: clamp(28px, 4svh, 52px);
+            }
+        }
+
+        @media (min-width: 1184px) {
+            :root {
+                --freecat-hero-slot-height: clamp(460px, 58svh, 540px);
+                --freecat-hero-content-fallback-height: 360px;
+                --freecat-hero-bottom-safe-gap: clamp(14px, 2.4svh, 24px);
             }
         }
 
         @media (max-width: 640px) {
             :root {
-                --freecat-hero-ideal-height: 0px;
-                --freecat-hero-content-min-height: 392px;
-                --freecat-hero-bottom-safe-gap: clamp(8px, 1.6svh, 14px);
+                --freecat-hero-content-fallback-height: 300px;
+                --freecat-hero-bottom-safe-gap: clamp(10px, 1.6svh, 14px);
+                --freecat-hero-avatar-size: clamp(96px, 22vw, 128px);
+                --freecat-hero-title-size: clamp(1.75rem, 6.6vw, 2.25rem);
                 --freecat-posts-edge-gap: 0px;
                 --freecat-posts-gap: 0px;
             }
@@ -152,8 +169,8 @@
         <!-- 主内容区 -->
         <div class="layout-container page-blur-target flex h-full grow flex-col">
             <div id="avatar-trigger-area" class="freecat-hero-bg w-full">
-                <div class="px-8 md:px-20 lg:px-40 h-full">
-                    <div class="layout-content-container flex flex-col max-w-[1200px] flex-1 mx-auto w-full h-[var(--freecat-hero-height)]">
+                <div class="px-8 md:px-20 lg:px-40">
+                    <div class="layout-content-container flex flex-col max-w-[1200px] flex-1 mx-auto w-full">
 
                         <!-- Hero Section (只在第一页显示，或者保留不动)
                              注意 DOM 顺序：avatar 在前、文字在后。
@@ -163,22 +180,22 @@
                                不会再向"上"侵入固定顶栏。
                              - 宽屏用 flex-row-reverse，DOM 顺序保持
                                avatar 在前、文字在后，但视觉仍是文字左、avatar 右。 -->
-                        <div id="hero-section" class="@container h-full">
+                        <div id="hero-section" class="@container">
                             <div
-                                class="flex h-full min-h-[var(--freecat-hero-content-min-height)] flex-col gap-6 pt-8 pb-[var(--freecat-hero-bottom-safe-gap)] @[480px]:gap-8 @[480px]:pt-10 @[1184px]:flex-row-reverse @[1184px]:items-center @[1184px]:pt-0">
+                                class="freecat-hero-layout flex flex-col justify-center gap-4 pt-4 pb-[var(--freecat-hero-bottom-safe-gap)] @[480px]:gap-8 @[480px]:pt-10 @[1184px]:flex-row-reverse @[1184px]:items-center @[1184px]:pt-[var(--freecat-hero-bottom-safe-gap)] @[1184px]:gap-12">
                                 <div class="w-full @[1184px]:w-1/2 flex justify-center @[1184px]:justify-end">
                                     <div id="hero-avatar"
-                                        class="freecat-hero-avatar animate-fade-in-up delay-300 w-28 @[480px]:w-80 bg-center bg-no-repeat bg-cover rounded-full"
+                                        class="freecat-hero-avatar animate-fade-in-up delay-300 w-[var(--freecat-hero-avatar-size)] bg-center bg-no-repeat bg-cover rounded-full"
                                         style='background-image: url("./image/freecat.png");'></div>
                                 </div>
-                                <div class="flex flex-col gap-6 @[480px]:min-w-[400px] @[480px]:gap-8 flex-1">
-                                    <div class="flex flex-col gap-4 text-left">
+                                <div class="flex flex-col gap-4 @[480px]:min-w-[400px] @[480px]:gap-8 flex-1">
+                                    <div class="flex flex-col gap-3 @[480px]:gap-4 text-left">
                                         <h1
-                                            class="animate-fade-in-up text-[#111318] dark:text-slate-200 text-3xl font-black leading-[1.1] tracking-[-0.033em] @[480px]:text-5xl @[480px]:leading-tight">
+                                            class="animate-fade-in-up text-[#111318] dark:text-slate-200 text-[length:var(--freecat-hero-title-size)] font-black leading-[1.08] tracking-[-0.033em] @[1184px]:leading-tight">
                                             <!-- HERO_TITLE -->
                                         </h1>
                                         <h2
-                                            class="animate-fade-in-up delay-150 text-[#616f89] dark:text-gray-400 text-sm font-normal leading-relaxed max-w-xl">
+                                            class="animate-fade-in-up delay-150 text-[#616f89] dark:text-gray-400 text-xs @[480px]:text-sm font-normal leading-relaxed max-w-xl">
                                             <!-- HERO_SUBTITLE -->
                                         </h2>
                                     </div>

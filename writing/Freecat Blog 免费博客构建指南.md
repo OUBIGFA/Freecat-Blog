@@ -168,10 +168,10 @@ GitHub 负责云备份，也负责通知部署平台重新构建。
 
 后面无论是 Cloudflare Pages 还是 Vercel，核心都填这几个：
 
-- 项目目录：`all`
-- Build Command：`npm run build`
-- Output Directory：`dist`
-- Node Version：`20`
+- 根目录 / Root Directory：`all`
+- 构建命令 / Build Command：`npm run build`
+- 构建输出目录 / Output Directory：`dist`
+- 环境变量 / Environment Variable：`NODE_VERSION=20`（可选，建议固定）
 
 如果你看到平台里有这些字段，照着填就行。
 
@@ -359,15 +359,16 @@ GitHub 官方文档当前写明：
 | 项目 | 应该填写什么 |
 | --- | --- |
 | 仓库 | 你自己的私有 GitHub 仓库 |
-| Root Directory / Base Directory | `all` |
-| Build Command | `npm run build` |
-| Output Directory / Publish Directory | `dist` |
-| Node Version | `20` |
+| 根目录 / Root Directory / Base Directory | `all` |
+| 构建命令 / Build Command | `npm run build` |
+| 构建输出目录 / Output Directory / Publish Directory | `dist` |
+| 环境变量 / Environment Variable | `NODE_VERSION=20`（可选，建议固定） |
 
 注意：
 
 - 如果平台已经把项目根目录切到 `all`，输出目录就写 `dist`
 - 不要写成 `all/dist`
+- Cloudflare Pages 新版默认 Node.js 22；如果你想和本文档保持一致，建议加上 `NODE_VERSION=20`
 
 ---
 
@@ -383,48 +384,50 @@ https://dash.cloudflare.com/
 1. 注册 Cloudflare
 2. 登录后台
 
-### 第 2 步：进入 Pages
+### 第 2 步：进入 Pages 并创建项目
 
-登录后：
+登录后按这个顺序走：
 
-1. 在左侧找到 `Workers & Pages`
-2. 点击进入
-3. 点击 `Create`
-4. 选择 `Pages`
+0. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)
+1. 创建应用程序
 
-### 第 3 步：连接 GitHub
+![01](all\image\Tutorial\01.png)
 
-操作顺序：
+2. 部署 Pages
 
-1. 点击连接 GitHub
-2. 授权 Cloudflare 访问你的 GitHub 仓库
-3. 选择你自己的那个博客仓库
-4. 点击导入
+![02](all\image\Tutorial\02.png)
 
-### 第 4 步：填写构建配置
+3. 选择导入现有 Git 储存库
 
-按下面填写：
+![03](all\image\Tutorial\03.png)
 
-- Framework preset：`None`
-- Root directory：`all`
-- Build command：`npm run build`
-- Build output directory：`dist`
+4. 选择目标仓库
 
-如果看到环境变量或 Node 版本相关设置，建议补上：
+![04](all\image\Tutorial\04.png)
 
-- Node version：`20`
+### 第 3 步：填写构建配置并部署
 
-### 第 5 步：开始首次部署
+填写对应参数，项目名称可以自由设置，然后点击 `Save and Deploy（保存并部署）`，等待构建完成。
 
-配置填完后：
+![05](all\image\Tutorial\05.png)
 
-1. 点击开始部署
-2. 等待几分钟
-3. 看到成功提示后，Cloudflare 会给你一个默认网址
+Cloudflare 后台如果显示中文，通常就是下面这些字段：
 
-部署成功后就可以打开网站。
+| Cloudflare 界面中文 | Cloudflare UI English | 应填写的值 |
+| --- | --- | --- |
+| 框架预设 | Framework preset | 保持 `无 / None`，或者不选预设 |
+| 根目录（高级） | Root directory (advanced) > Path | `all` |
+| 构建命令 | Build command | `npm run build` |
+| 构建输出目录 | Build output directory | `dist` |
+| 环境变量（可选） | Environment variables (optional) | `NODE_VERSION` = `20` |
 
-### 第 6 步：以后怎么更新网站
+### 第 4 步：完成部署并访问默认网址
+
+部署完成后就可以访问 Cloudflare 给你的默认网址。
+
+![06](all\image\Tutorial\06.png)
+
+### 第 5 步：以后怎么更新网站
 
 以后你不需要再来 Cloudflare 手动上传文件。
 
@@ -437,24 +440,17 @@ https://dash.cloudflare.com/
 5. Cloudflare 自动重新构建
 6. 网站自动更新
 
-### 第 7 步：绑定自己的域名
+### 第 6 步：绑定自己的域名
 
-如果你以后想用自己的网址，比如：
+由于 Cloudflare 被墙，所以想要对外展示，通常需要绑定自定义域名。具体教程自行 [Google](https://www.google.com)。
 
-- `blog.你的域名.com`
-- `www.你的域名.com`
+免费域名推荐：
+https://blog.freeorg.dpdns.org/posts/%E5%85%8D%E8%B4%B9%E5%9F%9F%E5%90%8D%E7%94%B3%E8%AF%B7%E6%8C%87%E5%8D%97.html
 
-可以这样做：
+[DNSHE](https://my.dnshe.com/) 自动续期项目：
+https://github.com/OUBIGFA/dnshe-auto-renew
 
-1. 进入这个 Pages 项目的设置页
-2. 找到 `Custom domains`
-3. 点击添加域名
-4. 输入你自己的域名
-5. 按页面提示完成 DNS 配置
-
-如果你的域名本来就在 Cloudflare 托管，通常会更省事。
-
-### 第 8 步：Cloudflare Pages 最常见的 4 个坑
+### 第 7 步：Cloudflare Pages 最常见的 4 个坑
 
 #### 坑 1：Root directory 填错
 
@@ -478,7 +474,7 @@ https://dash.cloudflare.com/
 
 如果你已经会了，记住这一句就够：
 
-`导入 GitHub 仓库 -> Root directory 填 all -> Build command 填 npm run build -> Output directory 填 dist -> 部署`
+`创建应用程序 -> 部署 Pages -> 导入现有 Git 储存库 -> 选择目标仓库 -> 根目录填 all -> 构建命令填 npm run build -> 构建输出目录填 dist -> Save and Deploy`
 
 ---
 

@@ -55,15 +55,18 @@ Before you start, get the following accounts ready:
 
 The core deployment settings are the same on Cloudflare Pages and Vercel:
 
-| Field | Value |
+| Field (CN / EN) | Value |
 | --- | --- |
 | Repository | Your own GitHub repository |
-| Root Directory / Base Directory | `all` |
-| Build Command | `npm run build` |
-| Output Directory / Publish Directory | `dist` |
-| Node Version | `20` |
+| Root Directory / Base Directory / 根目录 | `all` |
+| Build Command / 构建命令 | `npm run build` |
+| Output Directory / Publish Directory / 构建输出目录 | `dist` |
+| Environment Variable / 环境变量 | `NODE_VERSION=20` (optional, recommended to pin) |
 
-Note: once the root directory is set to `all`, the output directory is just `dist`, not `all/dist`.
+Notes:
+
+- Once the root directory is set to `all`, the output directory is just `dist`, not `all/dist`
+- The latest Cloudflare Pages build image defaults to Node.js 22; if you want this guide's tested setup, add `NODE_VERSION=20` as an environment variable
 
 ## Quick Start
 
@@ -209,32 +212,41 @@ Once the push succeeds, the deployment platform automatically rebuilds.
 
 ## Deploy with Cloudflare Pages (Recommended)
 
-Best for long-term, stable hosting, especially with custom domains.
+Best for long-term, stable hosting, especially for plain static blogs and custom domains.
 
 ### Configuration
+0. Sign in to [Cloudflare Dashboard](https://dash.cloudflare.com/)
+1. Create an application
+![01](all\image\Tutorial\01.png)
+2. Choose Pages deployment
+![02](all\image\Tutorial\02.png)
+3. Choose to import an existing Git repository
+![03](all\image\Tutorial\03.png)
+4. Select your target repository
+![04](all\image\Tutorial\04.png)
+5. Fill in the build settings. The project name can be anything you want. Then click `Save and Deploy` and wait for the build to finish
+![05](all\image\Tutorial\05.png)
 
-1. Sign in to [Cloudflare Dashboard](https://dash.cloudflare.com/)
-2. From the sidebar, go to `Workers & Pages` → `Create` → `Pages`
-3. Connect GitHub and select your repository
-4. Fill in the build configuration:
+| Cloudflare UI Chinese | Cloudflare UI English | Value |
+| --- | --- | --- |
+| 框架预设 | Framework preset | keep `None`, `无`, or no preset |
+| 根目录（高级） | Root directory (advanced) > Path | `all` |
+| 构建命令 | Build command | `npm run build` |
+| 构建输出目录 | Build output directory | `dist` |
+| 环境变量（可选） | Environment variables (optional) | `NODE_VERSION` = `20` |
 
-| Field | Value |
-| --- | --- |
-| Framework preset | `None` |
-| Root directory | `all` |
-| Build command | `npm run build` |
-| Build output directory | `dist` |
-| Node version | `20` |
-
-5. Click Deploy. After a few minutes you will get a default URL
+6. Deployment completed and the default URL becomes available
+![06](all\image\Tutorial\06.png)
 
 ### Custom Domain
 
-1. Open the Pages project settings
-2. Find `Custom domains`
-3. Add your domain and follow the DNS instructions
+Because Cloudflare itself is blocked in some regions, you may need to bind a custom domain if you want the site to be publicly reachable from outside.
 
-The flow is even smoother if your domain is already on Cloudflare.
+Free domain recommendation:
+https://blog.freeorg.dpdns.org/posts/%E5%85%8D%E8%B4%B9%E5%9F%9F%E5%90%8D%E7%94%B3%E8%AF%B7%E6%8C%87%E5%8D%97.html
+
+[DNSHE](https://my.dnshe.com/) auto-renew project:
+https://github.com/OUBIGFA/dnshe-auto-renew
 
 <details>
 <summary><b>🚀 Deploy with Vercel — click to expand</b></summary>

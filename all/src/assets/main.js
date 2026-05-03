@@ -219,6 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             el.style.marginTop = topOffset;
         });
+        scheduleHomeHeroMeasure();
     }
 
     function observeHeaderOffsetChanges() {
@@ -226,6 +227,37 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!header || typeof ResizeObserver === 'undefined') return;
         const observer = new ResizeObserver(() => updateContentTopOffset());
         observer.observe(header);
+    }
+
+    let homeHeroMeasureFrame = 0;
+
+    function updateHomeHeroMeasuredHeight() {
+        homeHeroMeasureFrame = 0;
+
+        const heroBg = document.querySelector('.freecat-hero-bg');
+        const heroSection = document.getElementById('hero-section');
+        if (!heroBg || !heroSection) return;
+
+        const heroContent = heroSection.firstElementChild || heroSection;
+        const measuredHeight = Math.ceil(heroContent.getBoundingClientRect().height);
+        if (measuredHeight <= 0) return;
+
+        document.documentElement.style.setProperty('--freecat-hero-measured-height', `${measuredHeight}px`);
+    }
+
+    function scheduleHomeHeroMeasure() {
+        if (homeHeroMeasureFrame) return;
+        homeHeroMeasureFrame = requestAnimationFrame(updateHomeHeroMeasuredHeight);
+    }
+
+    function observeHomeHeroContentChanges() {
+        const heroSection = document.getElementById('hero-section');
+        if (!heroSection || typeof ResizeObserver === 'undefined') return;
+        const observer = new ResizeObserver(() => scheduleHomeHeroMeasure());
+        observer.observe(heroSection);
+        if (heroSection.firstElementChild) {
+            observer.observe(heroSection.firstElementChild);
+        }
     }
 
     // ============================================================
@@ -276,6 +308,8 @@ document.addEventListener('DOMContentLoaded', () => {
     applyTheme();
     updateContentTopOffset();
     observeHeaderOffsetChanges();
+    observeHomeHeroContentChanges();
+    scheduleHomeHeroMeasure();
     ensureAnimationStyles(); // Ensure global animation styles are present
 
     // Apply staggered animation to existing post cards on load
@@ -296,6 +330,8 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('pageshow', (event) => {
         if (event.persisted) {
             applyTheme();
+            updateContentTopOffset();
+            scheduleHomeHeroMeasure();
         }
     });
 
@@ -312,6 +348,12 @@ document.addEventListener('DOMContentLoaded', () => {
         updateContentTopOffset();
         requestAnimationFrame(updateContentTopOffset);
     });
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => {
+            updateContentTopOffset();
+            scheduleHomeHeroMeasure();
+        });
+    }
 
     // 确保 Mermaid 在合适时机初始化
     if (document.readyState === 'loading') {
