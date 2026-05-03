@@ -137,6 +137,18 @@ function autoSpacingHtml(html) {
     return res.replace(new RegExp(`${prePlaceholderPrefix}(\\d+)${prePlaceholderSuffix}`, 'g'), (m, idx) => preBlocks[Number(idx)]);
 }
 
+function normalizeImageHref(href) {
+    const raw = String(href || '').trim();
+    if (!raw) return '';
+    if (/^(?:https?:)?\/\//i.test(raw) || /^(?:data|blob):/i.test(raw) || raw.startsWith('/')) return raw;
+
+    const normalized = raw.replace(/\\/g, '/');
+    const imagePathMatch = /^(?:\.\.\/|\.\/)*all\/image\/(.+)$/i.exec(normalized);
+    if (imagePathMatch) return `/image/${imagePathMatch[1]}`;
+
+    return raw;
+}
+
 // ===== TOC 与标题 ID =====
 function extractHeadingsAndGenerateTOC(content) {
     const headingRegex = /^(#{1,6})\s+(.+)$/gm;
@@ -502,7 +514,7 @@ function buildRenderer() {
 
     renderer.image = (href, title, text) => {
         const fallbackSrc = '/image/404.png';
-        const safeHref = (href || '').replace(/"/g, '&quot;');
+        const safeHref = normalizeImageHref(href).replace(/"/g, '&quot;');
         const safeAlt = (text || '').replace(/"/g, '&quot;');
         const safeTitle = title ? ` title="${title.replace(/"/g, '&quot;')}"` : '';
         const caption = (title && title.trim()) ? title.trim() : (text || '').trim();
