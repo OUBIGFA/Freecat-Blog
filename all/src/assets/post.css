@@ -227,16 +227,15 @@
 
 
 
-/* 列表样式优化：增加列表项间距使其与 2.2 行高协调 */
+/* 列表样式优化：列表内部保持紧凑，列表块之间再留出段落级间距 */
 .prose ul,
 .prose ol {
-    margin-bottom: 2rem !important;
+    margin-bottom: 1.5rem !important;
 }
 
 .prose li {
-    margin-bottom: 1.25rem !important;
-    /* 列表项内部间距 */
-    line-height: 1.8 !important;
+    margin-bottom: 0.5rem !important;
+    line-height: 1.7 !important;
 }
 
 .prose li:last-child {
@@ -1246,6 +1245,11 @@
     hyphens: none !important;
 }
 
+.prose p:has(+ ul),
+.prose p:has(+ ol) {
+    margin-bottom: calc(var(--article-rhythm) * 0.26) !important;
+}
+
 .dark .prose p {
     color: #aebacc !important;
 }
@@ -1375,8 +1379,13 @@
 
 .prose ul,
 .prose ol {
-    margin: calc(var(--article-rhythm) * 0.45) 0 calc(var(--article-rhythm) * 0.95) !important;
+    margin: calc(var(--article-rhythm) * 0.25) 0 calc(var(--article-rhythm) * 0.6) !important;
     padding-left: 1.35em !important;
+}
+
+.prose p+ul,
+.prose p+ol {
+    margin-top: 0 !important;
 }
 
 .prose ul {
@@ -1404,14 +1413,14 @@
 }
 
 .prose li {
-    margin: 0 0 calc(var(--article-rhythm) * 0.34) !important;
+    margin: 0 0 calc(var(--article-rhythm) * 0.14) !important;
     line-height: 1.72 !important;
     color: #334155 !important;
 }
 
 .prose>ul>li,
 .prose>ol>li {
-    margin-bottom: calc(var(--article-rhythm) * 0.52) !important;
+    margin-bottom: calc(var(--article-rhythm) * 0.22) !important;
 }
 
 .prose li>p {

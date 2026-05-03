@@ -70,8 +70,10 @@ function prepareMarkdownSpacing(content) {
             .replace(/([一-龥])([a-zA-Z0-9$%.])/g, '$1 $2')
             .replace(/([a-zA-Z0-9$%.])([一-龥])/g, '$1 $2')
             .replace(/\] \(http/g, '](http')
-            // 缩进 - 列表转换为 * 列表，避免被误识别为 Setext 标题
-            .replace(/^(\s{2,})-\s/gm, '$1* ');
+            // 缩进 - 列表转换为 * 列表，避免被误识别为 Setext 标题。
+            // 这里只能匹配同一行内的空格/Tab，不能用 \s；\s 会吞掉换行，
+            // 导致普通列表块的第一项被误改成另一种列表标记。
+            .replace(/^([ \t]{2,})-\s/gm, '$1* ');
     });
 }
 
