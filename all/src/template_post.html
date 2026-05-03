@@ -112,10 +112,10 @@
         <!-- INCLUDE:header -->
 
         <main class="page-blur-target flex-grow mt-[var(--freecat-page-top-offset)]">
-            <div class="max-w-[1536px] mx-auto px-8 sm:px-10 lg:px-8 pt-3 pb-36 md:pt-4 lg:pb-48">
-                <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,768px)_minmax(320px,1fr)] gap-12">
+            <div class="max-w-[1600px] mx-auto px-8 sm:px-10 lg:px-8 pt-3 pb-36 md:pt-4 lg:pb-48">
+                <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,768px)_352px] gap-12">
                     <!-- Left Spacer: Sticky container for floating Go Back button -->
-                    <div class="hidden lg:block relative">
+                    <div class="hidden xl:block relative">
                     </div>
 
                     <article class="min-w-0">
@@ -185,42 +185,7 @@
                         </div>
                     </article>
 
-                    <div class="hidden lg:block relative">
-                        <div class="sticky top-1/2 -translate-y-1/2 float-right mr-4 flex flex-col gap-4">
-                            <button id="floating-go-back" aria-label="Go Back"
-                                class="t-btn-icon group relative flex items-center justify-center rounded-full size-12 bg-[#fcfcfd] dark:bg-card-dark text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-primary opacity-0 invisible translate-x-4">
-                                <span class="text-2xl t-btn-arrow-prev">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                                        width="1em" height="1em">
-                                        <path
-                                            d="M10.8284 12.0007L15.7782 16.9504L14.364 18.3646L8 12.0007L14.364 5.63672L15.7782 7.05093L10.8284 12.0007Z">
-                                        </path>
-                                    </svg>
-                                </span>
-                            </button>
-                            <button id="back-to-top" aria-label="Back to Top"
-                                class="t-btn-icon group relative flex items-center justify-center rounded-full size-12 bg-[#fcfcfd] dark:bg-card-dark text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-primary opacity-0 invisible translate-x-4">
-                                <span class="text-2xl t-btn-arrow-up">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                                        width="1em" height="1em">
-                                        <path
-                                            d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z">
-                                        </path>
-                                    </svg>
-                                </span>
-                            </button>
-                            <button id="scroll-to-bottom" aria-label="Scroll to Bottom"
-                                class="t-btn-icon group relative flex items-center justify-center rounded-full size-12 bg-[#fcfcfd] dark:bg-card-dark text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-primary opacity-0 invisible translate-x-4">
-                                <span class="text-2xl t-btn-arrow-down">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                                        width="1em" height="1em">
-                                        <path
-                                            d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z">
-                                        </path>
-                                    </svg>
-                                </span>
-                            </button>
-                        </div>
+                    <div class="hidden xl:grid grid-cols-[256px_48px] items-start gap-12">
                         <aside
                             class="w-64 flex-shrink-0 sticky top-32 h-[calc(100vh-300px)] self-start relative group/toc lg:mt-[68px]">
                             <!-- 目录标题固定 -->
@@ -234,6 +199,41 @@
                                 </nav>
                             </div>
                         </aside>
+                        <div class="sticky top-1/2 -translate-y-1/2 flex flex-col gap-4">
+                            <button id="floating-go-back" aria-label="Go Back"
+                                class="t-btn-icon group relative flex items-center justify-center rounded-full size-12 bg-[#fcfcfd] dark:bg-card-dark text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-primary opacity-0 invisible">
+                                <span class="text-2xl t-btn-arrow-prev">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                        width="1em" height="1em">
+                                        <path
+                                            d="M10.8284 12.0007L15.7782 16.9504L14.364 18.3646L8 12.0007L14.364 5.63672L15.7782 7.05093L10.8284 12.0007Z">
+                                        </path>
+                                    </svg>
+                                </span>
+                            </button>
+                            <button id="back-to-top" aria-label="Back to Top"
+                                class="t-btn-icon group relative flex items-center justify-center rounded-full size-12 bg-[#fcfcfd] dark:bg-card-dark text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-primary opacity-0 invisible">
+                                <span class="text-2xl t-btn-arrow-up">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                        width="1em" height="1em">
+                                        <path
+                                            d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z">
+                                        </path>
+                                    </svg>
+                                </span>
+                            </button>
+                            <button id="scroll-to-bottom" aria-label="Scroll to Bottom"
+                                class="t-btn-icon group relative flex items-center justify-center rounded-full size-12 bg-[#fcfcfd] dark:bg-card-dark text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-primary opacity-0 invisible">
+                                <span class="text-2xl t-btn-arrow-down">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                        width="1em" height="1em">
+                                        <path
+                                            d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z">
+                                        </path>
+                                    </svg>
+                                </span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

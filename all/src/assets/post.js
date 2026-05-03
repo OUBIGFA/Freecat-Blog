@@ -146,20 +146,20 @@
         var scrollY = window.scrollY;
         var show = scrollY > 500;
 
-        function setVisibility(btn, slideClass) {
+        function setVisibility(btn) {
             if (!btn) return;
             if (show) {
-                btn.classList.remove('opacity-0', 'invisible', slideClass);
-                btn.classList.add('opacity-100', 'visible', 'translate-x-0');
+                btn.classList.remove('opacity-0', 'invisible');
+                btn.classList.add('opacity-100', 'visible');
             } else {
-                btn.classList.add('opacity-0', 'invisible', slideClass);
-                btn.classList.remove('opacity-100', 'visible', 'translate-x-0');
+                btn.classList.add('opacity-0', 'invisible');
+                btn.classList.remove('opacity-100', 'visible');
             }
         }
 
-        setVisibility(backToTopBtn, 'translate-x-4');
-        setVisibility(scrollToBottomBtn, 'translate-x-4');
-        setVisibility(floatingGoBackBtn, 'translate-x-4');
+        setVisibility(backToTopBtn);
+        setVisibility(scrollToBottomBtn);
+        setVisibility(floatingGoBackBtn);
     }
 
     if (backToTopBtn || scrollToBottomBtn || floatingGoBackBtn) {
