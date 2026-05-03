@@ -256,6 +256,8 @@ GitHub 网页一次最多上传 `100` 个文件，而这个项目文件很多，
 
 - `writing/`：存放 Markdown 文章
 - `Control/`：存放网站基础配置（详见后文「通过 Control 文件夹自定义网站」）
+![07](all/image/Tutorial/07.png)
+
 
 ### 以后怎么同步更新
 
