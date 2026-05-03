@@ -1,4 +1,4 @@
----
+﻿---
 title: Freecat Blog 免费博客构建指南 | 本地优先+云同步
 _01: 🔹 文章标题
 date: 2026-01-16
@@ -179,7 +179,7 @@ GitHub 负责云备份，也负责通知部署平台重新构建。
 
 ## 新手正式开始前的准备
 
-接下来要把 FreeBlog 的代码放进**你自己的私有 GitHub 仓库**里。这一步有两条路线：**有技术背景、想长期同步模板更新，推荐 GitHub Importer；完全小白，推荐下载 ZIP + 复制粘贴**。
+接下来要把 Freecat-Blog 的代码放进**你自己的私有 GitHub 仓库**里。这一步有两条路线：**有技术背景、想长期同步模板更新，推荐 GitHub Importer；完全小白，推荐下载 ZIP + 复制粘贴**。
 
 | 路线 | 是否保留 Git 历史 | 能否一条命令同步上游更新 | 适合谁 |
 | --- | --- | --- | --- |
@@ -188,14 +188,14 @@ GitHub 负责云备份，也负责通知部署平台重新构建。
 
 **两条路线只能选一条。** 不要又导入又复制粘贴。
 
-> 有 GitHub / Git 基础，想未来跟上 FreeBlog 的修复和升级 → 选 `GitHub Importer`。
+> 有 GitHub / Git 基础，想未来跟上 Freecat-Blog 的修复和升级 → 选 `GitHub Importer`。
 > 完全小白，只想先跑起来 → 选 `下载 ZIP + 复制粘贴`。
 
 ---
 
 ## 有技术背景推荐：GitHub Importer 一键创建私有仓库（保留上游 Git 历史）
 
-GitHub 自带的 Importer 工具可以把一个公开仓库**完整克隆**进你自己的私有仓库，包括所有 commit 历史。这意味着以后想升级 FreeBlog，只要一条 `git merge upstream/main` 就能搞定。这个路线更适合对 GitHub / Git 有一点基础的人。
+GitHub 自带的 Importer 工具可以把一个公开仓库**完整克隆**进你自己的私有仓库，包括所有 commit 历史。这意味着以后想升级 Freecat-Blog，只要一条 `git merge upstream/main` 就能搞定。这个路线更适合对 GitHub / Git 有一点基础的人。
 
 ### 第 1 步：先登录 GitHub
 
@@ -214,12 +214,12 @@ https://github.com/new/import
 
 | 字段 | 应填写的值 |
 | --- | --- |
-| `Your old repository's clone URL` | `https://github.com/OUBIGFA/FreeBlog` |
+| `Your old repository's clone URL` | `https://github.com/OUBIGFA/Freecat-Blog` |
 | `Owner` | 选你自己的 GitHub 账户 |
 | `Repository name` | 起一个名字，比如 `my-freecat-blog` |
 | `Privacy` | 选 `Private` |
 
-> 如果浏览器打不开 `https://github.com/OUBIGFA/FreeBlog`，说明 GitHub 网络不通；先解决网络问题，或者跳到下面的备选路线。
+> 如果浏览器打不开 `https://github.com/OUBIGFA/Freecat-Blog`，说明 GitHub 网络不通；先解决网络问题，或者跳到下面的备选路线。
 
 ### 第 4 步：开始导入
 
@@ -227,7 +227,7 @@ https://github.com/new/import
 2. 屏幕上会出现进度条
 3. 一般 30 秒到 2 分钟就完成
 4. 看到 `Your new repository ... is ready` 这一行，就成功了
-5. 点进新仓库看一眼，文件应该和 `OUBIGFA/FreeBlog` 一模一样
+5. 点进新仓库看一眼，文件应该和 `OUBIGFA/Freecat-Blog` 一模一样
 
 ### 第 5 步：用 GitHub Desktop 把仓库下载到本地
 
@@ -237,7 +237,7 @@ https://github.com/new/import
 4. 选一个你自己容易找到的本地位置
 5. 点击 `Clone`
 
-到这里你的本地文件夹里就是完整的 FreeBlog 项目，**直接跳到下面的「不论走哪条路线，接下来都一样」一节继续**。
+到这里你的本地文件夹里就是完整的 Freecat-Blog 项目，**直接跳到下面的「不论走哪条路线，接下来都一样」一节继续**。
 
 ---
 
@@ -251,7 +251,7 @@ https://github.com/new/import
 ### 第 1 步：先注册并登录 GitHub
 
 项目地址：
-https://github.com/OUBIGFA/FreeBlog
+https://github.com/OUBIGFA/Freecat-Blog
 
 1. 登录 GitHub
 2. 如果还没有账号，先完成注册
@@ -266,10 +266,10 @@ https://github.com/OUBIGFA/FreeBlog
 5. 勾选 `Add a README file`
 6. 点击 `Create repository`
 
-### 第 3 步：下载 FreeBlog 的代码压缩包
+### 第 3 步：下载 Freecat-Blog 的代码压缩包
 
 1. 打开原项目地址
-2. 进入 [https://github.com/OUBIGFA/FreeBlog](https://github.com/OUBIGFA/FreeBlog)
+2. 进入 [https://github.com/OUBIGFA/Freecat-Blog](https://github.com/OUBIGFA/Freecat-Blog)
 3. 点击页面右上方的 `Code`
 4. 点击 `Download ZIP`
 5. 等待 ZIP 文件下载完成
@@ -295,9 +295,9 @@ https://github.com/OUBIGFA/FreeBlog
 
 本地仓库文件夹里通常只有一个 `README.md`。
 
-### 第 6 步：把 FreeBlog 的源码复制进你自己的本地仓库
+### 第 6 步：把 Freecat-Blog 的源码复制进你自己的本地仓库
 
-1. 打开刚才解压出来的 `FreeBlog` 文件夹
+1. 打开刚才解压出来的 `Freecat-Blog` 文件夹
 2. 进入最里面那一层真正放源码的目录
 3. 全选里面的内容
 4. 复制这些内容
@@ -307,7 +307,7 @@ https://github.com/OUBIGFA/FreeBlog
 
 注意：
 
-- 不要把最外层整个 `FreeBlog` 文件夹丢进去
+- 不要把最外层整个 `Freecat-Blog` 文件夹丢进去
 - 要复制的是“里面的内容”
 - 否则你的仓库里会多套一层目录，部署平台找不到 `all/`，构建必然失败
 
@@ -315,7 +315,7 @@ https://github.com/OUBIGFA/FreeBlog
 
 1. 回到 `GitHub Desktop`
 2. 左侧会看到很多新增文件
-3. 在提交说明里输入一句话，比如 `Import FreeBlog source`
+3. 在提交说明里输入一句话，比如 `Import Freecat-Blog source`
 4. 点击 `Commit to main`
 5. 再点击 `Push origin`
 

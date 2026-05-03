@@ -1,4 +1,4 @@
-<div align="center">
+﻿<div align="center">
   <img src="https://cdn.img2ipfs.com/ipfs/QmNxBPYGDuwD5MYyvyzJWZBzW6dFQoYAgXvXdKJP5sumE5?filename=freecat.gif" width="640" alt="Freecat Blog Preview">
   <h1>Freecat Blog</h1>
   <p>A free, local-first personal blog with cloud sync</p>
@@ -80,7 +80,7 @@ There are two routes: **if you have some technical background and want long-term
 
 ### Recommended for technical users: Use GitHub Importer to create your private repo (keeps upstream Git history)
 
-GitHub's built-in Importer copies a public repository **completely** into your own private repository, including all commit history. That means future upgrades from FreeBlog only take a single command. This route is better for people who already have some basic GitHub / Git experience.
+GitHub's built-in Importer copies a public repository **completely** into your own private repository, including all commit history. That means future upgrades from Freecat-Blog only take a single command. This route is better for people who already have some basic GitHub / Git experience.
 
 #### Step 1: Open the Importer page
 
@@ -91,19 +91,19 @@ GitHub's built-in Importer copies a public repository **completely** into your o
 
 | Field | Value |
 | --- | --- |
-| `Your old repository's clone URL` | `https://github.com/OUBIGFA/FreeBlog` |
+| `Your old repository's clone URL` | `https://github.com/OUBIGFA/Freecat-Blog` |
 | `Owner` | Your GitHub account |
 | `Repository name` | A name like `my-freecat-blog` |
 | `Privacy` | `Private` |
 
-> If you cannot reach `https://github.com/OUBIGFA/FreeBlog` in the browser, GitHub itself is unreachable on your network — fix that first or take the fallback route.
+> If you cannot reach `https://github.com/OUBIGFA/Freecat-Blog` in the browser, GitHub itself is unreachable on your network — fix that first or take the fallback route.
 
 #### Step 3: Run the import
 
 1. Click `Begin import`
 2. A progress bar appears, usually finishes between 30 seconds and 2 minutes
 3. When you see `Your new repository... is ready`, you're done
-4. Click into the new repo and confirm the file list looks identical to OUBIGFA/FreeBlog
+4. Click into the new repo and confirm the file list looks identical to OUBIGFA/Freecat-Blog
 
 #### Step 4: Clone the repo locally with GitHub Desktop
 
@@ -113,7 +113,7 @@ GitHub's built-in Importer copies a public repository **completely** into your o
 4. Choose a local folder (somewhere you can find easily)
 5. Click `Clone`
 
-You now have the full FreeBlog project locally — **skip ahead to [Write articles](#write-articles)**.
+You now have the full Freecat-Blog project locally — **skip ahead to [Write articles](#write-articles)**.
 
 ---
 
@@ -126,7 +126,7 @@ You now have the full FreeBlog project locally — **skip ahead to [Write articl
 
 #### Step 1: Create your own private repository
 
-Project URL: [https://github.com/OUBIGFA/FreeBlog](https://github.com/OUBIGFA/FreeBlog)
+Project URL: [https://github.com/OUBIGFA/Freecat-Blog](https://github.com/OUBIGFA/Freecat-Blog)
 
 1. Sign in to GitHub
 2. Open [https://github.com/new](https://github.com/new)
@@ -135,9 +135,9 @@ Project URL: [https://github.com/OUBIGFA/FreeBlog](https://github.com/OUBIGFA/Fr
 5. Turn on `Add a README file`
 6. Click `Create repository`
 
-#### Step 2: Download the FreeBlog ZIP package
+#### Step 2: Download the Freecat-Blog ZIP package
 
-1. Open the original project page: [https://github.com/OUBIGFA/FreeBlog](https://github.com/OUBIGFA/FreeBlog)
+1. Open the original project page: [https://github.com/OUBIGFA/Freecat-Blog](https://github.com/OUBIGFA/Freecat-Blog)
 2. Click `Code`
 3. Click `Download ZIP`
 4. Wait for the ZIP file to finish downloading
@@ -159,9 +159,9 @@ Project URL: [https://github.com/OUBIGFA/FreeBlog](https://github.com/OUBIGFA/Fr
 
 The local folder usually contains only a `README.md`.
 
-#### Step 5: Copy the FreeBlog source files into your local private repository
+#### Step 5: Copy the Freecat-Blog source files into your local private repository
 
-1. Open the extracted `FreeBlog` folder
+1. Open the extracted `Freecat-Blog` folder
 2. Go into the innermost folder that actually contains the source files
 3. Select everything inside that folder
 4. Copy those files
@@ -171,7 +171,7 @@ The local folder usually contains only a `README.md`.
 
 Note:
 
-- Do not paste the outer `FreeBlog` folder itself
+- Do not paste the outer `Freecat-Blog` folder itself
 - Paste the contents inside it
 - Otherwise you will end up with one extra folder layer and deployment will fail
 
@@ -179,7 +179,7 @@ Note:
 
 1. Go back to GitHub Desktop
 2. You will see many new files in the left panel
-3. Enter a commit message such as `Import FreeBlog source`
+3. Enter a commit message such as `Import Freecat-Blog source`
 4. Click `Commit to main`
 5. Click `Push origin`
 
@@ -285,9 +285,9 @@ Once everything is deployed, updating the blog is just 5 steps:
 4. Wait for the platform to rebuild
 5. Open the site to verify
 
-## Sync Upstream FreeBlog Updates
+## Sync Upstream Freecat-Blog Updates
 
-When upstream [OUBIGFA/FreeBlog](https://github.com/OUBIGFA/FreeBlog) ships a bug fix, a new feature, or a style tweak, you can pull those updates into your private repo.
+When upstream [OUBIGFA/Freecat-Blog](https://github.com/OUBIGFA/Freecat-Blog) ships a bug fix, a new feature, or a style tweak, you can pull those updates into your private repo.
 
 > **Prerequisite**: you must have built your repo via the **technical-user route (GitHub Importer)**. If you went with ZIP + paste, jump to the "Fallback" section below.
 
@@ -311,7 +311,7 @@ Don't know the path? In GitHub Desktop, click `Repository` → `Show in Explorer
 #### Step 3: Register the upstream remote (one-time, persistent)
 
 ```bash
-git remote add upstream https://github.com/OUBIGFA/FreeBlog.git
+git remote add upstream https://github.com/OUBIGFA/Freecat-Blog.git
 ```
 
 Verify:
@@ -325,8 +325,8 @@ You should see two `origin` lines and two `upstream` lines, like:
 ```
 origin    https://github.com/your-name/my-freecat-blog.git (fetch)
 origin    https://github.com/your-name/my-freecat-blog.git (push)
-upstream  https://github.com/OUBIGFA/FreeBlog.git (fetch)
-upstream  https://github.com/OUBIGFA/FreeBlog.git (push)
+upstream  https://github.com/OUBIGFA/Freecat-Blog.git (fetch)
+upstream  https://github.com/OUBIGFA/Freecat-Blog.git (push)
 ```
 
 #### Step 4: Fetch upstream updates
@@ -375,7 +375,7 @@ The conflicting file will look like:
 <<<<<<< HEAD
 your side (what you wrote)
 =======
-upstream side (what OUBIGFA/FreeBlog changed)
+upstream side (what OUBIGFA/Freecat-Blog changed)
 >>>>>>> upstream/main
 ```
 
@@ -389,7 +389,7 @@ After all conflicts are resolved:
 
 ```bash
 git add .
-git commit -m "Merge upstream FreeBlog updates"
+git commit -m "Merge upstream Freecat-Blog updates"
 git push origin main
 ```
 
@@ -397,7 +397,7 @@ git push origin main
 
 If you originally built the repo with ZIP + copy & paste, `git remote add upstream` does not work cleanly (forcing it triggers `refusing to merge unrelated histories` and conflicts every file). Workaround:
 
-1. Re-download the latest ZIP from [OUBIGFA/FreeBlog](https://github.com/OUBIGFA/FreeBlog)
+1. Re-download the latest ZIP from [OUBIGFA/Freecat-Blog](https://github.com/OUBIGFA/Freecat-Blog)
 2. Extract it
 3. Overwrite **template / build files** (`all/`, `README.md`, `README.en.md`, etc.) into your local repo
 4. **Never overwrite `Control/`, `writing/`, `image/`** — those are your own content
@@ -409,7 +409,7 @@ If you originally built the repo with ZIP + copy & paste, `git remote add upstre
 ## Project Structure
 
 ```text
-FreeBlog/
+Freecat-Blog/
 ├── Control/                # Site configuration (info, social, about)
 │   ├── site_网站属性.md
 │   ├── social_社交媒体.md
@@ -593,10 +593,10 @@ Yes. The safest path is to **build a brand-new private repo** via the recommende
 Yes. The new repo is a complete clone of upstream, including the upstream README and the sample articles in `writing/`. You can edit or delete them freely — those changes only affect your repo.
 
 **Q: `git remote add upstream` says `remote upstream already exists`?**
-You added it before. Either run `git remote set-url upstream https://github.com/OUBIGFA/FreeBlog.git` to overwrite, or `git remote remove upstream` first and re-add.
+You added it before. Either run `git remote set-url upstream https://github.com/OUBIGFA/Freecat-Blog.git` to overwrite, or `git remote remove upstream` first and re-add.
 
 **Q: `git merge upstream/main` says `refusing to merge unrelated histories`?**
-Your repo wasn't built via the Importer route, so it has no shared history with upstream. Use the "Fallback" workflow in "Sync Upstream FreeBlog Updates", or rebuild the repo.
+Your repo wasn't built via the Importer route, so it has no shared history with upstream. Use the "Fallback" workflow in "Sync Upstream Freecat-Blog Updates", or rebuild the repo.
 
 ## License
 
