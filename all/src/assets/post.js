@@ -142,6 +142,27 @@
     var scrollToBottomBtn = document.getElementById('scroll-to-bottom');
     var floatingGoBackBtn = document.getElementById('floating-go-back');
 
+    function getPageBottomScrollY() {
+        var scrollingElement = document.scrollingElement || document.documentElement;
+        var doc = document.documentElement;
+        var body = document.body;
+        var scrollHeight = Math.max(
+            scrollingElement ? scrollingElement.scrollHeight : 0,
+            doc ? doc.scrollHeight : 0,
+            body ? body.scrollHeight : 0,
+            doc ? doc.offsetHeight : 0,
+            body ? body.offsetHeight : 0
+        );
+        return Math.max(0, scrollHeight - window.innerHeight);
+    }
+
+    function scrollToPageBottom(behavior) {
+        window.scrollTo({
+            top: getPageBottomScrollY(),
+            behavior: behavior || 'smooth'
+        });
+    }
+
     function toggleNavButtons() {
         var scrollY = window.scrollY;
         var show = scrollY > 500;
@@ -177,20 +198,13 @@
 
         if (scrollToBottomBtn) {
             scrollToBottomBtn.addEventListener('click', function () {
-                var article = document.querySelector('article');
-                if (article) {
-                    var articleBottom = article.offsetTop + article.offsetHeight;
-                    var articleEndScrollY = articleBottom - window.innerHeight + 60;
-                    window.scrollTo({
-                        top: Math.max(0, articleEndScrollY),
-                        behavior: 'smooth'
-                    });
-                } else {
-                    window.scrollTo({
-                        top: document.documentElement.scrollHeight,
-                        behavior: 'smooth'
-                    });
-                }
+                scrollToPageBottom('smooth');
+
+                // Images, embedded content, or custom fonts can change page height during
+                // the smooth scroll. Re-target the real bottom after layout settles.
+                window.setTimeout(function () {
+                    scrollToPageBottom('auto');
+                }, 450);
             });
         }
 

@@ -1,7 +1,7 @@
-﻿<div align="center">
+<div align="center">
   <img src="all/image/freecat_web_icon.png" width="120" alt="Freecat Blog Preview">
   <h1>Freecat Blog</h1>
-  <p>本地优先 + 云同步的免费个人博客方案</p>
+  <p>本地写作、GitHub 备份、免费部署的个人博客模板</p>
   <p>
     简体中文 | <a href="README.en.md">English</a>
   </p>
@@ -16,222 +16,366 @@
   </p>
 </div>
 
-## 简介
+## 这个项目是什么？
 
-Freecat Blog 是一套 **本地优先、写作优先、部署免费** 的个人博客方案。它把写作交给本地 Markdown，把版本管理交给 GitHub，把网站部署交给 Cloudflare Pages 或 Vercel，让你跳过无谓的格式折腾，回归纯粹的写作与阅读。
+Freecat Blog 是一个给普通用户准备的个人博客模板。你可以把它理解成：
 
-整套方案不依赖任何单一平台：内容存放在你本地和 GitHub 上，部署平台只负责自动构建静态站点。即便日后切换平台，内容也始终在你手里。
+- `writing/` 是你的文章文件夹，你把 Markdown 文章放进去。
+- `Control/` 是你的网站设置文件夹，你在这里改网站名、头像、介绍、社交链接。
+- `all/` 是网站生成工具，部署平台会读取这里，把文章和设置生成成真正的网站。
 
-## 工作原理
+你不需要买服务器，也不需要自己写网页代码。日常使用时，你主要做三件事：
 
-整套博客的工作链路只有 3 步：
+1. 在 `writing/` 里写文章。
+2. 在 `Control/` 里改成自己的站点信息。
+3. 用 GitHub Desktop 同步到 GitHub，Cloudflare Pages 或 Vercel 会自动重新发布网站。
 
-1. 在本地编写 `Markdown` 文章
-2. 通过 `GitHub` 实现云备份和版本管理
-3. 由 `Cloudflare Pages` 或 `Vercel` 自动构建并发布为网站
+一句话总结：**这是一个把本地 Markdown 文章自动变成免费网站的博客系统。**
 
-你不需要直接编写网页代码，也不需要购买服务器维护环境。
+## 新手最该记住的 3 个文件夹
+
+| 文件夹 | 你要不要经常改 | 作用 |
+| --- | --- | --- |
+| `writing/` | 要 | 放你的博客文章，一篇 Markdown 文件就是一篇文章 |
+| `Control/` | 要 | 改网站名称、头像、首页介绍、社交链接、About 页面 |
+| `all/` | 一般不要 | 网站构建工程，部署平台会进入这里运行构建命令 |
+
+新手只要记住：**写文章去 `writing/`，改网站信息去 `Control/`，部署构建填 `all`。**
+
+## 它是怎么工作的？
+
+Freecat Blog 的工作链路很短：
+
+```text
+本地 writing/ 文章
+        +
+本地 Control/ 配置
+        ↓
+同步到 GitHub
+        ↓
+Cloudflare Pages / Vercel 自动构建
+        ↓
+生成并发布你的博客网站
+```
+
+也就是说，你的内容同时保存在本地电脑和 GitHub 上。部署平台只负责把它们生成网页，不是内容的唯一来源。
+
+## 适合谁？
+
+- 想拥有个人博客，但不想维护服务器的人
+- 想用 Markdown 写文章的人
+- 想把文章文件掌握在自己手里的人
+- 想免费部署到 Cloudflare Pages 或 Vercel 的人
+- 想用 Obsidian、VS Code 或任意 Markdown 编辑器写作的人
 
 ## 功能特性
 
-- **本地优先的写作体验**：本地文件即内容本体，电脑端 + GitHub 双重备份
-- **Markdown 与 HTML 兼容**：日常用 Markdown，复杂排版可插入原生 HTML
-- **优化过的阅读样式**：自动处理中英混排、数字与单位之间的空格
-- **自带搜索、归档、标签**：支持按标签归类、全文搜索、主题切换
-- **音频播放支持**：在引用块中插入音频直链即可自动出现播放器
-- **高自定义的控制台**：通过 `Control` 文件夹无需改代码即可调整网站基本信息
-- **自动化部署**：每次同步到 GitHub 后，部署平台自动构建并发布
-- **完全免费**：Cloudflare Pages 和 Vercel 均提供免费额度，个人博客足够使用
+- 本地优先：文章就是本地 Markdown 文件，可自己备份、迁移、版本管理
+- GitHub 云同步：用 GitHub Desktop 提交和同步，不依赖手动上传网页
+- 免费部署：支持 Cloudflare Pages 和 Vercel
+- 自动生成页面：首页、文章页、归档页、搜索页、About 页面
+- 文章能力：支持标签、封面、摘要、置顶、是否展示等字段
+- 阅读优化：处理中英混排、数字和单位间距、代码块、数学公式等展示
+- 音频支持：文章里放音频直链即可生成播放器
+- 个性化配置：通过 `Control/` 修改网站基础信息，不需要改代码
+- 可迁移：内容在你自己的仓库里，未来可以换部署平台
 
 ## 准备工作
 
-在开始之前，请准备好以下账户：
+开始前只需要准备这些：
 
-- **GitHub 账户**（必需）
-- **Cloudflare 账户** 或 **Vercel 账户**（二选一）
-- **GitHub Desktop**（必需）：[下载地址](https://desktop.github.com/download)
+| 工具 / 账号 | 是否必需 | 用途 |
+| --- | --- | --- |
+| GitHub 账号 | 必需 | 保存你的博客仓库 |
+| GitHub Desktop | 必需 | 把本地改动同步到 GitHub |
+| Cloudflare 账号 | 推荐 | 部署博客网站 |
+| Vercel 账号 | 可选 | 另一种部署方式 |
 
+GitHub Desktop 下载地址：<https://desktop.github.com/download>
 
-## 快速开始
+Cloudflare Pages 和 Vercel 二选一即可。完全新手建议先用 Cloudflare Pages。
 
-接下来有两条路线：**有技术背景、想长期同步模板更新，推荐 GitHub Importer；完全小白，推荐下载 ZIP + 复制粘贴**。
+## 第一次搭建：先把项目变成你自己的仓库
 
-| 路线 | 是否保留 Git 历史 | 能否 `git pull` 跟上游同步 | 适合谁 |
+你需要先把 Freecat Blog 放到自己的 GitHub 账号下面。这里有两种方式：
+
+| 路线 | 推荐程度 | 适合谁 | 以后能否同步模板更新 |
 | --- | --- | --- | --- |
-| 有技术背景推荐：GitHub Importer 一键导入 | 是 | 能 | 熟悉 GitHub / Git，想保留历史并长期同步上游更新的人 |
-| 小白推荐：下载 ZIP + 复制粘贴 | 否 | 不能（参见 [常见问题](#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98)） | 完全新手，只想尽快搭起来；或网络打不开 Importer 的人 |
+| GitHub Importer 导入 | 推荐 | 愿意按步骤操作 GitHub 的用户 | 能 |
+| 下载 ZIP + 复制粘贴 | 备选 | 小白用户 | 不能直接同步 |
 
-> 两条路线**只能选一条**。不要既导入又复制粘贴，会冲突。
+两条路线只选一条，不要同时做。
 
----
+## 路线 A：GitHub Importer 导入，推荐
 
-### 有技术背景推荐：用 GitHub Importer 创建私有仓库（支持同步上游）
+这条路线会把 Freecat Blog 完整复制到你的 GitHub 账号里。以后上游模板更新时，你还有机会继续同步。
 
-GitHub 自带的 Importer 工具能把一个公开仓库**完整克隆**进你自己的私有仓库，包括所有 commit 历史。这意味着以后想同步 Freecat-Blog 的更新只要一条命令。这个路线更适合对 GitHub / Git 有一点基础的人。
+### 第 1 步：打开 GitHub Importer
 
-#### 第一步：打开 Importer 页面
+1. 登录 GitHub。
+2. 打开：<https://github.com/new/import>
 
-1. 登录 GitHub
-2. 浏览器访问：<https://github.com/new/import>
+### 第 2 步：填写导入信息
 
-#### 第二步：填写导入表单
-
-按下表逐项填写：
-
-| 字段 | 应填写的值 |
+| 字段 | 填什么 |
 | --- | --- |
 | `Your old repository's clone URL` | `https://github.com/OUBIGFA/Freecat-Blog` |
-| `Owner` | 选你自己的 GitHub 账户 |
-| `Repository name` | 起一个名字，比如 `my-freecat-blog` |
-| `Privacy` | 选 `Private` |
+| `Owner` | 你的 GitHub 账号 |
+| `Repository name` | 你的仓库名，例如 `my-freecat-blog` |
+| `Privacy` | 建议选 `Private` |
 
-> 网络访问不到上面那个 `https://github.com/OUBIGFA/Freecat-Blog`，说明 GitHub 不通；先解决网络再继续，或者直接走备选路线。
+然后点击 `Begin import`。通常几十秒到几分钟会完成。
 
-#### 第三步：开始导入
+### 第 3 步：用 GitHub Desktop 下载到本地
 
-1. 点击 `Begin import`
-2. 页面会显示进度条，通常 30 秒到 2 分钟之间
-3. 看到 `Your new repository... is ready` 就完成了
-4. 点击新仓库链接进去看一眼，文件应该和 OUBIGFA/Freecat-Blog 一模一样
+1. 打开 GitHub Desktop 并登录。
+2. 点击 `File` -> `Clone repository`。
+3. 选择你刚导入的仓库。
+4. 选择一个本地保存位置。
+5. 点击 `Clone`。
 
-#### 第四步：用 GitHub Desktop 把仓库克隆到本地
+完成后，你电脑上会有一个完整的博客项目文件夹。
 
-1. 安装并登录 [GitHub Desktop](https://desktop.github.com/download)
-2. 在 GitHub Desktop 里点 `File` → `Clone repository`
-3. 选择你刚导入好的私有仓库
-4. 选择一个本地位置（建议放在你常用的文件夹里）
-5. 点击 `Clone`
+## 路线 B：下载 ZIP + 复制粘贴，备选
 
-到这里你的本地文件夹里就是完整的 Freecat-Blog 项目，可以**直接跳到 [开始写文章](#%E5%BC%80%E5%A7%8B%E5%86%99%E6%96%87%E7%AB%A0)** 那一节。
+不想折腾的小白推荐这个方法。
 
+注意：这条路线搭建出来的仓库，未来不能方便地同步上游模板更新。十分适合小白。
+
+### 第 1 步：新建你自己的 GitHub 仓库
+
+1. 打开：<https://github.com/new>
+2. 仓库名可以写 `my-freecat-blog`。
+3. 可见性选 `Private`。
+4. 勾选 `Add a README file`。
+5. 点击 `Create repository`。
+
+### 第 2 步：下载 Freecat Blog 源码
+
+1. 打开原项目：<https://github.com/OUBIGFA/Freecat-Blog>
+2. 点击 `Code`。
+3. 点击 `Download ZIP`。
+4. 解压下载好的 ZIP。
+
+### 第 3 步：把你的仓库下载到本地
+
+1. 打开 GitHub Desktop。
+2. 选择你刚新建的仓库。
+3. 点击 `Clone` 下载到本地。
+
+### 第 4 步：复制源码
+
+1. 打开刚解压出来的 Freecat Blog 文件夹。
+2. 进入真正放源码的那一层目录。
+3. 复制里面的全部内容。
+4. 粘贴到 GitHub Desktop 下载下来的本地仓库文件夹里。
+5. 如果提示替换 `README.md`，选择替换。
+
+不要把最外层整个文件夹丢进去。正确结果是：你的仓库根目录里能直接看到 `all/`、`Control/`、`writing/`、`README.md`。
+![10](all/image/Tutorial/10.png)
+
+### 第 5 步：第一次同步到 GitHub
+
+1. 回到 GitHub Desktop。
+2. 左侧会看到很多新增文件。
+3. 提交说明写 `Import Freecat Blog source`。
+4. 点击 `Commit to main`。
+5. 点击 `Push origin`。
+
+## 开始写文章：使用 `writing/`
+
+`writing/` 是你最常用的文件夹。每一篇 Markdown 文件就是一篇文章。
+
+项目自带了几篇示例文章，你可以：
+
+- 打开它们学习格式
+- 复制一份当模板
+- 删除不需要的示例文章
+- 新建自己的 `.md` 文件
+
+一篇文章通常长这样：
+
+```md
+---
+title: 我的第一篇文章
+date: 2026-05-03
+tag:
+  - 随笔
+cover:
+show_cover: false
+show_image_captions: true
+description: 这里写文章摘要
+pinned: false
+show: true
 ---
 
-<details>
-<summary><b>📦 备选路线：下载 ZIP + 复制粘贴（无法同步上游） — 点击展开</b></summary>
+这里开始写正文。
+```
 
-<br>
+常用字段说明：
 
-> 提示：用这种方式建出来的仓库，未来**没法用** `git pull` 拉取上游更新。如果你不在乎这一点，或者 Importer 因为网络问题打不开，可以走这条路。
+| 字段 | 作用 |
+| --- | --- |
+| `title` | 文章标题 |
+| `date` | 发布日期 |
+| `tag` | 文章标签，可以写多个 |
+| `cover` | 封面图片链接 |
+| `show_cover` | 是否在文章页显示封面 |
+| `description` | 文章摘要，留空会自动截取 |
+| `pinned` | 是否置顶 |
+| `show` | 是否在网站上展示 |
 
-#### 第一步：新建一个私有仓库
+写完文章后，保存文件，然后用 GitHub Desktop 提交并同步。同步成功后，部署平台会自动更新网站。
 
-项目地址：<https://github.com/OUBIGFA/Freecat-Blog>
+## 个性化网站：使用 `Control/`
 
-1. 登录 GitHub
-2. 打开 <https://github.com/new>
-3. 在 `Repository name` 里输入一个名字，比如 `my-freecat-blog`
-4. 在可见性里选择 `Private`
-5. 勾选 `Add a README file`
-6. 点击 `Create repository`
+`Control/` 是网站控制台。新手想把模板改成自己的博客，优先改这里。
 
-#### 第二步：下载 Freecat-Blog 的代码压缩包
+| 文件 | 负责什么 |
+| --- | --- |
+| `site_网站属性.md` | 网站标题、站点名、首页介绍、头像、主题、正式域名 |
+| `social_社交媒体.md` | 社交媒体图标、主页链接、联系方式、推广链接 |
+| `about_关于页面.md` | About 页面的标题、介绍和头像 |
 
-1. 打开原项目地址：<https://github.com/OUBIGFA/Freecat-Blog>
-2. 点击页面右上方的 `Code`
-3. 点击 `Download ZIP`
-4. 等待压缩包下载完成
+这些文件的顶部都有 `---` 包起来的配置区，格式类似：
 
-#### 第三步：解压压缩包
-
-1. 在电脑里找到刚下载好的 ZIP 文件
-2. 右键它
-3. 选择 `解压到当前文件夹` 或 `解压到 Freecat-Blog...`
-4. 解压完成后，打开解压出来的文件夹
-
-#### 第四步：安装并使用 GitHub Desktop，把私有仓库下载到本地
-
-1. 安装并登录 GitHub 账户
-2. 打开 GitHub Desktop
-3. 选择你刚创建好的私有仓库
-4. 选择一个本地位置
-5. 点击 `Clone`
-
-本地仓库文件夹里通常只有一个 `README.md`。
-
-#### 第五步：把 Freecat-Blog 的源码复制进你自己的本地仓库
-
-1. 打开你刚才解压出来的 `Freecat-Blog` 文件夹
-2. 进入最里面那一层真正放源码的目录
-3. 选中里面的全部内容
-4. 复制这些内容
-5. 打开 GitHub Desktop 刚刚克隆下来的那个私有仓库文件夹
-6. 把刚复制的内容粘贴进去
-7. 如果系统提示是否替换原来的 `README.md`，点 `替换`
-
-注意：
-不要把最外层整个文件夹直接丢进去。
-要复制的是“文件夹里面的内容”，不是“外面那层文件夹”。
-否则仓库里会多出一层目录，部署平台找不到 `all/`，构建必然失败。
-
-#### 第六步：第一次提交到 GitHub
-
-1. 回到 GitHub Desktop
-2. 左侧会看到一大批新增文件
-3. 在提交说明里输入一句话，比如 `Import Freecat-Blog source`
-4. 点击 `Commit to main`
-5. 点击 `Push origin`
-
-GitHub 网页一次最多上传 `100` 个文件，而这个项目文件很多，直接走本地同步更稳。
-
-</details>
-
+```yaml
 ---
+site_title: FreeCat Blog
+site_name: FreeCat
+hero_title: Hi, I'm FreeCat.
+---
+```
 
-## 部署：Cloudflare Pages（推荐）
+编辑时记住 4 点：
 
-适合长期稳定运营，对纯静态博客和自定义域名最友好。
+- 冒号后面保留一个空格，例如 `site_name: FreeCat`
+- 不想填的字段可以留空，但不要删掉整行
+- `_01`、`_02` 这类下划线开头的行是说明文字，不要改字段名
+- 改完必须用 GitHub Desktop 提交并同步，线上网站才会更新
 
-### 配置步骤
-0. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)
-1. 创建应用程序
-![01](all/image/Tutorial/01.png)
-2. 部署pages
-![02](all/image/Tutorial/02.png)
-3. 选择导入现有 Git 储存库
-![03](all/image/Tutorial/03.png)
-4. 选择目标仓库
-![04](all/image/Tutorial/04.png)
-5. 填写对应参数，项目名称自由设置，点击 `Save and Deploy（保持并部署）`，等待构建完成
-![05](all/image/Tutorial/05.png)
+### `site_网站属性.md` 常用设置
 
-| Cloudflare 界面中文 | Cloudflare UI English | 值 |
+| 字段 | 说明 |
+| --- | --- |
+| `site_title` | 浏览器标签页显示的网站标题 |
+| `site_favicon` | 浏览器标签页图标 URL，留空使用默认图标 |
+| `site_name` | 网站顶部显示的站点名 |
+| `site_logo_icon` | 站内 Logo 图标 URL，留空使用默认图标 |
+| `hero_title` | 首页主标题 |
+| `hero_subtitle` | 首页介绍文字 |
+| `hero_avatar` | 首页头像 URL |
+| `posts_per_page` | 首页文章数量，留空默认 8，填 0 显示全部 |
+| `footer_copyright` | 网站底部版权文字 |
+| `theme_system` | 跟随系统明暗模式 |
+| `theme_light` | 强制浅色模式 |
+| `theme_dark` | 强制深色模式 |
+| `site_url` | 你的正式网站地址，用于生成 Sitemap |
+
+主题设置只需要让 `theme_system`、`theme_light`、`theme_dark` 其中一个为 `true`。
+
+### `social_社交媒体.md` 常用设置
+
+每个平台通常有 3 个字段：
+
+| 字段类型 | 例子 | 作用 |
 | --- | --- | --- |
-| 框架预设 | Framework preset | 保持 `None` / `无` / 不选预设 |
+| 是否启用 | `github_enabled: true` | `true` 显示，`false` 隐藏 |
+| 自定义图标 | `github_icon_url:` | 留空用默认图标，也可以填自己的图标 URL |
+| 主页链接 | `github_url: https://github.com` | 点击图标后跳转到哪里 |
+
+不用的平台，把对应的 `*_enabled` 改成 `false` 即可。
+
+### `about_关于页面.md` 常用设置
+
+| 字段 | 说明 |
+| --- | --- |
+| `about_hero_title` | About 页面的标题，留空则使用首页标题 |
+| `about_hero_subtitle` | About 页面的介绍，留空则使用首页介绍 |
+| `about_hero_avatar` | About 页面的头像，留空则使用首页头像 |
+
+如果想让 About 页面和首页保持一致，这三个字段都留空即可。
+
+## 本地预览和构建
+
+如果你只想写文章和部署，不一定需要在本地构建。Cloudflare Pages 或 Vercel 会自动构建。
+
+如果你想在电脑上提前检查网站，可以这样做：
+
+```bash
+cd all
+npm install
+npm run build
+```
+
+构建成功后会生成：
+
+```text
+all/dist/
+```
+
+`all/dist/` 是生成出来的网站文件，不需要手动修改，也不需要提交到 GitHub。
+
+## 部署到 Cloudflare Pages，推荐
+
+Cloudflare Pages 适合长期稳定运行个人博客。部署时重点是填对构建参数。
+
+### 第 1 步：进入 Cloudflare Pages
+
+1. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)。
+2. 创建应用程序。
+
+![Cloudflare step 1](all/image/Tutorial/01.png)
+
+3. 选择 Pages。
+
+![Cloudflare step 2](all/image/Tutorial/02.png)
+
+4. 选择导入现有 Git 仓库。
+
+![Cloudflare step 3](all/image/Tutorial/03.png)
+
+5. 选择你自己的博客仓库。
+
+![Cloudflare step 4](all/image/Tutorial/04.png)
+
+### 第 2 步：填写构建参数
+
+项目名称可以自由填写。关键参数按下表填写：
+
+| Cloudflare 中文界面 | Cloudflare English UI | 填写值 |
+| --- | --- | --- |
+| 框架预设 | Framework preset | `None` / `无` / 不选预设 |
 | 根目录（高级） | Root directory (advanced) > Path | `all` |
 | 构建命令 | Build command | `npm run build` |
 | 构建输出目录 | Build output directory | `dist` |
-| 环境变量（可选） | Environment variables (optional) | `NODE_VERSION` = `20` |
+| 环境变量 | Environment variables | `NODE_VERSION` = `20` |
 
-6. 完成并可访问默认网址
-![06](all/image/Tutorial/06.png)
+![Cloudflare step 5](all/image/Tutorial/05.png)
 
-### 绑定自定义域名
+然后点击 `Save and Deploy`，等待构建完成。
 
-由于 Cloudflare 被墙，所以想要对外展示，需要绑定自定义域名。具体教程自行[Google](https://www.google.com)
 
-免费域名推荐：https://blog.freeorg.dpdns.org/posts/%E5%85%8D%E8%B4%B9%E5%9F%9F%E5%90%8D%E7%94%B3%E8%AF%B7%E6%8C%87%E5%8D%97.html
+### 第 3 步：访问网站
+![Cloudflare step 6](all/image/Tutorial/06.png)
+构建完成后，Cloudflare 会给你一个默认网址。你可以先用这个默认网址访问博客。
 
-[DNSHE](https://my.dnshe.com/) 自动续期项目：https://github.com/OUBIGFA/dnshe-auto-renew
+如果想使用自己的域名，可以在 Cloudflare Pages 里绑定自定义域名。
 
-<br>
+免费域名教程：<https://blog.freeorg.dpdns.org/posts/%E5%85%8D%E8%B4%B9%E5%9F%9F%E5%90%8D%E7%94%B3%E8%AF%B7%E6%8C%87%E5%8D%97.html>
 
----
+DNSHE 自动续期项目：<https://github.com/OUBIGFA/dnshe-auto-renew>
 
-<details>
-<summary><b>🚀 部署：Vercel — 点击展开</b></summary>
+## 部署到 Vercel，备选
 
-<br>
+如果你已经在用 Vercel，也可以部署到 Vercel。
 
-适合已有 Vercel 账户或习惯 Vercel 后台的用户。
+1. 登录 [Vercel](https://vercel.com/)。
+2. 点击 `Add New...` -> `Project`。
+3. 连接 GitHub，选择你的博客仓库。
+4. 按下表填写：
 
-### 配置步骤
-
-1. 登录 [Vercel](https://vercel.com/)
-2. 点击 `Add New...` → `Project`
-3. 连接 GitHub 并选择你自己的仓库
-4. 按下表填写项目配置：
-
-| 字段 | 值 |
+| 字段 | 填写值 |
 | --- | --- |
 | Framework Preset | 保持默认或选静态构建 |
 | Root Directory | `all` |
@@ -239,379 +383,202 @@ GitHub 网页一次最多上传 `100` 个文件，而这个项目文件很多，
 | Output Directory | `dist` |
 | Node Version | `20` |
 
-1. 点击 `Deploy`，等待构建完成
+5. 点击 `Deploy`。
 
-### 绑定自定义域名
+绑定自定义域名时，进入项目设置里的 `Domains`，按提示配置解析即可。
 
-1. 进入项目设置 → `Domains`
-2. 添加你的域名并按提示配置解析
+## 以后怎么更新博客？
 
-</details>
+部署成功后，日常更新只需要 5 步：
 
----
+1. 在 `writing/` 里新增或修改文章。
+2. 如果需要，在 `Control/` 里修改网站信息。
+3. 保存文件。
+4. 打开 GitHub Desktop，点击 `Commit to main`。
+5. 点击 `Push origin`。
 
-### 开始写文章
+![GitHub Desktop commit](all/image/Tutorial/08.png)
 
-不论用哪条路线，从这里开始两边汇合。主要工作集中在两个目录：
+![GitHub Desktop push](all/image/Tutorial/09.png)
 
-- `writing/`：存放 Markdown 文章
-- `Control/`：存放网站基础配置（详见后文「通过 Control 文件夹自定义网站」）
-![07](all/image/Tutorial/07.png)
-
-
-### 以后怎么同步更新
-
-在 GitHub Desktop 中：
-
-1. 查看变更文件
-2. 填写提交说明
-3. 点击 Commit
-4. 点击 Push 同步到 GitHub
-![08](all/image/Tutorial/08.png)
-![09](all/image/Tutorial/09.png)
-
-只要同步成功，部署平台就会自动重新构建。
-
----
-
-## 平台选择建议
-
-| 场景 | 推荐 |
-| --- | --- |
-| 完全新手 / 长期稳定运营 | Cloudflare Pages |
-| 已经在用 Vercel / 想快速上线 | Vercel |
-| 担心选错 | 任意均可，内容不锁死，可随时切换 |
-
-## 日常使用流程
-
-部署成功后，每次更新博客只需要这 5 步：
-
-1. 在本地编写或修改文章
-2. 保存文件
-3. 用 GitHub Desktop 提交并同步
-4. 等待部署平台自动构建
-5. 打开网站检查结果
-
-## 同步上游 Freecat-Blog 模板更新
-
-当上游 [OUBIGFA/Freecat-Blog](https://github.com/OUBIGFA/Freecat-Blog) 修了 Bug、加了新功能、优化了样式时，你可以把这些更新拉到自己的私有仓库。
-
-> **前置条件**：你必须是用「有技术背景推荐路线（GitHub Importer）」建仓的。如果你走的是 ZIP + 复制粘贴路线，跳到下面的「兜底方案」。
-
-### 推荐方法：用 `git remote add upstream` 拉取上游更新
-
-只在第一次需要执行 1～3 步，之后每次同步只跑 4～7 步即可。
-
-#### 第一步：打开命令行工具
-
-- Windows：`Win + R`，输入 `cmd`，回车
-- macOS：打开 `终端 (Terminal)`
-
-#### 第二步：进入你的本地仓库目录
-
-```bash
-cd 你的本地仓库完整路径
-```
-
-例如 Windows 下：
-
-```bash
-cd D:\GitHub\my-freecat-blog
-```
-
-不知道路径在哪？打开 GitHub Desktop，点击顶部菜单 `Repository` → `Show in Explorer / Finder`，看地址栏即可。
-
-#### 第三步：注册上游仓库（一次性，永久生效）
-
-```bash
-git remote add upstream https://github.com/OUBIGFA/Freecat-Blog.git
-```
-
-确认是否成功：
-
-```bash
-git remote -v
-```
-
-应该看到两行 `origin` 和两行 `upstream`，类似：
-
-```
-origin    https://github.com/你的用户名/my-freecat-blog.git (fetch)
-origin    https://github.com/你的用户名/my-freecat-blog.git (push)
-upstream  https://github.com/OUBIGFA/Freecat-Blog.git (fetch)
-upstream  https://github.com/OUBIGFA/Freecat-Blog.git (push)
-```
-
-#### 第四步：抓取上游最新代码
-
-```bash
-git fetch upstream
-```
-
-这一步只会把上游的更新下载到本地缓存，**不会动你的任何文件**。
-
-#### 第五步：查看上游有哪些新更新（可选）
-
-```bash
-git log HEAD..upstream/main --oneline
-```
-
-会列出从你上次同步到现在，上游新增的所有 commit。如果一行都没有，说明上游没更新，到此结束。
-
-#### 第六步：合并上游更新到你的分支
-
-```bash
-git merge upstream/main
-```
-
-可能出现 3 种结果：
-
-1. `Already up to date.` —— 上游没有新东西，结束。
-2. `Fast-forward` 或 `Merge made by the 'recursive' strategy` —— 顺利合并完成，进入第七步。
-3. **冲突**（屏幕显示 `CONFLICT`）—— 你和上游改了同一个文件的同一行。处理方法见下面的「冲突解决」。
-
-#### 第七步：把合并结果推回 GitHub
-
-```bash
-git push origin main
-```
-
-推送成功后，部署平台会自动触发新一轮构建，网站随即更新。
-
-### 冲突解决
-
-最常见的冲突场景：你改过 `Control/site_网站属性.md`（换了自己的站点名/头像），上游也改了同一个文件。
-
-冲突的文件里会出现这样的标记：
-
-```
-<<<<<<< HEAD
-你这一边的内容（你自己写的）
-=======
-上游那一边的内容（OUBIGFA/Freecat-Blog 改的）
->>>>>>> upstream/main
-```
-
-处理三步：
-
-1. 用编辑器打开冲突文件
-2. 决定保留哪一边（通常 `Control/` 里的配置保留你自己的，`all/` 里的构建脚本保留上游的）
-3. 删掉 `<<<<<<<`、`=======`、`>>>>>>>` 这三行标记，只留下你想要的内容
-
-全部冲突文件都处理完后：
-
-```bash
-git add .
-git commit -m "Merge upstream Freecat-Blog updates"
-git push origin main
-```
-
-### 兜底方案：手动 ZIP 覆盖（用于备选路线建的仓库）
-
-如果你当初是走 ZIP + 复制粘贴路线建的仓库，没法用 `git remote add upstream`（强行用会报 `refusing to merge unrelated histories` 然后所有文件冲突）。退而求其次的办法：
-
-1. 重新到 [OUBIGFA/Freecat-Blog](https://github.com/OUBIGFA/Freecat-Blog) 下载最新 ZIP
-2. 解压
-3. 把解压出的 `all/`、`README.md`、`README.en.md` 等**模板/构建相关文件**覆盖到你的本地仓库
-4. **千万不要覆盖** `Control/`、`writing/`、`image/` 这些你自己的内容目录
-5. 用 GitHub Desktop 检查变更（左侧会列出所有改动），确认没误伤你的内容
-6. Commit + Push
-
-> 想一劳永逸的话，建议在方便时按推荐路线重建一次仓库，把内容文件搬过去即可。一次小投入，换来未来每次升级都很轻松。
+同步成功后，Cloudflare Pages 或 Vercel 会自动重新构建。等一会儿刷新网站即可看到新内容。
 
 ## 项目结构
 
 ```text
 Freecat-Blog/
-├── Control/                # 网站基础配置（站点信息、社交、关于页）
+├── Control/                # 网站基础配置，新手主要改这里
 │   ├── site_网站属性.md
 │   ├── social_社交媒体.md
 │   └── about_关于页面.md
-├── writing/                # 文章 Markdown 源文件
-├── all/                    # 构建工程目录
-│   ├── src/                # 模板文件（HTML 模板、样式、脚本）
+├── writing/                # 文章 Markdown 源文件，新手主要写这里
+├── all/                    # 构建工程目录，部署平台进入这里构建
+│   ├── src/                # 页面模板
 │   ├── image/              # 图片资源
-│   ├── build.js            # 构建脚本
-│   ├── extract-git-dates.js
-│   └── package.json
+│   ├── build/              # 构建辅助脚本
+│   ├── build.js            # 主构建脚本
+│   ├── package.json        # 构建依赖和命令
+│   └── dist/               # 构建产物，本地生成，不需要手动改
 ├── README.md
 └── README.en.md
 ```
 
-构建产物 `all/dist/` 不会提交到仓库。
+## 文章里的音频播放器
 
-## 文章 Frontmatter 字段
-
-每篇文章的头部支持以下属性：
-
-```yaml
----
-title: 文章标题
-date: 2026-01-16
-tag:
-  - free
-cover: https://example.com/cover.gif      # 封面图片
-show_cover: false                          # 是否在详情页显示封面
-show_image_captions: true                  # 是否显示图注
-description: 文章摘要，留空则自动截取
-pinned: true                               # 是否置顶
-show: true                                 # 是否在全站展示
----
-```
-
-## 音频播放
-
-在文章中使用引用格式加音频直链，即可自动出现播放器：
+在文章中使用引用格式加音频直链，可以自动生成播放器：
 
 ```md
->[这是示例格式](https://xxx.xxx/example.m4a)
+>[这是示例音频](https://example.com/audio.m4a)
 ```
 
-如果链接没有明显音频后缀，可在标题加 `🎵` 强制启用：
+如果链接没有明显音频后缀，可以在标题里加音乐符号强制识别：
 
 ```md
->[🎵这是示例格式](https://xxx.xxx/example)
+>[🎵这是示例音频](https://example.com/audio)
 ```
 
-支持识别的音频格式：`.mp3`、`.m4a`、`.wav`、`.ogg`、`.aac`、`.flac`、`.opus`
+支持的格式包括：`.mp3`、`.m4a`、`.wav`、`.ogg`、`.aac`、`.flac`、`.opus`。
 
 辅助工具：
 
-- [网盘分享链接转直链工具](https://lz.qaiu.top/)
-- [网盘直链获取工具](https://link.gimhoy.com/)
-- [小飞机云盘](https://www.feijipan.com)
+- 网盘分享链接转直链工具：<https://lz.qaiu.top/>
+- 网盘直链获取工具：<https://link.gimhoy.com/>
+- 小飞机云盘：<https://www.feijipan.com>
 
-## 进阶用法
+## 配合 Obsidian 写作
 
-### 配合 Obsidian 写作
+你可以直接用 Obsidian 打开这个博客仓库。推荐在 `writing/` 目录下写文章。
 
-将博客仓库当作 Obsidian 仓库直接打开，可获得：
+这样做的好处是：
 
-- 本地文件可控
-- 双链、标签、搜索能力
-- 写作 → Git 同步 → 自动发布的连续工作流
+- 文章都在本地，方便管理
+- 可以使用 Obsidian 的双链、标签、搜索
+- 写完后用 GitHub Desktop 同步，网站自动发布
 
-推荐在 `writing` 目录下编辑文章，写完后用 GitHub Desktop 同步即可。
+## 同步上游模板更新，进阶
 
-### 通过 Control 文件夹自定义网站
+如果你当初用的是 GitHub Importer 路线，可以同步上游 Freecat Blog 的模板更新。
 
-`Control/` 目录是不需要改代码就能调整网站核心信息的控制台：
+如果你当初用的是 ZIP + 复制粘贴路线，请看本节最后的兜底方案。
 
-| 文件 | 作用 |
-| --- | --- |
-| `site_网站属性.md` | 网站名称、描述、头像、图标、默认主题 |
-| `social_社交媒体.md` | 社交媒体、友链、联系方式、推广链接 |
-| `about_关于页面.md` | "关于我"页面的单独文字内容 |
+### 第一次同步前：添加上游仓库
 
-> 编辑规则：所有参数都写在文件顶部 `---` 包裹的 Frontmatter 区块里，`键: 值` 之间必须保留一个空格；带 `_01`、`_02` 这样下划线开头的字段是注释行，**请勿删除或重命名**，仅作为参数说明展示。
+在命令行里进入你的本地仓库目录：
 
-#### 1. `site_网站属性.md` 详细参数
+```bash
+cd 你的本地仓库完整路径
+```
 
-| 参数 | 默认值 | 说明 |
-| --- | --- | --- |
-| `site_title` | `FreeCat Blog` | 浏览器标签页显示的网页标题 |
-| `site_favicon` | 空 | 浏览器标签页显示的网页图标 URL；留空使用内置图标 |
-| `site_name` | `FreeCat` | 站内顶部显示的站位名称 |
-| `site_logo_icon` | 空 | 站内 Logo 图标，可填 SVG 链接；留空使用默认图标 |
-| `hero_title` | `Hi, I'm FreeCat...` | 首页主标题 / Slogan |
-| `hero_subtitle` | 一段中英文介绍 | 首页详情介绍文案 |
-| `hero_avatar` | 空 | 首页个人头像 URL |
-| `posts_per_page` | 空 | 首页文章显示数量；空 = 默认 `8`；`0` = 显示全部 |
-| `footer_copyright` | `© FreeCat \\| Curiosity is the best motivation.` | 网站底部版权信息 |
-| `theme_system` | `true` | 跟随系统：根据浏览器或操作系统设置自动切换明暗 |
-| `theme_light` | `false` | 浅色模式：全站强制使用明亮风格 |
-| `theme_dark` | `false` | 深色模式：全站强制使用暗黑风格 |
-| `site_url` | `https://blog.freeorg.dpdns.org` | 网站正式域名，用于生成 Sitemap 和 Canonical 标签 |
+添加上游仓库：
 
-主题设置规则：`theme_system`、`theme_light`、`theme_dark` 三选一为 `true`，其它两个保持 `false`。如果都是 `false`，会回退到跟随系统。
+```bash
+git remote add upstream https://github.com/OUBIGFA/Freecat-Blog.git
+```
 
-#### 2. `social_社交媒体.md` 详细参数
+检查是否成功：
 
-每个社交平台都有 3 个参数：是否启用、自定义图标、跳转链接。
+```bash
+git remote -v
+```
 
-| 平台 | 启用开关 | 自定义图标 | 主页链接 |
-| --- | --- | --- | --- |
-| Twitter / X | `twitter_enabled` | `twitter_icon_url` | `twitter_url` |
-| Instagram | `instagram_enabled` | `instagram_icon_url` | `instagram_url` |
-| GitHub | `github_enabled` | `github_icon_url` | `github_url` |
-| Behance | `behance_enabled` | `behance_icon_url` | `behance_url` |
-| TikTok | `tiktok_enabled` | `tiktok_icon_url` | `tiktok_url` |
-| Facebook | `facebook_enabled` | `facebook_icon_url` | `facebook_url` |
+能看到 `origin` 和 `upstream` 就说明成功。
 
-填写说明：
+### 每次同步上游更新
 
-- `*_enabled`：填 `true` 显示该社交图标，填 `false` 隐藏
-- `*_icon_url`：留空时使用项目内置图标；如需自定义可填图标的 URL（建议 SVG 或正方形 PNG）
-- `*_url`：填写你自己的社交主页地址，例如 `https://x.com/yourname`
+```bash
+git fetch upstream
+git log HEAD..upstream/main --oneline
+git merge upstream/main
+git push origin main
+```
 
-如果某个平台你不用，把 `*_enabled` 改成 `false` 即可，不需要删整段。
+说明：
 
-#### 3. `about_关于页面.md` 详细参数
+- `git fetch upstream`：获取上游最新代码，不会改你的文件
+- `git log HEAD..upstream/main --oneline`：查看上游有哪些新更新
+- `git merge upstream/main`：把上游更新合并到你的仓库
+- `git push origin main`：把合并结果同步回 GitHub
 
-| 参数 | 说明 |
-| --- | --- |
-| `about_hero_title` | About 页面的标题；留空则自动使用主页 `hero_title` |
-| `about_hero_subtitle` | About 页面的详情介绍；留空则自动使用主页 `hero_subtitle` |
-| `about_hero_avatar` | About 页面的头像；留空则自动使用主页 `hero_avatar` |
+### 如果出现冲突
 
-使用建议：
+冲突通常是你和上游改了同一个文件。文件里会出现类似标记：
 
-- 想让 About 与首页保持一致时，三个字段全部留空即可
-- 只想替换其中一项（比如换一张头像）时，只填那一项，其他保持空白
-- 长文形式的"关于我"内容仍然推荐写成一篇普通文章，再在导航或社交链接里指向它
+```text
+  <<<<<<< HEAD
+你自己的内容
+  =======
+上游模板的内容
+  >>>>>>> upstream/main
+```
 
-#### Control 文件夹通用注意事项
+处理方法：
 
-- **改完必须 push**：任何 `Control` 文件改动都要用 GitHub Desktop 提交并同步到 GitHub，部署平台才会重新构建
-- **留空字段保留** `键:`：不要直接整行删掉，否则会破坏 Frontmatter 结构
-- `_01`、`_02` 行不要动：这些下划线开头的字段是注释行，构建时会被忽略
-- **改完没生效**：先在浏览器里强制刷新（Windows 按 Ctrl + F5，macOS 按 Cmd + Shift + R），再判断是否真的没更新
+1. 打开冲突文件。
+2. 保留你想要的内容。
+3. 删除 `<<<<<<<`、`=======`、`>>>>>>>` 这些标记。
+4. 保存文件。
+5. 运行：
 
-### 拓展使用场景
+```bash
+git add .
+git commit -m "Merge upstream Freecat Blog updates"
+git push origin main
+```
 
-同样的逻辑可以用于：
+一般建议：
 
-- 个人主页
-- 作品集
-- 知识库网站
-- 项目展示站
-- 笔记云备份
+- `Control/` 里优先保留你自己的配置
+- `writing/` 里优先保留你自己的文章
+- `all/` 里通常保留上游模板更新
+
+### ZIP 路线的兜底更新方法
+
+如果你是用 ZIP + 复制粘贴搭建的仓库，不建议强行用上面的 `git merge` 方法。
+
+可以这样手动更新：
+
+1. 重新下载最新版 Freecat Blog ZIP。
+2. 解压。
+3. 把新版里的 `all/`、`README.md`、`README.en.md` 等模板文件复制到你的仓库。
+4. 不要覆盖你自己的 `Control/`、`writing/`。
+5. 用 GitHub Desktop 检查改动。
+6. 确认没误删内容后，Commit + Push。
 
 ## 常见问题
 
 **Q：我必须会编程吗？**
-不用。按照本文档一步步操作即可完成部署和发布。
+不用。日常只需要改 Markdown 文件和配置文件。
 
-**Q：必须先买域名吗？**
+**Q：我主要应该改哪些地方？**
+写文章改 `writing/`，改网站信息改 `Control/`。新手一般不要改 `all/`。
+
+**Q：必须买域名吗？**
 不用。Cloudflare Pages 和 Vercel 都会先提供默认网址。
 
+**Q：部署时最容易填错哪里？**
+`Root Directory` 必须是 `all`，`Output Directory` 必须是 `dist`，不要写成 `all/dist`。
+
 **Q：本地改完后网站没变化怎么办？**
-依次检查：
+先检查文件是否保存，再检查 GitHub Desktop 是否已经 Push。然后去 Cloudflare Pages 或 Vercel 看是否触发了新构建。最后尝试强制刷新浏览器。
 
-1. 是否已保存文件
-2. 是否在 GitHub Desktop 中提交并同步
-3. 部署平台是否触发了自动构建
-4. 浏览器是否缓存了旧页面（强制刷新试试）
+**Q：Cloudflare Pages 和 Vercel 选哪个？**
+完全新手推荐 Cloudflare Pages。已经在用 Vercel 的用户可以选 Vercel。内容都在 GitHub，以后可以迁移。
 
-**Q：以后能从 Vercel 换到 Cloudflare Pages 吗？**
-可以。内容存在你本地和 GitHub，不被任何平台锁定。
+**Q：可以把示例文章删掉吗？**
+可以。示例文章都在 `writing/` 里，删除后提交同步即可。
 
-**Q：最容易填错的两个地方？**
+**Q：我已经用 ZIP 路线搭好了，还能改成 Importer 路线吗？**
+可以。最稳的办法是重新用 Importer 建一个新仓库，然后把旧仓库里的 `Control/` 和 `writing/` 复制过去，再重新部署或切换部署项目源仓库。
 
-- Root Directory 必须是 `all`
-- Output Directory 必须是 `dist`，不要写成 `all/dist`
+**Q：执行 `git remote add upstream` 提示 `remote upstream already exists` 怎么办？**
+说明已经添加过上游。可以运行：
 
-**Q：我已经用 ZIP + 复制粘贴方式建好仓库了，还能切到 Importer 路线吗？**
-可以。最稳妥的做法是按推荐路线**重新建一个新的私有仓库**，把老仓库的 `Control/`、`writing/`、`image/` 等内容文件复制过去，再把 Cloudflare/Vercel 项目源切换到新仓库（或重新建一个）。原仓库可以先留着不删，确认新仓库部署成功后再处理。
+```bash
+git remote set-url upstream https://github.com/OUBIGFA/Freecat-Blog.git
+```
 
-**Q：用 Importer 导入会不会把上游的 README、示例文章一起带过来？**
-会。导入后新仓库等同于上游的完整克隆，里面的 README、`writing/` 下的示例文章都在。你可以正常修改、删除它们，这些操作只影响你自己的仓库。
-
-**Q：执行** `git remote add upstream` 时报 `remote upstream already exists`？
-说明你之前加过了。可以用 `git remote set-url upstream https://github.com/OUBIGFA/Freecat-Blog.git` 直接覆盖，或者先 `git remote remove upstream` 再重新添加。
-
-**Q：**`git merge upstream/main` 出现 `refusing to merge unrelated histories`？
-说明你的仓库不是用 Importer 路线建的，没法直接合并。请走「同步上游」章节里的「兜底方案」，或重建仓库。
+**Q：执行 `git merge upstream/main` 提示 `refusing to merge unrelated histories` 怎么办？**
+通常说明你是 ZIP 路线建的仓库，不适合直接合并上游。请使用上面的 ZIP 兜底更新方法，或者重新用 Importer 建仓。
 
 ## 许可证
 
