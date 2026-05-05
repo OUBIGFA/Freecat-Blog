@@ -80,7 +80,8 @@ function generateSocialLinks(socialConfig) {
 
     return enabled.map(platform => {
         const capitalizedName = platform.name.charAt(0).toUpperCase() + platform.name.slice(1);
-        return `<a class="text-[#616f89] dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-400 transition-colors block w-6 h-6"
+        // 克制：小色阶 + hover 收敛到品牌色 + 微弱动效（150ms color，无位移）
+        return `<a class="block w-6 h-6 text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors duration-150"
                 href="${platform.url}"
                 aria-label="${capitalizedName}"
                 target="_blank"
