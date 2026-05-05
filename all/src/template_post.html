@@ -170,17 +170,34 @@
                             <!-- CONTENT_PLACEHOLDER -->
                         </div>
 
-                        <!-- Share Button -->
-                        <div class="flex justify-center mt-12 mb-8">
-                            <button id="share-btn" aria-label="Share Article"
-                                class="t-btn t-btn-primary group relative inline-flex items-center gap-3 px-6 py-3 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-primary hover:text-white hover:border-primary dark:hover:bg-primary dark:hover:text-white dark:hover:border-primary">
-                                <svg class="w-5 h-5 t-btn-arrow-next"
-                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                    <path
-                                        d="M13 14H11C7.54202 14 4.53953 15.9502 3.03239 18.8107C3.01093 18.5433 3 18.2729 3 18C3 12.4772 7.47715 8 13 8V3L23 11L13 19V14Z">
-                                    </path>
-                                </svg>
-                                <span class="text-sm font-bold">Share</span>
+                        <!-- Share Button
+                             mt 与父容器 pb-36 / lg:pb-48 保持同值 → 按钮在
+                             "文章结尾 ↔ 页面下边距" 之间数学居中；
+                             mb 留 0，避免双重底边距把按钮再往上挤。-->
+                        <div class="flex justify-center mt-36 lg:mt-48 mb-0">
+                            <button id="share-btn" type="button" aria-label="Share article"
+                                class="t-btn group relative inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full
+                                       border border-slate-300/70 dark:border-slate-700/70 bg-transparent
+                                       text-slate-600 dark:text-slate-300
+                                       hover:border-slate-500 dark:hover:border-slate-400
+                                       hover:text-slate-900 dark:hover:text-white">
+                                <span class="share-btn-icon-wrap relative inline-flex h-4 w-4 items-center justify-center">
+                                    <svg class="share-btn-icon share-btn-icon-default absolute inset-0 h-4 w-4"
+                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                                        stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M12 16V4" />
+                                        <path d="M7 9l5-5 5 5" />
+                                        <path d="M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" />
+                                    </svg>
+                                    <svg class="share-btn-icon share-btn-icon-done absolute inset-0 h-4 w-4"
+                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M5 12l5 5L20 7" />
+                                    </svg>
+                                </span>
+                                <span class="share-btn-label text-[13px] font-medium tracking-wide leading-none">Share</span>
                             </button>
                         </div>
                     </article>

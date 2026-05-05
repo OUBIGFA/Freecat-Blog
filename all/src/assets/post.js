@@ -142,23 +142,29 @@
     var scrollToBottomBtn = document.getElementById('scroll-to-bottom');
     var floatingGoBackBtn = document.getElementById('floating-go-back');
 
-    function getPageBottomScrollY() {
-        var scrollingElement = document.scrollingElement || document.documentElement;
-        var doc = document.documentElement;
-        var body = document.body;
-        var scrollHeight = Math.max(
-            scrollingElement ? scrollingElement.scrollHeight : 0,
-            doc ? doc.scrollHeight : 0,
-            body ? body.scrollHeight : 0,
-            doc ? doc.offsetHeight : 0,
-            body ? body.offsetHeight : 0
-        );
-        return Math.max(0, scrollHeight - window.innerHeight);
+    // 计算"文章容器底部"对应的滚动位置：
+    //   把 <main> 下第一层包装 div（max-w-[1600px] + pb-36/lg:pb-48 那一层）
+    //   的底边对齐到视口底边 —— 它包含了 <article> + 侧边栏 + 底部留白，
+    //   是用户视觉上的"文章版块结束 / footer 开始"的分界。
+    //   读取的是元素的 getBoundingClientRect().bottom（实时尺寸），
+    //   不依赖任何写死的高度数值，自适应文章长度 / 内嵌图片 / pb-tokens 调整。
+    function getArticleBottomScrollY() {
+        var container = document.querySelector('main > div')
+            || document.querySelector('main article');
+        if (!container) {
+            // 兜底：意外找不到容器时，退回整页底部，避免按钮失效
+            var scrollingElement = document.scrollingElement || document.documentElement;
+            var scrollHeight = scrollingElement ? scrollingElement.scrollHeight : 0;
+            return Math.max(0, scrollHeight - window.innerHeight);
+        }
+        var rect = container.getBoundingClientRect();
+        var containerBottomAbs = rect.bottom + window.pageYOffset;
+        return Math.max(0, containerBottomAbs - window.innerHeight);
     }
 
-    function scrollToPageBottom(behavior) {
+    function scrollToArticleBottom(behavior) {
         window.scrollTo({
-            top: getPageBottomScrollY(),
+            top: getArticleBottomScrollY(),
             behavior: behavior || 'smooth'
         });
     }
@@ -198,12 +204,12 @@
 
         if (scrollToBottomBtn) {
             scrollToBottomBtn.addEventListener('click', function () {
-                scrollToPageBottom('smooth');
+                scrollToArticleBottom('smooth');
 
                 // Images, embedded content, or custom fonts can change page height during
                 // the smooth scroll. Re-target the real bottom after layout settles.
                 window.setTimeout(function () {
-                    scrollToPageBottom('auto');
+                    scrollToArticleBottom('auto');
                 }, 450);
             });
         }
@@ -220,8 +226,34 @@
     }
 
     // Share Button: Web Share API → 剪贴板兜底
+    // 视觉反馈完全交给 CSS（data-state 切换 + opacity crossfade），
+    // JS 不再注入内联 transform / transition，避免和 .t-btn 系统冲突。
     var shareBtn = document.getElementById('share-btn');
     if (shareBtn) {
+        var shareLabel = shareBtn.querySelector('.share-btn-label');
+        var shareDefaultText = shareLabel ? shareLabel.textContent : 'Share';
+        var shareResetTimer = 0;
+        var SHARE_FEEDBACK_MS = 1800;
+
+        function setShareState(state, labelText) {
+            if (state) {
+                shareBtn.setAttribute('data-state', state);
+            } else {
+                shareBtn.removeAttribute('data-state');
+            }
+            if (shareLabel) {
+                shareLabel.textContent = labelText;
+            }
+        }
+
+        function flashShareState(state, labelText) {
+            setShareState(state, labelText);
+            if (shareResetTimer) clearTimeout(shareResetTimer);
+            shareResetTimer = window.setTimeout(function () {
+                setShareState(null, shareDefaultText);
+            }, SHARE_FEEDBACK_MS);
+        }
+
         shareBtn.addEventListener('click', function () {
             var articleUrl = window.location.href;
             var titleEl = document.querySelector('.post-title');
@@ -238,26 +270,10 @@
 
         function copyUrlToClipboard(url) {
             copyToClipboard(url).then(function () {
-                var btnText = shareBtn.querySelector('span');
-                var originalText = btnText.textContent;
-                btnText.textContent = 'Link copied!';
-                shareBtn.style.transition = 'transform 0.15s ease-out';
-                shareBtn.style.transform = 'scale(0.95)';
-                setTimeout(function () {
-                    shareBtn.style.transition = 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)';
-                    shareBtn.style.transform = 'scale(1)';
-                }, 100);
-                setTimeout(function () {
-                    btnText.textContent = originalText;
-                }, 2000);
+                flashShareState('copied', 'Copied');
             }).catch(function (err) {
                 console.error('Copy failed:', err);
-                var btnText = shareBtn.querySelector('span');
-                var originalText = btnText.textContent;
-                btnText.textContent = 'Copy failed';
-                setTimeout(function () {
-                    btnText.textContent = originalText;
-                }, 2000);
+                flashShareState('error', 'Copy failed');
             });
         }
     }

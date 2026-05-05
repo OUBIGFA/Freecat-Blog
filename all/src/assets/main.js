@@ -415,11 +415,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 const scrollTarget = viewAllHeader || postsList;
 
                 if (scrollTarget) {
-                    // 读取 updateContentTopOffset 同步好的 CSS 变量，
-                    // 自动跟随 header 实际高度 + 安全间距，无需手工维护数值。
-                    const offset = readCssPx('--freecat-page-top-offset')
-                        || (readCssPx('--freecat-header-height') + readCssPx('--freecat-header-safe-gap'));
-                    const top = scrollTarget.getBoundingClientRect().top + window.pageYOffset - offset;
+                    // 精准定位：直接读取固定顶栏的实时底边位置作为目标线，
+                    // 让文章版块顶部与顶栏底部"零间距"贴齐。
+                    // 完全自适应：无论 header 的高度 / padding / margin / 内容
+                    // 之后如何调整，getBoundingClientRect().bottom 都会同步反映，
+                    // 无需手动维护任何偏移数值。
+                    const header = document.querySelector('header.fixed');
+                    const headerBottom = header
+                        ? header.getBoundingClientRect().bottom
+                        : 0;
+                    const targetTopAbs = scrollTarget.getBoundingClientRect().top + window.pageYOffset;
+                    const top = Math.max(0, targetTopAbs - headerBottom);
                     window.scrollTo({ top, behavior: 'smooth' });
                 }
             } catch (err) {

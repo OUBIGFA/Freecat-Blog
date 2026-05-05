@@ -132,6 +132,30 @@
  * ============================================================ */
 
 /* ============================================================
+ * #share-btn —— 文章页 Share 按钮的状态切换
+ * 设计语言：克制 / 简洁 / 高端
+ *  - 默认态：显示 share 图标 + "Share"
+ *  - copied 态（data-state="copied"）：图标 crossfade 成对勾，文案替换
+ *  - 全程仅用 opacity 过渡，没有 scale / translate / bounce
+ * ============================================================ */
+#share-btn .share-btn-icon,
+#share-btn .share-btn-label {
+    transition: opacity var(--t-btn-dur) var(--t-btn-ease);
+}
+#share-btn .share-btn-icon-default {
+    opacity: 1;
+}
+#share-btn .share-btn-icon-done {
+    opacity: 0;
+}
+#share-btn[data-state="copied"] .share-btn-icon-default {
+    opacity: 0;
+}
+#share-btn[data-state="copied"] .share-btn-icon-done {
+    opacity: 1;
+}
+
+/* ============================================================
  * Reduced motion guard
  * ============================================================ */
 @media (prefers-reduced-motion: reduce) {
