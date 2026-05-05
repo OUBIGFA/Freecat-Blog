@@ -122,7 +122,7 @@
                         <header class="mb-8 pt-6">
                             <a href="/"
                                 onclick="if(document.referrer && document.referrer.includes(window.location.host)){history.back();return false;}"
-                                class="group inline-flex items-center gap-2 h-10 text-gray-700 dark:text-gray-300 mb-12">
+                                class="group inline-flex items-center gap-2 h-10 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors duration-150 mb-12">
                                 <svg class="text-xl t-btn-arrow-prev"
                                     xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                                     width="1em" height="1em">
@@ -221,7 +221,7 @@
                         <div class="sticky top-32 flex h-[calc(100vh-300px)] flex-col items-center lg:mt-[68px]">
                             <div class="flex flex-1 flex-col justify-center gap-4">
                                 <button id="back-to-top" aria-label="Back to Top"
-                                    class="t-btn-icon group relative flex items-center justify-center rounded-full size-12 bg-[#fcfcfd] dark:bg-card-dark text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-primary opacity-0 invisible">
+                                    class="t-btn-icon t-floating-nav is-hidden group relative flex items-center justify-center rounded-full size-12 bg-[#fcfcfd] dark:bg-card-dark text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300">
                                     <span class="text-2xl t-btn-arrow-up">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                                             width="1em" height="1em">
@@ -232,7 +232,7 @@
                                     </span>
                                 </button>
                                 <button id="scroll-to-bottom" aria-label="Scroll to Bottom"
-                                    class="t-btn-icon group relative flex items-center justify-center rounded-full size-12 bg-[#fcfcfd] dark:bg-card-dark text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-primary opacity-0 invisible">
+                                    class="t-btn-icon t-floating-nav is-hidden group relative flex items-center justify-center rounded-full size-12 bg-[#fcfcfd] dark:bg-card-dark text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300">
                                     <span class="text-2xl t-btn-arrow-down">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                                             width="1em" height="1em">
@@ -244,7 +244,7 @@
                                 </button>
                             </div>
                             <button id="floating-go-back" aria-label="Go Back"
-                                class="t-btn-icon group relative flex items-center justify-center rounded-full size-12 bg-[#fcfcfd] dark:bg-card-dark text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-primary opacity-0 invisible">
+                                class="t-btn-icon t-floating-nav is-hidden group relative flex items-center justify-center rounded-full size-12 bg-[#fcfcfd] dark:bg-card-dark text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300">
                                 <span class="text-2xl t-btn-arrow-prev">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                                         width="1em" height="1em">

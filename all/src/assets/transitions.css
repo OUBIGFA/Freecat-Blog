@@ -127,6 +127,57 @@
 }
 
 /* ============================================================
+ * .t-floating-nav —— 文章页浮动导航按钮（返回顶部 / 落到底部 / 返回上一页）
+ * 与普通 .t-btn-icon 的差异：
+ *   - 入场/离场是滚动驱动的状态切换（opacity 0↔1），需要更长 + 更柔的过渡，
+ *     不能用 220ms expo-out（到末端急刹）；这里用 360ms 标准 ease-out。
+ *   - 不再使用 visibility:hidden 做硬切，改用 opacity + pointer-events，
+ *     避免 opacity 还在淡出时元素已经被 visibility 一刀切。
+ *   - hover 颜色 + 内嵌箭头位移也走同一条慢节奏曲线，整体反馈连贯。
+ *
+ * 用法：在按钮上同时挂 .t-btn-icon 和 .t-floating-nav；
+ *      JS 通过切换 .is-hidden 控制显隐（不要再用 invisible / opacity-0 等）。
+ * ============================================================ */
+.t-floating-nav {
+    transition:
+        opacity 360ms cubic-bezier(0.4, 0, 0.2, 1),
+        transform 360ms cubic-bezier(0.4, 0, 0.2, 1),
+        background-color 320ms cubic-bezier(0.4, 0, 0.2, 1),
+        color 320ms cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: auto;
+}
+
+.t-floating-nav.is-hidden {
+    opacity: 0;
+    transform: translateY(6px);
+    pointer-events: none;
+}
+
+/* hover 颜色与箭头微动效 —— 用同一条 320ms ease-out 曲线，避免与显隐节奏打架 */
+.t-floating-nav .t-btn-arrow-up,
+.t-floating-nav .t-btn-arrow-down,
+.t-floating-nav .t-btn-arrow-prev,
+.t-floating-nav .t-btn-arrow-next {
+    transition: transform 320ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.t-floating-nav:hover .t-btn-arrow-up    { transform: translateY(-1.5px); }
+.t-floating-nav:hover .t-btn-arrow-down  { transform: translateY(1.5px); }
+.t-floating-nav:hover .t-btn-arrow-prev  { transform: translateX(-1.5px); }
+.t-floating-nav:hover .t-btn-arrow-next  { transform: translateX(1.5px); }
+
+@media (prefers-reduced-motion: reduce) {
+    .t-floating-nav,
+    .t-floating-nav .t-btn-arrow-up,
+    .t-floating-nav .t-btn-arrow-down,
+    .t-floating-nav .t-btn-arrow-prev,
+    .t-floating-nav .t-btn-arrow-next {
+        transition: none !important;
+    }
+    .t-floating-nav.is-hidden { transform: none; }
+}
+
+/* ============================================================
  * .t-btn-primary —— 视觉补充（仅作分类标记，目前与 .t-btn 行为一致）
  * 保留类名是为了未来可单独区分，无需立刻去除
  * ============================================================ */

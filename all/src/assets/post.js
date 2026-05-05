@@ -143,23 +143,39 @@
     var floatingGoBackBtn = document.getElementById('floating-go-back');
 
     // 计算"文章容器底部"对应的滚动位置：
-    //   把 <main> 下第一层包装 div（max-w-[1600px] + pb-36/lg:pb-48 那一层）
-    //   的底边对齐到视口底边 —— 它包含了 <article> + 侧边栏 + 底部留白，
-    //   是用户视觉上的"文章版块结束 / footer 开始"的分界。
-    //   读取的是元素的 getBoundingClientRect().bottom（实时尺寸），
-    //   不依赖任何写死的高度数值，自适应文章长度 / 内嵌图片 / pb-tokens 调整。
+    //   目标 = <main> 下第一层包装 div（class="...pb-36 lg:pb-48" 那层）的底边对齐到视口底边。
+    //   这一层是用户视觉/语义上的「文章容器」，它包含：
+    //     - <article>（文章 header / 正文 / Share 按钮）
+    //     - 右侧 sticky TOC + 浮动按钮列
+    //     - 自身的 pb-36/lg:pb-48（文章块到 footer 的过渡留白，仍属"文章容器"边界内）
+    //   只取 <article> 会停在 Share 按钮底部 —— 漏掉容器自带的底部留白；
+    //   取 document 末端则会跨进 footer。这一层正好是视觉上的「文章块结束」。
+    //
+    //   所有高度都用 getBoundingClientRect() 实时读取，不缓存任何数值，
+    //   自适应文章长度 / 内嵌图片 / 字体回流 / pb-tokens 调整。
+    //   最后用文档可滚动上限 clamp，避免越界。
     function getArticleBottomScrollY() {
+        // 优先取最外层包装 div（含底部留白）；找不到时逐级回退
         var container = document.querySelector('main > div')
-            || document.querySelector('main article');
+            || document.querySelector('main')
+            || document.querySelector('article');
+
+        var scrollingElement = document.scrollingElement || document.documentElement;
+        var docHeight = scrollingElement ? scrollingElement.scrollHeight : 0;
+        var maxScroll = Math.max(0, docHeight - window.innerHeight);
+
         if (!container) {
-            // 兜底：意外找不到容器时，退回整页底部，避免按钮失效
-            var scrollingElement = document.scrollingElement || document.documentElement;
-            var scrollHeight = scrollingElement ? scrollingElement.scrollHeight : 0;
-            return Math.max(0, scrollHeight - window.innerHeight);
+            return maxScroll;
         }
+
         var rect = container.getBoundingClientRect();
         var containerBottomAbs = rect.bottom + window.pageYOffset;
-        return Math.max(0, containerBottomAbs - window.innerHeight);
+        var target = containerBottomAbs - window.innerHeight;
+
+        // clamp：上限是文档实际可滚动的最大位置，下限是 0
+        if (target > maxScroll) target = maxScroll;
+        if (target < 0) target = 0;
+        return target;
     }
 
     function scrollToArticleBottom(behavior) {
@@ -175,13 +191,10 @@
 
         function setVisibility(btn) {
             if (!btn) return;
-            if (show) {
-                btn.classList.remove('opacity-0', 'invisible');
-                btn.classList.add('opacity-100', 'visible');
-            } else {
-                btn.classList.add('opacity-0', 'invisible');
-                btn.classList.remove('opacity-100', 'visible');
-            }
+            // 仅切换 .is-hidden —— 由 .t-floating-nav 处理 opacity / transform 过渡。
+            // 不再用 Tailwind 的 invisible（visibility:hidden）做硬切，
+            // 否则元素在 opacity 还没淡出完时就被 visibility 一刀切，看起来很突兀。
+            btn.classList.toggle('is-hidden', !show);
         }
 
         setVisibility(backToTopBtn);
@@ -204,13 +217,42 @@
 
         if (scrollToBottomBtn) {
             scrollToBottomBtn.addEventListener('click', function () {
-                scrollToArticleBottom('smooth');
+                var startY = window.scrollY;
+                var startTime = performance.now();
+                var lastTarget = getArticleBottomScrollY();
+                var distance = Math.abs(lastTarget - startY);
+                var duration = Math.min(2200, Math.max(700, distance * 0.35));
 
-                // Images, embedded content, or custom fonts can change page height during
-                // the smooth scroll. Re-target the real bottom after layout settles.
-                window.setTimeout(function () {
-                    scrollToArticleBottom('auto');
-                }, 450);
+                function easeOutCubic(t) {
+                    return 1 - Math.pow(1 - t, 3);
+                }
+
+                function animate(now) {
+                    var target = getArticleBottomScrollY();
+                    if (Math.abs(target - lastTarget) > 1) {
+                        lastTarget = target;
+                    }
+
+                    var elapsed = now - startTime;
+                    var t = Math.min(1, elapsed / duration);
+                    var eased = easeOutCubic(t);
+                    var nextY = startY + (lastTarget - startY) * eased;
+                    window.scrollTo(0, nextY);
+
+                    var remaining = Math.abs(window.scrollY - lastTarget);
+                    if (t < 1 || remaining > 1) {
+                        if (t >= 1) {
+                            // 目标在动画期间变远了（图片/公式/图表加载），继续用当前位置作为新起点平滑补齐。
+                            startY = window.scrollY;
+                            startTime = now;
+                            distance = Math.abs(lastTarget - startY);
+                            duration = Math.min(900, Math.max(240, distance * 0.45));
+                        }
+                        requestAnimationFrame(animate);
+                    }
+                }
+
+                requestAnimationFrame(animate);
             });
         }
 
