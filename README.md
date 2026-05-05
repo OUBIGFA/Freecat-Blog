@@ -539,7 +539,7 @@ git push origin main
 
 1. 重新下载最新版 Freecat Blog ZIP。
 2. 解压。
-3. 把新版里的 `all/`、`README.md`、`README.en.md` 等模板文件复制到你的仓库。
+3. 把新版里的 `all/` 文件夹复制到你的仓库，覆盖原有的 `all/` 文件夹。
 4. 不要覆盖你自己的 `Control/`、`writing/`。
 5. 用 GitHub Desktop 检查改动。
 6. 确认没误删内容后，Commit + Push。

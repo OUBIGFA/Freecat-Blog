@@ -1,16 +1,26 @@
 /**
- * 高级分页 UI HTML 生成。曾经定义在 build.js 的 for 循环里，现在提到顶层。
+ * 极简分页 UI HTML 生成。
+ *
+ * 设计原则：
+ *   - 排版优先于装饰：去掉胶囊/填充，当前页用 1.5px 短下划线标记
+ *   - 唯一动效：颜色 / 边框色的 150ms 过渡
+ *   - 发丝线分组：导航与「跳至」之间用 1px × 14px 分隔
+ *
+ * 兼容性：
+ *   - 仍输出 <a>，main.js 用 closest('a') 拦截点击
+ *   - 禁用态用 `opacity-50 pointer-events-none`，main.js 检测 `opacity-50` 即跳过
+ *   - 输入框保留 type=number 与 max 属性，main.js 监听 Enter
  *
  * @param {number} currentPage  当前页码（1 起）
  * @param {number} totalPages   总页数
- * @returns {string} 分页器 HTML 字符串（仅 1 页时返回空串）
+ * @returns {string} 分页器 HTML（仅 1 页时返回空串）
  */
 function generatePaginationHtml(currentPage, totalPages) {
     if (totalPages <= 1) return '';
 
+    // -------- 计算可见页码序列 --------
     const pages = [];
     const maxVisible = 5;
-
     if (totalPages <= maxVisible) {
         for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
@@ -30,58 +40,60 @@ function generatePaginationHtml(currentPage, totalPages) {
     const prevLink = currentPage === 1 ? null : (currentPage === 2 ? '/' : `/page/${currentPage - 1}/`);
     const nextLink = currentPage === totalPages ? null : `/page/${currentPage + 1}/`;
 
-    let html = `<div class="flex flex-col md:flex-row items-center gap-4 md:gap-6 mt-12 mb-20">`;
-    html += `<div class="flex items-center gap-1 md:gap-2">`;
+    // -------- 复用样式片段 --------
+    const baseLink   = 'inline-flex items-center justify-center min-w-8 h-8 rounded-sm transition-colors duration-150';
+    const muted      = 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white';
+    const disabled   = 'opacity-50 pointer-events-none cursor-not-allowed';
 
-    html += `
-            <a href="${prevLink || '#'}" class="t-btn t-btn-primary group flex items-center gap-2 px-2 md:px-4 h-10 rounded-full border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 ${!prevLink ? 'is-disabled' : 'hover:bg-primary hover:text-slate-50 hover:border-primary'}" title="Previous Page">
-                <span class="text-xl t-btn-arrow-prev">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M10.8284 12.0007L15.7782 16.9504L14.364 18.3646L8 12.0007L14.364 5.63672L15.7782 7.05093L10.8284 12.0007Z"></path></svg>
-                </span>
-                <span class="hidden md:inline text-sm font-bold">Prev</span>
-            </a>`;
+    const edgeBtn = (href, label, side, isDisabled) => {
+        const arrow = side === 'prev'
+            ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="15 6 9 12 15 18"/></svg>`
+            : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="9 6 15 12 9 18"/></svg>`;
+        const text = `<span class="hidden md:inline">${label}</span>`;
+        const inner = side === 'prev' ? `${arrow}${text}` : `${text}${arrow}`;
+        return `<a href="${href || '#'}" class="${baseLink} ${muted} gap-1.5 px-2 ${isDisabled ? disabled : ''}" aria-label="${label} page" ${isDisabled ? 'aria-disabled="true"' : ''}>${inner}</a>`;
+    };
+
+    // -------- 构建 HTML --------
+    let html = `<nav aria-label="Pagination" class="flex items-center gap-4 md:gap-7 mt-12 mb-20 text-sm select-none">`;
+
+    // 导航组
+    html += `<div class="flex items-center gap-0.5">`;
+    html += edgeBtn(prevLink, 'Prev', 'prev', !prevLink);
 
     pages.forEach(p => {
         if (p === '...') {
-            html += `<span class="px-2 text-gray-400 font-medium">···</span>`;
+            html += `<span class="px-1.5 text-gray-300 dark:text-gray-600 tracking-widest cursor-default" aria-hidden="true">…</span>`;
         } else {
             const link = p === 1 ? '/' : `/page/${p}/`;
             const isActive = p === currentPage;
-            // Active 页码：已是被激活状态（scale-105 + 主色），不再 hover 抬升
-            // Inactive 页码：使用 .t-btn 标准 hover 抬升
-            const variantClass = isActive
-                ? 'bg-primary text-slate-50 border-primary scale-105 cursor-default pointer-events-none'
-                : 't-btn t-btn-primary border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-primary hover:text-primary dark:hover:border-primary';
-            html += `
-                    <a href="${link}" class="${variantClass} flex shrink-0 items-center justify-center w-10 h-10 p-0 rounded-full border font-bold text-sm">
-                        ${p}
-                    </a>`;
+            if (isActive) {
+                // 当前页：加粗 + 1.5px 短下划线（用 inline span，避免 CSS 改造）
+                html += `<a href="${link}" aria-current="page" class="${baseLink} relative font-semibold text-gray-900 dark:text-white tabular-nums">${p}<span class="absolute left-2 right-2 bottom-1 h-[1.5px] bg-current rounded-sm" aria-hidden="true"></span></a>`;
+            } else {
+                html += `<a href="${link}" class="${baseLink} ${muted} tabular-nums">${p}</a>`;
+            }
         }
     });
 
-    html += `
-            <a href="${nextLink || '#'}" class="t-btn t-btn-primary group flex items-center gap-2 px-2 md:px-4 h-10 rounded-full border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 ${!nextLink ? 'is-disabled' : 'hover:bg-primary hover:text-slate-50 hover:border-primary'}" title="Next Page">
-                <span class="hidden md:inline text-sm font-bold">Next</span>
-                <span class="text-xl t-btn-arrow-next">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path></svg>
-                </span>
-                </a>`;
-
+    html += edgeBtn(nextLink, 'Next', 'next', !nextLink);
     html += `</div>`;
 
-    html += `
-            <div class="flex items-center gap-3 pl-0 md:pl-6 border-none md:border-l border-gray-200 dark:border-gray-800">
-                <span class="hidden md:inline text-xs font-bold text-gray-400 uppercase tracking-widest">Jump to</span>
-                <div class="relative group">
-                    <input type="number" min="1" max="${totalPages}" placeholder="${currentPage}"
-                        class="w-16 h-10 px-3 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-center text-base md:text-sm font-bold focus:outline-none focus:ring-0 focus:border-gray-200 dark:focus:border-gray-700 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        onfocus="this.placeholder=''" onblur="this.placeholder='${currentPage}'">
-                </div>
-                <span class="hidden md:inline text-xs font-bold text-gray-400 uppercase tracking-widest">of ${totalPages}</span>
-            </div>
-        `;
+    // 发丝线分隔（仅桌面）
+    html += `<span class="hidden md:block w-px h-3.5 bg-gray-200 dark:bg-gray-700" aria-hidden="true"></span>`;
 
-    html += `</div>`;
+    // 跳至区
+    html += `
+        <div class="hidden md:flex items-baseline gap-2 text-xs text-gray-400 dark:text-gray-500 tracking-wide">
+            <span>跳至</span>
+            <input type="number" min="1" max="${totalPages}" placeholder="${currentPage}"
+                class="w-11 h-6 px-1.5 bg-transparent text-[13px] text-gray-900 dark:text-white text-center tabular-nums border-0 border-b border-gray-200 dark:border-gray-700 focus:outline-none focus:border-gray-900 dark:focus:border-white transition-colors duration-150 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                aria-label="Jump to page"
+                onfocus="this.placeholder=''" onblur="this.placeholder='${currentPage}'">
+            <span>/ ${totalPages}</span>
+        </div>`;
+
+    html += `</nav>`;
     return html;
 }
 
