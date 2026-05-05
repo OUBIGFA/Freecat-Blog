@@ -197,6 +197,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return fallback;
     }
 
+    function readCssPx(variableName) {
+        const raw = getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
+        const n = parseFloat(raw);
+        return Number.isFinite(n) ? n : 0;
+    }
+
     // ============================================================
     // [Fix] 固定顶栏遮挡内容：按实际 header 高度动态同步内容区上边距
     // 安全间距与 transitions.css 中 --freecat-header-safe-gap 的下限保持一致：
@@ -409,7 +415,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const scrollTarget = viewAllHeader || postsList;
 
                 if (scrollTarget) {
-                    const offset = window.innerWidth < 768 ? 70 : 120; // Account for fixed header + spacing
+                    // 读取 updateContentTopOffset 同步好的 CSS 变量，
+                    // 自动跟随 header 实际高度 + 安全间距，无需手工维护数值。
+                    const offset = readCssPx('--freecat-page-top-offset')
+                        || (readCssPx('--freecat-header-height') + readCssPx('--freecat-header-safe-gap'));
                     const top = scrollTarget.getBoundingClientRect().top + window.pageYOffset - offset;
                     window.scrollTo({ top, behavior: 'smooth' });
                 }
