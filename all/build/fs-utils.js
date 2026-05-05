@@ -1,13 +1,15 @@
 const fs = require('fs');
 const path = require('path');
 
-function copyDir(src, dest) {
+function copyDir(src, dest, options = {}) {
+    const ignore = new Set(options.ignore || []);
     if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
     const entries = fs.readdirSync(src, { withFileTypes: true });
     for (const entry of entries) {
+        if (ignore.has(entry.name)) continue;
         const srcPath = path.join(src, entry.name);
         const destPath = path.join(dest, entry.name);
-        if (entry.isDirectory()) copyDir(srcPath, destPath);
+        if (entry.isDirectory()) copyDir(srcPath, destPath, options);
         else fs.copyFileSync(srcPath, destPath);
     }
 }

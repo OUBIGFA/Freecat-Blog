@@ -3,7 +3,7 @@
 
 <head>
     <script><!-- THEME_SCRIPT --></script>
-    <script src="https://cdn.jsdelivr.net/npm/beautiful-mermaid/dist/beautiful-mermaid.browser.global.js"></script>
+    <!-- POST_HEAD_LIBS -->
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title><!-- TITLE_PLACEHOLDER --> - <!-- SITE_TITLE --></title>
@@ -25,14 +25,19 @@
     <meta property="twitter:description" content="<!-- POST_DESCRIPTION -->" />
     <meta property="twitter:image" content="<!-- POST_IMAGE -->" />
 
+    <!-- POST_JSONLD -->
+
     <link rel="icon" href="<!-- SITE_FAVICON -->" />
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" />
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" />
+    <!-- POST_HIGHLIGHT_CSS -->
+    <!-- POST_KATEX_CSS -->
     <link rel="stylesheet" href="../assets/transitions.css" />
+    <link rel="stylesheet" href="../assets/tailwind.css" />
     <link rel="stylesheet" href="../assets/post.css" />
     <link rel="stylesheet" href="../assets/audio-player.css" />
     <style>
@@ -97,12 +102,7 @@
         }
     </style>
 
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-
-    <script id="tailwind-config">
-        /* TAILWIND_CONFIG_PLACEHOLDER */
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <!-- POST_HIGHLIGHT_JS -->
 </head>
 
 <body

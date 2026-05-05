@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const shared = require('../../src/assets/shared.js');
 const { autoSpacing, applyParagraphAlignment } = require('../markdown.js');
 const { autoLineBreak } = require('../template-engine.js');
 
@@ -16,9 +17,9 @@ function generate({ template, siteConfig, aboutConfig, outputDir }) {
     const finalAvatar = aboutConfig.about_hero_avatar || siteConfig.hero_avatar;
 
     const html = template
-        .replace(/<!-- ABOUT_HERO_TITLE -->/g, autoLineBreak(autoSpacing(finalTitle)))
-        .replace(/<!-- ABOUT_HERO_SUBTITLE -->/g, autoLineBreak(autoSpacing(finalSubtitle)))
-        .replace(/<!-- ABOUT_HERO_AVATAR -->/g, finalAvatar);
+        .replace(/<!-- ABOUT_HERO_TITLE -->/g, autoLineBreak(shared.escapeHtml(autoSpacing(finalTitle))))
+        .replace(/<!-- ABOUT_HERO_SUBTITLE -->/g, autoLineBreak(shared.escapeHtml(autoSpacing(finalSubtitle))))
+        .replace(/<!-- ABOUT_HERO_AVATAR -->/g, shared.escapeHtml(String(finalAvatar || '')));
 
     fs.writeFileSync(path.join(outputDir, 'about.html'), html);
     console.log('  Generated: about.html');

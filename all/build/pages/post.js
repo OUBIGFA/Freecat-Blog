@@ -75,11 +75,13 @@ function renderPostPage({ post, template, siteConfig }) {
     let contentHtml = parseMarkdown(post.content, { enableImageCaptions: post.enableImageCaptions });
     contentHtml = addHeadingIds(contentHtml, headings);
 
+    const safeCover = shared.escapeHtml(String(post.cover || ''));
+    const safeTitle = shared.escapeHtml(post.title);
     const coverHtml = (post.cover && post.showCover)
         ? `
         <div class="w-full rounded-xl overflow-hidden mb-32 relative">
             <div class="loader absolute top-12 left-12 z-10" style="display:none"></div>
-            <img alt="${post.title}" class="w-full h-auto object-cover" src="${post.cover}"
+            <img alt="${safeTitle}" class="w-full h-auto object-cover" src="${safeCover}"
                 onerror="if(this.dataset.fallbackApplied!=='true'){
                     this.dataset.fallbackApplied='true';
                     this.src='/image/404.png';
@@ -96,24 +98,67 @@ function renderPostPage({ post, template, siteConfig }) {
     let finalContentHtml = autoSpacingHtml(contentHtml);
     finalContentHtml = applyParagraphAlignment(finalContentHtml);
 
-    const canonical = siteConfig.site_url ? `${siteConfig.site_url}${post.link}` : post.link;
-    const ogImage = post.cover && post.cover.startsWith('http')
-        ? post.cover
-        : (siteConfig.site_url ? `${siteConfig.site_url}${post.cover}` : post.cover);
+    const baseUrl = String(siteConfig.site_url || '');
+    const canonical = baseUrl ? `${baseUrl}${post.link}` : post.link;
+    const rawCover = String(post.cover || '');
+    const ogImage = rawCover && /^https?:\/\//i.test(rawCover)
+        ? rawCover
+        : (baseUrl && rawCover ? `${baseUrl}${rawCover}` : rawCover);
+
+    // 按需加载：扫描渲染后的 HTML，只为真正用到的特性引入对应 CSS/JS
+    const needsHighlight = /<pre[^>]*><code/i.test(finalContentHtml);
+    const needsKatex = /class="katex/i.test(finalContentHtml);
+    const needsMermaid = /class="language-mermaid|class="lang-mermaid|class="mermaid"|<code[^>]*mermaid/i.test(finalContentHtml);
+
+    const headLibs = needsMermaid
+        ? '<script src="https://cdn.jsdelivr.net/npm/beautiful-mermaid/dist/beautiful-mermaid.browser.global.js" defer></script>'
+        : '';
+    const highlightCss = needsHighlight
+        ? '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />'
+        : '';
+    const katexCss = needsKatex
+        ? '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" />'
+        : '';
+    const highlightJs = needsHighlight
+        ? '<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>'
+        : '';
+
+    // JSON-LD Article schema（结构化数据 → SEO + 富片段）
+    const jsonLdObj = {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: post.title,
+        description: post.excerpt,
+        datePublished: post.date.toISOString(),
+        dateModified: post.modifiedDate.toISOString(),
+        author: { '@type': 'Person', name: siteConfig.site_name || 'FreeCat' },
+        publisher: { '@type': 'Organization', name: siteConfig.site_name || 'FreeCat' },
+        mainEntityOfPage: { '@type': 'WebPage', '@id': canonical }
+    };
+    if (ogImage) jsonLdObj.image = ogImage;
+    if (tags.length) jsonLdObj.keywords = tags.join(', ');
+    // JSON.stringify 已经会转义 </script> 中的 / —— 不会，所以单独处理
+    const jsonLdJson = JSON.stringify(jsonLdObj).replace(/<\/script/gi, '<\\/script');
+    const jsonLd = `<script type="application/ld+json">${jsonLdJson}</script>`;
 
     return template
-        .replace(/<!-- TITLE_PLACEHOLDER -->/g, post.title)
-        .replace(/<!-- TITLE_H1_PLACEHOLDER -->/g, shared.processTitleHtml(post.title))
+        .replace(/<!-- TITLE_PLACEHOLDER -->/g, safeTitle)
+        .replace(/<!-- TITLE_H1_PLACEHOLDER -->/g, shared.processTitleHtml(safeTitle))
         .replace('<!-- TAGS_PLACEHOLDER -->', tagsHtml)
         .replace('<!-- DATE_PLACEHOLDER -->', post.date.tz('Asia/Shanghai').format('YYYY-MM-DD'))
         .replace('<!-- MODIFIED_PLACEHOLDER -->', post.modifiedDate.tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm'))
         .replace('<!-- COVER_PLACEHOLDER -->', coverHtml)
         .replace('<!-- CONTENT_PLACEHOLDER -->', finalContentHtml)
         .replace('<!-- TOC_PLACEHOLDER -->', toc)
-        .replace(/<!-- POST_DESCRIPTION -->/g, post.excerpt.replace(/"/g, '&quot;'))
-        .replace(/<!-- POST_KEYWORDS -->/g, (Array.isArray(post.tag) ? post.tag.join(', ') : post.tag))
-        .replace(/<!-- POST_CANONICAL_URL -->/g, canonical)
-        .replace(/<!-- POST_IMAGE -->/g, ogImage);
+        .replace(/<!-- POST_DESCRIPTION -->/g, shared.escapeHtml(post.excerpt))
+        .replace(/<!-- POST_KEYWORDS -->/g, shared.escapeHtml(Array.isArray(post.tag) ? post.tag.join(', ') : (post.tag || '')))
+        .replace(/<!-- POST_CANONICAL_URL -->/g, shared.escapeHtml(canonical))
+        .replace(/<!-- POST_IMAGE -->/g, shared.escapeHtml(ogImage))
+        .replace('<!-- POST_HEAD_LIBS -->', headLibs)
+        .replace('<!-- POST_HIGHLIGHT_CSS -->', highlightCss)
+        .replace('<!-- POST_KATEX_CSS -->', katexCss)
+        .replace('<!-- POST_HIGHLIGHT_JS -->', highlightJs)
+        .replace('<!-- POST_JSONLD -->', jsonLd);
 }
 
 function generateAll({ posts, template, siteConfig, outputDir }) {

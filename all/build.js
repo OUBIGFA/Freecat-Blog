@@ -25,6 +25,8 @@ const { loadConfig } = require('./build/config.js');
 const { SOCIAL_DEFAULTS } = require('./build/social-defaults.js');
 const { createEngine } = require('./build/template-engine.js');
 const { copyDir, ensureCleanDir } = require('./build/fs-utils.js');
+const { buildTailwindCss } = require('./build/tailwind.js');
+const { minifyDist } = require('./build/minify.js');
 const postPage = require('./build/pages/post.js');
 const indexPage = require('./build/pages/index.js');
 const allPage = require('./build/pages/all.js');
@@ -50,15 +52,10 @@ fs.mkdirSync(path.join(DIRS.output, 'posts'));
 
 console.log('📦 Moving assets and configs...');
 if (fs.existsSync(DIRS.assets)) copyDir(DIRS.assets, path.join(DIRS.output, 'assets'));
-if (fs.existsSync(DIRS.images)) copyDir(DIRS.images, path.join(DIRS.output, 'image'));
+// Tutorial 仅供 README 使用，不发布到博客 dist，避免每次部署多搬 1.7MB 静态资源
+if (fs.existsSync(DIRS.images)) copyDir(DIRS.images, path.join(DIRS.output, 'image'), { ignore: ['Tutorial'] });
 
-// ===== 2. 加载 Tailwind config 内容 + git dates =====
-let tailwindConfigContent = '';
-const tailwindConfigPath = path.join(DIRS.assets, 'tailwind.config.js');
-if (fs.existsSync(tailwindConfigPath)) {
-    tailwindConfigContent = fs.readFileSync(tailwindConfigPath, 'utf-8');
-}
-
+// ===== 2. 加载 git dates =====
 // 构建时实时从 git 提取最后提交时间，避免依赖手动生成的 git-dates.json 快照过期。
 // 在 git 不可用 / 浅克隆等场景下，自动回退到 git-dates.json，再不行就 fs.statSync(mtime)。
 const gitDates = gitDatesModule.collect({
@@ -108,7 +105,6 @@ const aboutConfig = loadConfig(DIRS.control, 'about', 'about.md', {
 const engine = createEngine({
     templatesDir: DIRS.templates,
     partialsDir: DIRS.partials,
-    tailwindConfigContent,
     siteConfig,
     socialConfig
 });
@@ -132,4 +128,35 @@ aboutPage.generate({ template: tplAbout, siteConfig, aboutConfig, outputDir: DIR
 generateSitemap({ posts: allPosts, siteConfig, outputDir: DIRS.output });
 generateRobotsTxt({ siteConfig, outputDir: DIRS.output });
 
-console.log('🚀 Build Complete: Posts & Index pages generated!');
+// ===== 7. 复制部署平台配置 (_headers / vercel.json) =====
+const deployConfigs = ['_headers', 'vercel.json'];
+for (const name of deployConfigs) {
+    const src = path.join(DIRS.templates, name);
+    if (fs.existsSync(src)) fs.copyFileSync(src, path.join(DIRS.output, name));
+}
+
+// ===== 8. 编译 Tailwind（必须最后做，扫描的是已生成的 dist HTML + 拼装 HTML 字符串的 build/ JS） =====
+console.log('🎨 Compiling Tailwind CSS...');
+buildTailwindCss({
+    contentGlobs: [
+        path.join(DIRS.output, '**/*.html'),
+        path.join(DIRS.assets, '**/*.{html,js,css}'),
+        path.join(__dirname, 'build', '**/*.js')
+    ],
+    outputPath: path.join(DIRS.output, 'assets', 'tailwind.css'),
+    minify: true
+}).then(async ({ size }) => {
+    const sizeKb = (size / 1024).toFixed(1);
+    console.log(`   tailwind.css: ${sizeKb} KB`);
+
+    // ===== 9. Minify HTML / JS（必须在 Tailwind 之后，因为 Tailwind 会扫描已生成的 HTML） =====
+    if (process.env.NO_MINIFY !== '1') {
+        console.log('🗜️  Minifying HTML & JS...');
+        await minifyDist(DIRS.output);
+    }
+
+    console.log('🚀 Build Complete: Posts & Index pages generated!');
+}).catch(err => {
+    console.error('❌ Build failed:', err);
+    process.exit(1);
+});

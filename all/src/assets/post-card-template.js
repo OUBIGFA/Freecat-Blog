@@ -14,14 +14,24 @@
     const IMG_FALLBACK_ATTR = (shared && shared.IMG_FALLBACK_ATTR) ||
         "onerror=\"if(this.dataset.fallbackApplied!=='true'){this.dataset.fallbackApplied='true';this.removeAttribute('srcset');this.src='/image/404.png';}\"";
 
+    const escapeHtml = (shared && shared.escapeHtml) || function (text) {
+        if (text == null) return '';
+        return String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    };
+
     function renderPostCard(post) {
-        const link = post.link || '#';
+        const link = escapeHtml(post.link || '#');
         const titleHtml = post.titleHtml || '';
         const excerptHtml = post.excerptHtml || '';
-        const date = post.date || '';
-        const modifiedDate = post.modifiedDate || '';
+        const date = escapeHtml(post.date || '');
+        const modifiedDate = escapeHtml(post.modifiedDate || '');
         const tagsHtml = post.tagsHtml || '';
-        const cover = post.cover || '';
+        const cover = escapeHtml(post.cover || '');
         const pinned = !!post.pinned;
 
         const imageDiv = cover
