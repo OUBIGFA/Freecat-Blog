@@ -24,3 +24,6 @@ all/node_modules/
 .vercel/
 # BitFun snapshot data - auto managed
 .bitfun/
+
+# 文章最后编辑时间数据
+all/git-dates.json
