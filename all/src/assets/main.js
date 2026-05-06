@@ -371,21 +371,73 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // [Feature] 无感分页（点击/跳转输入框 → 异步抓取下一页 HTML 并替换）
     // 3. 无感分页实现
+    //
+    // 优化要点：
+    //   - hover / focusin / touchstart 时预取 HTML，并在内存里缓存一份 Promise，
+    //     真正点击时直接命中（消除"闲置后第一次点击卡顿"的核心来源）。
+    //   - fetch 加 8s AbortController 超时，避免网络抽风时按钮永远转圈。
+    //   - 淡出动画延后 100ms 触发：缓存命中时几乎瞬间出结果，主观更"跟手"。
     // ============================================================
     const postsList = document.getElementById('posts-list');
     const paginationContainer = document.getElementById('pagination-buttons');
     const pageTransitionInMs = getCssDurationMs('--page-slide-dur', 200);
+    const PAGE_FETCH_TIMEOUT_MS = 8000;
+    const FADE_DELAY_MS = 100;
 
     if (postsList && paginationContainer) {
+        // url -> Promise<htmlText>。失败时自动从 Map 里清掉，允许下次重试。
+        const pageCache = new Map();
+
+        function prefetchPage(url) {
+            if (pageCache.has(url)) return pageCache.get(url);
+            const ac = new AbortController();
+            const timer = setTimeout(() => ac.abort(), PAGE_FETCH_TIMEOUT_MS);
+            const p = fetch(url, { credentials: 'same-origin', signal: ac.signal })
+                .then((r) => {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.text();
+                })
+                .finally(() => clearTimeout(timer))
+                .catch((err) => {
+                    pageCache.delete(url);
+                    throw err;
+                });
+            pageCache.set(url, p);
+            return p;
+        }
+
+        function isPaginationLink(link) {
+            if (!link) return false;
+            if (link.getAttribute('href') === '#') return false;
+            if (link.classList.contains('opacity-50')) return false;
+            return true;
+        }
+
+        // 在 hover / focus / touch 时启动预取——大部分翻页都是先靠近再点击，
+        // 这一步把网络等待塞进"靠近 → 点击"的几百毫秒里，点击瞬间命中内存。
+        const prefetchHandler = (e) => {
+            const link = e.target.closest('a');
+            if (!isPaginationLink(link)) return;
+            // 预取失败不打断 UI，真正点击时会再次走完整流程并降级。
+            prefetchPage(link.href).catch(() => { });
+        };
+        ['mouseover', 'focusin', 'touchstart'].forEach((evt) => {
+            paginationContainer.addEventListener(evt, prefetchHandler, { passive: true });
+        });
+
         // 核心跳转逻辑复用
         async function navigateTo(url) {
-            try {
-                // 添加加载动画效果 - Faster transition
-                postsList.classList.remove('page-transitioning-in');
+            // 淡出延后触发：缓存命中（< 100ms）时直接跳过整段 transition，
+            // 视觉上"秒切"；只有真的需要等网络才让用户看到 fade。
+            postsList.classList.remove('page-transitioning-in');
+            const fadeTimer = setTimeout(() => {
                 postsList.classList.add('page-transitioning-out');
+            }, FADE_DELAY_MS);
 
-                const response = await fetch(url);
-                const htmlText = await response.text();
+            try {
+                const htmlText = await prefetchPage(url);
+                clearTimeout(fadeTimer);
+
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(htmlText, 'text/html');
 
@@ -429,6 +481,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.scrollTo({ top, behavior: 'smooth' });
                 }
             } catch (err) {
+                clearTimeout(fadeTimer);
+                postsList.classList.remove('page-transitioning-out');
                 console.error('Seamless pagination failed:', err);
                 window.location.href = url; // 失败时降级到普通跳转
             }
