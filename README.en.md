@@ -12,233 +12,356 @@
     <img alt="License" src="https://img.shields.io/badge/license-MIT-111827">
   </p>
   <p>
-    <a href="https://blog.freeorg.dpdns.org">Live Demo</a>
+    <a href="https://freecat-blog.pages.dev">Live Demo</a>
   </p>
 </div>
 
-## What Is This Project?
+> This guide is written for users with **zero programming background**. **Read top-down, follow each step, and you will have your own free blog online.**
 
-Freecat Blog is a personal blog template for regular users. You can think of it like this:
+## Table of Contents
 
-- `writing/` is your article folder. Put Markdown articles there.
-- `Control/` is your site settings folder. Edit the site name, avatar, intro, and social links there.
-- `all/` is the site generator. Deployment platforms read this folder and turn your articles and settings into a real website.
+- [1. What Is This Project](#1-what-is-this-project)
+- [2. The Three Most Important Folders](#2-the-three-most-important-folders)
+- [3. Preparation](#3-preparation)
+- [4. Deployment Tutorial: Get Your Blog Online](#4-deployment-tutorial-get-your-blog-online)
+  - [Step 1: Make the Project Your Own GitHub Repository](#step-1-make-the-project-your-own-github-repository)
+  - [Step 2: Deploy to Cloudflare Pages (Recommended)](#step-2-deploy-to-cloudflare-pages-recommended)
+  - [Step 2 Alternative: Deploy to Vercel](#step-2-alternative-deploy-to-vercel)
+- [5. Writing Articles: Using `writing/`](#5-writing-articles-using-writing)
+- [6. Customizing the Site: Using `Control/`](#6-customizing-the-site-using-control)
+- [7. The 5-Step Daily Update Workflow](#7-the-5-step-daily-update-workflow)
+- [8. Advanced Features](#8-advanced-features)
+- [9. FAQ](#9-faq)
+- [License](#license)
 
-You do not need to buy a server or write web page code. In daily use, you mainly do three things:
+---
 
-1. Write articles in `writing/`.
-2. Customize your site in `Control/`.
-3. Sync with GitHub Desktop. Cloudflare Pages or Vercel will rebuild and publish the site automatically.
+## 1. What Is This Project
 
-In one sentence: **Freecat Blog turns local Markdown files into a free personal website.**
+Freecat Blog is a personal blog template for regular users.
 
-## The 3 Folders Beginners Should Remember
+**One sentence:** It turns Markdown files on your computer into a free website automatically.
+
+### How It Works
+
+```text
+Your computer: write articles in writing/ + edit settings in Control/
+            ↓
+GitHub Desktop syncs to GitHub with one click
+            ↓
+Cloudflare Pages / Vercel builds automatically
+            ↓
+Your blog updates and publishes automatically
+```
+
+Your content is stored on **both your local computer and GitHub**. Deployment platforms only generate web pages — even if you switch platforms later, your articles always belong to you.
+
+![01](all/image/Tutorial/00a.png)
+![02](all/image/Tutorial/00b.png)
+![03](all/image/Tutorial/00c.png)
+
+### Who Is It For
+
+- People who want a personal blog but do not want to buy or maintain a server
+- People who want to write in Markdown
+- People who want to keep their article files in their own hands
+- People who want free deployment with the option to switch platforms later
+- People who want to write in Obsidian, VS Code, or any Markdown editor
+
+### What You Get
+
+- Auto-generated home page, article pages, archive, search, and About page
+- Articles support tags, cover, summary, pinning, and visibility fields
+- Automatic spacing for mixed Chinese/English text, numbers and units, code blocks, and math
+- Drop an audio direct link into an article and a player appears automatically
+- Edit site name, avatar, and social links without writing any code
+
+---
+
+## 2. The Three Most Important Folders
+
+You only need to remember three folders for the entire project:
 
 | Folder | Edit often? | What it does |
 | --- | --- | --- |
-| `writing/` | Yes | Stores your blog posts. One Markdown file is one article. |
-| `Control/` | Yes | Controls the site name, avatar, home intro, social links, and About page. |
-| `all/` | Usually no | The build workspace. Deployment platforms enter this folder to run the build command. |
+| `writing/` | **Yes** | Stores your blog posts. One Markdown file = one article. |
+| `Control/` | **Yes** | Edit the site name, avatar, home intro, social links, and About page. |
+| `all/` | Usually no | Build workspace. The deployment platform runs the build command in here. |
 
-Beginner rule: **write in `writing/`, customize in `Control/`, and set the deployment root directory to `all`.**
+Remember this sentence: **Write in `writing/`, customize in `Control/`, and set the deployment root directory to `all`.**
 
-## How It Works
+---
 
-The publishing pipeline is short:
+## 3. Preparation
 
-```text
-Local writing/ articles
-        +
-Local Control/ settings
-        ↓
-Sync to GitHub
-        ↓
-Cloudflare Pages / Vercel builds automatically
-        ↓
-Your blog website is generated and published
-```
+Before you start, you only need these tools and accounts:
 
-Your content is stored on your computer and on GitHub. The deployment platform only generates web pages from it.
-
-## Who Is It For?
-
-- People who want a personal blog without maintaining a server
-- People who like writing in Markdown
-- People who want to keep their writing files under their own control
-- People who want free deployment on Cloudflare Pages or Vercel
-- People who use Obsidian, VS Code, or any Markdown editor
-
-## Features
-
-- Local-first: your articles are local Markdown files that can be backed up, migrated, and versioned
-- GitHub sync: use GitHub Desktop to commit and sync changes instead of manually uploading pages
-- Free deployment: supports Cloudflare Pages and Vercel
-- Auto-generated pages: home, post detail, archive, search, and About
-- Article controls: tags, covers, descriptions, pinned posts, and visibility
-- Reading polish: optimized display for mixed Chinese/English text, numbers, units, code blocks, and math
-- Audio support: paste an audio direct link in an article to generate a player
-- No-code customization: edit site basics through `Control/`
-- Portable: your content lives in your own repository, so you can move deployment platforms later
-
-## Prerequisites
-
-Prepare these first:
-
-| Tool / account | Required? | Purpose |
-| --- | --- | --- |
-| GitHub account | Required | Stores your blog repository |
-| GitHub Desktop | Required | Syncs local changes to GitHub |
-| Cloudflare account | Recommended | Deploys the blog |
-| Vercel account | Optional | Alternative deployment platform |
-
-GitHub Desktop: <https://desktop.github.com/download>
-
-Pick either Cloudflare Pages or Vercel. Complete beginners should start with Cloudflare Pages.
-
-## First Setup: Put This Project Under Your Own GitHub Account
-
-You need to copy Freecat Blog into your own GitHub account first. There are two routes:
-
-| Route | Recommendation | Best for | Can sync future template updates? |
+| Tool / Account | Required? | Purpose | Link |
 | --- | --- | --- | --- |
-| GitHub Importer | Recommended | Users willing to follow a few GitHub steps | Yes |
-| Download ZIP + copy and paste | Fallback | Beginners who just want to get started | Not directly |
+| GitHub account | Required | Hosts your blog repository | <https://github.com/signup> |
+| GitHub Desktop | Required | Syncs local changes to GitHub | <https://desktop.github.com/download> |
+| Cloudflare account | Recommended | Deploys your blog (free) | <https://dash.cloudflare.com/sign-up> |
+| Vercel account | Optional | An alternative free deployment | <https://vercel.com/signup> |
 
-Pick only one route. Do not do both.
+> Cloudflare Pages and Vercel — **pick only one**. Complete beginners should start with Cloudflare Pages.
 
-## Route A: GitHub Importer, Recommended
+Once these are ready, move on to deployment.
 
-This route copies Freecat Blog into your GitHub account with its Git history. That makes future template updates easier.
+---
 
-### Step 1: Open GitHub Importer
+## 4. Deployment Tutorial: Get Your Blog Online
+
+The whole process takes two steps: **first turn the project into your own GitHub repository, then connect it to Cloudflare/Vercel for automatic deployment.**
+
+### Step 1: Make the Project Your Own GitHub Repository
+
+You first need to copy Freecat Blog into your own GitHub account. Two routes are available:
+
+| Route | Recommendation | Best for | Can sync upstream updates later? |
+| --- | --- | --- | --- |
+| **Route A: GitHub Importer** | Recommended | Users willing to follow GitHub steps | Yes |
+| **Route B: Download ZIP + Copy/Paste** | Alternative | Beginners who want zero hassle | No |
+
+> **Choose only one route — do not do both.**
+
+#### Route A: GitHub Importer (Recommended)
+
+**A-1. Open GitHub Importer**
 
 1. Sign in to GitHub.
 2. Open: <https://github.com/new/import>
 
-### Step 2: Fill In the Import Form
+**A-2. Fill in the import form**
 
 | Field | Value |
 | --- | --- |
 | `Your old repository's clone URL` | `https://github.com/OUBIGFA/Freecat-Blog` |
 | `Owner` | Your GitHub account |
-| `Repository name` | Your repository name, for example `my-freecat-blog` |
-| `Privacy` | Recommended: `Private` |
+| `Repository name` | Your repo name, e.g. `my-freecat-blog` |
+| `Privacy` | `Private` recommended |
 
-Click `Begin import`. It usually finishes in seconds to a few minutes.
+Click `Begin import`. It usually finishes in a few seconds to a few minutes.
 
-### Step 3: Clone Locally with GitHub Desktop
+**A-3. Clone the repository to your computer with GitHub Desktop**
 
 1. Open GitHub Desktop and sign in.
-2. Click `File` -> `Clone repository`.
-3. Select the repository you just imported.
-4. Choose a local folder.
+2. Click `File` → `Clone repository`.
+3. Pick the repository you just imported.
+4. Choose a local save location.
 5. Click `Clone`.
 
-After this, your computer has the full blog project folder.
+You now have the full blog project folder on your computer. **Skip down to Step 2 to deploy.**
 
-## Route B: Download ZIP + Copy and Paste, Fallback
+#### Route B: Download ZIP + Copy/Paste (Alternative)
 
-Use this if GitHub Importer is unavailable or you want the simplest path.
-
-Note: repositories created this way cannot conveniently sync future upstream template updates. It is fine if you just want to get the blog online first.
-
-### Step 1: Create Your Own GitHub Repository
+**B-1. Create your own GitHub repository**
 
 1. Open: <https://github.com/new>
-2. Name it something like `my-freecat-blog`.
-3. Choose `Private`.
-4. Enable `Add a README file`.
+2. Repo name: `my-freecat-blog`.
+3. Visibility: `Private`.
+4. Check `Add a README file`.
 5. Click `Create repository`.
 
-### Step 2: Download the Freecat Blog Source
+**B-2. Download Freecat Blog source**
 
-1. Open the original project: <https://github.com/OUBIGFA/Freecat-Blog>
-2. Click `Code`.
-3. Click `Download ZIP`.
-4. Extract the downloaded ZIP file.
+1. Open the original repo: <https://github.com/OUBIGFA/Freecat-Blog>
+2. Click `Code` → `Download ZIP`.
+3. Extract the downloaded ZIP.
 
-### Step 3: Clone Your Repository Locally
+**B-3. Clone your repository to your computer**
 
 1. Open GitHub Desktop.
-2. Select the repository you just created.
-3. Click `Clone`.
+2. Pick your newly created repo.
+3. Click `Clone` to download it locally.
 
-### Step 4: Copy the Source Files
+**B-4. Copy the source into your repository**
 
 1. Open the extracted Freecat Blog folder.
-2. Enter the inner folder that actually contains the source files.
-3. Copy everything inside it.
-4. Paste those files into the local repository folder cloned by GitHub Desktop.
-5. If asked whether to replace `README.md`, choose replace.
+2. Go into the level that actually contains the source code.
+3. Select all the contents.
+4. Paste them into the local repo folder cloned by GitHub Desktop.
+5. If asked to replace `README.md`, choose replace.
 
-Do not paste the outer folder itself. The correct result is that the repository root directly contains `all/`, `Control/`, `writing/`, and `README.md`.
+> **Important: do not drop the outer folder in.** The correct result is: your repo root directly contains `all/`, `Control/`, `writing/`, `README.md`.
 
-![Correct root directory example](all/image/Tutorial/10.png)
+![10](all/image/Tutorial/10.png)
 
-### Step 5: Sync to GitHub for the First Time
+**B-5. Push to GitHub for the first time**
 
-1. Go back to GitHub Desktop.
-2. You will see many new files.
-3. Use a commit message like `Import Freecat Blog source`.
+1. Switch back to GitHub Desktop.
+2. You will see many new files on the left.
+3. Commit message: `Import Freecat Blog source`.
 4. Click `Commit to main`.
 5. Click `Push origin`.
 
-## Start Writing: Use `writing/`
+Your GitHub repository now has the full Freecat Blog source. **Continue to Step 2.**
 
-`writing/` is the folder you will use most. Each Markdown file is one article.
+### Step 2: Deploy to Cloudflare Pages (Recommended)
 
-The project includes several sample articles. You can:
+Cloudflare Pages is great for long-term hosting of a personal blog. **The key is filling in the build settings correctly.**
+
+**2-1. Open Cloudflare Pages**
+
+1. Sign in to the [Cloudflare Dashboard](https://dash.cloudflare.com/).
+2. Create an application.
+
+![Cloudflare step 1](all/image/Tutorial/01.png)
+
+3. Select Pages.
+
+![Cloudflare step 2](all/image/Tutorial/02.png)
+
+4. Choose "Import an existing Git repository".
+
+![Cloudflare step 3](all/image/Tutorial/03.png)
+
+5. Select your blog repository.
+
+![Cloudflare step 4](all/image/Tutorial/04.png)
+
+**2-2. Fill in the build settings (the most critical step)**
+
+The project name can be anything. **Fill the key settings exactly as below:**
+
+| Cloudflare UI (English) | Cloudflare 中文界面 | Value |
+| --- | --- | --- |
+| Framework preset | 框架预设 | `None` / leave unset |
+| Root directory (advanced) > Path | 根目录（高级） | `all` |
+| Build command | 构建命令 | `npm run build` |
+| Build output directory | 构建输出目录 | `dist` |
+| Environment variables (optional) | 环境变量（选填） | `NODE_VERSION` = `20` |
+
+![Cloudflare step 5](all/image/Tutorial/05.png)
+
+> **Common mistake:** Output directory should be `dist`, **not `all/dist`** — you have already set the root directory to `all`.
+
+Click `Save and Deploy` and wait for the build (usually 1–3 minutes).
+
+**2-3. Visit your blog**
+
+![Cloudflare step 6](all/image/Tutorial/06.png)
+
+When the build finishes, Cloudflare gives you a default URL (something like `xxx.pages.dev`). Open it and your blog is live 🎉
+
+To use your own domain, bind a custom domain inside your Cloudflare Pages project.
+
+- Free domain guide (Chinese): <https://blog.freeorg.dpdns.org/posts/%E5%85%8D%E8%B4%B9%E5%9F%9F%E5%90%8D%E7%94%B3%E8%AF%B7%E6%8C%87%E5%8D%97.html>
+- DNSHE auto-renew project: <https://github.com/OUBIGFA/dnshe-auto-renew>
+
+### Step 2 Alternative: Deploy to Vercel
+
+If you already use Vercel, this route is just as good.
+
+1. Sign in to [Vercel](https://vercel.com/).
+2. Click `Add New...` → `Project`.
+3. Connect GitHub and pick your blog repo.
+4. Fill in the form:
+
+| Field | Value |
+| --- | --- |
+| Framework Preset | Keep default or pick "Other / Static" |
+| Root Directory | `all` |
+| Build Command | `npm run build` |
+| Output Directory | `dist` |
+| Node Version | `20` |
+
+5. Click `Deploy`.
+
+To bind a custom domain, go to project settings → `Domains` and follow the DNS instructions.
+
+---
+
+## 5. Writing Articles: Using `writing/`
+
+After deployment succeeds, you can start writing. `writing/` is the folder you will use most — **one Markdown file is one article**.
+
+The project ships with a few sample articles. You can:
 
 - Open them to learn the format
 - Copy one as a template
-- Delete sample articles you do not need
+- Delete the samples you don't need
 - Create your own `.md` files
 
-A typical article looks like this:
+### Article Template
+
+Create a new `.md` file with this metadata header:
 
 ```md
 ---
 title: My First Article
-date: 2026-05-03
+date: 2026-01-01
 tag:
-  - Notes
-cover:
+  - notes
+cover: https://XXXXX.com
 show_cover: false
-show_image_captions: true
-description: Write the article summary here
+show_image_captions: false
+description:
 pinned: false
 show: true
 ---
 
-Start writing here.
+The article body goes here.
 ```
 
-Common fields:
+### Article Field Reference
 
-| Field | Purpose |
-| --- | --- |
-| `title` | Article title |
-| `date` | Publish date |
-| `tag` | Article tags. You can use multiple tags. |
-| `cover` | Cover image URL |
-| `show_cover` | Whether to show the cover on the article page |
-| `description` | Article summary. If empty, it is generated automatically. |
-| `pinned` | Whether to pin the article |
-| `show` | Whether to show the article on the site |
+The block at the top wrapped in `---` is called "Front Matter" — configuration the system reads. Common fields:
 
-After writing, save the file, commit with GitHub Desktop, and push. The deployment platform will update the website automatically.
+| Field | Purpose | Example |
+| --- | --- | --- |
+| `title` | Article title; if empty, the filename is used | `My First Article` |
+| `date` | Publish date | `2026-01-01` |
+| `tag` | Tags, multiple allowed | `- notes` |
+| `cover` | Cover image URL; empty for no cover | `https://...` |
+| `show_cover` | Whether to show the cover on the article page | `true` or `false` |
+| `description` | Article summary; empty = auto excerpt | `A short intro` |
+| `pinned` | Pin to the top | `true` or `false` |
+| `show` | Show on the site | `true` or `false` |
 
-## Customize the Site: Use `Control/`
+After saving, jump to [Section 7](#7-the-5-step-daily-update-workflow) to sync with GitHub Desktop.
 
-`Control/` is the site control panel. If you want to turn the template into your own blog, edit this folder first.
+### Embedding an Audio Player in an Article
+
+Use blockquote syntax with a direct audio link to auto-generate a player:
+
+```md
+>[A demo audio](https://example.com/audio.m4a)
+```
+
+If the URL has no obvious audio extension, add a music symbol in the title to force it:
+
+```md
+>[🎵A demo audio](https://example.com/audio)
+```
+
+Supported formats: `.mp3`, `.m4a`, `.wav`, `.ogg`, `.aac`, `.flac`, `.opus`.
+
+Helper tools:
+
+- Cloud share link → direct link: <https://lz.qaiu.top/>
+- Cloud direct link extractor: <https://link.gimhoy.com/>
+- Feijipan cloud drive: <https://www.feijipan.com>
+
+---
+
+## 6. Customizing the Site: Using `Control/`
+
+`Control/` is the site control panel. To turn the template into "your blog", focus your edits here.
 
 | File | What it controls |
 | --- | --- |
-| `site_网站属性.md` | Site title, site name, home intro, avatar, theme, official domain |
-| `social_社交媒体.md` | Social icons, profile links, contact links, promotion links |
+| `site_网站属性.md` | Site title, site name, home intro, avatar, theme, canonical URL |
+| `social_社交媒体.md` | Social media icons, profile links, contact, promo links |
 | `about_关于页面.md` | About page title, intro, and avatar |
 
-These files use a settings block wrapped by `---` at the top:
+### 4 Things to Remember When Editing
+
+- Keep **one space after the colon**, e.g. `site_name: FreeCat`
+- Fields you don't want to fill can be **left empty**, but **don't delete the line**
+- Lines starting with `_01`, `_02` etc. are descriptions — **do not rename the field keys**
+- After editing, you must commit and push with GitHub Desktop for the live site to update
+
+The config block at the top of each file looks like:
 
 ```yaml
 ---
@@ -248,60 +371,87 @@ hero_title: Hi, I'm FreeCat.
 ---
 ```
 
-Editing rules:
-
-- Keep one space after the colon, for example `site_name: FreeCat`
-- Empty fields may stay empty, but do not delete the whole line
-- Lines like `_01` and `_02` are helper notes; do not rename those keys
-- After editing, commit and push with GitHub Desktop so the live site can rebuild
-
-### Common Settings in `site_网站属性.md`
+### `site_网站属性.md` Field Reference
 
 | Field | Description |
 | --- | --- |
 | `site_title` | Browser tab title |
-| `site_favicon` | Browser favicon URL. Empty means the default icon is used. |
-| `site_name` | Site name shown in the header |
-| `site_logo_icon` | Site logo URL. Empty means the default icon is used. |
+| `site_favicon` | Browser tab icon URL; empty = default |
+| `site_name` | Site name shown at the top |
+| `site_logo_icon` | In-site logo icon URL; empty = default |
 | `hero_title` | Home page main title |
 | `hero_subtitle` | Home page intro text |
 | `hero_avatar` | Home page avatar URL |
-| `posts_per_page` | Number of posts on the home page. Empty = 8. `0` = show all. |
+| `posts_per_page` | Articles per page on home; empty = 8; `0` = show all |
 | `footer_copyright` | Footer copyright text |
-| `theme_system` | Follow system theme |
-| `theme_light` | Force light theme |
-| `theme_dark` | Force dark theme |
-| `site_url` | Official site URL, used for Sitemap |
+| `theme_system` | Follow system light/dark mode |
+| `theme_light` | Force light mode |
+| `theme_dark` | Force dark mode |
+| `site_url` | Your canonical site URL, used for the sitemap |
 
-Only one of `theme_system`, `theme_light`, and `theme_dark` should be `true`.
+> Theme: only **one** of `theme_system`, `theme_light`, `theme_dark` should be `true`.
 
-### Common Settings in `social_社交媒体.md`
+### `social_社交媒体.md` Field Reference
 
-Each platform usually has 3 fields:
+Each platform has 3 fields:
 
 | Field type | Example | Purpose |
 | --- | --- | --- |
-| Enable switch | `github_enabled: true` | `true` shows it, `false` hides it |
-| Custom icon | `github_icon_url:` | Empty uses the default icon; you can also paste your own icon URL |
-| Profile URL | `github_url: https://github.com` | Where the icon links to |
+| Enable toggle | `github_enabled: true` | `true` shows it, `false` hides it |
+| Custom icon | `github_icon_url:` | Empty = default icon; or paste your own icon URL |
+| Profile link | `github_url: https://github.com` | Where the icon links to |
 
-For platforms you do not use, set `*_enabled` to `false`.
+For platforms you don't use, set the matching `*_enabled` to `false`.
 
-### Common Settings in `about_关于页面.md`
+### `about_关于页面.md` Field Reference
 
 | Field | Description |
 | --- | --- |
-| `about_hero_title` | About page title. Empty uses the home title. |
-| `about_hero_subtitle` | About page intro. Empty uses the home intro. |
-| `about_hero_avatar` | About page avatar. Empty uses the home avatar. |
+| `about_hero_title` | About page title; empty = use home title |
+| `about_hero_subtitle` | About page intro; empty = use home intro |
+| `about_hero_avatar` | About page avatar; empty = use home avatar |
 
-To keep the About page consistent with the home page, leave all three fields empty.
+To keep the About page identical to the home page, leave all three empty.
 
-## Local Preview and Build
+---
 
-If you only want to write and deploy, you do not have to build locally. Cloudflare Pages or Vercel will build for you.
+## 7. The 5-Step Daily Update Workflow
 
-If you want to check the site on your computer first:
+After deployment succeeds, **every future update only takes 5 steps**:
+
+1. Add or edit articles in `writing/`.
+2. Edit site settings in `Control/` if needed.
+3. Save the files.
+4. Open GitHub Desktop, write a short commit message, click `Commit to main`.
+5. Click `Push origin`.
+
+![GitHub Desktop commit](all/image/Tutorial/08.png)
+
+![GitHub Desktop push](all/image/Tutorial/09.png)
+
+After pushing, Cloudflare Pages or Vercel **rebuilds automatically**. Refresh the site after 1–3 minutes to see the new content.
+
+---
+
+## 8. Advanced Features
+
+These are not required. Beginners can skip and come back later.
+
+### Writing with Obsidian
+
+You can open this blog repo directly in Obsidian. Recommended: write your articles inside `writing/`.
+
+Why this works well:
+
+- Articles stay local and easy to manage
+- You get Obsidian's backlinks, tags, and search
+- After writing, sync with GitHub Desktop to publish
+
+### Local Preview and Build
+
+If you only write articles and deploy, you **do not** need to build locally — the platform handles it.
+
+If you want to preview locally, install [Node.js 20+](https://nodejs.org/) first, then:
 
 ```bash
 cd all
@@ -309,183 +459,45 @@ npm install
 npm run build
 ```
 
-After a successful build, this folder is generated:
+The output lives in `all/dist/` — **do not edit it manually and do not commit it to GitHub**.
 
-```text
-all/dist/
-```
-
-`all/dist/` contains generated website files. Do not edit it manually, and do not commit it to GitHub.
-
-## Deploy to Cloudflare Pages, Recommended
-
-Cloudflare Pages is a good default for long-term personal blog hosting. The key is to fill in the build settings correctly.
-
-### Step 1: Enter Cloudflare Pages
-
-1. Sign in to [Cloudflare Dashboard](https://dash.cloudflare.com/).
-2. Create an application.
-
-![Cloudflare step 1](all/image/Tutorial/01.png)
-
-3. Choose Pages.
-
-![Cloudflare step 2](all/image/Tutorial/02.png)
-
-4. Choose to import an existing Git repository.
-
-![Cloudflare step 3](all/image/Tutorial/03.png)
-
-5. Select your blog repository.
-
-![Cloudflare step 4](all/image/Tutorial/04.png)
-
-### Step 2: Fill In Build Settings
-
-The project name can be anything. Fill in the important fields like this:
-
-| Cloudflare Chinese UI | Cloudflare English UI | Value |
-| --- | --- | --- |
-| 框架预设 | Framework preset | `None`, `无`, or no preset |
-| 根目录（高级） | Root directory (advanced) > Path | `all` |
-| 构建命令 | Build command | `npm run build` |
-| 构建输出目录 | Build output directory | `dist` |
-| 环境变量 | Environment variables | `NODE_VERSION` = `20` |
-
-![Cloudflare step 5](all/image/Tutorial/05.png)
-
-Click `Save and Deploy` and wait for the build to finish.
-
-![Cloudflare step 6](all/image/Tutorial/06.png)
-
-### Step 3: Visit the Website
-
-After the build finishes, Cloudflare gives you a default URL. Use it to check your blog first.
-
-If you want your own domain, bind a custom domain in Cloudflare Pages.
-
-Free domain guide: <https://blog.freeorg.dpdns.org/posts/%E5%85%8D%E8%B4%B9%E5%9F%9F%E5%90%8D%E7%94%B3%E8%AF%B7%E6%8C%87%E5%8D%97.html>
-
-DNSHE auto-renew project: <https://github.com/OUBIGFA/dnshe-auto-renew>
-
-## Deploy to Vercel, Fallback
-
-If you already use Vercel, you can deploy there too.
-
-1. Sign in to [Vercel](https://vercel.com/).
-2. Click `Add New...` -> `Project`.
-3. Connect GitHub and select your blog repository.
-4. Fill in the settings:
-
-| Field | Value |
-| --- | --- |
-| Framework Preset | Keep the default or choose a plain static build option |
-| Root Directory | `all` |
-| Build Command | `npm run build` |
-| Output Directory | `dist` |
-| Node Version | `20` |
-
-5. Click `Deploy`.
-
-For a custom domain, open project settings -> `Domains` and follow the DNS instructions.
-
-## How to Update the Blog Later
-
-After deployment, everyday updates are only 5 steps:
-
-1. Add or edit articles in `writing/`.
-2. Edit site settings in `Control/` if needed.
-3. Save the files.
-4. Open GitHub Desktop and click `Commit to main`.
-5. Click `Push origin`.
-
-![GitHub Desktop commit](all/image/Tutorial/08.png)
-
-![GitHub Desktop push](all/image/Tutorial/09.png)
-
-After the push succeeds, Cloudflare Pages or Vercel rebuilds automatically. Refresh the site after a short wait.
-
-## Project Structure
+### Project Structure
 
 ```text
 Freecat-Blog/
-├── Control/                # Site configuration. Beginners mainly edit this.
+├── Control/                # Site config — beginners mainly edit here
 │   ├── site_网站属性.md
 │   ├── social_社交媒体.md
 │   └── about_关于页面.md
-├── writing/                # Markdown article source files. Beginners mainly write here.
-├── all/                    # Build workspace. Deployment platforms build from here.
+├── writing/                # Article Markdown — beginners mainly write here
+├── all/                    # Build workspace — the platform builds in here
 │   ├── src/                # Page templates
 │   ├── image/              # Image assets
-│   ├── build/              # Build helper scripts
+│   ├── build/              # Build helpers
 │   ├── build.js            # Main build script
-│   ├── package.json        # Build dependencies and commands
-│   └── dist/               # Generated output. Do not edit manually.
+│   ├── package.json        # Build deps and scripts
+│   └── dist/               # Build output — generated, do not edit
 ├── README.md
 └── README.en.md
 ```
 
-## Audio Player in Articles
+### Sync Upstream Template Updates
 
-Use a blockquote with an audio direct link to generate a player:
+> Only works for repos created via Route A (GitHub Importer). For Route B, see the fallback below.
 
-```md
->[Sample audio](https://example.com/audio.m4a)
-```
+**First-time setup: add the upstream remote**
 
-If the link has no obvious audio extension, add the music symbol to force recognition:
-
-```md
->[🎵Sample audio](https://example.com/audio)
-```
-
-Supported formats: `.mp3`, `.m4a`, `.wav`, `.ogg`, `.aac`, `.flac`, `.opus`.
-
-Helper tools:
-
-- Cloud share link to direct link converter: <https://lz.qaiu.top/>
-- Cloud direct link extractor: <https://link.gimhoy.com/>
-- Feijipan cloud drive: <https://www.feijipan.com>
-
-## Write with Obsidian
-
-You can open this blog repository directly as an Obsidian vault. Write articles under `writing/`.
-
-Benefits:
-
-- Articles stay local and easy to manage
-- Obsidian backlinks, tags, and search are available
-- Write locally, sync with GitHub Desktop, and let the site publish automatically
-
-## Sync Upstream Template Updates, Advanced
-
-If you used the GitHub Importer route, you can sync updates from the upstream Freecat Blog template.
-
-If you used ZIP + copy and paste, use the fallback method at the end of this section.
-
-### Before the First Sync: Add the Upstream Repository
-
-Open a terminal in your local repository:
+In a terminal, enter your local repo directory:
 
 ```bash
-cd /full/path/to/your/local/repository
-```
-
-Add upstream:
-
-```bash
+cd /full/path/to/your/local/repo
 git remote add upstream https://github.com/OUBIGFA/Freecat-Blog.git
-```
-
-Check it:
-
-```bash
 git remote -v
 ```
 
-If you see both `origin` and `upstream`, it worked.
+You should see both `origin` and `upstream`.
 
-### Sync Upstream Updates Each Time
+**Pull upstream updates**
 
 ```bash
 git fetch upstream
@@ -494,30 +506,30 @@ git merge upstream/main
 git push origin main
 ```
 
-Meaning:
+What each command does:
 
-- `git fetch upstream`: fetches latest upstream code without changing your files
-- `git log HEAD..upstream/main --oneline`: shows what is new upstream
-- `git merge upstream/main`: merges upstream updates into your repository
-- `git push origin main`: pushes the merged result back to GitHub
+- `git fetch upstream` — download upstream changes without touching your files
+- `git log HEAD..upstream/main --oneline` — preview what's new upstream
+- `git merge upstream/main` — merge upstream into your repo
+- `git push origin main` — push the merged result back to GitHub
 
-### If Conflicts Happen
+**If conflicts appear**
 
-Conflicts usually mean you and upstream edited the same file. A conflict looks like this:
+Conflicts usually happen when you and upstream edited the same file. You'll see markers like:
 
 ```text
-  <<<<<<< HEAD
-your content
-  =======
-upstream template content
-  >>>>>>> upstream/main
+<<<<<<< HEAD
+your version
+=======
+upstream version
+>>>>>>> upstream/main
 ```
 
 How to resolve:
 
-1. Open the conflict file.
+1. Open the conflicting file.
 2. Keep the content you want.
-3. Delete the `<<<<<<<`, `=======`, and `>>>>>>>` markers.
+3. Remove the `<<<<<<<`, `=======`, `>>>>>>>` markers.
 4. Save the file.
 5. Run:
 
@@ -527,71 +539,63 @@ git commit -m "Merge upstream Freecat Blog updates"
 git push origin main
 ```
 
-General advice:
+General guidance:
 
-- Prefer your own settings in `Control/`
-- Prefer your own articles in `writing/`
-- Usually keep upstream template updates in `all/`
+- In `Control/`, **prefer your own** settings
+- In `writing/`, **prefer your own** articles
+- In `all/`, usually **prefer upstream** updates
 
-### Fallback Update Method for ZIP Route
+**Fallback for the ZIP route**
 
-If your repository was built with ZIP + copy and paste, do not force the `git merge` method above.
+If you used the ZIP + copy-paste route, do not force `git merge`. Update manually:
 
-Manual update:
-
-1. Download the latest Freecat Blog ZIP again.
+1. Re-download the latest Freecat Blog ZIP.
 2. Extract it.
-3. Copy template files such as `all/`, `README.md`, and `README.en.md` into your repository.
-4. Do not overwrite your own `Control/` or `writing/`.
-5. Review changes in GitHub Desktop.
-6. If your content is safe, commit and push.
+3. Copy the new `all/` folder into your repo, **overwriting** the old `all/`.
+4. **Do not overwrite** your own `Control/` or `writing/`.
+5. Review the diff in GitHub Desktop.
+6. After confirming nothing important is lost, commit and push.
 
-## FAQ
+---
 
-**Q: Do I need to know programming?**
+## 9. FAQ
 
-No. For daily use, you only edit Markdown files and settings files.
+**Q: Do I need to know how to code?**
+No. Day-to-day, you only edit Markdown and config files.
 
-**Q: What should I mainly edit?**
+**Q: Where should I usually edit?**
+Articles → `writing/`. Site settings → `Control/`. Beginners normally don't touch `all/`.
 
-Write articles in `writing/`. Edit site information in `Control/`. Beginners usually should not edit `all/`.
+**Q: Do I have to buy a domain?**
+No. Cloudflare Pages and Vercel both give you a default URL.
 
-**Q: Do I need to buy a domain?**
+**Q: What's the easiest setting to get wrong during deployment?**
+`Root Directory` must be `all`, `Output Directory` must be `dist`, **not `all/dist`**.
 
-No. Cloudflare Pages and Vercel both provide a default URL first.
+**Q: I made changes locally but the site isn't updating. What do I do?**
+Check in order: ① is the file saved → ② did GitHub Desktop push → ③ did Cloudflare Pages or Vercel start a new build → ④ force-refresh your browser.
 
-**Q: What are the most common deployment mistakes?**
-
-`Root Directory` must be `all`, and `Output Directory` must be `dist`, not `all/dist`.
-
-**Q: I edited locally but the website did not change. What should I check?**
-
-Make sure the file was saved, GitHub Desktop pushed the change, and the deployment platform started a new build. Then hard-refresh the browser.
-
-**Q: Should I choose Cloudflare Pages or Vercel?**
-
-Complete beginners should choose Cloudflare Pages. Existing Vercel users can choose Vercel. Your content stays on GitHub, so you can migrate later.
+**Q: Cloudflare Pages or Vercel — which should I pick?**
+Beginners: Cloudflare Pages. Already on Vercel? Stick with Vercel. Your content is on GitHub, so you can switch later.
 
 **Q: Can I delete the sample articles?**
-
-Yes. They are in `writing/`. Delete them, commit, and push.
+Yes. They live in `writing/` — delete and push to sync.
 
 **Q: I already used the ZIP route. Can I switch to the Importer route?**
+Yes. The safest way is to import a fresh repo via GitHub Importer, then copy your `Control/` and `writing/` over and re-deploy or repoint your deployment project.
 
-Yes. The safest way is to create a new repository with GitHub Importer, copy your old `Control/` and `writing/` folders over, then redeploy or switch the deployment project to the new repository.
-
-**Q: `git remote add upstream` says `remote upstream already exists`. What should I do?**
-
-It was already added. Run:
+**Q: `git remote add upstream` says `remote upstream already exists`. What now?**
+The remote is already added. Run:
 
 ```bash
 git remote set-url upstream https://github.com/OUBIGFA/Freecat-Blog.git
 ```
 
-**Q: `git merge upstream/main` says `refusing to merge unrelated histories`. What should I do?**
+**Q: `git merge upstream/main` says `refusing to merge unrelated histories`. What now?**
+You probably built your repo via the ZIP route, which can't merge cleanly. Use the ZIP fallback above, or rebuild via the Importer route.
 
-This usually means your repository was created with the ZIP route, so it should not merge upstream directly. Use the ZIP fallback update method above, or rebuild the repository with GitHub Importer.
+---
 
 ## License
 
-This project is licensed under the MIT License.
+This project is released under the MIT License.

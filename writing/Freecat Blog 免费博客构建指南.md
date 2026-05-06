@@ -202,32 +202,32 @@ GitHub 负责云备份，也负责通知部署平台重新构建。
 
 | 路线 | 是否保留 Git 历史 | 能否一条命令同步上游更新 | 适合谁 |
 | --- | --- | --- | --- |
-| **有技术背景推荐：GitHub Importer 一键导入** | 是 | 能 | 熟悉 GitHub / Git，想保留历史并长期同步上游更新的人 |
-| **小白推荐：下载 ZIP + 复制粘贴** | 否 | 不能 | 完全新手，只想尽快搭起来；或网络打不开 Importer 的人 |
+| **路线 A：GitHub Importer 一键导入（推荐）** | 是 | 能 | 熟悉 GitHub / Git，想保留历史并长期同步上游更新的人 |
+| **路线 B：下载 ZIP + 复制粘贴（备选）** | 否 | 不能 | 完全新手，只想尽快搭起来；或网络打不开 Importer 的人 |
 
 **两条路线只能选一条。** 不要又导入又复制粘贴。
 
-> 有 GitHub / Git 基础，想未来跟上 Freecat-Blog 的修复和升级 → 选 `GitHub Importer`。
-> 完全小白，只想先跑起来 → 选 `下载 ZIP + 复制粘贴`。
+> 有 GitHub / Git 基础，想未来跟上 Freecat-Blog 的修复和升级 → 选 `路线 A`。
+> 完全小白，只想先跑起来 → 选 `路线 B`。
 
 ---
 
-## 有技术背景推荐：GitHub Importer 一键创建私有仓库
+## 路线 A：GitHub Importer 一键创建私有仓库（推荐）
 
 GitHub 自带的 Importer 工具可以把一个公开仓库完整克隆进你自己的私有仓库，包括所有 commit 历史。这意味着以后想升级 Freecat-Blog，只要一条 `git merge upstream/main` 就能搞定。这个路线更适合对 GitHub / Git 有一点基础的人。
 
-### 第 1 步：先登录 GitHub
+### A-1. 先登录 GitHub
 
 1. 打开 <https://github.com/>
 2. 登录你自己的账号
 3. 还没账号？先完成注册再回来
 
-### 第 2 步：打开 Importer 页面
+### A-2. 打开 Importer 页面
 
 浏览器访问：
 <https://github.com/new/import>
 
-### 第 3 步：填写导入表单
+### A-3. 填写导入表单
 
 按下表逐项填好：
 
@@ -238,9 +238,9 @@ GitHub 自带的 Importer 工具可以把一个公开仓库完整克隆进你自
 | `Repository name` | 起一个名字，比如 `my-freecat-blog` |
 | `Privacy` | 选 `Private` |
 
-> 如果浏览器打不开 `https://github.com/OUBIGFA/Freecat-Blog`，说明 GitHub 网络不通；先解决网络问题，或者跳到下面的备选路线。
+> 如果浏览器打不开 `https://github.com/OUBIGFA/Freecat-Blog`，说明 GitHub 网络不通；先解决网络问题，或者改走下面的「路线 B」。
 
-### 第 4 步：开始导入
+### A-4. 开始导入
 
 1. 点击页面底部的 `Begin import`
 2. 屏幕上会出现进度条
@@ -248,7 +248,7 @@ GitHub 自带的 Importer 工具可以把一个公开仓库完整克隆进你自
 4. 看到 `Your new repository ... is ready` 这一行，就成功了
 5. 点进新仓库看一眼，文件应该和 `OUBIGFA/Freecat-Blog` 一模一样
 
-### 第 5 步：用 GitHub Desktop 把仓库下载到本地
+### A-5. 用 GitHub Desktop 把仓库下载到本地
 
 1. 安装并登录 `GitHub Desktop`（下载地址在文章开头的「准备工作清单」里）
 2. 点击 `File` → `Clone repository`
@@ -261,13 +261,13 @@ GitHub 自带的 Importer 工具可以把一个公开仓库完整克隆进你自
 ---
 
 <details>
-<summary><b>📦 备选路线：下载 ZIP + 复制粘贴（不保留 Git 历史） — 点击展开</b></summary>
+<summary><b>📦 路线 B：下载 ZIP + 复制粘贴（备选，不保留 Git 历史） — 点击展开</b></summary>
 
 <br>
 
 > 提示：用这种方式建出来的仓库，未来**没法用 `git pull` 拉取上游更新**。如果你不在乎这点，或者 Importer 因为网络问题打不开，可以走这条路。
 
-### 第 1 步：先注册并登录 GitHub
+### B-1. 先注册并登录 GitHub
 
 项目地址：
 <https://github.com/OUBIGFA/Freecat-Blog>
@@ -276,7 +276,7 @@ GitHub 自带的 Importer 工具可以把一个公开仓库完整克隆进你自
 2. 如果还没有账号，先完成注册
 3. 登录后先停在 GitHub 首页
 
-### 第 2 步：新建一个你自己的私有仓库
+### B-2. 新建一个你自己的私有仓库
 
 1. 打开 <https://github.com/new>
 2. 在 `Repository name` 里输入一个名字
@@ -285,7 +285,7 @@ GitHub 自带的 Importer 工具可以把一个公开仓库完整克隆进你自
 5. 勾选 `Add a README file`
 6. 点击 `Create repository`
 
-### 第 3 步：下载 Freecat-Blog 的代码压缩包
+### B-3. 下载 Freecat-Blog 的代码压缩包
 
 1. 打开原项目地址
 2. 进入 <https://github.com/OUBIGFA/Freecat-Blog>
@@ -293,14 +293,14 @@ GitHub 自带的 Importer 工具可以把一个公开仓库完整克隆进你自
 4. 点击 `Download ZIP`
 5. 等待 ZIP 文件下载完成
 
-### 第 4 步：把 ZIP 文件解压到电脑里
+### B-4. 把 ZIP 文件解压到电脑里
 
 1. 找到刚下载好的 ZIP 文件
 2. 右键它
 3. 选择 `解压到当前文件夹`，或者选择类似的解压选项
 4. 解压后打开新出现的文件夹
 
-### 第 5 步：安装并使用 GitHub Desktop，把私有仓库下载到本地
+### B-5. 安装并使用 GitHub Desktop，把私有仓库下载到本地
 
 如果还没装，下载地址在文章开头的`准备工作清单`里。
 
@@ -314,7 +314,7 @@ GitHub 自带的 Importer 工具可以把一个公开仓库完整克隆进你自
 
 本地仓库文件夹里通常只有一个 `README.md`。
 
-### 第 6 步：把 Freecat-Blog 的源码复制进你自己的本地仓库
+### B-6. 把 Freecat-Blog 的源码复制进你自己的本地仓库
 
 1. 打开刚才解压出来的 `Freecat-Blog` 文件夹
 2. 进入最里面那一层真正放源码的目录
@@ -334,7 +334,7 @@ GitHub 自带的 Importer 工具可以把一个公开仓库完整克隆进你自
 
 ![正确的仓库根目录示例](../all/image/Tutorial/10.png)
 
-### 第 7 步：第一次提交到 GitHub
+### B-7. 第一次提交到 GitHub
 
 1. 回到 `GitHub Desktop`
 2. 左侧会看到很多新增文件
@@ -444,30 +444,25 @@ show: true
 
 登录后按这个顺序走：
 
-0. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)
-1. 创建应用程序
+1. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)，点击「创建应用程序」
 
 ![01](../all/image/Tutorial/01.png)
 
-2. 部署 Pages
+2. 选择「部署 Pages」
 
 ![02](../all/image/Tutorial/02.png)
 
-3. 选择导入现有 Git 储存库
+3. 选择「导入现有 Git 储存库」
 
 ![03](../all/image/Tutorial/03.png)
 
-4. 选择目标仓库
+4. 选择你自己的博客仓库
 
 ![04](../all/image/Tutorial/04.png)
 
-### 第 3 步：填写构建配置并部署
+### 第 3 步：填写构建配置并部署（最关键的一步）
 
-填写对应参数，项目名称可以自由设置，然后点击 `Save and Deploy（保存并部署）`，等待构建完成。
-
-![05](../all/image/Tutorial/05.png)
-
-Cloudflare 后台如果显示中文，通常就是下面这些字段：
+项目名称可以自由设置。**关键参数严格按下表填写**：
 
 | Cloudflare 界面中文 | Cloudflare UI English | 应填写的值 |
 | --- | --- | --- |
@@ -475,11 +470,17 @@ Cloudflare 后台如果显示中文，通常就是下面这些字段：
 | 根目录（高级） | Root directory (advanced) > Path | `all` |
 | 构建命令 | Build command | `npm run build` |
 | 构建输出目录 | Build output directory | `dist` |
-| 环境变量（可选） | Environment variables (optional) | `NODE_VERSION` = `20` |
+| 环境变量（选填） | Environment variables (optional) | `NODE_VERSION` = `20` |
+
+![05](../all/image/Tutorial/05.png)
+
+> **最容易踩的坑：** `构建输出目录` 要填 `dist`，**不是** `all/dist`。因为你已经把根目录设成 `all` 了，再加一遍 `all/` 就找不到产物了。
+
+填好后点击 `Save and Deploy（保存并部署）`，等待构建完成（一般 1–3 分钟）。
 
 ### 第 4 步：完成部署并访问默认网址
 
-部署完成后就可以访问 Cloudflare 给你的默认网址。
+构建完成后，Cloudflare 会给你一个默认网址（类似 `xxx.pages.dev`），打开就能看到自己的博客了。
 
 ![06](../all/image/Tutorial/06.png)
 
@@ -508,31 +509,31 @@ Cloudflare 后台如果显示中文，通常就是下面这些字段：
 
 ### 第 7 步：Cloudflare Pages 最常见的 4 个坑
 
-#### 坑 1：Root directory 填错
+#### 坑 1：根目录（Root directory）填错
 
-一定要填 `all`，因为实际构建项目在这个目录里。
+一定要填 `all`，因为实际构建项目在这个子目录里。如果不填，平台会从仓库根目录找 `package.json`，肯定找不到。
 
 #### 坑 2：输出目录填成 `all/dist`
 
 不对。
 
-正确写法是 `dist`。
+正确写法是 `dist`。因为根目录已经切到 `all`，输出路径是相对根目录算的。
 
 #### 坑 3：看见默认框架就随便选
 
-这个项目不是常规 React / Next.js 网站，这里直接选 `None` 最稳。
+这个项目不是常规 React / Next.js 网站，框架预设直接选 `None / 无` 最稳，让平台老老实实跑 `npm run build`。
 
 #### 坑 4：网站没更新就以为失败了
 
 很多时候只是缓存问题。
 
-先强制刷新页面，再看最新结果。
+先去 Cloudflare 后台看一眼最新一次构建是不是成功，再用 `Ctrl + F5` 强制刷新页面，最后才判断是不是真的没更新。
 
 ### Cloudflare Pages 一句话版
 
 如果你已经会了，记住这一句就够：
 
-`创建应用程序 -> 部署 Pages -> 导入现有 Git 储存库 -> 选择目标仓库 -> 根目录填 all -> 构建命令填 npm run build -> 构建输出目录填 dist -> Save and Deploy`
+`创建应用程序 → 部署 Pages → 导入现有 Git 储存库 → 选择目标仓库 → 根目录填 all → 构建命令填 npm run build → 构建输出目录填 dist → Save and Deploy`
 
 ---
 
@@ -564,27 +565,26 @@ Cloudflare 后台如果显示中文，通常就是下面这些字段：
 5. 选择你自己的博客仓库
 6. 点击导入
 
-### 第 3 步：填写项目配置
+### 第 3 步：填写项目配置（最关键的一步）
 
-这是 Vercel 最关键的一步。
+按下表逐项填写：
 
-按下面填写：
+| 字段 | 应填写的值 |
+| --- | --- |
+| Framework Preset | 保持默认即可；如果让你手动选，选最普通的静态构建思路，不要乱改成其他框架 |
+| Root Directory | `all` |
+| Build Command | `npm run build` |
+| Output Directory | `dist` |
+| Node Version（如能设置） | `20` |
 
-- Framework Preset：如果平台能识别就保持默认；如果让你手动选，选最普通的静态构建思路即可，不要乱改成其他框架
-- Root Directory：`all`
-- Build Command：`npm run build`
-- Output Directory：`dist`
-
-如果能设置 Node 版本，建议固定：
-
-- Node Version：`20`
+> **最容易踩的坑：** `Output Directory` 填 `dist`，**不是** `all/dist`，因为 `Root Directory` 已经切到 `all` 了。
 
 ### 第 4 步：点击部署
 
 填完后：
 
 1. 点击 `Deploy`
-2. 等待 Vercel 构建完成
+2. 等待 Vercel 构建完成（一般 1–3 分钟）
 3. 成功后会给你一个默认网址
 
 这时网站就上线了。
@@ -614,9 +614,9 @@ Cloudflare 后台如果显示中文，通常就是下面这些字段：
 
 默认经常不是 `all`，你要手动改。
 
-#### 坑 2：输出目录没填
+#### 坑 2：输出目录没填或填成 `all/dist`
 
-一定补上 `dist`。
+正确写法是 `dist`。已经把 `Root Directory` 切到 `all` 了，再加一遍 `all/` 就找不到产物。
 
 #### 坑 3：把这个项目误当成需要服务器的项目
 
@@ -628,7 +628,7 @@ Cloudflare 后台如果显示中文，通常就是下面这些字段：
 
 ### Vercel 一句话版
 
-`导入 GitHub 仓库 -> Root Directory 填 all -> Build Command 填 npm run build -> Output Directory 填 dist -> 部署`
+`导入 GitHub 仓库 → Root Directory 填 all → Build Command 填 npm run build → Output Directory 填 dist → 部署`
 
 </details>
 
