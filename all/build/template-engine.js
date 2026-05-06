@@ -152,7 +152,19 @@ function loadPartialsCache(partialsDir) {
     return cache;
 }
 
-function createEngine({ templatesDir, partialsDir, siteConfig, socialConfig }) {
+function versionAssetUrls(html, assetVersion) {
+    if (!assetVersion) return html;
+    const encodedVersion = encodeURIComponent(String(assetVersion));
+    return html.replace(
+        /((?:href|src)=["'](?:\.\/|\.\.\/)assets\/[^"'\?#]+)(\?[^"']*)?(["'])/g,
+        (match, assetPath, query, quote) => {
+            const separator = query ? `${query}&` : '?';
+            return `${assetPath}${separator}v=${encodedVersion}${quote}`;
+        }
+    );
+}
+
+function createEngine({ templatesDir, partialsDir, siteConfig, socialConfig, assetVersion }) {
     const themeScript = generateThemeScript(siteConfig);
     const logoIcon = generateLogoIcon(siteConfig);
     const socialLinks = generateSocialLinks(socialConfig);
@@ -183,10 +195,11 @@ function createEngine({ templatesDir, partialsDir, siteConfig, socialConfig }) {
         let tpl = fs.readFileSync(path.join(templatesDir, filename), 'utf-8');
         tpl = injectPartials(tpl, partialsCache, partialsDir);
         tpl = applySiteConfig(tpl);
+        tpl = versionAssetUrls(tpl, assetVersion);
         return tpl;
     }
 
     return { loadTemplate, applySiteConfig, generateSocialLinks: () => socialLinks, shared };
 }
 
-module.exports = { createEngine, generateThemeScript, generateLogoIcon, generateSocialLinks, injectPartials, autoLineBreak };
+module.exports = { createEngine, generateThemeScript, generateLogoIcon, generateSocialLinks, injectPartials, autoLineBreak, versionAssetUrls };

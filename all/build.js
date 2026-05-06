@@ -90,6 +90,7 @@ const parsedPostsPerPage = rawPostsPerPage === '' || rawPostsPerPage == null
 const POSTS_PER_PAGE = Number.isFinite(parsedPostsPerPage) && parsedPostsPerPage >= 0
     ? Math.floor(parsedPostsPerPage)
     : DEFAULT_POSTS_PER_PAGE;
+const ASSET_VERSION = process.env.CF_PAGES_COMMIT_SHA || process.env.COMMIT_SHA || String(Date.now());
 
 console.log('📱 Loading social media configuration...');
 const socialConfig = loadConfig(DIRS.control, 'social', 'social.md', SOCIAL_DEFAULTS);
@@ -106,7 +107,8 @@ const engine = createEngine({
     templatesDir: DIRS.templates,
     partialsDir: DIRS.partials,
     siteConfig,
-    socialConfig
+    socialConfig,
+    assetVersion: ASSET_VERSION
 });
 
 const tplIndex = engine.loadTemplate('template_index.html');

@@ -1,9 +1,9 @@
 # Cloudflare Pages headers
-# 静态资源（assets / image）走 1 年 immutable 缓存，命中时浏览器无任何回源请求。
-# HTML 用短缓存 + must-revalidate，部署新内容立刻生效。
+# JS/CSS file names are stable, so browsers must revalidate them after each deploy.
+# Images can keep a long cache because they do not control site behavior.
 
 /assets/*
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: public, max-age=0, must-revalidate
 
 /image/*
   Cache-Control: public, max-age=31536000, immutable
@@ -21,4 +21,4 @@
   Cache-Control: public, max-age=3600
 
 /search-index.json
-  Cache-Control: public, max-age=3600
+  Cache-Control: public, max-age=0, must-revalidate
