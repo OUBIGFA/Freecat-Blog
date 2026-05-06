@@ -1,18 +1,20 @@
-<div>![Freecat Blog Preview](all/image/freecat_web_icon.png)    
-
+<div align="center">
+  <img src="all/image/freecat_web_icon.png" width="120" alt="Freecat Blog Preview">
+  <h1>Freecat Blog</h1>
+  <p>本地写作、GitHub 备份、免费部署的个人博客模板</p>
+  <p>
+    简体中文 | <a href="README.en.md">English</a>
+  </p>
+  <p>
+    <img alt="Platform" src="https://img.shields.io/badge/platform-Web-2563eb">
+    <img alt="Node" src="https://img.shields.io/badge/Node-20-339933">
+    <img alt="Deploy" src="https://img.shields.io/badge/deploy-Cloudflare%20%7C%20Vercel-f97316">
+    <img alt="License" src="https://img.shields.io/badge/license-MIT-111827">
+  </p>
+  <p>
+    <a href="https://freecat-blog.pages.dev">演示站点</a>
+  </p>
 </div>
-
-# Freecat Blog
-
-本地写作、GitHub 备份、免费部署的个人博客模板
-
-```
- 简体中文 | [English](README.en.md)   
-
- ![Platform](https://img.shields.io/badge/platform-Web-2563eb)     ![Node](https://img.shields.io/badge/Node-20-339933)     ![Deploy](https://img.shields.io/badge/deploy-Cloudflare%20%7C%20Vercel-f97316)     ![License](https://img.shields.io/badge/license-MIT-111827)   
-
- [演示站点](https://freecat-blog.pages.dev)   
-```
 
 > 这是一份给完全没有编程基础的用户写的教程。**从上往下读，跟着每一步做，就能拥有自己的免费博客。**
 
@@ -113,16 +115,16 @@ Cloudflare Pages / Vercel 自动构建
 
 ### 步骤 1：把项目变成你自己的 GitHub 仓库
 
-你需要先把 Freecat Blog 复制到你自己的 GitHub 账号下面。这里有两条路线：
+你需要先把 Freecat Blog 复制到你自己的 GitHub 账号下面。**强烈推荐使用「路线 A：GitHub Importer」**——只要 3 个小步骤，比 ZIP 路线还省事，搭出来的仓库还能让自动同步工作流跑得更顺。
 
-| 路线 | 推荐程度 | 适合谁 | 以后能否同步模板更新 |
-| --- | --- | --- | --- |
-| **路线 A：GitHub Importer 导入** | 推荐 | 愿意按步骤操作 GitHub 的用户 | 能 |
-| **路线 B：下载 ZIP + 复制粘贴** | 备选 | 完全不想折腾的小白 | 不能直接同步 |
+| 路线 | 推荐程度 | 适合谁 |
+| --- | --- | --- |
+| **🌟 路线 A：GitHub Importer 导入** | **强烈推荐** | 所有人。3 步搞定，全程在浏览器和 GitHub Desktop 里点点鼠标 |
+| 路线 B：下载 ZIP + 复制粘贴 | 仅备选 | Importer 因网络/账号原因打不开的人 |
 
-> **两条路线只选一条，不要同时做。**
+> **两条路线只选一条。** 默认走路线 A，遇到打不开 Importer 页面再考虑路线 B。
 
-#### 路线 A：GitHub Importer 导入（推荐）
+#### 🌟 路线 A：GitHub Importer 导入（推荐）
 
 **A-1. 打开 GitHub Importer**
 
@@ -150,7 +152,12 @@ Cloudflare Pages / Vercel 自动构建
 
 完成后，你电脑上就有一个完整的博客项目文件夹了。**跳到下面的「步骤 2」继续部署。**
 
-#### 路线 B：下载 ZIP + 复制粘贴（备选）
+<details>
+<summary><b>📦 路线 B：下载 ZIP + 复制粘贴（仅在 Importer 打不开时使用） — 点击展开</b></summary>
+
+<br>
+
+> 提示：路线 B 步骤更多、更容易出错。除非 `https://github.com/new/import` 在你的网络环境下打不开，否则建议优先走路线 A。
 
 **B-1. 新建你自己的 GitHub 仓库**
 
@@ -193,6 +200,8 @@ Cloudflare Pages / Vercel 自动构建
 5. 点击 `Push origin`。
 
 完成后你的 GitHub 仓库里就有了完整的 Freecat Blog 源码。**继续看「步骤 2」。**
+
+</details>
 
 ### 步骤 2：部署到 Cloudflare Pages（推荐）
 
@@ -481,7 +490,51 @@ Freecat-Blog/
 
 ### 同步上游模板更新
 
-> 仅适用于「路线 A：GitHub Importer」搭建的仓库。ZIP 路线请看本节最后的兜底方案。
+模板会持续更新（修 bug、加功能、优化样式），仓库自带一个 GitHub Actions 工作流：
+
+`.github/workflows/sync-upstream.yml`
+
+**它会每周二北京时间凌晨 02:17 自动从主仓库 [OUBIGFA/Freecat-Blog](https://github.com/OUBIGFA/Freecat-Blog) 拉取最新的 `all/` 文件夹、`README.md` 和 `README.en.md`，覆盖到你自己仓库，然后 commit + push 到 main 分支。** Cloudflare Pages / Vercel 会随之自动重新构建发布。
+
+#### 关键说明
+
+- 同步范围是 `all/`（构建工程目录）、`README.md` 和 `README.en.md`，**完全不会动**你自己的 `Control/` 和 `writing/`，也不会动 `.github/` 和 `.gitignore`（避免覆盖你自己的工作流改动和忽略规则）
+- **路线 A 和路线 B 都能用**。工作流不靠 `git merge`，而是用 `git checkout upstream/main -- ...` 把文件覆盖过来，**不需要两个仓库共享 git 历史**——所以即使你是 ZIP + 复制粘贴搭出来的私有仓库，也能正常自动同步
+- 上游模板文件没变化时，工作流会跳过提交，**不会产生空 commit**
+- 你的私有仓库**不需要任何额外配置**，工作流自带的 `GITHUB_TOKEN` 就能 push
+- GitHub Actions 的定时触发可能有几分钟到十几分钟的延迟，是正常现象
+
+#### 第一次启用：确认 Actions 已开启
+
+私有仓库默认会开启 Actions。如果你打开仓库的 `Actions` 标签看到提示「I understand my workflows, go ahead and enable them」之类，点一下启用即可。之后无需任何操作。
+
+#### 想立刻同步一次（手动触发）
+
+不想等到周二？可以手动跑：
+
+1. 打开你的 GitHub 仓库。
+2. 顶部点 `Actions`。
+3. 左侧选 `Sync upstream template files`。
+4. 右上点 `Run workflow` → `Run workflow` 确认。
+
+几十秒后查看运行结果，绿色对勾即同步完成。
+
+#### 如果你改过 `all/` 里的内容
+
+工作流会**直接覆盖** `all/`。如果你自定义过模板、改过样式、动过构建脚本，自动同步会把你的改动覆盖掉。两种处理方式：
+
+- **关闭自动同步**：删除或重命名 `.github/workflows/sync-upstream.yml`
+- **保留自动同步**：把你对 `all/` 的修改单独维护（比如 fork 上游再加 PR），不要直接改私有仓库里的 `all/`
+
+新手 99% 不会改 `all/`，所以默认保持开启即可。
+
+---
+
+### 手动同步上游（进阶 / 兜底）
+
+> 仅当你想**完整合并 `Control/` 等其他目录的上游更新**，或自动工作流出问题时再看。新手通常用不上。
+
+下面的 `git merge` 流程**仅适用于「路线 A：GitHub Importer」搭建的仓库**。ZIP 路线请看本节最后的兜底方案。
 
 **第一次同步前：添加上游仓库**
 
@@ -597,4 +650,3 @@ git remote set-url upstream https://github.com/OUBIGFA/Freecat-Blog.git
 ## 许可证
 
 本项目使用 MIT License。
-

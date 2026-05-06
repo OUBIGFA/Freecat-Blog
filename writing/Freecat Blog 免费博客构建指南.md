@@ -198,17 +198,16 @@ GitHub 负责云备份，也负责通知部署平台重新构建。
 
 ## 新手正式开始前的准备
 
-接下来要把 Freecat-Blog 的代码放进**你自己的私有 GitHub 仓库**里。这一步有两条路线：**有技术背景、想长期同步模板更新，推荐 GitHub Importer；完全小白，推荐下载 ZIP + 复制粘贴**。
+接下来要把 Freecat-Blog 的代码放进**你自己的私有 GitHub 仓库**里。这一步有两条路线：**强烈推荐 GitHub Importer；只有 Importer 因网络或账号原因打不开时，再考虑下载 ZIP + 复制粘贴**。
 
-| 路线 | 是否保留 Git 历史 | 能否一条命令同步上游更新 | 适合谁 |
-| --- | --- | --- | --- |
-| **路线 A：GitHub Importer 一键导入（推荐）** | 是 | 能 | 熟悉 GitHub / Git，想保留历史并长期同步上游更新的人 |
-| **路线 B：下载 ZIP + 复制粘贴（备选）** | 否 | 不能 | 完全新手，只想尽快搭起来；或网络打不开 Importer 的人 |
+| 路线 | 推荐程度 | 适合谁 |
+| --- | --- | --- |
+| **🌟 路线 A：GitHub Importer 一键导入** | **强烈推荐** | 所有人。步骤少，仓库更完整，后续自动同步也更顺 |
+| 路线 B：下载 ZIP + 复制粘贴 | 仅备选 | Importer 因网络或账号原因打不开的人 |
 
-**两条路线只能选一条。** 不要又导入又复制粘贴。
+**两条路线只能选一条。** 默认走路线 A，遇到打不开 Importer 页面再考虑路线 B。
 
-> 有 GitHub / Git 基础，想未来跟上 Freecat-Blog 的修复和升级 → 选 `路线 A`。
-> 完全小白，只想先跑起来 → 选 `路线 B`。
+> 自动同步工作流不依赖 `git merge`，路线 A 和路线 B 都能用。它只同步模板工程文件（`all/`、`README.md`、`README.en.md`），不会碰你自己的文章和网站配置。
 
 ---
 
@@ -265,7 +264,7 @@ GitHub 自带的 Importer 工具可以把一个公开仓库完整克隆进你自
 
 <br>
 
-> 提示：用这种方式建出来的仓库，未来**没法用 `git pull` 拉取上游更新**。如果你不在乎这点，或者 Importer 因为网络问题打不开，可以走这条路。
+> 提示：用这种方式建出来的仓库，未来不适合直接用 `git merge` 合并上游完整历史。不过仓库自带的自动同步工作流仍然能同步 `all/` 和 README 文件。如果 Importer 因为网络问题打不开，可以走这条路。
 
 ### B-1. 先注册并登录 GitHub
 
@@ -969,6 +968,66 @@ show: true
 编程软件参考：
 
 >[用户体验拉满的编程软件汇总](https://free-blog-pied.vercel.app/posts/%E7%BC%96%E7%A8%8B%E8%BD%AF%E4%BB%B6%E6%B1%87%E6%80%BB.html)
+
+---
+
+## 进阶六：自动同步上游模板更新
+
+Freecat Blog 后续可能会继续修 bug、加功能、优化样式。仓库里自带了一个 GitHub Actions 工作流：
+
+`.github/workflows/sync-upstream.yml`
+
+它会每周二北京时间凌晨 `02:17` 自动从主仓库 [OUBIGFA/Freecat-Blog](https://github.com/OUBIGFA/Freecat-Blog) 拉取最新的模板文件，然后提交到你自己的仓库。
+
+### 自动同步会更新什么
+
+同步范围是：
+
+- `all/`
+- `README.md`
+- `README.en.md`
+
+它**不会动**这些内容：
+
+- `writing/`
+- `Control/`
+- `.github/`（你自己改过的 workflow 不会被覆盖）
+- `.gitignore`（你自己加的忽略规则不会被覆盖）
+
+也就是说，你自己写的文章、网站名称、头像、社交链接、About 页面配置，不会被这个自动同步覆盖。
+
+### 路线 A 和路线 B 都能用
+
+这个工作流不靠 `git merge`，而是从上游直接取回指定文件：
+
+```bash
+git checkout upstream/main -- all/ README.md README.en.md
+```
+
+所以即使你是用 ZIP + 复制粘贴搭出来的仓库，也不需要两个仓库共享 Git 历史，自动同步仍然可以工作。
+
+### 如何手动立刻同步一次
+
+不想等到周二，可以手动触发：
+
+1. 打开你的 GitHub 仓库
+2. 点击顶部 `Actions`
+3. 左侧选择 `Sync upstream template files`
+4. 点击右上角 `Run workflow`
+5. 再点一次 `Run workflow` 确认
+
+运行结果变成绿色对勾，就说明同步完成。
+
+### 如果你改过 `all/`
+
+自动同步会直接覆盖 `all/`。如果你自己改过模板、样式或构建脚本，改动可能会被上游版本替换。
+
+两种处理方式：
+
+- 不想被覆盖：删除或重命名 `.github/workflows/sync-upstream.yml`
+- 想继续同步：不要直接改私有仓库里的 `all/`，把模板改动单独维护
+
+对大多数新手来说，平时只改 `writing/` 和 `Control/`，所以默认保留自动同步即可。
 
 ---
 

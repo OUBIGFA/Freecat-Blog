@@ -115,16 +115,16 @@ The whole process takes two steps: **first turn the project into your own GitHub
 
 ### Step 1: Make the Project Your Own GitHub Repository
 
-You first need to copy Freecat Blog into your own GitHub account. Two routes are available:
+You first need to copy Freecat Blog into your own GitHub account. **Strongly recommend Route A (GitHub Importer)** — it only takes 3 small steps, fewer than the ZIP route, and the resulting repo plays nicest with the auto-sync workflow.
 
-| Route | Recommendation | Best for | Can sync upstream updates later? |
-| --- | --- | --- | --- |
-| **Route A: GitHub Importer** | Recommended | Users willing to follow GitHub steps | Yes |
-| **Route B: Download ZIP + Copy/Paste** | Alternative | Beginners who want zero hassle | No |
+| Route | Recommendation | Best for |
+| --- | --- | --- |
+| **🌟 Route A: GitHub Importer** | **Strongly recommended** | Everyone. 3 steps, all done in browser + GitHub Desktop |
+| Route B: Download ZIP + Copy/Paste | Fallback only | When the Importer page is unreachable on your network/account |
 
-> **Choose only one route — do not do both.**
+> **Choose only one route.** Default to Route A; only fall back to Route B if the Importer page won't load for you.
 
-#### Route A: GitHub Importer (Recommended)
+#### 🌟 Route A: GitHub Importer (Recommended)
 
 **A-1. Open GitHub Importer**
 
@@ -152,7 +152,12 @@ Click `Begin import`. It usually finishes in a few seconds to a few minutes.
 
 You now have the full blog project folder on your computer. **Skip down to Step 2 to deploy.**
 
-#### Route B: Download ZIP + Copy/Paste (Alternative)
+<details>
+<summary><b>📦 Route B: Download ZIP + Copy/Paste (use only when the Importer is unreachable) — click to expand</b></summary>
+
+<br>
+
+> Heads-up: Route B has more steps and is easier to mess up. Unless `https://github.com/new/import` won't load on your network, prefer Route A.
 
 **B-1. Create your own GitHub repository**
 
@@ -195,6 +200,8 @@ You now have the full blog project folder on your computer. **Skip down to Step 
 5. Click `Push origin`.
 
 Your GitHub repository now has the full Freecat Blog source. **Continue to Step 2.**
+
+</details>
 
 ### Step 2: Deploy to Cloudflare Pages (Recommended)
 
@@ -483,7 +490,51 @@ Freecat-Blog/
 
 ### Sync Upstream Template Updates
 
-> Only works for repos created via Route A (GitHub Importer). For Route B, see the fallback below.
+The template may keep receiving bug fixes, features, and style improvements. This repository includes a GitHub Actions workflow:
+
+`.github/workflows/sync-upstream.yml`
+
+**Every Tuesday at 02:17 Beijing time, it automatically pulls the latest `all/` folder, `README.md`, and `README.en.md` from [OUBIGFA/Freecat-Blog](https://github.com/OUBIGFA/Freecat-Blog), overwrites those files in your repository, then commits and pushes to `main`.** Cloudflare Pages or Vercel will rebuild automatically after that push.
+
+#### Key Notes
+
+- Sync scope is `all/`, `README.md`, and `README.en.md`. It **does not touch** your own `Control/` or `writing/`, and it does **not** modify `.github/` or `.gitignore` (so your own workflow tweaks and ignore rules stay safe).
+- **Both Route A and Route B work.** The workflow does not use `git merge`; it uses `git checkout upstream/main -- ...` to overwrite specific paths, so the two repositories do **not** need to share git history.
+- If upstream template files have not changed, the workflow skips the commit and **does not create an empty commit**.
+- Your private repository needs no extra setup. The built-in `GITHUB_TOKEN` can push the workflow commit.
+- Scheduled GitHub Actions runs may be delayed by a few to ten-plus minutes. That is normal.
+
+#### First Use: Make Sure Actions Is Enabled
+
+Private repositories usually enable Actions by default. If the `Actions` tab shows a prompt such as "I understand my workflows, go ahead and enable them", click it once. No further setup is needed.
+
+#### Run It Immediately
+
+If you do not want to wait until Tuesday:
+
+1. Open your GitHub repository.
+2. Click `Actions`.
+3. Select `Sync upstream template files`.
+4. Click `Run workflow` → `Run workflow`.
+
+After the run turns green, the sync is complete.
+
+#### If You Edited Files in `all/`
+
+The workflow directly overwrites `all/`. If you customized templates, styles, or build scripts there, automatic sync will replace your edits. You have two options:
+
+- **Disable automatic sync:** delete or rename `.github/workflows/sync-upstream.yml`
+- **Keep automatic sync:** maintain your `all/` changes separately, for example by contributing them upstream, instead of editing `all/` directly in your private repository
+
+Most beginners never edit `all/`, so leaving the workflow enabled is usually the right choice.
+
+---
+
+### Manual Upstream Sync (Advanced / Fallback)
+
+> Only use this if you want to fully merge upstream changes outside `all/` and the README files, or if the automatic workflow fails. Most beginners do not need this.
+
+The `git merge` flow below only works for repositories created via Route A (GitHub Importer). For Route B, see the fallback below.
 
 **First-time setup: add the upstream remote**
 

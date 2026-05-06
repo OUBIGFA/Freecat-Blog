@@ -1,0 +1,82 @@
+name: Sync upstream template files
+
+# 每周二北京时间 02:17 自动从主仓库 OUBIGFA/Freecat-Blog 同步模板文件
+# 同步范围:all/ 文件夹 + README.md + README.en.md
+# 北京时间(UTC+8) 周二 02:17 = UTC 周一 18:17
+# GitHub Actions 的 schedule 触发可能有几分钟到十几分钟的延迟，属于正常现象
+on:
+  schedule:
+    - cron: '17 18 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync-upstream-template:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out your repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Skip if this IS the upstream repository
+        id: guard
+        run: |
+          if [ "${{ github.repository }}" = "OUBIGFA/Freecat-Blog" ]; then
+            echo "Running on the upstream repo itself, skip syncing."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Add upstream remote and fetch
+        if: steps.guard.outputs.skip != 'true'
+        run: |
+          git remote add upstream https://github.com/OUBIGFA/Freecat-Blog.git 2>/dev/null \
+            || git remote set-url upstream https://github.com/OUBIGFA/Freecat-Blog.git
+          git fetch upstream main --depth=1
+
+      - name: Replace local template files with upstream versions
+        if: steps.guard.outputs.skip != 'true'
+        run: |
+          # 用上游 main 的模板文件覆盖本地版本
+          # 同步范围:all/、README.md、README.en.md
+          # 排除 all/git-dates.json, 保留本仓库自己的版本
+          # 不会触碰 Control/ 和 writing/, 也不会动 .github/ 和 .gitignore
+          # (避免覆盖你自己的 workflow 改动和忽略规则)
+          # 即使两个仓库没有共享 git 历史(ZIP 路线)也能工作, 因为这里是 checkout 文件而不是 merge
+          if [ -f all/git-dates.json ]; then
+            cp all/git-dates.json /tmp/freecat-git-dates.json
+            has_local_git_dates=true
+          else
+            has_local_git_dates=false
+          fi
+
+          git rm -rf --ignore-unmatch all/
+          git checkout upstream/main -- all/ README.md README.en.md
+
+          if [ "$has_local_git_dates" = "true" ]; then
+            mkdir -p all
+            mv /tmp/freecat-git-dates.json all/git-dates.json
+          else
+            git rm -f --ignore-unmatch all/git-dates.json
+          fi
+
+      - name: Commit and push if changed
+        if: steps.guard.outputs.skip != 'true'
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "Template files already match upstream, nothing to commit."
+            exit 0
+          fi
+          git add all/ README.md README.en.md
+          git commit -m "chore(template): sync upstream from OUBIGFA/Freecat-Blog [auto]"
+          git push
