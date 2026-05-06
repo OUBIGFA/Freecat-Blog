@@ -120,9 +120,9 @@ Cloudflare Pages / Vercel 自动构建
 | 路线 | 推荐程度 | 适合谁 |
 | --- | --- | --- |
 | **🌟 路线 A：GitHub Importer 导入** | **强烈推荐** | 所有人。3 步搞定，全程在浏览器和 GitHub Desktop 里点点鼠标 |
-| 路线 B：下载 ZIP + 复制粘贴 | 仅备选 | Importer 因网络/账号原因打不开的人 |
+| 路线 B：下载 ZIP + 复制粘贴 | 仅备选 | 不想使用 Importer，想手动复制文件的人 |
 
-> **两条路线只选一条。** 默认走路线 A，遇到打不开 Importer 页面再考虑路线 B。
+> **两条路线只选一条。** 默认走路线 A；只有你明确想手动复制文件时，再考虑路线 B。
 
 #### 🌟 路线 A：GitHub Importer 导入（推荐）
 
@@ -149,15 +149,16 @@ Cloudflare Pages / Vercel 自动构建
 3. 选择你刚导入的仓库。
 4. 选择一个本地保存位置。
 5. 点击 `Clone`。
+![10](all/image/Tutorial/10.png)
 
 完成后，你电脑上就有一个完整的博客项目文件夹了。**跳到下面的「步骤 2」继续部署。**
 
 <details>
-<summary><b>📦 路线 B：下载 ZIP + 复制粘贴（仅在 Importer 打不开时使用） — 点击展开</b></summary>
+<summary><b>📦 路线 B：下载 ZIP + 复制粘贴（备用手动方案） — 点击展开</b></summary>
 
 <br>
 
-> 提示：路线 B 步骤更多、更容易出错。除非 `https://github.com/new/import` 在你的网络环境下打不开，否则建议优先走路线 A。
+> 提示：路线 B 步骤更多、更容易出错。建议优先走路线 A；只有你明确想手动复制文件时，再使用路线 B。
 
 **B-1. 新建你自己的 GitHub 仓库**
 
@@ -530,7 +531,10 @@ Freecat-Blog/
 
 ---
 
-### 手动同步上游（进阶 / 兜底）
+<details>
+<summary><b>手动同步上游（进阶 / 兜底）</b></summary>
+
+<br>
 
 > 仅当你想**完整合并 `Control/` 等其他目录的上游更新**，或自动工作流出问题时再看。新手通常用不上。
 
@@ -606,6 +610,8 @@ git push origin main
 4. **不要覆盖**你自己的 `Control/`、`writing/`。
 5. 用 GitHub Desktop 检查改动。
 6. 确认没误删内容后，Commit + Push。
+
+</details>
 
 ---
 

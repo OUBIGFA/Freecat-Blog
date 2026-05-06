@@ -198,14 +198,14 @@ GitHub 负责云备份，也负责通知部署平台重新构建。
 
 ## 新手正式开始前的准备
 
-接下来要把 Freecat-Blog 的代码放进**你自己的私有 GitHub 仓库**里。这一步有两条路线：**强烈推荐 GitHub Importer；只有 Importer 因网络或账号原因打不开时，再考虑下载 ZIP + 复制粘贴**。
+接下来要把 Freecat-Blog 的代码放进**你自己的私有 GitHub 仓库**里。这一步有两条路线：**强烈推荐 GitHub Importer；只有你明确想手动复制文件时，再考虑下载 ZIP + 复制粘贴**。
 
 | 路线 | 推荐程度 | 适合谁 |
 | --- | --- | --- |
 | **🌟 路线 A：GitHub Importer 一键导入** | **强烈推荐** | 所有人。步骤少，仓库更完整，后续自动同步也更顺 |
-| 路线 B：下载 ZIP + 复制粘贴 | 仅备选 | Importer 因网络或账号原因打不开的人 |
+| 路线 B：下载 ZIP + 复制粘贴 | 仅备选 | 不想使用 Importer，想手动复制文件的人 |
 
-**两条路线只能选一条。** 默认走路线 A，遇到打不开 Importer 页面再考虑路线 B。
+**两条路线只能选一条。** 默认走路线 A；只有你明确想手动复制文件时，再考虑路线 B。
 
 > 自动同步工作流不依赖 `git merge`，路线 A 和路线 B 都能用。它只同步模板工程文件（`all/`、`README.md`、`README.en.md`），不会碰你自己的文章和网站配置。
 
@@ -237,7 +237,7 @@ GitHub 自带的 Importer 工具可以把一个公开仓库完整克隆进你自
 | `Repository name` | 起一个名字，比如 `my-freecat-blog` |
 | `Privacy` | 选 `Private` |
 
-> 如果浏览器打不开 `https://github.com/OUBIGFA/Freecat-Blog`，说明 GitHub 网络不通；先解决网络问题，或者改走下面的「路线 B」。
+> 路线 A 是推荐方案。路线 B 只作为备用手动方案，不建议新手优先使用。
 
 ### A-4. 开始导入
 
@@ -264,7 +264,7 @@ GitHub 自带的 Importer 工具可以把一个公开仓库完整克隆进你自
 
 <br>
 
-> 提示：用这种方式建出来的仓库，未来不适合直接用 `git merge` 合并上游完整历史。不过仓库自带的自动同步工作流仍然能同步 `all/` 和 README 文件。如果 Importer 因为网络问题打不开，可以走这条路。
+> 提示：用这种方式建出来的仓库，未来不适合直接用 `git merge` 合并上游完整历史。不过仓库自带的自动同步工作流仍然能同步 `all/` 和 README 文件。只有你明确想手动复制文件时，再走这条路。
 
 ### B-1. 先注册并登录 GitHub
 
@@ -1028,6 +1028,88 @@ git checkout upstream/main -- all/ README.md README.en.md
 - 想继续同步：不要直接改私有仓库里的 `all/`，把模板改动单独维护
 
 对大多数新手来说，平时只改 `writing/` 和 `Control/`，所以默认保留自动同步即可。
+
+<details>
+<summary><b>手动同步上游（进阶 / 兜底）</b></summary>
+
+<br>
+
+> 仅当你想完整合并 `Control/` 等其他目录的上游更新，或自动同步工作流出问题时再看。新手通常用不上。
+
+下面的 `git merge` 流程仅适用于路线 A：GitHub Importer 搭建的仓库。ZIP 路线请看本节最后的兜底方案。
+
+**第一次同步前：添加上游仓库**
+
+在命令行里进入你的本地仓库目录：
+
+```bash
+cd 你的本地仓库完整路径
+git remote add upstream https://github.com/OUBIGFA/Freecat-Blog.git
+git remote -v
+```
+
+能看到 `origin` 和 `upstream` 就说明成功。
+
+**每次同步上游更新**
+
+```bash
+git fetch upstream
+git log HEAD..upstream/main --oneline
+git merge upstream/main
+git push origin main
+```
+
+说明：
+
+- `git fetch upstream`：获取上游最新代码，不会改你的文件
+- `git log HEAD..upstream/main --oneline`：查看上游有哪些新更新
+- `git merge upstream/main`：把上游更新合并到你的仓库
+- `git push origin main`：把合并结果同步回 GitHub
+
+**如果出现冲突**
+
+冲突通常是你和上游改了同一个文件。文件里会出现类似标记：
+
+```text
+[冲突开始：你的版本]
+你自己的内容
+[分隔线]
+上游模板的内容
+[冲突结束：上游版本]
+```
+
+处理方法：
+
+1. 打开冲突文件
+2. 保留你想要的内容
+3. 删除 `<<<<<<<`、`=======`、`>>>>>>>` 这些标记
+4. 保存文件
+5. 运行：
+
+```bash
+git add .
+git commit -m "Merge upstream Freecat Blog updates"
+git push origin main
+```
+
+一般建议：
+
+- `Control/` 里优先保留你自己的配置
+- `writing/` 里优先保留你自己的文章
+- `all/` 里通常保留上游模板更新
+
+**ZIP 路线的兜底更新方法**
+
+如果你是用 ZIP + 复制粘贴搭建的仓库，不建议强行用上面的 `git merge` 方法。可以这样手动更新：
+
+1. 重新下载最新版 Freecat Blog ZIP
+2. 解压
+3. 把新版里的 `all/` 文件夹复制到你的仓库，覆盖原有的 `all/` 文件夹
+4. 不要覆盖你自己的 `Control/`、`writing/`
+5. 用 GitHub Desktop 检查改动
+6. 确认没误删内容后，Commit + Push
+
+</details>
 
 ---
 

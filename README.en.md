@@ -120,9 +120,9 @@ You first need to copy Freecat Blog into your own GitHub account. **Strongly rec
 | Route | Recommendation | Best for |
 | --- | --- | --- |
 | **🌟 Route A: GitHub Importer** | **Strongly recommended** | Everyone. 3 steps, all done in browser + GitHub Desktop |
-| Route B: Download ZIP + Copy/Paste | Fallback only | When the Importer page is unreachable on your network/account |
+| Route B: Download ZIP + Copy/Paste | Fallback only | Users who explicitly prefer copying files manually |
 
-> **Choose only one route.** Default to Route A; only fall back to Route B if the Importer page won't load for you.
+> **Choose only one route.** Default to Route A; only use Route B if you explicitly want to copy files manually.
 
 #### 🌟 Route A: GitHub Importer (Recommended)
 
@@ -153,11 +153,11 @@ Click `Begin import`. It usually finishes in a few seconds to a few minutes.
 You now have the full blog project folder on your computer. **Skip down to Step 2 to deploy.**
 
 <details>
-<summary><b>📦 Route B: Download ZIP + Copy/Paste (use only when the Importer is unreachable) — click to expand</b></summary>
+<summary><b>📦 Route B: Download ZIP + Copy/Paste (manual fallback) — click to expand</b></summary>
 
 <br>
 
-> Heads-up: Route B has more steps and is easier to mess up. Unless `https://github.com/new/import` won't load on your network, prefer Route A.
+> Heads-up: Route B has more steps and is easier to mess up. Prefer Route A; only use Route B if you explicitly want to copy files manually.
 
 **B-1. Create your own GitHub repository**
 
@@ -530,7 +530,10 @@ Most beginners never edit `all/`, so leaving the workflow enabled is usually the
 
 ---
 
-### Manual Upstream Sync (Advanced / Fallback)
+<details>
+<summary><b>Manual Upstream Sync (Advanced / Fallback)</b></summary>
+
+<br>
 
 > Only use this if you want to fully merge upstream changes outside `all/` and the README files, or if the automatic workflow fails. Most beginners do not need this.
 
@@ -606,6 +609,8 @@ If you used the ZIP + copy-paste route, do not force `git merge`. Update manuall
 4. **Do not overwrite** your own `Control/` or `writing/`.
 5. Review the diff in GitHub Desktop.
 6. After confirming nothing important is lost, commit and push.
+
+</details>
 
 ---
 
