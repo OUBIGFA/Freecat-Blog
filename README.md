@@ -12,7 +12,7 @@
     <img alt="License" src="https://img.shields.io/badge/license-MIT-111827">
   </p>
   <p>
-    <a href="https://freecat-blog.pages.dev">演示站点</a>
+    <a href="https://freecat-blog.pages.dev">演示站点 01</a> | <a href="https://freecat-blog-test.pages.dev">演示站点 02</a>
   </p>
 </div>
 
@@ -313,7 +313,7 @@ show: true
 
 ### 文章字段说明
 
-文件最上方 `---` 包起来的部分叫「Front Matter」，是给系统看的配置。下面是常用字段：
+文件最上方 `---` 包起来的部分叫「Front Matter」元数据，是给系统看的配置。下面是常用字段：
 
 | 字段 | 作用 | 例子 |
 | --- | --- | --- |
