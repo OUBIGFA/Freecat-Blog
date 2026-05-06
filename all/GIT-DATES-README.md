@@ -1,49 +1,32 @@
-# Git 提交时间数据 - 完全自动化
+# Article Modified Dates
 
-## ✨ 完全自动化！无需手动操作！
+`all/git-dates.json` stores the last Git commit time for every Markdown article in `writing/`.
 
-本项目已配置 **Git Pre-commit Hook**，每次您执行 `git commit` 时，会自动：
+## Automatic Flow
 
-1. ✅ 提取所有文章的 Git 最后提交时间
-2. ✅ 更新 `git-dates.json` 文件
-3. ✅ 将 `git-dates.json` 自动添加到当前提交
+Users only need to edit articles and push to `main`.
 
-**您只需要正常使用 Git，无需任何额外步骤！**
+When files under `writing/` change, GitHub Actions runs `.github/workflows/update-git-dates.yml` automatically:
 
-## 🔄 工作流程
+1. Checks out the repository with full Git history.
+2. Runs `cd all && npm ci && npm run extract-dates`.
+3. Commits the updated `all/git-dates.json` back to `main` if it changed.
 
-```bash
-# 1. 修改文章
-vim writing/某篇文章.md
+Cloudflare Pages or Vercel then builds from the committed snapshot. No platform tokens or extra deployment settings are required.
 
-# 2. 直接提交（hook 会自动运行）
-git add .
-git commit -m "更新文章"
+## Build Rule
 
-# 3. 推送到远程
-git push
-```
+Production builds trust only `all/git-dates.json` for article modified dates.
 
-## 🎯 Vercel 部署
+If the snapshot is missing, or if it does not contain a visible article, the build fails instead of falling back to file system times. Checkout file times are not real article edit times.
 
-Vercel 构建时会读取仓库中的 `git-dates.json`，显示正确的"最后编辑"时间。
+## Manual Refresh
 
-## 🛠️ 技术细节
-
-- **Hook 位置**：`.git/hooks/pre-commit`
-- **提取脚本**：`extract-git-dates.js`
-- **数据文件**：`git-dates.json`（已纳入版本控制）
-
-## ⚠️ 如需手动更新
-
-虽然通常不需要，但您也可以手动运行：
+If you need to refresh the snapshot locally:
 
 ```bash
 cd all
 npm run extract-dates
 ```
 
-## 🔧 Hook 安装
-
-Git hook 已自动配置在 `.git/hooks/pre-commit`。
-如果您重新克隆了仓库，hook 会自动生效（因为它在 `.git` 目录中）。
+Then commit `all/git-dates.json`.

@@ -1,0 +1,50 @@
+name: Update article modified dates
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'writing/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-git-dates:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: all/package-lock.json
+
+      - name: Install dependencies
+        working-directory: all
+        run: npm ci
+
+      - name: Generate article modified date snapshot
+        working-directory: all
+        run: npm run extract-dates
+
+      - name: Commit updated snapshot
+        run: |
+          if git diff --quiet -- all/git-dates.json; then
+            echo "all/git-dates.json is already up to date."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add all/git-dates.json
+          git commit -m "chore: update article modified dates"
+          git push

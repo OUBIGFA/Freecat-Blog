@@ -33,8 +33,11 @@ function loadPosts({ postsDir, gitDates }) {
         if (data.updated) modifiedDate = dayjs(data.updated);
         else if (data.date_updated) modifiedDate = dayjs(data.date_updated);
         else {
-            const gitDate = gitDates.get(file);
-            modifiedDate = gitDate ? dayjs(gitDate) : dayjs(stats.mtime);
+            const gitDate = gitDates.assertHas ? gitDates.assertHas(file) : gitDates.get(file);
+            if (!gitDate) {
+                throw new Error(`Missing Git modified date for "${file}".`);
+            }
+            modifiedDate = dayjs(gitDate);
         }
 
         const cleanContent = stripMarkdown(content);
