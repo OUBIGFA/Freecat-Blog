@@ -959,70 +959,91 @@ document.addEventListener('DOMContentLoaded', () => {
     const heroAvatar = document.getElementById('hero-avatar');
     const avatarTriggerArea = document.getElementById('avatar-trigger-area');
     if (heroAvatar && avatarTriggerArea) {
-        let isReset = true;
-        let isSmoothPhase = false;
-        let smoothTimer = null;
+        let avatarShadowFrame = null;
+        let isAvatarShadowResetting = true;
         const baseAvatarShadow = window.getComputedStyle(heroAvatar).boxShadow;
+        const currentShadow = { x: 0, y: 0, blur: 10, alpha: 0 };
+        const targetShadow = { x: 0, y: 0, blur: 10, alpha: 0 };
 
-        // 检测当前是否为深色模式
-        const isDarkMode = () => document.documentElement.classList.contains('dark');
+        const renderAvatarShadow = () => {
+            if (currentShadow.alpha <= 0.01) {
+                heroAvatar.style.boxShadow = baseAvatarShadow;
+                return;
+            }
+
+            const glowAlpha = (currentShadow.alpha * 0.5).toFixed(3);
+            const dynamicShadow = [
+                `${currentShadow.x.toFixed(2)}px ${(currentShadow.y - 5).toFixed(2)}px ${currentShadow.blur.toFixed(2)}px rgba(186, 66, 255, ${glowAlpha})`,
+                `${currentShadow.x.toFixed(2)}px ${(currentShadow.y + 5).toFixed(2)}px ${currentShadow.blur.toFixed(2)}px rgba(0, 225, 255, ${glowAlpha})`
+            ].join(', ');
+
+            heroAvatar.style.boxShadow = `${baseAvatarShadow}, ${dynamicShadow}`;
+        };
+
+        const animateAvatarShadow = () => {
+            avatarShadowFrame = null;
+            const ease = isAvatarShadowResetting ? 0.055 : 0.22;
+
+            currentShadow.x += (targetShadow.x - currentShadow.x) * ease;
+            currentShadow.y += (targetShadow.y - currentShadow.y) * ease;
+            currentShadow.blur += (targetShadow.blur - currentShadow.blur) * ease;
+            currentShadow.alpha += (targetShadow.alpha - currentShadow.alpha) * ease;
+
+            const isSettled = Math.abs(currentShadow.x - targetShadow.x) < 0.04
+                && Math.abs(currentShadow.y - targetShadow.y) < 0.04
+                && Math.abs(currentShadow.blur - targetShadow.blur) < 0.04
+                && Math.abs(currentShadow.alpha - targetShadow.alpha) < 0.004;
+
+            if (isSettled) {
+                currentShadow.x = targetShadow.x;
+                currentShadow.y = targetShadow.y;
+                currentShadow.blur = targetShadow.blur;
+                currentShadow.alpha = targetShadow.alpha;
+            }
+
+            renderAvatarShadow();
+
+            if (!isSettled) {
+                avatarShadowFrame = window.requestAnimationFrame(animateAvatarShadow);
+            }
+        };
+
+        const startAvatarShadowAnimation = () => {
+            heroAvatar.style.transition = 'none';
+            if (!avatarShadowFrame) {
+                avatarShadowFrame = window.requestAnimationFrame(animateAvatarShadow);
+            }
+        };
 
         const handleMove = (e) => {
             const rect = heroAvatar.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
-            const mouseX = e.clientX;
-            const mouseY = e.clientY;
-
-            const dx = centerX - mouseX;
-            const dy = centerY - mouseY;
+            const dx = centerX - e.clientX;
+            const dy = centerY - e.clientY;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            // 保持原有灵敏度逻辑，但限制在区域内
-            if (isReset) {
-                isReset = false;
-                isSmoothPhase = true;
-                if (smoothTimer) clearTimeout(smoothTimer);
-                // 200ms 的平滑过渡期，掩饰突变
-                smoothTimer = setTimeout(() => {
-                    isSmoothPhase = false;
-                }, 200);
-            }
-
-            const moveFactor = 15;
-            const blurFactor = 30;
-            const baseBlur = 10;
-
-            const shadowX = dx / moveFactor;
-            const shadowY = dy / moveFactor;
-            const blur = baseBlur + distance / blurFactor;
-
-            // 在平滑期与普通期之间切换过渡效果
-            if (isSmoothPhase) {
-                heroAvatar.style.transition = 'box-shadow 0.2s ease-out';
-            } else {
-                heroAvatar.style.transition = 'none';
-            }
-
-            // 使用紫色和青色双层阴影效果 (全局统一)
-            heroAvatar.style.boxShadow = `${shadowX}px ${shadowY - 5}px ${blur}px rgba(186, 66, 255, 0.5), ${shadowX}px ${shadowY + 5}px ${blur}px rgba(0, 225, 255, 0.5)`;
+            isAvatarShadowResetting = false;
+            targetShadow.x = dx / 15;
+            targetShadow.y = dy / 15;
+            targetShadow.blur = 10 + distance / 30;
+            targetShadow.alpha = 1;
+            startAvatarShadowAnimation();
         };
 
         const handleReset = () => {
-            if (!isReset) {
-                isReset = true;
-                isSmoothPhase = false;
-                if (smoothTimer) clearTimeout(smoothTimer);
-
-                heroAvatar.style.transition = 'box-shadow 1.15s cubic-bezier(0.16, 1, 0.3, 1)';
-                heroAvatar.style.boxShadow = baseAvatarShadow;
-            }
+            isAvatarShadowResetting = true;
+            targetShadow.x = 0;
+            targetShadow.y = 0;
+            targetShadow.blur = 10;
+            targetShadow.alpha = 0;
+            startAvatarShadowAnimation();
         };
 
-        // 只在桌面端启用头像阴影动效
         if (window.matchMedia('(min-width: 768px)').matches) {
             avatarTriggerArea.addEventListener('mousemove', handleMove);
             avatarTriggerArea.addEventListener('mouseleave', handleReset);
         }
     }
+
 });
