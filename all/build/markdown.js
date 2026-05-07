@@ -30,20 +30,120 @@ function autoSpacing(text) {
     return processed.replace(/ {2,}/g, ' ');
 }
 
+function getFenceMarker(line) {
+    const match = /^ {0,3}(`{3,}|~{3,})/.exec(line || '');
+    return match ? match[1] : '';
+}
+
+function closesFence(marker, openingMarker) {
+    return Boolean(marker && openingMarker && marker[0] === openingMarker[0] && marker.length >= openingMarker.length);
+}
+
 function preserveFencedCodeBlocks(content, transform) {
     if (!content) return '';
     const blocks = [];
     const placeholderPrefix = '__CODE_BLOCK_';
     const placeholderSuffix = '__';
+    const lines = String(content).split(/\r?\n/);
+    const output = [];
+    let currentBlock = null;
+    let openingMarker = '';
 
-    const replaced = content.replace(/```[\s\S]*?```/g, (match) => {
+    function pushBlock(blockLines) {
         const key = `${placeholderPrefix}${blocks.length}${placeholderSuffix}`;
-        blocks.push(match);
-        return key;
-    });
+        blocks.push(blockLines.join('\n'));
+        output.push(key);
+    }
 
-    const processed = transform(replaced);
+    for (const line of lines) {
+        const marker = getFenceMarker(line);
+        if (currentBlock) {
+            currentBlock.push(line);
+            if (closesFence(marker, openingMarker)) {
+                pushBlock(currentBlock);
+                currentBlock = null;
+                openingMarker = '';
+            }
+            continue;
+        }
+
+        if (marker) {
+            currentBlock = [line];
+            openingMarker = marker;
+            continue;
+        }
+
+        output.push(line);
+    }
+
+    if (currentBlock) pushBlock(currentBlock);
+
+    const processed = transform(output.join('\n'));
     return processed.replace(new RegExp(`${placeholderPrefix}(\\d+)${placeholderSuffix}`, 'g'), (m, idx) => blocks[Number(idx)]);
+}
+
+function createMarkdownGapMarker(blankLineCount) {
+    const lines = Math.max(1, Number(blankLineCount) || 1);
+    return `<div class="markdown-gap" data-md-gap-lines="${lines}" aria-hidden="true" style="--md-gap-lines:${lines}"></div>`;
+}
+
+function isStandaloneVisualBlockLine(line) {
+    const trimmed = String(line || '').trim();
+    if (!trimmed) return false;
+    if (/^!\[[^\]]*\]\([^)]+\)\s*$/.test(trimmed)) return true;
+    if (/^<(?:figure|picture|img|video|iframe|table|center)\b/i.test(trimmed)) return true;
+    if (/^<div\b[^>]*\b(?:mermaid|post-image|markdown-media)\b/i.test(trimmed)) return true;
+    return false;
+}
+
+function shouldPreserveMarkdownGap(_prevLine, nextLine) {
+    return isStandaloneVisualBlockLine(nextLine);
+}
+
+function preserveMarkdownGaps(content) {
+    if (!content) return '';
+    const lines = String(content).split(/\r?\n/);
+    const output = [];
+    let inFence = false;
+    let fenceMarker = '';
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+
+        const marker = getFenceMarker(line);
+        if (marker) {
+            if (!inFence) {
+                inFence = true;
+                fenceMarker = marker;
+            } else if (closesFence(marker, fenceMarker)) {
+                inFence = false;
+                fenceMarker = '';
+            }
+            output.push(line);
+            continue;
+        }
+
+        if (inFence || line.trim() !== '') {
+            output.push(line);
+            continue;
+        }
+
+        const blankStart = i;
+        while (i + 1 < lines.length && lines[i + 1].trim() === '') i++;
+        const blankLineCount = i - blankStart + 1;
+        const prevLine = output.length ? output[output.length - 1] : '';
+        const nextLine = i + 1 < lines.length ? lines[i + 1] : '';
+
+        if (prevLine.trim() && nextLine.trim() && shouldPreserveMarkdownGap(prevLine, nextLine)) {
+            output.push('');
+            output.push(createMarkdownGapMarker(blankLineCount));
+            output.push('');
+        } else {
+            for (let j = 0; j < blankLineCount; j++) output.push('');
+        }
+    }
+
+    return output.join('\n');
 }
 
 function prepareMarkdownSpacing(content) {
@@ -150,6 +250,20 @@ function normalizeImageHref(href) {
 }
 
 // ===== TOC 与标题 ID =====
+function createUniqueHeadingId(rawId, usedIds, fallbackId) {
+    const baseId = rawId || fallbackId;
+    let nextId = baseId;
+    let suffix = 2;
+
+    while (usedIds.has(nextId)) {
+        nextId = `${baseId}-${suffix}`;
+        suffix++;
+    }
+
+    usedIds.add(nextId);
+    return nextId;
+}
+
 function extractHeadingsAndGenerateTOC(content) {
     const sanitized = content
         .replace(/^([ \t]*)(`{3,}|~{3,})[^\n]*\n[\s\S]*?^\1\2[^\n]*$/gm, '')
@@ -157,12 +271,13 @@ function extractHeadingsAndGenerateTOC(content) {
 
     const headingRegex = /^(#{1,6})\s+(.+)$/gm;
     const headings = [];
+    const usedHeadingIds = new Set();
     let match;
 
     while ((match = headingRegex.exec(sanitized)) !== null) {
         const level = match[1].length;
         const text = match[2].trim().replace(/\*\*/g, '');
-        const id = slugify(text) || `heading-${headings.length}`;
+        const id = createUniqueHeadingId(slugify(text), usedHeadingIds, `heading-${headings.length}`);
         headings.push({ level, text, id });
     }
 
@@ -612,7 +727,7 @@ function setup() {
 
 function parseMarkdown(content, { includeFootnotesSection = true, enableImageCaptions = false } = {}) {
     setup();
-    const prepared = prepareMarkdownSpacing(content || '');
+    const prepared = prepareMarkdownSpacing(preserveMarkdownGaps(content || ''));
     const { markdown, defs } = extractFootnoteDefinitions(prepared);
     const previousContext = activeFootnoteContext;
     const previousPostOptions = activePostOptions;

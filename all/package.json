@@ -4,7 +4,8 @@
   "scripts": {
     "extract-dates": "node extract-git-dates.js",
     "build": "node build.js",
-    "dev": "node dev.js"
+    "dev": "node dev.js",
+    "test": "node --test"
   },
   "dependencies": {
     "@tailwindcss/container-queries": "^0.1.1",

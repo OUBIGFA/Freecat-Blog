@@ -321,6 +321,58 @@
     }
 
     // TOC History Optimization & Last Item Sync
+    function parsePixelValue(value, fallback) {
+        if (!value) return fallback;
+        var parsed = parseFloat(value);
+        return Number.isFinite(parsed) ? parsed : fallback;
+    }
+
+    function getCurrentScrollY() {
+        return window.pageYOffset || window.scrollY || 0;
+    }
+
+    function getElementPageTop(element) {
+        var rect = element.getBoundingClientRect();
+        return rect.top + getCurrentScrollY();
+    }
+
+    function getDocumentMaxScrollY() {
+        var scrollingElement = document.scrollingElement || document.documentElement;
+        var scrollHeight = scrollingElement ? scrollingElement.scrollHeight : 0;
+        return Math.max(0, scrollHeight - window.innerHeight);
+    }
+
+    function getTocHeaderOffset() {
+        var header = document.querySelector('header.fixed');
+        if (!header) return 100;
+
+        var headerBottom = header.getBoundingClientRect().bottom;
+        var safeGap = 20;
+        if (window.getComputedStyle && document.documentElement) {
+            safeGap = parsePixelValue(
+                window.getComputedStyle(document.documentElement).getPropertyValue('--freecat-header-safe-gap'),
+                safeGap
+            );
+        }
+
+        return Math.max(0, headerBottom + safeGap);
+    }
+
+    function getArticleEndScrollY(article) {
+        if (!article) return getDocumentMaxScrollY();
+
+        var articleBottom = article.getBoundingClientRect().bottom + getCurrentScrollY();
+        return articleBottom - window.innerHeight + 60;
+    }
+
+    function getTocTargetScrollY(targetElement, article) {
+        var headingScrollY = getElementPageTop(targetElement) - getTocHeaderOffset();
+        var footerSafeScrollY = getArticleEndScrollY(article);
+        var maxScrollY = getDocumentMaxScrollY();
+        var finalScrollY = Math.min(headingScrollY, footerSafeScrollY, maxScrollY);
+        return Math.max(0, finalScrollY);
+    }
+
     document.querySelectorAll('nav a[href^="#"]').forEach(function (anchor) {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
@@ -329,14 +381,8 @@
             var article = document.querySelector('article');
 
             if (targetElement && article) {
-                var headerOffset = 100;
-                var articleBottom = article.offsetTop + article.offsetHeight;
-                var headingScrollY = targetElement.offsetTop - headerOffset;
-                var articleEndScrollY = articleBottom - window.innerHeight + 60;
-                var finalScrollY = Math.min(headingScrollY, articleEndScrollY);
-
                 window.scrollTo({
-                    top: Math.max(0, finalScrollY),
+                    top: getTocTargetScrollY(targetElement, article),
                     behavior: 'smooth'
                 });
                 history.replaceState(null, null, '#' + targetId);

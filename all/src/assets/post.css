@@ -1509,3 +1509,44 @@
 .prose :not(pre)>code {
     font-size: 0.86em !important;
 }
+
+/* Markdown-authored visual spacing */
+.prose .markdown-gap {
+    --md-gap-lines: 1;
+    display: block !important;
+    width: 100% !important;
+    height: calc(var(--article-rhythm) * 0.42 * var(--md-gap-lines)) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+}
+
+.prose figure.post-image {
+    margin-top: calc(var(--article-rhythm) * 0.32) !important;
+    margin-bottom: calc(var(--article-rhythm) * 0.32) !important;
+}
+
+.prose figure.post-image:has(+ .markdown-gap),
+.prose p:has(+ .markdown-gap),
+.prose ul:has(+ .markdown-gap),
+.prose ol:has(+ .markdown-gap),
+.prose blockquote:has(+ .markdown-gap),
+.prose table:has(+ .markdown-gap),
+.prose center:has(+ .markdown-gap),
+.prose .mermaid:has(+ .markdown-gap),
+.prose .code-block-container:has(+ .markdown-gap) {
+    margin-bottom: 0 !important;
+}
+
+.prose .markdown-gap+figure.post-image,
+.prose .markdown-gap+table,
+.prose .markdown-gap+center,
+.prose .markdown-gap+.mermaid,
+.prose .markdown-gap+.code-block-container {
+    margin-top: 0 !important;
+}
+
+.prose figure.post-image+figure.post-image {
+    margin-top: calc(var(--article-rhythm) * 0.32) !important;
+}
