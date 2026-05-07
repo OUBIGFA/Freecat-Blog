@@ -47,7 +47,7 @@
         const cover = escapeHtml(post.cover || '');
         const pinned = !!post.pinned;
         const titleText = plainTextFromHtml(titleHtml);
-        const desktopPreviewLines = titleText.length >= 24 ? 4 : 5;
+        const desktopPreviewLines = titleText.length >= 24 ? 3 : 4;
 
         const imageMarkup = cover
             ? `<img src="${cover}"
