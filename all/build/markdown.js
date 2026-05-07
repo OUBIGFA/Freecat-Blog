@@ -151,11 +151,15 @@ function normalizeImageHref(href) {
 
 // ===== TOC 与标题 ID =====
 function extractHeadingsAndGenerateTOC(content) {
+    const sanitized = content
+        .replace(/^([ \t]*)(`{3,}|~{3,})[^\n]*\n[\s\S]*?^\1\2[^\n]*$/gm, '')
+        .replace(/`[^`\n]*`/g, '');
+
     const headingRegex = /^(#{1,6})\s+(.+)$/gm;
     const headings = [];
     let match;
 
-    while ((match = headingRegex.exec(content)) !== null) {
+    while ((match = headingRegex.exec(sanitized)) !== null) {
         const level = match[1].length;
         const text = match[2].trim().replace(/\*\*/g, '');
         const id = slugify(text) || `heading-${headings.length}`;
