@@ -66,12 +66,18 @@
             --freecat-canvas: #f6f6f8;
             --freecat-hero-canvas: #fafbfc;
             --freecat-line: #d7dde5;
+            --freecat-posts-plane-shadow:
+                0 -1px 0 rgba(17, 19, 24, 0.04),
+                0 -18px 48px rgba(17, 19, 24, 0.08);
         }
 
         .dark {
             --freecat-canvas: #101622;
             --freecat-hero-canvas: #151d2a;
             --freecat-line: #233044;
+            --freecat-posts-plane-shadow:
+                0 -1px 0 rgba(255, 255, 255, 0.04),
+                0 -18px 48px rgba(0, 0, 0, 0.28);
         }
 
         .freecat-home-stage {
@@ -109,6 +115,7 @@
             min-height: 100vh;
             padding-top: var(--freecat-posts-edge-gap);
             background: var(--freecat-canvas);
+            box-shadow: var(--freecat-posts-plane-shadow);
         }
 
         .freecat-hero-layout {
