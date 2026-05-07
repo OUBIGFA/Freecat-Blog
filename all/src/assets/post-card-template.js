@@ -108,7 +108,7 @@
                 </div>
                 <div class="hidden h-full min-w-0 grid-cols-[minmax(0,1fr)_minmax(360px,43%)] grid-rows-[1fr_auto] gap-x-14 lg:grid">
                     <div class="row-start-1 flex min-h-0 flex-col">
-                        <h3 class="text-[#111318] dark:text-slate-200 text-[32px] font-black leading-tight" style="${clampStyle(2)}">${titleHtml}</h3>
+                        <h3 class="text-[#111318] dark:text-slate-200 text-[34px] font-black leading-tight" style="${clampStyle(2)}">${titleHtml}</h3>
                         <p class="mt-8 text-[#63718a] dark:text-gray-400 text-[16px] font-normal leading-[1.78]" style="${clampStyle(desktopPreviewLines)}">${excerptHtml}</p>
                     </div>
                     <div class="col-start-2 row-start-1 h-full rounded-2xl overflow-hidden">

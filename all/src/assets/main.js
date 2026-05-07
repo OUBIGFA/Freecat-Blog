@@ -962,6 +962,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let isReset = true;
         let isSmoothPhase = false;
         let smoothTimer = null;
+        const baseAvatarShadow = window.getComputedStyle(heroAvatar).boxShadow;
 
         // 检测当前是否为深色模式
         const isDarkMode = () => document.documentElement.classList.contains('dark');
@@ -1013,8 +1014,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 isSmoothPhase = false;
                 if (smoothTimer) clearTimeout(smoothTimer);
 
-                heroAvatar.style.transition = 'box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
-                heroAvatar.style.boxShadow = '';
+                heroAvatar.style.transition = 'box-shadow 1.15s cubic-bezier(0.16, 1, 0.3, 1)';
+                heroAvatar.style.boxShadow = baseAvatarShadow;
             }
         };
 
