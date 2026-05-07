@@ -24,6 +24,19 @@
             .replace(/'/g, '&#39;');
     };
 
+    const clampStyle = (lines) =>
+        `display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:${lines};overflow:hidden;text-overflow:ellipsis;overflow-wrap:anywhere;`;
+
+    const plainTextFromHtml = (html) => String(html || '')
+        .replace(/<[^>]*>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .trim();
+
     function renderPostCard(post) {
         const link = escapeHtml(post.link || '#');
         const titleHtml = post.titleHtml || '';
@@ -33,15 +46,15 @@
         const tagsHtml = post.tagsHtml || '';
         const cover = escapeHtml(post.cover || '');
         const pinned = !!post.pinned;
+        const titleText = plainTextFromHtml(titleHtml);
+        const desktopPreviewLines = titleText.length >= 24 ? 4 : 5;
 
-        const imageDiv = cover
-            ? `<div class="w-full h-48 md:h-full md:w-[40%] md:max-w-[480px] rounded-lg md:order-last overflow-hidden">
-                <img src="${cover}"
+        const imageMarkup = cover
+            ? `<img src="${cover}"
                     alt="Cover"
                     class="w-full h-full object-cover"
                     ${IMG_FALLBACK_ATTR}
-                    loading="lazy" />
-               </div>`
+                    loading="lazy" />`
             : '';
 
         const pinnedBadge = pinned
@@ -64,24 +77,47 @@
             : '';
 
         return `
-        <a href="${link}" class="post-card block mb-6 md:mb-10 group cursor-pointer">
-            <div class="relative flex flex-col md:flex-row items-stretch justify-between gap-6 md:gap-8 rounded-2xl bg-white dark:bg-card-dark p-5 md:p-8 shadow-sm transition-[box-shadow,border-color] duration-300 ease-out group-hover:shadow-2xl group-hover:shadow-gray-400/20 dark:group-hover:shadow-black/40 md:h-80">
+        <a href="${link}" class="post-card block mb-8 md:mb-10 group cursor-pointer">
+            <div class="relative rounded-2xl bg-white dark:bg-card-dark px-9 pt-9 pb-4 shadow-sm transition-[box-shadow,border-color] duration-300 ease-out group-hover:shadow-2xl group-hover:shadow-gray-400/20 dark:group-hover:shadow-black/40 lg:h-[390px] lg:px-16 lg:py-12">
                 ${pinnedBadge}
-                ${imageDiv}
-                <div class="flex min-w-0 flex-1 flex-col justify-between overflow-hidden">
-                    <div class="flex flex-col gap-3 md:gap-4">
-                        <div class="flex flex-wrap items-center gap-3 md:gap-4 text-[#616f89] dark:text-gray-400 text-[10px] md:text-xs font-semibold">
+                <div class="flex h-full min-w-0 flex-col lg:hidden">
+                    <div class="shrink-0">
+                        <h3 class="text-[#111318] dark:text-slate-200 text-[24px] font-black leading-tight" style="${clampStyle(2)}">${titleHtml}</h3>
+                        <div class="mt-2 flex flex-wrap items-center gap-3 text-[#657188] dark:text-gray-400 text-[10px] font-semibold">
                             <div class="flex items-center gap-1.5">
-                                <svg class="text-sm md:text-base" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M7 3V1H9V3H15V1H17V3H21C21.5523 3 22 3.44772 22 4V9H20V5H17V7H15V5H9V7H7V5H4V19H10V21H3C2.44772 21 2 20.5523 2 20V4C2 3.44772 2.44772 3 3 3H7ZM17 12C14.7909 12 13 13.7909 13 16C13 18.2091 14.7909 20 17 20C19.2091 20 21 18.2091 21 16C21 13.7909 19.2091 12 17 12ZM11 16C11 12.6863 13.6863 10 17 10C20.3137 10 23 12.6863 23 16C23 19.3137 20.3137 22 17 22C13.6863 22 11 19.3137 11 16ZM16 13V16.4142L18.2929 18.7071L19.7071 17.2929L18 15.5858V13H16Z"></path></svg>
+                                <svg class="text-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M7 3V1H9V3H15V1H17V3H21C21.5523 3 22 3.44772 22 4V9H20V5H17V7H15V5H9V7H7V5H4V19H10V21H3C2.44772 21 2 20.5523 2 20V4C2 3.44772 2.44772 3 3 3H7ZM17 12C14.7909 12 13 13.7909 13 16C13 18.2091 14.7909 20 17 20C19.2091 20 21 18.2091 21 16C21 13.7909 19.2091 12 17 12ZM11 16C11 12.6863 13.6863 10 17 10C20.3137 10 23 12.6863 23 16C23 19.3137 20.3137 22 17 22C13.6863 22 11 19.3137 11 16ZM16 13V16.4142L18.2929 18.7071L19.7071 17.2929L18 15.5858V13H16Z"></path></svg>
                                 <span>${date}</span>
                             </div>
                             ${modifiedBlock}
-                            ${tagsBlock}
                         </div>
-                        <h3 class="text-[#111318] dark:text-slate-200 text-xl md:text-3xl font-black leading-tight line-clamp-2">
-                            ${titleHtml}
-                        </h3>
-                        <p class="text-[#616f89] dark:text-gray-400 text-sm md:text-lg font-normal leading-relaxed line-clamp-3 md:line-clamp-3">${excerptHtml}</p>
+                    </div>
+                    <div class="mt-7 shrink-0">
+                        <p class="text-[#63718a] dark:text-gray-400 text-[14px] font-normal leading-7" style="${clampStyle(3)}">${excerptHtml}</p>
+                    </div>
+                    <div class="mt-8 h-[180px] shrink-0 rounded-2xl overflow-hidden sm:h-[200px]">
+                        ${imageMarkup}
+                    </div>
+                    <div class="mt-4 shrink-0 border-t border-slate-200 dark:border-slate-700 pt-3">
+                        <div class="flex min-h-5 items-center">${tagsBlock}</div>
+                    </div>
+                </div>
+                <div class="hidden h-full min-w-0 grid-cols-[minmax(0,1fr)_minmax(360px,43%)] grid-rows-[1fr_auto] gap-x-14 lg:grid">
+                    <div class="row-start-1 flex min-h-0 flex-col">
+                        <h3 class="text-[#111318] dark:text-slate-200 text-[28px] font-black leading-tight" style="${clampStyle(2)}">${titleHtml}</h3>
+                        <div class="mt-2 flex flex-wrap items-center gap-5 text-[#657188] dark:text-gray-400 text-xs font-semibold">
+                            <div class="flex items-center gap-1.5">
+                                <svg class="text-base" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M7 3V1H9V3H15V1H17V3H21C21.5523 3 22 3.44772 22 4V9H20V5H17V7H15V5H9V7H7V5H4V19H10V21H3C2.44772 21 2 20.5523 2 20V4C2 3.44772 2.44772 3 3 3H7ZM17 12C14.7909 12 13 13.7909 13 16C13 18.2091 14.7909 20 17 20C19.2091 20 21 18.2091 21 16C21 13.7909 19.2091 12 17 12ZM11 16C11 12.6863 13.6863 10 17 10C20.3137 10 23 12.6863 23 16C23 19.3137 20.3137 22 17 22C13.6863 22 11 19.3137 11 16ZM16 13V16.4142L18.2929 18.7071L19.7071 17.2929L18 15.5858V13H16Z"></path></svg>
+                                <span>${date}</span>
+                            </div>
+                            ${modifiedBlock}
+                        </div>
+                        <p class="mt-8 text-[#63718a] dark:text-gray-400 text-[16px] font-normal leading-[1.78]" style="${clampStyle(desktopPreviewLines)}">${excerptHtml}</p>
+                    </div>
+                    <div class="col-start-2 row-start-1 h-full rounded-2xl overflow-hidden">
+                        ${imageMarkup}
+                    </div>
+                    <div class="col-start-1 row-start-2 border-t border-slate-200 dark:border-slate-700 pt-3">
+                        <div class="flex min-h-5 items-center">${tagsBlock}</div>
                     </div>
                 </div>
             </div>

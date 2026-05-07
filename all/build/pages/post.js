@@ -41,7 +41,8 @@ function loadPosts({ postsDir, gitDates }) {
         }
 
         const cleanContent = stripMarkdown(content);
-        const excerptRaw = data.description || (cleanContent.slice(0, 150) + (cleanContent.length > 150 ? '...' : ''));
+        const previewRaw = data.description || cleanContent;
+        const excerptRaw = data.description || (cleanContent.slice(0, 160) + (cleanContent.length > 160 ? '...' : ''));
         const titleRaw = (data.title && String(data.title).trim()) ? data.title : slug;
 
         posts.push({
@@ -50,6 +51,7 @@ function loadPosts({ postsDir, gitDates }) {
             date: publishDate,
             modifiedDate,
             excerpt: autoSpacing(excerptRaw),
+            preview: autoSpacing(previewRaw),
             cover: data.cover || '',
             tag: data.tag || data.tags || [],
             link: `/posts/${slug}.html`,

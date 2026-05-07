@@ -551,8 +551,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 top: 50%;
                 right: auto;
                 transform: translate(-50%, -50%);
-                width: min(680px, calc(100vw - 8rem));
-                max-width: 680px;
+                width: min(760px, calc(100vw - 8rem));
+                max-width: 760px;
                 z-index: 80;
             }
             @media (max-width: 767px) {
@@ -829,7 +829,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return renderer ? window.PostCardTemplate.renderPostCard({
                 link: post.link,
                 titleHtml: processTitleHtml(escapeHtml(post.title)),
-                excerptHtml: escapeHtml(post.excerpt),
+                excerptHtml: escapeHtml(post.preview || post.excerpt),
                 date: post.date,
                 modifiedDate: post.modifiedDate,
                 tagsHtml,
@@ -936,7 +936,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return renderer ? window.PostCardTemplate.renderPostCard({
                 link: post.link,
                 titleHtml: processTitleHtml(escapeHtml(post.title)),
-                excerptHtml: escapeHtml(post.excerpt),
+                excerptHtml: escapeHtml(post.preview || post.excerpt),
                 date: post.date,
                 modifiedDate: post.modifiedDate,
                 tagsHtml,

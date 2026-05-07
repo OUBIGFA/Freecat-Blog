@@ -20,6 +20,7 @@ function generate({ posts, template, outputDir }) {
             slug: post.slug,
             date: post.date.tz('Asia/Shanghai').format('YYYY-MM-DD'),
             excerpt: post.excerpt,
+            preview: post.preview || post.excerpt,
             content: truncated,
             tags: Array.isArray(post.tag) ? post.tag : (post.tag ? [post.tag] : []),
             link: post.link,
