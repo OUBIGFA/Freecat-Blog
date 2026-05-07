@@ -83,8 +83,9 @@ function preserveFencedCodeBlocks(content, transform) {
 }
 
 function createMarkdownGapMarker(blankLineCount) {
-    const lines = Math.max(1, Number(blankLineCount) || 1);
-    return `<div class="markdown-gap" data-md-gap-lines="${lines}" aria-hidden="true" style="--md-gap-lines:${lines}"></div>`;
+    const lines = Math.max(0, Number(blankLineCount) || 0);
+    const gapSize = (0.28 + lines * 0.14).toFixed(2);
+    return `<div class="markdown-gap" data-md-gap-lines="${lines}" aria-hidden="true" style="--md-gap-lines:${lines};--md-gap-size:${gapSize}lh"></div>`;
 }
 
 function isStandaloneVisualBlockLine(line) {
@@ -107,11 +108,19 @@ function preserveMarkdownGaps(content) {
     let inFence = false;
     let fenceMarker = '';
 
+    function appendVisualGapAfterLine(line, nextLine) {
+        if (line.trim() && nextLine && nextLine.trim() && shouldPreserveMarkdownGap(line, nextLine)) {
+            output.push(createMarkdownGapMarker(0));
+        }
+    }
+
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
+        const nextLine = i + 1 < lines.length ? lines[i + 1] : '';
 
         const marker = getFenceMarker(line);
         if (marker) {
+            const wasInFence = inFence;
             if (!inFence) {
                 inFence = true;
                 fenceMarker = marker;
@@ -120,11 +129,13 @@ function preserveMarkdownGaps(content) {
                 fenceMarker = '';
             }
             output.push(line);
+            if (wasInFence && !inFence) appendVisualGapAfterLine(line, nextLine);
             continue;
         }
 
         if (inFence || line.trim() !== '') {
             output.push(line);
+            if (!inFence) appendVisualGapAfterLine(line, nextLine);
             continue;
         }
 
@@ -132,9 +143,9 @@ function preserveMarkdownGaps(content) {
         while (i + 1 < lines.length && lines[i + 1].trim() === '') i++;
         const blankLineCount = i - blankStart + 1;
         const prevLine = output.length ? output[output.length - 1] : '';
-        const nextLine = i + 1 < lines.length ? lines[i + 1] : '';
+        const nextNonBlankLine = i + 1 < lines.length ? lines[i + 1] : '';
 
-        if (prevLine.trim() && nextLine.trim() && shouldPreserveMarkdownGap(prevLine, nextLine)) {
+        if (prevLine.trim() && nextNonBlankLine.trim() && shouldPreserveMarkdownGap(prevLine, nextNonBlankLine)) {
             output.push('');
             output.push(createMarkdownGapMarker(blankLineCount));
             output.push('');

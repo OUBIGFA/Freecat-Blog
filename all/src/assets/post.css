@@ -1512,41 +1512,46 @@
 
 /* Markdown-authored visual spacing */
 .prose .markdown-gap {
-    --md-gap-lines: 1;
+    --md-gap-lines: 0;
+    --md-gap-size: 0.28lh;
     display: block !important;
     width: 100% !important;
-    height: calc(var(--article-rhythm) * 0.42 * var(--md-gap-lines)) !important;
+    height: var(--md-gap-size) !important;
     margin: 0 !important;
     padding: 0 !important;
     border: 0 !important;
     overflow: hidden !important;
 }
 
-.prose figure.post-image {
-    margin-top: calc(var(--article-rhythm) * 0.32) !important;
-    margin-bottom: calc(var(--article-rhythm) * 0.32) !important;
-}
-
-.prose figure.post-image:has(+ .markdown-gap),
-.prose p:has(+ .markdown-gap),
-.prose ul:has(+ .markdown-gap),
-.prose ol:has(+ .markdown-gap),
-.prose blockquote:has(+ .markdown-gap),
-.prose table:has(+ .markdown-gap),
-.prose center:has(+ .markdown-gap),
-.prose .mermaid:has(+ .markdown-gap),
-.prose .code-block-container:has(+ .markdown-gap) {
+.prose table,
+.prose .code-block-container,
+.prose figure.post-image,
+.prose details,
+.prose .callout,
+.prose .katex-display,
+.prose center,
+.prose .mermaid {
+    margin-top: 0 !important;
     margin-bottom: 0 !important;
 }
 
-.prose .markdown-gap+figure.post-image,
-.prose .markdown-gap+table,
-.prose .markdown-gap+center,
-.prose .markdown-gap+.mermaid,
-.prose .markdown-gap+.code-block-container {
-    margin-top: 0 !important;
+.prose figure.post-image {
+    display: block;
+    width: 100%;
 }
 
-.prose figure.post-image+figure.post-image {
-    margin-top: calc(var(--article-rhythm) * 0.32) !important;
+.prose :is(p, ul, ol, blockquote, hr, .article-heading, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid)+:is(table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid) {
+    margin-top: calc(var(--article-rhythm) * 0.28) !important;
+}
+
+.prose :is(table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid)+:is(p, ul, ol, blockquote) {
+    margin-top: calc(var(--article-rhythm) * 0.5) !important;
+}
+
+.prose :is(p, ul, ol, blockquote, hr, .article-heading, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid):has(+ .markdown-gap) {
+    margin-bottom: 0 !important;
+}
+
+.prose .markdown-gap+:is(table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid) {
+    margin-top: 0 !important;
 }

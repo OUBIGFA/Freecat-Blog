@@ -7,11 +7,11 @@ function extractGapLines(html) {
     return Array.from(html.matchAll(/class="markdown-gap"[^>]*data-md-gap-lines="(\d+)"/g), (match) => Number(match[1]));
 }
 
-test('adjacent image lines do not create an explicit markdown gap', () => {
+test('adjacent image lines use the normal zero-line markdown gap', () => {
     const html = parseMarkdown('![a](/a.png)\n![b](/b.png)');
 
     assert.equal((html.match(/<figure class="post-image/g) || []).length, 2);
-    assert.deepEqual(extractGapLines(html), []);
+    assert.deepEqual(extractGapLines(html), [0]);
 });
 
 test('blank markdown lines between image blocks are preserved as counted spacing', () => {
@@ -34,6 +34,12 @@ test('blank lines inside fenced code blocks are not converted to article spacing
 
     assert.equal((html.match(/class="markdown-gap"/g) || []).length, 1);
     assert.match(html, /first\n\nsecond/);
+});
+
+test('a code block followed directly by an image uses the same spacing marker path', () => {
+    const html = parseMarkdown('```txt\nfirst\n```\n![b](/b.png)');
+
+    assert.deepEqual(extractGapLines(html), [0]);
 });
 
 test('shorter fence markers inside longer fenced code blocks do not end the block', () => {
