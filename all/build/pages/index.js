@@ -23,6 +23,8 @@ function renderPostCardForList(post) {
         modifiedDate: post.modifiedDate.tz('Asia/Shanghai').format('YYYY-MM-DD'),
         tagsHtml,
         cover: post.cover,
+        coverWidth: post.coverWidth,
+        coverHeight: post.coverHeight,
         pinned: post.pinned
     });
 }
@@ -60,12 +62,12 @@ function generateAll({ posts, template, postsPerPage, siteConfig, seoConfig, out
         const jsonLd = page === 1 ? seo.renderWebsiteJsonLd({ siteConfig, seoConfig }) : '';
 
         const outputHtml = template
-            .replace(/<title>[\s\S]*?<\/title>/, `<title>${shared.escapeHtml(title)}</title>`)
-            .replace('<!-- HOME_SEO_HEAD -->', seoHead)
-            .replace('<!-- HOME_JSONLD -->', jsonLd)
-            .replace('<!-- POSTS_LIST_PLACEHOLDER -->', postsHtml)
-            .replace('<!-- PAGINATION_BUTTONS_PLACEHOLDER -->', paginationBtns)
-            .replace('<!-- PAGINATION_PLACEHOLDER -->', renderViewAllLink(totalPages));
+            .replace(/<title>[\s\S]*?<\/title>/, () => `<title>${shared.escapeHtml(title)}</title>`)
+            .replace('<!-- HOME_SEO_HEAD -->', () => seoHead)
+            .replace('<!-- HOME_JSONLD -->', () => jsonLd)
+            .replace('<!-- POSTS_LIST_PLACEHOLDER -->', () => postsHtml)
+            .replace('<!-- PAGINATION_BUTTONS_PLACEHOLDER -->', () => paginationBtns)
+            .replace('<!-- PAGINATION_PLACEHOLDER -->', () => renderViewAllLink(totalPages));
 
         if (page === 1) {
             fs.writeFileSync(path.join(outputDir, 'index.html'), outputHtml);

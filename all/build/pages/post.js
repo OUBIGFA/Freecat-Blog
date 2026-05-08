@@ -56,6 +56,10 @@ function loadPosts({ postsDir, gitDates }) {
             preview: autoSpacing(previewRaw),
             summary: data.summary ? autoSpacing(data.summary) : '',
             cover: data.cover || '',
+            // 可选 frontmatter：cover_width / cover_height（整数像素）
+            // 给 <img> 写 width/height 属性，预留盒子，消除首屏 CLS。
+            coverWidth: parseInt(data.cover_width, 10) || 0,
+            coverHeight: parseInt(data.cover_height, 10) || 0,
             tag: data.tag || data.tags || [],
             link: `/posts/${slug}.html`,
             showCover: data.show_cover !== false,
@@ -90,11 +94,14 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
 
     const safeCover = shared.escapeHtml(String(post.cover || ''));
     const safeTitle = shared.escapeHtml(post.title);
+    const coverDimAttrs = (post.coverWidth > 0 && post.coverHeight > 0)
+        ? ` width="${post.coverWidth}" height="${post.coverHeight}"`
+        : '';
     const coverHtml = (post.cover && post.showCover)
         ? `
         <div class="w-full rounded-xl overflow-hidden mb-32 relative">
             <div class="loader absolute top-12 left-12 z-10" style="display:none"></div>
-            <img alt="${safeTitle}" class="w-full h-auto object-cover" src="${safeCover}"
+            <img alt="${safeTitle}" class="w-full h-auto object-cover" src="${safeCover}"${coverDimAttrs}
                 onerror="if(this.dataset.fallbackApplied!=='true'){
                     this.dataset.fallbackApplied='true';
                     this.src='/image/404.png';
@@ -121,6 +128,10 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
     const needsHighlight = /<pre[^>]*><code/i.test(finalContentHtml);
     const needsKatex = /class="katex/i.test(finalContentHtml);
     const needsMermaid = /class="language-mermaid|class="lang-mermaid|class="mermaid"|<code[^>]*mermaid/i.test(finalContentHtml);
+    // 音频播放器：在 markdown 渲染结果里检测 🎵 标记或音频后缀链接。
+    // audio-player.js 自身还要求链接在 <blockquote> 中，没匹配上时只是 no-op；
+    // 因此即便误判命中，副作用仅是多下载一份 JS+CSS（约 25KB），没有功能问题。
+    const needsAudioPlayer = /🎵|<a [^>]*href="[^"]*\.(?:mp3|m4a|wav|ogg|aac|flac|opus)\b/i.test(finalContentHtml);
 
     const headLibs = needsMermaid
         ? '<script src="https://cdn.jsdelivr.net/npm/beautiful-mermaid/dist/beautiful-mermaid.browser.global.js" defer></script>'
@@ -133,6 +144,12 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
         : '';
     const highlightJs = needsHighlight
         ? '<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>'
+        : '';
+    const audioCss = needsAudioPlayer
+        ? '<link rel="stylesheet" href="../assets/audio-player.css" />'
+        : '';
+    const audioJs = needsAudioPlayer
+        ? '<script src="../assets/audio-player.js"></script>'
         : '';
 
     const pageTitle = `${post.title} - ${siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog'}`;
@@ -152,21 +169,23 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
     const jsonLd = seo.renderArticleJsonLd({ post, siteConfig, seoConfig, canonical, ogImage, tags, faqItems: post.faq || [] });
 
     return template
-        .replace(/<!-- TITLE_PLACEHOLDER -->/g, safeTitle)
-        .replace(/<!-- TITLE_H1_PLACEHOLDER -->/g, shared.processTitleHtml(safeTitle))
-        .replace('<!-- TAGS_PLACEHOLDER -->', tagsHtml)
-        .replace('<!-- DATE_PLACEHOLDER -->', post.date.tz('Asia/Shanghai').format('YYYY-MM-DD'))
-        .replace('<!-- DATE_ISO_PLACEHOLDER -->', post.date.toISOString())
-        .replace('<!-- MODIFIED_PLACEHOLDER -->', post.modifiedDate.tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm'))
-        .replace('<!-- COVER_PLACEHOLDER -->', coverHtml)
-        .replace('<!-- CONTENT_PLACEHOLDER -->', finalContentHtml)
-        .replace('<!-- TOC_PLACEHOLDER -->', toc)
-        .replace('<!-- POST_SEO_HEAD -->', seoHead)
-        .replace('<!-- POST_HEAD_LIBS -->', headLibs)
-        .replace('<!-- POST_HIGHLIGHT_CSS -->', highlightCss)
-        .replace('<!-- POST_KATEX_CSS -->', katexCss)
-        .replace('<!-- POST_HIGHLIGHT_JS -->', highlightJs)
-        .replace('<!-- POST_JSONLD -->', jsonLd);
+        .replace(/<!-- TITLE_PLACEHOLDER -->/g, () => safeTitle)
+        .replace(/<!-- TITLE_H1_PLACEHOLDER -->/g, () => shared.processTitleHtml(safeTitle))
+        .replace('<!-- TAGS_PLACEHOLDER -->', () => tagsHtml)
+        .replace('<!-- DATE_PLACEHOLDER -->', () => post.date.tz('Asia/Shanghai').format('YYYY-MM-DD'))
+        .replace('<!-- DATE_ISO_PLACEHOLDER -->', () => post.date.toISOString())
+        .replace('<!-- MODIFIED_PLACEHOLDER -->', () => post.modifiedDate.tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm'))
+        .replace('<!-- COVER_PLACEHOLDER -->', () => coverHtml)
+        .replace('<!-- CONTENT_PLACEHOLDER -->', () => finalContentHtml)
+        .replace('<!-- TOC_PLACEHOLDER -->', () => toc)
+        .replace('<!-- POST_SEO_HEAD -->', () => seoHead)
+        .replace('<!-- POST_HEAD_LIBS -->', () => headLibs)
+        .replace('<!-- POST_HIGHLIGHT_CSS -->', () => highlightCss)
+        .replace('<!-- POST_KATEX_CSS -->', () => katexCss)
+        .replace('<!-- POST_HIGHLIGHT_JS -->', () => highlightJs)
+        .replace('<!-- POST_AUDIO_CSS -->', () => audioCss)
+        .replace('<!-- POST_AUDIO_JS -->', () => audioJs)
+        .replace('<!-- POST_JSONLD -->', () => jsonLd);
 }
 
 function generateAll({ posts, template, siteConfig, seoConfig, outputDir }) {

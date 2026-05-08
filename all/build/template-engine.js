@@ -152,6 +152,19 @@ function loadPartialsCache(partialsDir) {
     return cache;
 }
 
+// 字符串安全替换：把用户内容直接当字面量塞进模板。
+//
+// JS 的 String.prototype.replace(needle, str) 会把第二参数里的
+// $&、$$、$`、$'、$1–$9 解释为反向引用 / 替换字面量。当 value 来自
+// 用户文章（数学公式、价格表、随手写的 $1）时会被静默破坏。
+// 改用函数形式后，返回值原样写入，绝不解析。
+//
+// marker 支持字符串（替换首个匹配）或带 /g 的正则（替换全部）。
+function replacePlaceholder(template, marker, value) {
+    const literalValue = value == null ? '' : String(value);
+    return template.replace(marker, () => literalValue);
+}
+
 function versionAssetUrls(html, assetVersion) {
     if (!assetVersion) return html;
     const encodedVersion = encodeURIComponent(String(assetVersion));
@@ -174,22 +187,24 @@ function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, s
         // 文本字段（出现在 HTML 文本节点 / title / meta content 中）必须 escape
         // URL 字段走 safeUrl 拦截危险 scheme，再做属性转义
         // hero_title / hero_subtitle 经过 autoSpacing → escapeText → autoLineBreak（后者只插 <br/>，安全）
+        // 所有 replace 通过 replacePlaceholder 走函数形式，避免用户内容里的 $& / $1 被解释。
         const safeFavicon = escapeText(safeUrl(siteConfig.site_favicon));
         const safeAvatar = escapeText(safeUrl(siteConfig.hero_avatar));
         const safeUrlField = escapeText(safeUrl(siteConfig.site_url));
-        return template
-            .replace(/<!-- SITE_TITLE -->/g, escapeText(autoSpacing(siteConfig.site_title)))
-            .replace(/<!-- SITE_NAME -->/g, escapeText(autoSpacing(siteConfig.site_name)))
-            .replace(/<!-- FOOTER_COPYRIGHT -->/g, escapeText(autoSpacing(siteConfig.footer_copyright)))
-            .replace(/<!-- HERO_TITLE -->/g, autoLineBreak(escapeText(autoSpacing(siteConfig.hero_title))))
-            .replace(/<!-- HERO_SUBTITLE -->/g, autoLineBreak(escapeText(autoSpacing(siteConfig.hero_subtitle))))
-            .replace(/<!-- HERO_AVATAR -->/g, safeAvatar)
-            .replace(/<!-- SITE_FAVICON -->/g, safeFavicon)
-            .replace(/<!-- SITE_LOGO_ICON -->/g, logoIcon)
-            .replace(/<!-- THEME_SCRIPT -->/g, themeScript)
-            .replace(/<!-- SOCIAL_LINKS -->/g, socialLinks)
-            .replace(/<!-- SITE_LANGUAGE -->/g, escapeText(seoConfig.site_language || 'zh-CN'))
-            .replace(/<!-- SITE_URL -->/g, safeUrlField);
+        let out = template;
+        out = replacePlaceholder(out, /<!-- SITE_TITLE -->/g, escapeText(autoSpacing(siteConfig.site_title)));
+        out = replacePlaceholder(out, /<!-- SITE_NAME -->/g, escapeText(autoSpacing(siteConfig.site_name)));
+        out = replacePlaceholder(out, /<!-- FOOTER_COPYRIGHT -->/g, escapeText(autoSpacing(siteConfig.footer_copyright)));
+        out = replacePlaceholder(out, /<!-- HERO_TITLE -->/g, autoLineBreak(escapeText(autoSpacing(siteConfig.hero_title))));
+        out = replacePlaceholder(out, /<!-- HERO_SUBTITLE -->/g, autoLineBreak(escapeText(autoSpacing(siteConfig.hero_subtitle))));
+        out = replacePlaceholder(out, /<!-- HERO_AVATAR -->/g, safeAvatar);
+        out = replacePlaceholder(out, /<!-- SITE_FAVICON -->/g, safeFavicon);
+        out = replacePlaceholder(out, /<!-- SITE_LOGO_ICON -->/g, logoIcon);
+        out = replacePlaceholder(out, /<!-- THEME_SCRIPT -->/g, themeScript);
+        out = replacePlaceholder(out, /<!-- SOCIAL_LINKS -->/g, socialLinks);
+        out = replacePlaceholder(out, /<!-- SITE_LANGUAGE -->/g, escapeText(seoConfig.site_language || 'zh-CN'));
+        out = replacePlaceholder(out, /<!-- SITE_URL -->/g, safeUrlField);
+        return out;
     }
 
     function loadTemplate(filename) {
@@ -203,4 +218,4 @@ function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, s
     return { loadTemplate, applySiteConfig, generateSocialLinks: () => socialLinks, shared };
 }
 
-module.exports = { createEngine, generateThemeScript, generateLogoIcon, generateSocialLinks, injectPartials, autoLineBreak, versionAssetUrls };
+module.exports = { createEngine, generateThemeScript, generateLogoIcon, generateSocialLinks, injectPartials, autoLineBreak, versionAssetUrls, replacePlaceholder };

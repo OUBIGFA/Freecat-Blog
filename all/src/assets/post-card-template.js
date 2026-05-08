@@ -48,11 +48,19 @@
         const pinned = !!post.pinned;
         const titleText = plainTextFromHtml(titleHtml);
         const desktopPreviewLines = titleText.length >= 24 ? 3 : 4;
+        // 给 <img> 写 width/height 以预留盒子，消除卡片图片加载的 CLS。
+        // 来自 frontmatter cover_width / cover_height（构建期注入）；
+        // 客户端搜索结果场景由 search-index.json 透传同名字段。
+        const coverWidth = parseInt(post.coverWidth, 10) || 0;
+        const coverHeight = parseInt(post.coverHeight, 10) || 0;
+        const coverDimAttrs = (coverWidth > 0 && coverHeight > 0)
+            ? ` width="${coverWidth}" height="${coverHeight}"`
+            : '';
 
         const imageMarkup = cover
             ? `<img src="${cover}"
                     alt="Cover"
-                    class="w-full h-full object-cover"
+                    class="w-full h-full object-cover"${coverDimAttrs}
                     ${IMG_FALLBACK_ATTR}
                     loading="lazy" />`
             : '';

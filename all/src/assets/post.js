@@ -10,33 +10,12 @@
 (function () {
     'use strict';
 
-    var shared = (typeof window !== 'undefined' && window.FreecatShared) || null;
-
-    function copyToClipboard(text) {
-        if (shared && typeof shared.copyText === 'function') {
-            return shared.copyText(text);
-        }
-        if (navigator.clipboard && window.isSecureContext) {
-            return navigator.clipboard.writeText(text);
-        }
-        var textarea = document.createElement('textarea');
-        textarea.value = text;
-        textarea.style.position = 'fixed';
-        textarea.style.left = '-9999px';
-        textarea.style.top = '-9999px';
-        document.body.appendChild(textarea);
-        textarea.focus();
-        textarea.select();
-        return new Promise(function (resolve, reject) {
-            try {
-                document.execCommand('copy') ? resolve() : reject();
-            } catch (err) {
-                reject(err);
-            } finally {
-                textarea.remove();
-            }
-        });
-    }
+    // shared.js 在 main.js / post.js 之前加载（template_post.html 中
+    // <script src="../assets/shared.js"> 已先于本文件）。
+    // 直接断言其存在，缺失 = 加载顺序被破坏，应早失败。
+    var shared = window.FreecatShared;
+    if (!shared) throw new Error('FreecatShared not loaded — ensure shared.js loads before post.js');
+    var copyToClipboard = shared.copyText;
 
     // 复制按钮 + 折叠按钮统一委托
     document.addEventListener('click', function (e) {
@@ -131,11 +110,8 @@
         initCodeFolding();
     }
 
-    // 折叠相关辅助样式动态注入（避免侵入主样式表）
-    var foldStyles = '.collapsed-code .code-content{overflow-y:hidden!important;}.collapsed-code .code-fold-controls{display:flex!important;}';
-    var styleSheet = document.createElement('style');
-    styleSheet.innerText = foldStyles;
-    document.head.appendChild(styleSheet);
+    // 代码块折叠辅助样式（.collapsed-code .code-content / .code-fold-controls）
+    // 已挪到 transitions.css，不再运行时注入。
 
     // Back-to-top / Scroll-to-bottom / Floating Go Back
     var backToTopBtn = document.getElementById('back-to-top');

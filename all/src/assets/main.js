@@ -1,40 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     // 共享工具：构建期 build.js 与浏览器期共用，避免重复实现
-    // 见 ./shared.js（必须先于 main.js 加载）
+    // shared.js 必须先于 main.js 加载（partials/scripts-end.html 与
+    // template_post.html 的 <script> 顺序已保证这点）。
+    // 不再保留运行时回退 —— 真正缺失说明加载顺序被人破坏，应早失败。
     // ============================================================
-    const shared = window.FreecatShared || {};
-    const escapeHtml = shared.escapeHtml || function (t) {
-        const div = document.createElement('div');
-        div.textContent = t == null ? '' : String(t);
-        return div.innerHTML;
-    };
-    const processTitleHtml = shared.processTitleHtml || function (t) {
-        return String(t || '').replace(/\|/g, '<span class="font-normal mx-[1px]">|</span>');
-    };
-    const renderTagSpan = shared.renderTagSpan;
-    const copyText = shared.copyText || function (text) {
-        if (navigator.clipboard && window.isSecureContext) {
-            return navigator.clipboard.writeText(text);
-        }
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        textarea.setAttribute('readonly', '');
-        textarea.style.position = 'fixed';
-        textarea.style.left = '-9999px';
-        textarea.style.top = '-9999px';
-        document.body.appendChild(textarea);
-        textarea.select();
-        return new Promise((resolve, reject) => {
-            try {
-                document.execCommand('copy') ? resolve() : reject(new Error('Copy failed'));
-            } catch (err) {
-                reject(err);
-            } finally {
-                textarea.remove();
-            }
-        });
-    };
+    const shared = window.FreecatShared;
+    if (!shared) throw new Error('FreecatShared not loaded — ensure shared.js loads before main.js');
+    const { escapeHtml, processTitleHtml, renderTagSpan, copyText } = shared;
 
     // ============================================================
     // [Feature] 代码块复制按钮（首页/全部/搜索页可能也有代码片段）
@@ -386,10 +359,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (postsList && paginationContainer) {
         // url -> Promise<htmlText>。失败时自动从 Map 里清掉，允许下次重试。
+        // LRU 上限：每条缓存大小约 50–200KB，限制 10 条 ≈ 上限 2MB，
+        // 防止用户长时间在分页器上来回悬停导致内存无界增长。
+        // 命中时 delete + set 把它移到尾部，淘汰时取首部（Map 的插入序）。
         const pageCache = new Map();
+        const PAGE_CACHE_MAX = 10;
+
+        function touchCache(url, value) {
+            if (pageCache.has(url)) pageCache.delete(url);
+            pageCache.set(url, value);
+            while (pageCache.size > PAGE_CACHE_MAX) {
+                const oldestKey = pageCache.keys().next().value;
+                pageCache.delete(oldestKey);
+            }
+        }
 
         function prefetchPage(url) {
-            if (pageCache.has(url)) return pageCache.get(url);
+            if (pageCache.has(url)) {
+                const cached = pageCache.get(url);
+                touchCache(url, cached);
+                return cached;
+            }
             const ac = new AbortController();
             const timer = setTimeout(() => ac.abort(), PAGE_FETCH_TIMEOUT_MS);
             const p = fetch(url, { credentials: 'same-origin', signal: ac.signal })
@@ -402,7 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     pageCache.delete(url);
                     throw err;
                 });
-            pageCache.set(url, p);
+            touchCache(url, p);
             return p;
         }
 
@@ -532,88 +522,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let searchIndex = null;
     const dropdownCloseMs = getCssDurationMs('--dropdown-close-dur', 150);
     const panelCloseMs = getCssDurationMs('--panel-close-dur', 350);
-    const searchBlurStyleId = 'search-blur-style';
-    function ensureSearchBlurStyles() {
-        if (document.getElementById(searchBlurStyleId)) return;
-        const style = document.createElement('style');
-        style.id = searchBlurStyleId;
-        style.textContent = `
-            body.search-active {
-                overflow: hidden !important;
-            }
-            header {
-                overflow: visible;
-            }
-
-            .search-active #search-container {
-                position: absolute;
-                left: 50%;
-                top: 50%;
-                right: auto;
-                transform: translate(-50%, -50%);
-                width: min(760px, calc(100vw - 8rem));
-                max-width: 760px;
-                z-index: 80;
-            }
-            @media (max-width: 767px) {
-                .search-active #search-container {
-                    width: calc(100vw - 5.5rem);
-                    min-width: 0;
-                }
-            }
-            
-            .search-active .page-blur-target {
-                filter: blur(4px);
-                opacity: 0.18;
-                pointer-events: none;
-                transition: filter 0.2s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
-                position: relative;
-            }
-            
-            .search-active .page-blur-target::before {
-                content: '';
-                position: fixed;
-                left: 0;
-                top: 0;
-                right: 0;
-                bottom: 0;
-                background: radial-gradient(
-                    ellipse at center,
-                    rgba(255, 255, 255, 0.65) 0%,
-                    rgba(255, 255, 255, 0.95) 100%
-                );
-                pointer-events: none;
-                z-index: 1;
-            }
-            
-            .dark .search-active .page-blur-target::before {
-                background: radial-gradient(
-                    ellipse at center,
-                    rgba(0, 0, 0, 0.45) 0%,
-                    rgba(0, 0, 0, 0.8) 100%
-                );
-            }
-            .search-active .header-blur-target {
-                opacity: 0;
-                pointer-events: none;
-                /* 不加 transition：搜索打开时直接隐藏，关闭时也直接复位，
-                   避免取消搜索后导航栏图标延迟出现 */
-            }
-             #search-results-overlay {
-                position: fixed;
-                inset-inline: 0;
-                bottom: 0;
-                backdrop-filter: blur(10px);
-                background-color: rgba(255, 255, 255, 0.8) !important;
-                overflow-y: auto;
-                pointer-events: auto;
-            }
-            .dark #search-results-overlay {
-                background-color: rgba(11, 15, 26, 0.8) !important;
-            }
-        `;
-        document.head.appendChild(style);
-    }
+    // 顶栏搜索的遮罩 / 输入框定位 / overlay 样式已挪到 transitions.css，
+    // 这里不再运行时注入。
 
     // 按需加载搜索索引
     async function loadSearchIndex() {
@@ -670,7 +580,6 @@ document.addEventListener('DOMContentLoaded', () => {
         searchContainer.classList.add('t-panel-slide');
         searchContainer.dataset.open = 'false';
         searchToggle.dataset.uiState = 'idle';
-        ensureSearchBlurStyles();
         searchToggle.addEventListener('click', async () => {
             searchContainer.classList.remove('hidden');
             searchContainer.classList.add('flex');
@@ -814,7 +723,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (results.length === 0) {
             overlay.innerHTML = `
                 <div class="max-w-[1200px] mx-auto px-6 sm:px-8 py-10 text-center">
-                    <span class="material-symbols-outlined text-6xl text-gray-300 dark:text-gray-600 mb-4">search_off</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"
+                        class="inline-block w-16 h-16 text-gray-300 dark:text-gray-600 mb-4">
+                        <path d="M2.39732 1.86908L4.15967 0.107422L23.2796 19.2273L21.5176 20.9897L18.0309 17.5031C16.4909 18.7351 14.5379 19.5 12.4 19.5C7.43168 19.5 3.4 15.4683 3.4 10.5C3.4 8.36211 4.16493 6.40911 5.39686 4.86908L2.39732 1.86908ZM6.81106 6.28332C5.95212 7.4458 5.4 8.91211 5.4 10.5C5.4 14.3675 8.5325 17.5 12.4 17.5C13.9879 17.5 15.4542 16.9479 16.6167 16.0889L6.81106 6.28332ZM12.4 1.5C17.3683 1.5 21.4 5.53168 21.4 10.5C21.4 12.4458 20.7888 14.2542 19.7556 15.7349L18.3115 14.2908C19.0606 13.2168 19.4 11.9035 19.4 10.5C19.4 6.6325 16.2675 3.5 12.4 3.5C10.9965 3.5 9.6832 3.83942 8.6092 4.58849L7.16511 3.14441C8.6458 2.11119 10.4542 1.5 12.4 1.5Z"/>
+                    </svg>
                     <p class="text-gray-500 dark:text-gray-400 text-lg">No results found for "<strong>${escapeHtml(query)}</strong>"</p>
                     <p class="text-gray-400 dark:text-gray-500 text-sm mt-2">Try different keywords</p>
                 </div>
@@ -834,6 +746,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 modifiedDate: post.modifiedDate,
                 tagsHtml,
                 cover: post.cover,
+                coverWidth: post.coverWidth,
+                coverHeight: post.coverHeight,
                 pinned: post.pinned
             }) : '';
         }).join('');
@@ -941,6 +855,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 modifiedDate: post.modifiedDate,
                 tagsHtml,
                 cover: post.cover,
+                coverWidth: post.coverWidth,
+                coverHeight: post.coverHeight,
                 pinned: post.pinned
             }) : '';
         }).join('');

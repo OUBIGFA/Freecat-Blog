@@ -109,6 +109,11 @@ function createTocHarness() {
                     return name === '--freecat-header-safe-gap' ? '24px' : '';
                 }
             };
+        },
+        // post.js 现在 fail-fast，要求 window.FreecatShared 已挂载（生产
+        // 环境由 shared.js 提供）。给测试 harness 一个最小存根即可。
+        FreecatShared: {
+            copyText: () => Promise.resolve()
         }
     };
     document.defaultView = window;

@@ -417,3 +417,97 @@ body.search-active .page-blur-target::before {
     }
 }
 
+
+/* ============================================================
+ * 顶栏搜索激活时的遮罩 / 输入框定位（曾在 main.js 运行时注入，
+ * 现挪到静态 CSS：避免首次激活搜索时的样式重排 + FOUC，
+ * 也让样式可走 CSS 缓存，不必每次刷新页面再走 JS 注入）。
+ * 入口：body.search-active 由 #search-toggle 的 click handler 切换。
+ * ============================================================ */
+body.search-active {
+    overflow: hidden !important;
+}
+header {
+    overflow: visible;
+}
+
+.search-active #search-container {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    right: auto;
+    transform: translate(-50%, -50%);
+    width: min(760px, calc(100vw - 8rem));
+    max-width: 760px;
+    z-index: 80;
+}
+@media (max-width: 767px) {
+    .search-active #search-container {
+        width: calc(100vw - 5.5rem);
+        min-width: 0;
+    }
+}
+
+.search-active .page-blur-target {
+    filter: blur(4px);
+    opacity: 0.18;
+    pointer-events: none;
+    transition: filter 0.2s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
+    position: relative;
+}
+
+.search-active .page-blur-target::before {
+    content: '';
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(255, 255, 255, 0.65) 0%,
+        rgba(255, 255, 255, 0.95) 100%
+    );
+    pointer-events: none;
+    z-index: 1;
+}
+
+.dark .search-active .page-blur-target::before {
+    background: radial-gradient(
+        ellipse at center,
+        rgba(0, 0, 0, 0.45) 0%,
+        rgba(0, 0, 0, 0.8) 100%
+    );
+}
+
+.search-active .header-blur-target {
+    opacity: 0;
+    pointer-events: none;
+    /* 不加 transition：搜索打开时直接隐藏，关闭时也直接复位，
+       避免取消搜索后导航栏图标延迟出现 */
+}
+
+#search-results-overlay {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0.8) !important;
+    overflow-y: auto;
+    pointer-events: auto;
+}
+.dark #search-results-overlay {
+    background-color: rgba(11, 15, 26, 0.8) !important;
+}
+
+/* ============================================================
+ * 代码块折叠（曾在 post.js 运行时注入，现挪到静态 CSS）。
+ * 文章页才用到，但放这里和搜索遮罩一并加载，能让 CSS 缓存命中更稳定，
+ * 减少 FOUC；体积也只有几行，不构成额外负担。
+ * ============================================================ */
+.collapsed-code .code-content {
+    overflow-y: hidden !important;
+}
+.collapsed-code .code-fold-controls {
+    display: flex !important;
+}

@@ -26,6 +26,8 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir }) {
             tags: Array.isArray(post.tag) ? post.tag : (post.tag ? [post.tag] : []),
             link: post.link,
             cover: post.cover,
+            coverWidth: post.coverWidth || 0,
+            coverHeight: post.coverHeight || 0,
             pinned: post.pinned,
             modifiedDate: post.modifiedDate.tz('Asia/Shanghai').format('YYYY-MM-DD')
         };
@@ -49,7 +51,7 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir }) {
         image: seo.defaultImage(siteConfig, seoConfig),
         noindex: true
     });
-    fs.writeFileSync(path.join(outputDir, 'search.html'), template.replace('<!-- SEARCH_SEO_HEAD -->', seoHead));
+    fs.writeFileSync(path.join(outputDir, 'search.html'), template.replace('<!-- SEARCH_SEO_HEAD -->', () => seoHead));
     console.log('  Generated: search.html');
 }
 

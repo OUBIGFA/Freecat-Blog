@@ -289,6 +289,38 @@ function normalizeImageHref(href) {
     return raw;
 }
 
+// 解析图片 markdown title 中的尺寸标记。
+//   ![alt](src "1200x800")           → width=1200, height=800, cleanTitle=''
+//   ![alt](src "Cover 1200x800")     → width=1200, height=800, cleanTitle='Cover'
+//   ![alt](src "width=1200 height=800") → 同上
+//   ![alt](src "Caption")            → cleanTitle='Caption'，无尺寸
+// 仅识别 2–5 位整数像素，避免误吞捕获普通 "10x" / 年份等噪声。
+// 大小写不敏感；× / x 都接受。
+function parseImageDimensions(title) {
+    const raw = String(title == null ? '' : title);
+    if (!raw) return { width: '', height: '', cleanTitle: '' };
+
+    // 1) "width=W height=H" 显式写法（顺序可能与文档约定相反，宽松一点）
+    const explicit = raw.match(/\b(width|w)\s*=\s*(\d{2,5})[\s,]*\b(height|h)\s*=\s*(\d{2,5})\b/i)
+        || raw.match(/\b(height|h)\s*=\s*(\d{2,5})[\s,]*\b(width|w)\s*=\s*(\d{2,5})\b/i);
+    if (explicit) {
+        const isWidthFirst = /^(width|w)/i.test(explicit[1]);
+        const width = isWidthFirst ? explicit[2] : explicit[4];
+        const height = isWidthFirst ? explicit[4] : explicit[2];
+        const cleanTitle = raw.replace(explicit[0], '').replace(/\s{2,}/g, ' ').trim();
+        return { width, height, cleanTitle };
+    }
+
+    // 2) "WxH" 紧凑写法
+    const compact = raw.match(/\b(\d{2,5})\s*[x×]\s*(\d{2,5})\b/);
+    if (compact) {
+        const cleanTitle = raw.replace(compact[0], '').replace(/\s{2,}/g, ' ').trim();
+        return { width: compact[1], height: compact[2], cleanTitle };
+    }
+
+    return { width: '', height: '', cleanTitle: raw.trim() };
+}
+
 // ===== TOC 与标题 ID =====
 function createUniqueHeadingId(rawId, usedIds, fallbackId) {
     const baseId = rawId || fallbackId;
@@ -663,26 +695,49 @@ const calloutBlockExtension = {
 };
 
 // ===== marked 自定义渲染器 =====
+function isExternalLinkHref(href) {
+    const raw = String(href == null ? '' : href).trim();
+    if (!raw) return false;
+    // 锚点 / 相对路径 / 同站绝对路径都视为内部链接，不开新页签
+    if (raw.startsWith('#') || raw.startsWith('/') || raw.startsWith('./') || raw.startsWith('../')) return false;
+    // mailto / tel / sms 等也不开新页签（OS 接管）
+    if (/^(mailto:|tel:|sms:)/i.test(raw)) return false;
+    return /^(https?:)?\/\//i.test(raw);
+}
+
 function buildRenderer() {
     const renderer = new marked.Renderer();
     const linkRenderer = renderer.link;
     renderer.link = (href, title, text) => {
         const html = linkRenderer.call(renderer, href, title, text);
-        return html.replace(/^<a /, '<a target="_blank" ');
+        // 仅给外链开 _blank，并补 rel=noopener noreferrer 防 tab-nabbing
+        // 注：marked 已对 href 做了 URL 规范化，此处用渲染前的 href 判定是否外链
+        if (!isExternalLinkHref(href)) return html;
+        return html.replace(/^<a /, '<a target="_blank" rel="noopener noreferrer" ');
     };
 
     renderer.image = (href, title, text) => {
         const fallbackSrc = '/image/404.png';
         const safeHref = normalizeImageHref(href).replace(/"/g, '&quot;');
         const safeAlt = (text || '').replace(/"/g, '&quot;');
-        const safeTitle = title ? ` title="${title.replace(/"/g, '&quot;')}"` : '';
-        const caption = (title && title.trim()) ? title.trim() : (text || '').trim();
+
+        // 从 markdown 图片 title 中解析尺寸，写入 width/height 属性，
+        // 让浏览器在加载图片前就预留盒子，消除 CLS（Core Web Vitals）。
+        // 支持两种写法：![alt](src "1200x800") 或 ![alt](src "Title 1200x800")
+        // 也支持 width=1200 height=800 的形式。提取后从可见 title / caption 中剥离。
+        const dims = parseImageDimensions(title);
+        const dimAttrs = (dims.width && dims.height)
+            ? ` width="${dims.width}" height="${dims.height}"`
+            : '';
+        const visibleTitle = dims.cleanTitle;
+        const safeTitle = visibleTitle ? ` title="${visibleTitle.replace(/"/g, '&quot;')}"` : '';
+        const caption = visibleTitle || (text || '').trim();
         const enableCaption = Boolean(activePostOptions && activePostOptions.enableImageCaptions);
 
         return `
     <figure class="post-image relative w-full">
         <span class="loader absolute top-12 left-12 z-10" style="display:none"></span>
-        <img src="${safeHref}" alt="${safeAlt}"${safeTitle}
+        <img src="${safeHref}" alt="${safeAlt}"${safeTitle}${dimAttrs}
             onerror="if(this.dataset.fallbackApplied!=='true'){
                 this.dataset.fallbackApplied='true';
                 this.removeAttribute('srcset');
@@ -765,6 +820,11 @@ function setup() {
     _setupDone = true;
 }
 
+// ⚠️ 非线程安全：parseMarkdown 通过模块级全局 (activeFootnoteContext / activePostOptions)
+// 把脚注上下文和图片标题选项穿透给 marked 扩展。函数内部用 try-finally 风格的
+// previous-restore 保护「同步嵌套调用」（如 callout 内嵌 markdown），但若未来
+// 引入 worker / 并行渲染多篇文章，这两个全局会被串扰。
+// 真要并行的话，需要把 ctx 塞进 marked 扩展的 tokenizer/renderer 闭包参数里。
 function parseMarkdown(content, { includeFootnotesSection = true, enableImageCaptions = false } = {}) {
     setup();
     const prepared = prepareMarkdownSpacing(preserveMarkdownGaps(content || ''));
