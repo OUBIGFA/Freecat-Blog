@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { stripMarkdown } = require('../markdown.js');
+const seo = require('../seo.js');
 
 // 搜索索引每篇文章正文的截断字符数（够命中关键词，又不会让 index 文件爆炸）
 const SEARCH_CONTENT_MAX_CHARS = 1500;
@@ -8,7 +9,7 @@ const SEARCH_CONTENT_MAX_CHARS = 1500;
 /**
  * 生成搜索索引 (search-index.json) + 搜索页 (search.html)。
  */
-function generate({ posts, template, outputDir }) {
+function generate({ posts, template, siteConfig, seoConfig, outputDir }) {
     console.log('🔍 Generating search index...');
     const searchIndex = posts.map(post => {
         const stripped = stripMarkdown(post.content);
@@ -38,7 +39,17 @@ function generate({ posts, template, outputDir }) {
     console.log('  Generated: search-index.json');
 
     console.log('🔎 Generating search page...');
-    fs.writeFileSync(path.join(outputDir, 'search.html'), template);
+    const title = `Search - ${siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog'}`;
+    const seoHead = seo.renderHeadTags({
+        title,
+        description: `Search articles from ${siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog'}.`,
+        canonicalPath: '/search.html',
+        siteConfig,
+        seoConfig,
+        image: seo.defaultImage(siteConfig, seoConfig),
+        noindex: true
+    });
+    fs.writeFileSync(path.join(outputDir, 'search.html'), template.replace('<!-- SEARCH_SEO_HEAD -->', seoHead));
     console.log('  Generated: search.html');
 }
 

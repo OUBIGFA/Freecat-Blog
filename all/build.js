@@ -32,7 +32,7 @@ const indexPage = require('./build/pages/index.js');
 const allPage = require('./build/pages/all.js');
 const searchPage = require('./build/pages/search.js');
 const aboutPage = require('./build/pages/about.js');
-const { generateSitemap, generateRobotsTxt } = require('./build/pages/sitemap.js');
+const { generateSitemap, generateRobotsTxt, generateLlmsTxt, generateFeed } = require('./build/pages/sitemap.js');
 
 // ===== 路径常量 =====
 const DEFAULT_POSTS_PER_PAGE = 8;
@@ -94,6 +94,19 @@ const ASSET_VERSION = process.env.CF_PAGES_COMMIT_SHA || process.env.COMMIT_SHA 
 console.log('📱 Loading social media configuration...');
 const socialConfig = loadConfig(DIRS.control, 'social', 'social.md', SOCIAL_DEFAULTS);
 
+console.log('🔎 Loading SEO configuration...');
+const seoConfig = loadConfig(DIRS.control, 'SEO', 'SEO_搜索优化.md', {
+    site_url: '',
+    site_description: '',
+    site_language: 'zh-CN',
+    site_author: '',
+    site_author_url: '',
+    site_default_image: '',
+    allow_ai_crawlers: true,
+    enable_llms_txt: true
+});
+if (seoConfig.site_url) siteConfig.site_url = seoConfig.site_url;
+
 console.log('👤 Loading about page configuration...');
 const aboutConfig = loadConfig(DIRS.control, 'about', 'about.md', {
     about_hero_title: '',
@@ -106,6 +119,7 @@ const engine = createEngine({
     templatesDir: DIRS.templates,
     partialsDir: DIRS.partials,
     siteConfig,
+    seoConfig,
     socialConfig,
     assetVersion: ASSET_VERSION
 });
@@ -121,13 +135,15 @@ console.log('📝 Processing posts...');
 const allPosts = postPage.loadPosts({ postsDir: DIRS.posts, gitDates });
 
 // ===== 6. 生成各页面 =====
-postPage.generateAll({ posts: allPosts, template: tplPost, siteConfig, outputDir: DIRS.output });
-indexPage.generateAll({ posts: allPosts, template: tplIndex, postsPerPage: POSTS_PER_PAGE, outputDir: DIRS.output });
-allPage.generate({ posts: allPosts, template: tplIndexAll, outputDir: DIRS.output });
-searchPage.generate({ posts: allPosts, template: tplSearch, outputDir: DIRS.output });
-aboutPage.generate({ template: tplAbout, siteConfig, aboutConfig, outputDir: DIRS.output });
-generateSitemap({ posts: allPosts, siteConfig, outputDir: DIRS.output });
-generateRobotsTxt({ siteConfig, outputDir: DIRS.output });
+postPage.generateAll({ posts: allPosts, template: tplPost, siteConfig, seoConfig, outputDir: DIRS.output });
+indexPage.generateAll({ posts: allPosts, template: tplIndex, postsPerPage: POSTS_PER_PAGE, siteConfig, seoConfig, outputDir: DIRS.output });
+allPage.generate({ posts: allPosts, template: tplIndexAll, siteConfig, seoConfig, outputDir: DIRS.output });
+searchPage.generate({ posts: allPosts, template: tplSearch, siteConfig, seoConfig, outputDir: DIRS.output });
+aboutPage.generate({ template: tplAbout, siteConfig, seoConfig, aboutConfig, outputDir: DIRS.output });
+generateSitemap({ posts: allPosts, siteConfig, seoConfig, outputDir: DIRS.output });
+generateRobotsTxt({ siteConfig, seoConfig, outputDir: DIRS.output });
+generateLlmsTxt({ posts: allPosts, siteConfig, seoConfig, outputDir: DIRS.output });
+generateFeed({ posts: allPosts, siteConfig, seoConfig, outputDir: DIRS.output });
 
 // ===== 7. 复制部署平台配置 (_headers / vercel.json) =====
 const deployConfigs = ['_headers', 'vercel.json'];

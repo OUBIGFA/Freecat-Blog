@@ -358,7 +358,8 @@ show: true
 
 | 文件 | 负责什么 |
 | --- | --- |
-| `site_网站属性.md` | 网站标题、站点名、首页介绍、头像、主题、正式域名 |
+| `site_网站属性.md` | 网站标题、站点名、首页介绍、头像、主题 |
+| `SEO_搜索优化.md` | 正式域名、SEO 摘要、作者信息、AI 爬虫和 llms.txt |
 | `social_社交媒体.md` | 社交媒体图标、主页链接、联系方式、推广链接 |
 | `about_关于页面.md` | About 页面的标题、介绍和头像 |
 
@@ -395,7 +396,7 @@ hero_title: Hi, I'm FreeCat.
 | `theme_system` | 跟随系统明暗模式 |
 | `theme_light` | 强制浅色模式 |
 | `theme_dark` | 强制深色模式 |
-| `site_url` | 你的正式网站地址，用于生成 Sitemap |
+| 正式域名请在 `SEO_搜索优化.md` 里的 `site_url` 字段填写，用于生成 Sitemap、Canonical、RSS 和 llms.txt。 |
 
 > 主题设置只需要让 `theme_system`、`theme_light`、`theme_dark` 中**其中一个**为 `true`。
 
@@ -475,6 +476,7 @@ npm run build
 Freecat-Blog/
 ├── Control/                # 网站基础配置，新手主要改这里
 │   ├── site_网站属性.md
+│   ├── SEO_搜索优化.md
 │   ├── social_社交媒体.md
 │   └── about_关于页面.md
 ├── writing/                # 文章 Markdown 源文件,新手主要写这里

@@ -5,6 +5,7 @@ const matter = require('gray-matter');
 const shared = require('../../src/assets/shared.js');
 const { autoSpacing, autoSpacingHtml, applyParagraphAlignment, parseMarkdown, extractHeadingsAndGenerateTOC, addHeadingIds } = require('../markdown.js');
 const { stripMarkdown } = require('../markdown.js');
+const seo = require('../seo.js');
 
 /**
  * 读取 writing/ 目录下的所有 Markdown 文章并归一化为 post 对象数组。
@@ -44,6 +45,7 @@ function loadPosts({ postsDir, gitDates }) {
         const previewRaw = data.description || cleanContent;
         const excerptRaw = data.description || (cleanContent.slice(0, 160) + (cleanContent.length > 160 ? '...' : ''));
         const titleRaw = (data.title && String(data.title).trim()) ? data.title : slug;
+        const faqItems = seo.normalizeFaq(data.faq);
 
         posts.push({
             title: autoSpacing(titleRaw),
@@ -52,12 +54,17 @@ function loadPosts({ postsDir, gitDates }) {
             modifiedDate,
             excerpt: autoSpacing(excerptRaw),
             preview: autoSpacing(previewRaw),
+            summary: data.summary ? autoSpacing(data.summary) : '',
             cover: data.cover || '',
             tag: data.tag || data.tags || [],
             link: `/posts/${slug}.html`,
             showCover: data.show_cover !== false,
             pinned: data.pinned === true,
             enableImageCaptions,
+            author: data.author || '',
+            authorUrl: data.author_url || data.authorUrl || '',
+            noindex: data.noindex === true,
+            faq: faqItems,
             content,
             rawTitle: data.title
         });
@@ -75,10 +82,11 @@ function loadPosts({ postsDir, gitDates }) {
 /**
  * 渲染单篇文章详情页 HTML。
  */
-function renderPostPage({ post, template, siteConfig }) {
+function renderPostPage({ post, template, siteConfig, seoConfig }) {
     const { toc, headings } = extractHeadingsAndGenerateTOC(post.content);
     let contentHtml = parseMarkdown(post.content, { enableImageCaptions: post.enableImageCaptions });
-    contentHtml = addHeadingIds(contentHtml, headings);
+    const articleHeadings = headings.map(h => ({ ...h, level: Math.min(h.level + 1, 6) }));
+    contentHtml = addHeadingIds(contentHtml, articleHeadings);
 
     const safeCover = shared.escapeHtml(String(post.cover || ''));
     const safeTitle = shared.escapeHtml(post.title);
@@ -102,13 +110,12 @@ function renderPostPage({ post, template, siteConfig }) {
     const tagsHtml = tags.map(t => shared.renderTagSpan(t)).join('\n');
     let finalContentHtml = autoSpacingHtml(contentHtml);
     finalContentHtml = applyParagraphAlignment(finalContentHtml);
+    finalContentHtml += seo.renderFaqHtml(post.faq || []);
 
     const baseUrl = String(siteConfig.site_url || '');
-    const canonical = baseUrl ? `${baseUrl}${post.link}` : post.link;
+    const canonical = seo.pageUrl(siteConfig, post.link);
     const rawCover = String(post.cover || '');
-    const ogImage = rawCover && /^https?:\/\//i.test(rawCover)
-        ? rawCover
-        : (baseUrl && rawCover ? `${baseUrl}${rawCover}` : rawCover);
+    const ogImage = seo.absoluteUrl(siteConfig, rawCover || seo.defaultImage(siteConfig, seoConfig));
 
     // 按需加载：扫描渲染后的 HTML，只为真正用到的特性引入对应 CSS/JS
     const needsHighlight = /<pre[^>]*><code/i.test(finalContentHtml);
@@ -128,37 +135,33 @@ function renderPostPage({ post, template, siteConfig }) {
         ? '<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>'
         : '';
 
-    // JSON-LD Article schema（结构化数据 → SEO + 富片段）
-    const jsonLdObj = {
-        '@context': 'https://schema.org',
-        '@type': 'BlogPosting',
-        headline: post.title,
-        description: post.excerpt,
-        datePublished: post.date.toISOString(),
-        dateModified: post.modifiedDate.toISOString(),
-        author: { '@type': 'Person', name: siteConfig.site_name || 'FreeCat' },
-        publisher: { '@type': 'Organization', name: siteConfig.site_name || 'FreeCat' },
-        mainEntityOfPage: { '@type': 'WebPage', '@id': canonical }
-    };
-    if (ogImage) jsonLdObj.image = ogImage;
-    if (tags.length) jsonLdObj.keywords = tags.join(', ');
-    // JSON.stringify 已经会转义 </script> 中的 / —— 不会，所以单独处理
-    const jsonLdJson = JSON.stringify(jsonLdObj).replace(/<\/script/gi, '<\\/script');
-    const jsonLd = `<script type="application/ld+json">${jsonLdJson}</script>`;
+    const pageTitle = `${post.title} - ${siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog'}`;
+    const seoHead = seo.renderHeadTags({
+        title: pageTitle,
+        description: seo.articleSummary(post),
+        canonicalPath: post.link,
+        siteConfig,
+        seoConfig,
+        type: 'article',
+        image: rawCover || seo.defaultImage(siteConfig, seoConfig),
+        noindex: post.noindex,
+        tags,
+        publishedTime: post.date.toISOString(),
+        modifiedTime: post.modifiedDate.toISOString()
+    });
+    const jsonLd = seo.renderArticleJsonLd({ post, siteConfig, seoConfig, canonical, ogImage, tags, faqItems: post.faq || [] });
 
     return template
         .replace(/<!-- TITLE_PLACEHOLDER -->/g, safeTitle)
         .replace(/<!-- TITLE_H1_PLACEHOLDER -->/g, shared.processTitleHtml(safeTitle))
         .replace('<!-- TAGS_PLACEHOLDER -->', tagsHtml)
         .replace('<!-- DATE_PLACEHOLDER -->', post.date.tz('Asia/Shanghai').format('YYYY-MM-DD'))
+        .replace('<!-- DATE_ISO_PLACEHOLDER -->', post.date.toISOString())
         .replace('<!-- MODIFIED_PLACEHOLDER -->', post.modifiedDate.tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm'))
         .replace('<!-- COVER_PLACEHOLDER -->', coverHtml)
         .replace('<!-- CONTENT_PLACEHOLDER -->', finalContentHtml)
         .replace('<!-- TOC_PLACEHOLDER -->', toc)
-        .replace(/<!-- POST_DESCRIPTION -->/g, shared.escapeHtml(post.excerpt))
-        .replace(/<!-- POST_KEYWORDS -->/g, shared.escapeHtml(Array.isArray(post.tag) ? post.tag.join(', ') : (post.tag || '')))
-        .replace(/<!-- POST_CANONICAL_URL -->/g, shared.escapeHtml(canonical))
-        .replace(/<!-- POST_IMAGE -->/g, shared.escapeHtml(ogImage))
+        .replace('<!-- POST_SEO_HEAD -->', seoHead)
         .replace('<!-- POST_HEAD_LIBS -->', headLibs)
         .replace('<!-- POST_HIGHLIGHT_CSS -->', highlightCss)
         .replace('<!-- POST_KATEX_CSS -->', katexCss)
@@ -166,10 +169,10 @@ function renderPostPage({ post, template, siteConfig }) {
         .replace('<!-- POST_JSONLD -->', jsonLd);
 }
 
-function generateAll({ posts, template, siteConfig, outputDir }) {
+function generateAll({ posts, template, siteConfig, seoConfig, outputDir }) {
     console.log('📄 Generating post pages...');
     posts.forEach(post => {
-        const html = renderPostPage({ post, template, siteConfig });
+        const html = renderPostPage({ post, template, siteConfig, seoConfig });
         const outFile = path.join(outputDir, 'posts', `${post.slug}.html`);
         fs.writeFileSync(outFile, html);
         console.log(`  Generated: posts/${post.slug}.html`);

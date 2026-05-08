@@ -390,7 +390,8 @@ show: true
 
 | 文件 | 负责什么 |
 | --- | --- |
-| `site_网站属性.md` | 网站标题、站点名、首页介绍、头像、主题、正式域名 |
+| `site_网站属性.md` | 网站标题、站点名、首页介绍、头像、主题 |
+| `SEO_搜索优化.md` | 正式域名、SEO 摘要、作者信息、AI 爬虫和 llms.txt |
 | `social_社交媒体.md` | 社交媒体图标、主页链接、联系方式、推广链接 |
 | `about_关于页面.md` | About 页面的标题、介绍和头像 |
 
@@ -773,7 +774,7 @@ show: true
 | `theme_system` | `true` | 跟随系统：根据浏览器或操作系统设置自动切换明暗 |
 | `theme_light` | `false` | 浅色模式：全站强制使用明亮风格 |
 | `theme_dark` | `false` | 深色模式：全站强制使用暗黑风格 |
-| `site_url` | `https://blog.freeorg.dpdns.org` | 网站正式域名，用于生成 Sitemap 和 Canonical 标签 |
+| 正式域名 | 在 `SEO_搜索优化.md` 的 `site_url` 字段填写 | 用于生成 Sitemap、Canonical、RSS 和 llms.txt |
 
 主题三个开关的搭配规则：
 

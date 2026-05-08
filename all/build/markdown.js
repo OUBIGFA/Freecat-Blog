@@ -84,7 +84,8 @@ function preserveFencedCodeBlocks(content, transform) {
 
 function createMarkdownGapMarker(blankLineCount) {
     const lines = Math.max(0, Number(blankLineCount) || 0);
-    const gapSize = (0.28 + lines * 0.14).toFixed(2);
+    const visualLines = Math.max(0, lines - 1);
+    const gapSize = (visualLines * 0.62).toFixed(2);
     return `<div class="markdown-gap" data-md-gap-lines="${lines}" aria-hidden="true" style="--md-gap-lines:${lines};--md-gap-size:${gapSize}lh"></div>`;
 }
 
@@ -97,8 +98,34 @@ function isStandaloneVisualBlockLine(line) {
     return false;
 }
 
-function shouldPreserveMarkdownGap(_prevLine, nextLine) {
-    return isStandaloneVisualBlockLine(nextLine);
+function shouldPreserveAdjacentMarkdownGap(prevLine, nextLine) {
+    return isStandaloneVisualBlockLine(prevLine) || isStandaloneVisualBlockLine(nextLine);
+}
+
+function isMarkdownListItemLine(line) {
+    return /^ {0,3}(?:[-+*]|\d+[.)])\s+\S/.test(String(line || ''));
+}
+
+function isIndentedMarkdownContinuationLine(line) {
+    return /^(?:\t| {2,})\S/.test(String(line || ''));
+}
+
+function isBlockquoteLine(line) {
+    return /^ {0,3}>/.test(String(line || ''));
+}
+
+function isFootnoteDefinitionLine(line) {
+    return /^ {0,3}\[\^[^\]]+\]:/.test(String(line || ''));
+}
+
+function shouldKeepNativeMarkdownBlankLine(prevLine, nextLine) {
+    return isMarkdownListItemLine(prevLine)
+        || isMarkdownListItemLine(nextLine)
+        || isIndentedMarkdownContinuationLine(nextLine)
+        || isBlockquoteLine(prevLine)
+        || isBlockquoteLine(nextLine)
+        || isFootnoteDefinitionLine(prevLine)
+        || isFootnoteDefinitionLine(nextLine);
 }
 
 function preserveMarkdownGaps(content) {
@@ -109,8 +136,10 @@ function preserveMarkdownGaps(content) {
     let fenceMarker = '';
 
     function appendVisualGapAfterLine(line, nextLine) {
-        if (line.trim() && nextLine && nextLine.trim() && shouldPreserveMarkdownGap(line, nextLine)) {
+        if (line.trim() && nextLine && nextLine.trim() && shouldPreserveAdjacentMarkdownGap(line, nextLine)) {
+            output.push('');
             output.push(createMarkdownGapMarker(0));
+            output.push('');
         }
     }
 
@@ -145,7 +174,7 @@ function preserveMarkdownGaps(content) {
         const prevLine = output.length ? output[output.length - 1] : '';
         const nextNonBlankLine = i + 1 < lines.length ? lines[i + 1] : '';
 
-        if (prevLine.trim() && nextNonBlankLine.trim() && shouldPreserveMarkdownGap(prevLine, nextNonBlankLine)) {
+        if (blankLineCount > 1 && prevLine.trim() && nextNonBlankLine.trim() && !shouldKeepNativeMarkdownBlankLine(prevLine, nextNonBlankLine)) {
             output.push('');
             output.push(createMarkdownGapMarker(blankLineCount));
             output.push('');

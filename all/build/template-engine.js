@@ -164,7 +164,7 @@ function versionAssetUrls(html, assetVersion) {
     );
 }
 
-function createEngine({ templatesDir, partialsDir, siteConfig, socialConfig, assetVersion }) {
+function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, socialConfig, assetVersion }) {
     const themeScript = generateThemeScript(siteConfig);
     const logoIcon = generateLogoIcon(siteConfig);
     const socialLinks = generateSocialLinks(socialConfig);
@@ -188,6 +188,7 @@ function createEngine({ templatesDir, partialsDir, siteConfig, socialConfig, ass
             .replace(/<!-- SITE_LOGO_ICON -->/g, logoIcon)
             .replace(/<!-- THEME_SCRIPT -->/g, themeScript)
             .replace(/<!-- SOCIAL_LINKS -->/g, socialLinks)
+            .replace(/<!-- SITE_LANGUAGE -->/g, escapeText(seoConfig.site_language || 'zh-CN'))
             .replace(/<!-- SITE_URL -->/g, safeUrlField);
     }
 

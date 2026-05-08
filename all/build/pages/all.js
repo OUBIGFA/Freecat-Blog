@@ -1,14 +1,26 @@
 const fs = require('fs');
 const path = require('path');
 const { renderPostCardForList } = require('./index.js');
+const seo = require('../seo.js');
 
 /**
  * 生成 all.html（无分页，按已有顺序展示全部文章）。
  */
-function generate({ posts, template, outputDir }) {
+function generate({ posts, template, siteConfig, seoConfig, outputDir }) {
     console.log('📋 Generating all articles page...');
     const html = posts.map(renderPostCardForList).join('');
-    const out = template.replace('<!-- ALL_POSTS_LIST_PLACEHOLDER -->', html);
+    const title = `All Articles - ${siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog'}`;
+    const seoHead = seo.renderHeadTags({
+        title,
+        description: `All articles from ${siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog'}.`,
+        canonicalPath: '/all.html',
+        siteConfig,
+        seoConfig,
+        image: seo.defaultImage(siteConfig, seoConfig)
+    });
+    const out = template
+        .replace('<!-- ALL_SEO_HEAD -->', seoHead)
+        .replace('<!-- ALL_POSTS_LIST_PLACEHOLDER -->', html);
     fs.writeFileSync(path.join(outputDir, 'all.html'), out);
     console.log('  Generated: all.html');
 }

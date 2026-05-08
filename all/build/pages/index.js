@@ -3,6 +3,7 @@ const path = require('path');
 const shared = require('../../src/assets/shared.js');
 const postCardTemplate = require('../../src/assets/post-card-template.js');
 const { generatePaginationHtml } = require('../pagination.js');
+const seo = require('../seo.js');
 
 /**
  * 渲染分页首页（index.html + page/N/index.html）。
@@ -35,7 +36,7 @@ function renderViewAllLink(totalPages) {
             </a>`;
 }
 
-function generateAll({ posts, template, postsPerPage, outputDir }) {
+function generateAll({ posts, template, postsPerPage, siteConfig, seoConfig, outputDir }) {
     const totalPages = postsPerPage === 0 ? 1 : Math.ceil(posts.length / postsPerPage);
 
     for (let page = 1; page <= totalPages; page++) {
@@ -44,8 +45,24 @@ function generateAll({ posts, template, postsPerPage, outputDir }) {
 
         const postsHtml = pagePosts.map(renderPostCardForList).join('');
         const paginationBtns = generatePaginationHtml(page, totalPages);
+        const title = page === 1
+            ? (siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog')
+            : `${siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog'} - Page ${page}`;
+        const canonicalPath = page === 1 ? '/' : `/page/${page}/`;
+        const seoHead = seo.renderHeadTags({
+            title,
+            description: seo.defaultDescription(siteConfig, seoConfig),
+            canonicalPath,
+            siteConfig,
+            seoConfig,
+            image: seo.defaultImage(siteConfig, seoConfig)
+        });
+        const jsonLd = page === 1 ? seo.renderWebsiteJsonLd({ siteConfig, seoConfig }) : '';
 
         const outputHtml = template
+            .replace(/<title>[\s\S]*?<\/title>/, `<title>${shared.escapeHtml(title)}</title>`)
+            .replace('<!-- HOME_SEO_HEAD -->', seoHead)
+            .replace('<!-- HOME_JSONLD -->', jsonLd)
             .replace('<!-- POSTS_LIST_PLACEHOLDER -->', postsHtml)
             .replace('<!-- PAGINATION_BUTTONS_PLACEHOLDER -->', paginationBtns)
             .replace('<!-- PAGINATION_PLACEHOLDER -->', renderViewAllLink(totalPages));

@@ -357,7 +357,8 @@ Helper tools:
 
 | File | What it controls |
 | --- | --- |
-| `site_网站属性.md` | Site title, site name, home intro, avatar, theme, canonical URL |
+| `site_网站属性.md` | Site title, site name, home intro, avatar, theme |
+| `SEO_搜索优化.md` | Canonical URL, SEO summary, author info, AI crawlers, and llms.txt |
 | `social_社交媒体.md` | Social media icons, profile links, contact, promo links |
 | `about_关于页面.md` | About page title, intro, and avatar |
 
@@ -394,7 +395,7 @@ hero_title: Hi, I'm FreeCat.
 | `theme_system` | Follow system light/dark mode |
 | `theme_light` | Force light mode |
 | `theme_dark` | Force dark mode |
-| `site_url` | Your canonical site URL, used for the sitemap |
+| Put the canonical site URL in `SEO_搜索优化.md` as `site_url`; it is used for Sitemap, Canonical, RSS, and llms.txt output. |
 
 > Theme: only **one** of `theme_system`, `theme_light`, `theme_dark` should be `true`.
 
@@ -474,6 +475,7 @@ The output lives in `all/dist/` — **do not edit it manually and do not commit 
 Freecat-Blog/
 ├── Control/                # Site config — beginners mainly edit here
 │   ├── site_网站属性.md
+│   ├── SEO_搜索优化.md
 │   ├── social_社交媒体.md
 │   └── about_关于页面.md
 ├── writing/                # Article Markdown — beginners mainly write here
