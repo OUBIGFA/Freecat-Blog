@@ -47,3 +47,28 @@ test('rendered heading ids stay aligned with the generated TOC order', () => {
     assert.match(rendered, /<h2 id="repeat"/);
     assert.match(rendered, /<h2 id="repeat-2"/);
 });
+
+test('article heading visual depth follows the original markdown level', () => {
+    const html = '<h3>First visible section</h3>\n<p>Text</p>\n<h4>Child section</h4>';
+    const headings = [
+        { level: 3, text: 'First visible section', id: 'first-visible-section' },
+        { level: 4, text: 'Child section', id: 'child-section' }
+    ];
+
+    const rendered = addHeadingIds(html, headings);
+
+    assert.match(rendered, /<h3 id="first-visible-section" class="[^"]*article-heading-depth-3/);
+    assert.match(rendered, /<h4 id="child-section" class="[^"]*article-heading-depth-4/);
+    assert.doesNotMatch(rendered, /article-heading-depth-1/);
+});
+
+test('rendered heading tag can shift for page semantics without changing visual source level', () => {
+    const html = '<h3>Section</h3>';
+    const headings = [
+        { level: 3, renderedLevel: 4, text: 'Section', id: 'section' }
+    ];
+
+    const rendered = addHeadingIds(html, headings);
+
+    assert.match(rendered, /<h4 id="section" class="[^"]*article-heading-depth-3[^"]*article-heading-source-h3/);
+});

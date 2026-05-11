@@ -1213,6 +1213,12 @@
     --article-body-size: 1.15rem;
     --article-line-height: 1.86;
     --article-rhythm: calc(var(--article-body-size) * var(--article-line-height));
+    --article-heading-h1: calc(var(--article-body-size) * 2.08);
+    --article-heading-h2: calc(var(--article-body-size) * 1.68);
+    --article-heading-h3: calc(var(--article-body-size) * 1.42);
+    --article-heading-h4: calc(var(--article-body-size) * 1.26);
+    --article-heading-h5: calc(var(--article-body-size) * 1.14);
+    --article-heading-h6: calc(var(--article-body-size) * 1.06);
     font-size: var(--article-body-size) !important;
     line-height: var(--article-line-height) !important;
     color: #334155 !important;
@@ -1272,6 +1278,9 @@
     color: #0f172a !important;
     letter-spacing: 0 !important;
     scroll-margin-top: 6rem;
+    position: relative;
+    padding-top: 0;
+    border-top: 0 !important;
 }
 
 .dark .prose .article-heading {
@@ -1279,74 +1288,43 @@
 }
 
 .prose .article-heading-depth-1 {
-    position: relative;
-    font-size: 1.75rem !important;
-    line-height: 1.3 !important;
-    font-weight: 800 !important;
-    margin: calc(var(--article-rhythm) * 1.9) 0 calc(var(--article-rhythm) * 0.62) !important;
-    padding-top: 0;
-    border-top: 0 !important;
-}
-
-.prose .article-heading-depth-1::before {
-    content: "";
-    position: absolute;
-    top: 0.5em;
-    left: calc(var(--article-body-size) * -1.55);
-    width: calc(var(--article-body-size) * 0.55);
-    height: calc(var(--article-body-size) * 0.55);
-    border-radius: 50%;
-    background: #111827;
+    font-size: var(--article-heading-h1) !important;
+    line-height: 1.16 !important;
+    font-weight: 860 !important;
 }
 
 .prose .article-heading-depth-2 {
-    font-size: 1.45rem !important;
-    line-height: 1.35 !important;
-    font-weight: 800 !important;
-    margin: calc(var(--article-rhythm) * 1.35) 0 calc(var(--article-rhythm) * 0.62) !important;
+    font-size: var(--article-heading-h2) !important;
+    line-height: 1.22 !important;
+    font-weight: 840 !important;
 }
 
 .prose .article-heading-depth-3 {
-    font-size: 1.2rem !important;
-    line-height: 1.45 !important;
-    font-weight: 750 !important;
-    margin: calc(var(--article-rhythm) * 1.05) 0 calc(var(--article-rhythm) * 0.52) !important;
+    font-size: var(--article-heading-h3) !important;
+    line-height: 1.3 !important;
+    font-weight: 820 !important;
     color: #1e293b !important;
 }
 
 .prose .article-heading-depth-4 {
-    font-size: 1.05rem !important;
-    line-height: 1.5 !important;
+    font-size: var(--article-heading-h4) !important;
+    line-height: 1.34 !important;
     font-weight: 800 !important;
-    margin: calc(var(--article-rhythm) * 0.9) 0 calc(var(--article-rhythm) * 0.44) !important;
+    color: #334155 !important;
+}
+
+.prose .article-heading-depth-5 {
+    font-size: var(--article-heading-h5) !important;
+    line-height: 1.38 !important;
+    font-weight: 790 !important;
     color: #475569 !important;
 }
 
-@media (min-width: 768px) {
-    .prose .article-heading-depth-1 {
-        font-size: 2.808rem !important;
-    }
-
-    .prose .article-heading-depth-1::before {
-        top: 0.5em;
-        left: calc(var(--article-body-size) * -1.85);
-    }
-
-    .prose .article-heading-depth-2 {
-        font-size: 1.72rem !important;
-    }
-
-    .prose .article-heading-depth-3 {
-        font-size: 1.35rem !important;
-    }
-
-    .prose .article-heading-depth-4 {
-        font-size: 1.12rem !important;
-    }
-}
-
-.dark .prose .article-heading-depth-1::before {
-    background: #e2e8f0;
+.prose .article-heading-depth-6 {
+    font-size: var(--article-heading-h6) !important;
+    line-height: 1.42 !important;
+    font-weight: 800 !important;
+    color: #526174 !important;
 }
 
 .dark .prose .article-heading-depth-3 {
@@ -1355,6 +1333,11 @@
 
 .dark .prose .article-heading-depth-4 {
     color: #bac6d6 !important;
+}
+
+.dark .prose .article-heading-depth-5,
+.dark .prose .article-heading-depth-6 {
+    color: #aebacc !important;
 }
 
 .prose>.article-heading:first-child {
@@ -1520,6 +1503,8 @@
     --article-space-heading-peer-2: 2.8rem;
     --article-space-heading-peer-3: 2.35rem;
     --article-space-heading-peer-4: 1.9rem;
+    --article-space-heading-peer-5: 1.7rem;
+    --article-space-heading-peer-6: 1.55rem;
     --article-space-divider-before: 2.5rem;
     --article-space-divider-after: 1.7rem;
 }
@@ -1785,4 +1770,29 @@
 .prose.prose hr+:where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .embed, .video-embed, .audio-player),
 .prose.prose hr+.markdown-gap+:where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .embed, .video-embed, .audio-player) {
     margin-block-start: var(--article-space-divider-after) !important;
+}
+
+.prose.prose .article-heading-depth-5+:where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .embed, .video-embed, .audio-player),
+.prose.prose .article-heading-depth-5+.markdown-gap+:where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .embed, .video-embed, .audio-player),
+.prose.prose .article-heading-depth-6+:where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .embed, .video-embed, .audio-player),
+.prose.prose .article-heading-depth-6+.markdown-gap+:where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .embed, .video-embed, .audio-player) {
+    margin-block-start: var(--article-space-heading-to-content) !important;
+}
+
+.prose.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .embed, .video-embed, .audio-player)+.article-heading-depth-5,
+.prose.prose .markdown-gap+.article-heading-depth-5,
+.prose.prose .article-heading-depth-5+.article-heading-depth-5,
+.prose.prose .article-heading-depth-5+.markdown-gap+.article-heading-depth-5,
+.prose.prose hr+.article-heading-depth-5,
+.prose.prose hr+.markdown-gap+.article-heading-depth-5 {
+    margin-block-start: var(--article-space-heading-peer-5) !important;
+}
+
+.prose.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .embed, .video-embed, .audio-player)+.article-heading-depth-6,
+.prose.prose .markdown-gap+.article-heading-depth-6,
+.prose.prose .article-heading-depth-6+.article-heading-depth-6,
+.prose.prose .article-heading-depth-6+.markdown-gap+.article-heading-depth-6,
+.prose.prose hr+.article-heading-depth-6,
+.prose.prose hr+.markdown-gap+.article-heading-depth-6 {
+    margin-block-start: var(--article-space-heading-peer-6) !important;
 }

@@ -89,7 +89,7 @@ function loadPosts({ postsDir, gitDates }) {
 function renderPostPage({ post, template, siteConfig, seoConfig }) {
     const { toc, headings } = extractHeadingsAndGenerateTOC(post.content);
     let contentHtml = parseMarkdown(post.content, { enableImageCaptions: post.enableImageCaptions });
-    const articleHeadings = headings.map(h => ({ ...h, level: Math.min(h.level + 1, 6) }));
+    const articleHeadings = headings.map(h => ({ ...h, renderedLevel: Math.min(h.level + 1, 6) }));
     contentHtml = addHeadingIds(contentHtml, articleHeadings);
 
     const safeCover = shared.escapeHtml(String(post.cover || ''));

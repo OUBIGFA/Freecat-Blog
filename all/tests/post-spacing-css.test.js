@@ -23,16 +23,31 @@ test('final rhythm uses normal markdown scale values', () => {
     assert.equal(remFor('article-space-heading-peer-2'), 2.8);
     assert.equal(remFor('article-space-heading-peer-3'), 2.35);
     assert.equal(remFor('article-space-heading-peer-4'), 1.9);
+    assert.equal(remFor('article-space-heading-peer-5'), 1.7);
+    assert.equal(remFor('article-space-heading-peer-6'), 1.55);
     assert.equal(remFor('article-space-divider-before'), 2.5);
     assert.equal(remFor('article-space-divider-after'), 1.7);
 });
 
 test('heading ownership and section hierarchy remain ordered', () => {
     assert.ok(remFor('article-space-heading-to-content') < remFor('article-space-flow'));
-    assert.ok(remFor('article-space-flow') < remFor('article-space-heading-peer-4'));
+    assert.ok(remFor('article-space-flow') < remFor('article-space-heading-peer-6'));
+    assert.ok(remFor('article-space-heading-peer-6') < remFor('article-space-heading-peer-5'));
+    assert.ok(remFor('article-space-heading-peer-5') < remFor('article-space-heading-peer-4'));
     assert.ok(remFor('article-space-heading-peer-4') < remFor('article-space-heading-peer-3'));
     assert.ok(remFor('article-space-heading-peer-3') < remFor('article-space-heading-peer-2'));
     assert.ok(remFor('article-space-heading-peer-2') < remFor('article-space-heading-peer-1'));
+});
+
+test('article heading type scale is derived from the body size and keeps clear hierarchy contrast', () => {
+    assert.match(css, /--article-heading-h1: calc\(var\(--article-body-size\) \* 2\.08\);/);
+    assert.match(css, /--article-heading-h2: calc\(var\(--article-body-size\) \* 1\.68\);/);
+    assert.match(css, /--article-heading-h3: calc\(var\(--article-body-size\) \* 1\.42\);/);
+    assert.match(css, /--article-heading-h4: calc\(var\(--article-body-size\) \* 1\.26\);/);
+    assert.match(css, /--article-heading-h5: calc\(var\(--article-body-size\) \* 1\.14\);/);
+    assert.match(css, /--article-heading-h6: calc\(var\(--article-body-size\) \* 1\.06\);/);
+    assert.match(css, /\.prose \.article-heading-depth-3 \{[\s\S]*?font-size: var\(--article-heading-h3\) !important;/);
+    assert.match(css, /\.prose \.article-heading-depth-6 \{[\s\S]*?font-size: var\(--article-heading-h6\) !important;/);
 });
 
 test('final rhythm explicitly resets old margins that previously stacked with markdown gaps', () => {

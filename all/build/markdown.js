@@ -380,15 +380,14 @@ function extractHeadingsAndGenerateTOC(content) {
 }
 
 function addHeadingIds(html, headings) {
-    const uniqueLevels = [...new Set(headings.map(h => h.level))].sort((a, b) => a - b);
-    const minLevel = uniqueLevels[0] || 1;
     let headingIndex = 0;
 
     return html.replace(/<h([1-6])>([\s\S]*?)<\/h\1>/gi, (match, level, innerHtml) => {
         const h = headings[headingIndex++];
         if (!h) return match;
-        const visualDepth = Math.min(Math.max(h.level - minLevel + 1, 1), 4);
-        return `<h${h.level} id="${h.id}" class="article-heading article-heading-depth-${visualDepth} article-heading-source-h${h.level} scroll-mt-24">${innerHtml}</h${h.level}>`;
+        const sourceLevel = Math.min(Math.max(h.level || Number(level), 1), 6);
+        const renderedLevel = Math.min(Math.max(h.renderedLevel || Number(level), 1), 6);
+        return `<h${renderedLevel} id="${h.id}" class="article-heading article-heading-depth-${sourceLevel} article-heading-source-h${sourceLevel} scroll-mt-24">${innerHtml}</h${renderedLevel}>`;
     });
 }
 
