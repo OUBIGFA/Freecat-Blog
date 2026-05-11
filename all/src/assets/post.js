@@ -16,6 +16,159 @@
     var shared = window.FreecatShared;
     if (!shared) throw new Error('FreecatShared not loaded — ensure shared.js loads before post.js');
     var copyToClipboard = shared.copyText;
+    var CODE_COLLAPSED_HEIGHT = 400;
+
+    function resetCodeControlsPosition(controls) {
+        if (!controls) return;
+        controls.classList.remove('code-controls-opening');
+        controls.classList.remove('code-controls-viewport-bottom');
+        controls.classList.remove('code-controls-outside');
+        controls.classList.remove('code-controls-pinned-bottom');
+        controls.style.removeProperty('--code-controls-top');
+        controls.style.removeProperty('--code-controls-left');
+        controls.style.width = '';
+        controls.style.maxWidth = '';
+    }
+
+    function getCodeControlsTarget(block, finalContentHeight) {
+        var controls = block.querySelector('.code-fold-controls');
+        var codeWrapper = block.querySelector('.code-wrapper');
+        if (!controls || !codeWrapper) return null;
+
+        var wrapperRect = codeWrapper.getBoundingClientRect();
+        var viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+        var viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+        var controlsHeight = controls.offsetHeight || 34;
+        var wrapperBottom = typeof finalContentHeight === 'number'
+            ? wrapperRect.top + finalContentHeight
+            : wrapperRect.bottom;
+
+        var preferredTop = viewportHeight - controlsHeight - 16;
+        var preferredBottom = viewportHeight - 16;
+        var minTop = wrapperRect.top + 12;
+        var maxBottom = wrapperBottom - 16;
+        var mode = 'viewport';
+        var releaseGap = 72;
+        var top = preferredTop;
+        if (preferredTop < minTop) {
+            top = minTop;
+            mode = 'top';
+        } else if (controls.classList.contains('code-controls-pinned-bottom')) {
+            mode = wrapperBottom > viewportHeight + releaseGap ? 'viewport' : 'pinned-bottom';
+        } else if (preferredBottom > maxBottom) {
+            mode = 'pinned-bottom';
+        }
+
+        return {
+            top: top,
+            left: wrapperRect.left + wrapperRect.width / 2,
+            maxWidth: Math.max(0, Math.min(wrapperRect.width - 24, viewportWidth - 32)),
+            mode: mode
+        };
+    }
+
+    function setStylePropertyIfChanged(el, name, value) {
+        if (el.style.getPropertyValue(name) !== value) {
+            el.style.setProperty(name, value);
+        }
+    }
+
+    function setStyleValueIfChanged(el, name, value) {
+        if (el.style[name] !== value) {
+            el.style[name] = value;
+        }
+    }
+
+    function applyCodeControlsPosition(block, forceTop) {
+        var controls = block.querySelector('.code-fold-controls');
+        var target = getCodeControlsTarget(block);
+        if (!controls || !target) return;
+
+        var left = Math.round(target.left) + 'px';
+        var top = Math.round(target.top) + 'px';
+        var maxWidth = Math.round(target.maxWidth) + 'px';
+
+        if (target.mode === 'viewport' && !forceTop) {
+            controls.classList.remove('code-controls-outside');
+            controls.classList.remove('code-controls-pinned-bottom');
+            if (!controls.classList.contains('code-controls-viewport-bottom')) {
+                setStyleValueIfChanged(controls, 'width', 'max-content');
+                setStyleValueIfChanged(controls, 'maxWidth', maxWidth);
+                setStylePropertyIfChanged(controls, '--code-controls-left', left);
+                controls.style.removeProperty('--code-controls-top');
+                controls.classList.add('code-controls-viewport-bottom');
+            }
+        } else {
+            if (target.mode === 'pinned-bottom' && !forceTop) {
+                controls.classList.remove('code-controls-viewport-bottom');
+                controls.classList.remove('code-controls-outside');
+                setStyleValueIfChanged(controls, 'width', 'max-content');
+                setStyleValueIfChanged(controls, 'maxWidth', maxWidth);
+                controls.style.removeProperty('--code-controls-top');
+                controls.classList.add('code-controls-pinned-bottom');
+                return;
+            }
+            controls.classList.remove('code-controls-outside');
+            controls.classList.remove('code-controls-pinned-bottom');
+            setStyleValueIfChanged(controls, 'width', 'max-content');
+            setStyleValueIfChanged(controls, 'maxWidth', maxWidth);
+            setStylePropertyIfChanged(controls, '--code-controls-left', left);
+            setStylePropertyIfChanged(controls, '--code-controls-top', top);
+            if (controls.classList.contains('code-controls-viewport-bottom')) {
+                controls.classList.remove('code-controls-viewport-bottom');
+            }
+        }
+    }
+
+    var codeControlsRaf = 0;
+
+    function updateCodeControlsPositions() {
+        codeControlsRaf = 0;
+        document.querySelectorAll('.code-block-container.expanded-code').forEach(function (block) {
+            applyCodeControlsPosition(block);
+        });
+    }
+
+    function scheduleCodeControlsUpdate() {
+        if (codeControlsRaf) return;
+        codeControlsRaf = window.requestAnimationFrame(updateCodeControlsPositions);
+    }
+
+    function getExpandedCodeHeight(container, content) {
+        var wasCollapsed = container.classList.contains('collapsed-code');
+        var wasExpanded = container.classList.contains('expanded-code');
+        var previousMaxHeight = content.style.maxHeight;
+
+        container.classList.remove('collapsed-code');
+        container.classList.add('expanded-code');
+        content.style.maxHeight = 'none';
+
+        var height = content.scrollHeight;
+
+        content.style.maxHeight = previousMaxHeight;
+        if (wasCollapsed) container.classList.add('collapsed-code');
+        if (!wasExpanded) container.classList.remove('expanded-code');
+
+        return height;
+    }
+
+    function settleExpandedCodeHeight(content, container) {
+        var done = false;
+        var finish = function (event) {
+            if (event && event.target !== content) return;
+            if (event && event.propertyName !== 'max-height') return;
+            if (done) return;
+            done = true;
+            content.removeEventListener('transitionend', finish);
+            if (container.classList.contains('expanded-code')) {
+                content.style.maxHeight = 'none';
+                container.classList.remove('code-expanding');
+            }
+        };
+
+        content.addEventListener('transitionend', finish);
+        setTimeout(finish, 420);
+    }
 
     // 复制按钮 + 折叠按钮统一委托
     document.addEventListener('click', function (e) {
@@ -44,6 +197,28 @@
             return;
         }
 
+        var codeNavBtn = e.target.closest('.code-nav-btn');
+        if (codeNavBtn) {
+            var navContainer = codeNavBtn.closest('.code-block-container');
+            if (!navContainer) return;
+
+            var direction = codeNavBtn.getAttribute('data-code-nav');
+            var rect = navContainer.getBoundingClientRect();
+            var targetY = direction === 'bottom'
+                ? window.pageYOffset + rect.bottom - window.innerHeight + 96
+                : window.pageYOffset + rect.top - 88;
+            var scrollingElement = document.scrollingElement || document.documentElement;
+            var maxScroll = Math.max(0, scrollingElement.scrollHeight - window.innerHeight);
+            if (targetY < 0) targetY = 0;
+            if (targetY > maxScroll) targetY = maxScroll;
+
+            window.scrollTo({
+                top: targetY,
+                behavior: 'smooth'
+            });
+            return;
+        }
+
         var foldBtn = e.target.closest('.fold-toggle-btn');
         if (foldBtn) {
             var foldContainer = foldBtn.closest('.code-block-container');
@@ -54,24 +229,73 @@
             var collapseIcon = foldBtn.querySelector('.fold-icon-collapse');
 
             if (isFolded) {
+                var startHeight = wrapper.getBoundingClientRect().height || CODE_COLLAPSED_HEIGHT;
+                var targetHeight = getExpandedCodeHeight(foldContainer, wrapper);
+
+                wrapper.style.maxHeight = startHeight + 'px';
+                wrapper.offsetHeight; // force reflow
+
+                var openingTarget = null;
+                if (controls) {
+                    var currentRect = controls.getBoundingClientRect();
+                    controls.style.setProperty('--code-controls-top', currentRect.top + 'px');
+                    controls.style.setProperty('--code-controls-left', (currentRect.left + currentRect.width / 2) + 'px');
+                }
+                foldContainer.classList.add('code-expanding');
                 foldContainer.classList.remove('collapsed-code');
-                wrapper.style.maxHeight = wrapper.scrollHeight + 'px';
-                controls.classList.remove('absolute', 'bottom-0', 'h-20', 'bg-gradient-to-t');
-                controls.classList.add('flex', 'justify-center', 'py-2', 'border-t', 'border-slate-200/50', 'dark:border-slate-700/50', 'bg-slate-50/50', 'dark:bg-transparent');
+                foldContainer.classList.add('expanded-code');
+                if (controls) {
+                    controls.classList.remove('absolute', 'bottom-0', 'h-20', 'bg-gradient-to-t');
+                    controls.classList.add('flex', 'justify-center', 'py-2', 'border-t', 'border-slate-200/50', 'dark:border-slate-700/50', 'bg-slate-50/50', 'dark:bg-transparent');
+                    openingTarget = getCodeControlsTarget(foldContainer, targetHeight);
+                    if (openingTarget) {
+                        controls.style.width = 'max-content';
+                        controls.style.maxWidth = openingTarget.maxWidth + 'px';
+                        controls.style.setProperty('--code-controls-left', openingTarget.left + 'px');
+                        if (openingTarget.mode === 'pinned-bottom') {
+                            controls.classList.remove('code-controls-opening');
+                            controls.classList.remove('code-controls-viewport-bottom');
+                            controls.classList.remove('code-controls-outside');
+                            controls.classList.add('code-controls-pinned-bottom');
+                            controls.style.removeProperty('--code-controls-top');
+                        } else {
+                            controls.classList.remove('code-controls-pinned-bottom');
+                            controls.classList.remove('code-controls-viewport-bottom');
+                            controls.classList.remove('code-controls-outside');
+                            controls.classList.add('code-controls-opening');
+                        }
+                    }
+                }
 
                 if (expandIcon) expandIcon.classList.add('hidden');
                 if (collapseIcon) collapseIcon.classList.remove('hidden');
 
+                window.requestAnimationFrame(function () {
+                    wrapper.style.maxHeight = targetHeight + 'px';
+                    if (controls && openingTarget && openingTarget.mode !== 'pinned-bottom') {
+                        controls.style.setProperty('--code-controls-top', openingTarget.top + 'px');
+                        controls.style.setProperty('--code-controls-left', openingTarget.left + 'px');
+                    }
+                });
                 setTimeout(function () {
-                    wrapper.style.maxHeight = 'none';
-                }, 300);
+                    if (!foldContainer.classList.contains('expanded-code') || !controls) return;
+                    controls.classList.remove('code-controls-opening');
+                    applyCodeControlsPosition(foldContainer);
+                }, 320);
+                settleExpandedCodeHeight(wrapper, foldContainer);
             } else {
                 wrapper.style.maxHeight = wrapper.scrollHeight + 'px';
                 wrapper.offsetHeight; // force reflow
                 foldContainer.classList.add('collapsed-code');
-                wrapper.style.maxHeight = '400px';
-                controls.classList.add('absolute', 'bottom-0', 'h-20', 'bg-gradient-to-t');
-                controls.classList.remove('py-4', 'border-t', 'border-slate-200/50', 'dark:border-slate-700/50', 'bg-slate-50/50', 'dark:bg-transparent');
+                foldContainer.classList.remove('expanded-code');
+                foldContainer.classList.remove('code-expanding');
+                if (controls) controls.classList.remove('code-controls-opening');
+                resetCodeControlsPosition(controls);
+                wrapper.style.maxHeight = CODE_COLLAPSED_HEIGHT + 'px';
+                if (controls) {
+                    controls.classList.add('absolute', 'bottom-0', 'h-20', 'bg-gradient-to-t');
+                    controls.classList.remove('py-2', 'py-4', 'border-t', 'border-slate-200/50', 'dark:border-slate-700/50', 'bg-slate-50/50', 'dark:bg-transparent');
+                }
 
                 if (expandIcon) expandIcon.classList.remove('hidden');
                 if (collapseIcon) collapseIcon.classList.add('hidden');
@@ -96,12 +320,16 @@
 
             if (content.scrollHeight > 500) {
                 block.classList.add('collapsed-code');
-                content.style.maxHeight = '400px';
+                block.classList.remove('expanded-code');
+                content.style.maxHeight = CODE_COLLAPSED_HEIGHT + 'px';
                 controls.classList.remove('hidden');
             } else {
                 block.classList.remove('code-fold');
+                block.classList.remove('expanded-code');
+                resetCodeControlsPosition(controls);
             }
         });
+        scheduleCodeControlsUpdate();
     }
 
     if (document.readyState === 'loading') {
@@ -109,6 +337,9 @@
     } else {
         initCodeFolding();
     }
+
+    window.addEventListener('scroll', scheduleCodeControlsUpdate, { passive: true });
+    window.addEventListener('resize', scheduleCodeControlsUpdate);
 
     // 代码块折叠辅助样式（.collapsed-code .code-content / .code-fold-controls）
     // 已挪到 transitions.css，不再运行时注入。

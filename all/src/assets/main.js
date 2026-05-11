@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const isDark = html.classList.contains('dark');
         return {
             bg: isDark ? '#101622' : '#f6f6f8',
-            fg: isDark ? '#e2e8f0' : '#111318',
+            fg: isDark ? '#e2e8f0' : '#374151',
             line: isDark ? '#8b9bb3' : '#475569',
             accent: isDark ? '#38bdf8' : '#2563eb',
             muted: isDark ? '#94a3b8' : '#64748b',
@@ -755,7 +755,7 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay.innerHTML = `
             <div class="max-w-[1200px] mx-auto px-5 sm:px-6 md:px-8 pt-2 pb-10 md:pt-4 md:pb-12">
                 <div class="hidden md:flex md:flex-row md:items-center md:justify-between gap-2 mb-12">
-                    <h2 class="text-lg md:text-xl font-bold text-[#111318] dark:text-slate-200 flex items-center">
+                    <h2 class="text-lg md:text-xl font-bold text-[#374151] dark:text-slate-200 flex items-center">
                         Results for "${escapeHtml(query)}"
                         <span class="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">(${results.length} found)</span>
                     </h2>
