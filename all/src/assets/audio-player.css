@@ -10,7 +10,7 @@
 
 .dark .audio-player-container {
     background: #0f172a;
-    border-color: #334155;
+    border-color: #1e293b;
 }
 
 .audio-player-container:hover {
@@ -30,7 +30,7 @@
     margin-bottom: 1rem;
     font-size: 0.95rem;
     font-weight: 600;
-    color: #334155;
+    color: #1e293b;
 }
 
 .audio-player-title-left {
@@ -156,7 +156,7 @@
     height: 40px;
     border: none;
     border-radius: 50%;
-    background: #334155;
+    background: #1e293b;
     color: white;
     display: flex;
     align-items: center;
@@ -221,7 +221,7 @@
 }
 
 .audio-volume-btn:hover {
-    color: #334155;
+    color: #1e293b;
     transform: scale(1.1);
 }
 
@@ -257,7 +257,7 @@
 }
 
 .dark .audio-volume-slider {
-    background: linear-gradient(to right, #94a3b8 0%, #94a3b8 var(--volume-percent, 60%), #334155 var(--volume-percent, 60%), #334155 100%);
+    background: linear-gradient(to right, #94a3b8 0%, #94a3b8 var(--volume-percent, 60%), #1e293b var(--volume-percent, 60%), #1e293b 100%);
 }
 
 .audio-volume-slider::-webkit-slider-thumb {
@@ -298,14 +298,14 @@
 }
 
 .dark .audio-speed-btn {
-    background: #334155;
+    background: #1e293b;
     border-color: #475569;
     color: #cbd5e1;
 }
 
 .audio-speed-btn:hover {
-    border-color: #334155;
-    color: #334155;
+    border-color: #1e293b;
+    color: #1e293b;
 }
 
 .dark .audio-speed-btn:hover {
@@ -368,11 +368,11 @@
 
 .audio-speed-option:hover {
     background: #f1f5f9;
-    color: #334155;
+    color: #1e293b;
 }
 
 .dark .audio-speed-option:hover {
-    background: #334155;
+    background: #1e293b;
     color: #cbd5e1;
 }
 
@@ -383,7 +383,7 @@
 }
 
 .dark .audio-speed-option.active {
-    background: #334155;
+    background: #1e293b;
     color: #f8fafc;
 }
 

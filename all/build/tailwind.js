@@ -26,7 +26,7 @@ async function buildTailwindCss({ contentGlobs, outputPath, minify = true }) {
         theme: {
             extend: {
                 colors: {
-                    'primary': '#374151',
+                    'primary': '#1e293b',
                     'background-light': '#f6f6f8',
                     'background-dark': '#101622',
                     'card-dark': '#1A2332',

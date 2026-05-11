@@ -373,7 +373,7 @@ function extractHeadingsAndGenerateTOC(content) {
             firstL1 = false;
         }
 
-        tocHtml += `<a class="${paddingClass} ${pyClass}${mtClass} text-sm text-slate-600 dark:text-slate-400 hover:text-[#374151] dark:hover:text-slate-200 transition-colors flex" href="#${h.id}">${autoSpacing(h.text)}</a>\n`;
+        tocHtml += `<a class="${paddingClass} ${pyClass}${mtClass} text-sm text-slate-600 dark:text-slate-400 hover:text-[#1e293b] dark:hover:text-slate-200 transition-colors flex" href="#${h.id}">${autoSpacing(h.text)}</a>\n`;
     });
 
     return { toc: tocHtml, headings };
@@ -787,13 +787,13 @@ function buildRenderer() {
         </div>
         <div class="code-wrapper relative">
             <div class="code-content px-8 py-7 bg-[#f8fafc] dark:bg-transparent overflow-x-auto transition-all duration-300 ease-in-out">
-                <pre class="!m-0 !p-0 !bg-transparent"><code class="${langClass} font-mono text-sm leading-relaxed text-[#374151] dark:text-slate-300 font-medium">${escapedCode}</code></pre>
+                <pre class="!m-0 !p-0 !bg-transparent"><code class="${langClass} text-sm leading-relaxed text-[#1e293b] dark:text-slate-300 font-medium">${escapedCode}</code></pre>
             </div>
             <div class="code-fold-controls hidden absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-[#f8fafc] via-[#f8fafc] via-40% dark:from-background-dark dark:via-background-dark dark:via-40% to-transparent items-end justify-center pb-2 z-10 transition-opacity duration-300">
                 <button class="code-nav-btn code-nav-top" type="button" data-code-nav="top" aria-label="Scroll to code block top">
                     <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M12 13.9142L16.7929 18.7071L18.2071 17.2929L12 11.0858L5.79289 17.2929L7.20711 18.7071L12 13.9142ZM6 7L18 7V9L6 9L6 7Z"></path></svg></span>
                 </button>
-                <button class="t-btn-icon fold-toggle-btn group relative flex items-center justify-center rounded-full size-10 bg-[#f8fafc] dark:bg-gray-800 text-[#374151] dark:text-slate-200 border border-slate-200 dark:border-gray-700 hover:text-primary dark:hover:text-primary" aria-label="Toggle code fold">
+                <button class="t-btn-icon fold-toggle-btn group relative flex items-center justify-center rounded-full size-10 bg-[#f8fafc] dark:bg-gray-800 text-[#1e293b] dark:text-slate-200 border border-slate-200 dark:border-gray-700 hover:text-primary dark:hover:text-primary" aria-label="Toggle code fold">
                     <span class="fold-icon-expand text-xl text-gray-600 dark:text-gray-400">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M18.2072 9.0428 12.0001 2.83569 5.793 9.0428 7.20721 10.457 12.0001 5.66412 16.793 10.457 18.2072 9.0428ZM5.79285 14.9572 12 21.1643 18.2071 14.9572 16.7928 13.543 12 18.3359 7.20706 13.543 5.79285 14.9572Z"></path></svg>
                     </span>
