@@ -356,6 +356,13 @@ function extractHeadingsAndGenerateTOC(content) {
     if (headings.length === 0) return { toc: '', headings: [] };
 
     const uniqueLevels = [...new Set(headings.map(h => h.level))].sort((a, b) => a - b);
+    // 自适应层级 rank：按文章实际出现的标题层级从浅到深，依次映射为 rank 1..N。
+    // 例如文章只用 h3/h4/h5，则 h3→rank1, h4→rank2, h5→rank3，避免与 h3/h4/h5 全局深度
+    // 一一绑定，让间距系统按"本文里真实的层级关系"产生黄金梯级。
+    const levelToRank = new Map();
+    uniqueLevels.forEach((level, idx) => levelToRank.set(level, idx + 1));
+    headings.forEach(h => { h.rank = levelToRank.get(h.level); });
+    const totalRanks = uniqueLevels.length;
     const targetLevels = uniqueLevels.slice(0, 2);
     const minLevel = uniqueLevels[0];
 
@@ -376,7 +383,7 @@ function extractHeadingsAndGenerateTOC(content) {
         tocHtml += `<a class="${paddingClass} ${pyClass}${mtClass} text-sm text-slate-600 dark:text-slate-400 hover:text-[#1e293b] dark:hover:text-slate-200 transition-colors flex" href="#${h.id}">${autoSpacing(h.text)}</a>\n`;
     });
 
-    return { toc: tocHtml, headings };
+    return { toc: tocHtml, headings, totalRanks };
 }
 
 function addHeadingIds(html, headings) {
@@ -387,7 +394,8 @@ function addHeadingIds(html, headings) {
         if (!h) return match;
         const sourceLevel = Math.min(Math.max(h.level || Number(level), 1), 6);
         const renderedLevel = Math.min(Math.max(h.renderedLevel || Number(level), 1), 6);
-        return `<h${renderedLevel} id="${h.id}" class="article-heading article-heading-depth-${sourceLevel} article-heading-source-h${sourceLevel} scroll-mt-24">${innerHtml}</h${renderedLevel}>`;
+        const rank = Math.min(Math.max(h.rank || sourceLevel, 1), 6);
+        return `<h${renderedLevel} id="${h.id}" class="article-heading article-heading-depth-${sourceLevel} article-heading-rank-${rank} article-heading-source-h${sourceLevel} scroll-mt-24">${innerHtml}</h${renderedLevel}>`;
     });
 }
 

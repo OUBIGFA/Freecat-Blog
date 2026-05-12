@@ -2106,3 +2106,127 @@
     color: currentColor !important;
     font-size: 0.98rem !important;
 }
+
+/* ===== Adaptive Golden-Ratio Heading Hierarchy =====
+   核心思路：每个标题在构建期被赋予 rank（按本文实际使用的标题层级，从浅到深 1..N）。
+   - 同 rank 兄弟（或被段落 / 列表 / 图片等正文块分隔）之间用 peer 间距，越靠顶层间距越大；
+   - 标题紧跟父标题（rank 更浅）时是 parent→child，使用更紧凑的过渡间距；
+   - 标题紧跟其正文（段落 / 列表 / 图等）时使用 heading-to-body 的小间距，把"标题 + 内容"绑成一个视觉单元；
+   - 与现有 .markdown-gap 空行间距规则兼容：.markdown-gap 自身高度仍叠加在标题 margin 之上。
+
+   黄金梯级：基底约 1.27 倍递增 / 倒序递减，确保 6 级层级都能感受到等比节奏。
+   选择器特异性刻意对齐既有 depth-based 规则（0,4,0），且位置靠后以覆盖前者。
+*/
+.prose {
+    --article-heading-peer-rank-1: 5.0rem;
+    --article-heading-peer-rank-2: 3.7rem;
+    --article-heading-peer-rank-3: 2.85rem;
+    --article-heading-peer-rank-4: 2.25rem;
+    --article-heading-peer-rank-5: 1.85rem;
+    --article-heading-peer-rank-6: 1.55rem;
+    --article-heading-parent-to-child: 1.3rem;
+    --article-heading-to-body: 0.85rem;
+}
+
+/* rank-1：本文最浅层标题（同 rank 兄弟 / 跨层级跳回顶层 / 段落后）→ 最大 peer 间距 */
+.prose.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .embed, .video-embed, .audio-player) + .article-heading-rank-1,
+.prose.prose .markdown-gap + .article-heading-rank-1,
+.prose.prose .article-heading + .article-heading-rank-1,
+.prose.prose .article-heading + .markdown-gap + .article-heading-rank-1,
+.prose.prose hr + .article-heading-rank-1,
+.prose.prose hr + .markdown-gap + .article-heading-rank-1 {
+    margin-block-start: var(--article-heading-peer-rank-1) !important;
+}
+
+.prose.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .embed, .video-embed, .audio-player) + .article-heading-rank-2,
+.prose.prose .markdown-gap + .article-heading-rank-2,
+.prose.prose .article-heading-rank-2 + .article-heading-rank-2,
+.prose.prose .article-heading-rank-2 + .markdown-gap + .article-heading-rank-2,
+.prose.prose hr + .article-heading-rank-2,
+.prose.prose hr + .markdown-gap + .article-heading-rank-2 {
+    margin-block-start: var(--article-heading-peer-rank-2) !important;
+}
+
+.prose.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .embed, .video-embed, .audio-player) + .article-heading-rank-3,
+.prose.prose .markdown-gap + .article-heading-rank-3,
+.prose.prose .article-heading-rank-3 + .article-heading-rank-3,
+.prose.prose .article-heading-rank-3 + .markdown-gap + .article-heading-rank-3,
+.prose.prose hr + .article-heading-rank-3,
+.prose.prose hr + .markdown-gap + .article-heading-rank-3 {
+    margin-block-start: var(--article-heading-peer-rank-3) !important;
+}
+
+.prose.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .embed, .video-embed, .audio-player) + .article-heading-rank-4,
+.prose.prose .markdown-gap + .article-heading-rank-4,
+.prose.prose .article-heading-rank-4 + .article-heading-rank-4,
+.prose.prose .article-heading-rank-4 + .markdown-gap + .article-heading-rank-4,
+.prose.prose hr + .article-heading-rank-4,
+.prose.prose hr + .markdown-gap + .article-heading-rank-4 {
+    margin-block-start: var(--article-heading-peer-rank-4) !important;
+}
+
+.prose.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .embed, .video-embed, .audio-player) + .article-heading-rank-5,
+.prose.prose .markdown-gap + .article-heading-rank-5,
+.prose.prose .article-heading-rank-5 + .article-heading-rank-5,
+.prose.prose .article-heading-rank-5 + .markdown-gap + .article-heading-rank-5,
+.prose.prose hr + .article-heading-rank-5,
+.prose.prose hr + .markdown-gap + .article-heading-rank-5 {
+    margin-block-start: var(--article-heading-peer-rank-5) !important;
+}
+
+.prose.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .embed, .video-embed, .audio-player) + .article-heading-rank-6,
+.prose.prose .markdown-gap + .article-heading-rank-6,
+.prose.prose .article-heading-rank-6 + .article-heading-rank-6,
+.prose.prose .article-heading-rank-6 + .markdown-gap + .article-heading-rank-6,
+.prose.prose hr + .article-heading-rank-6,
+.prose.prose hr + .markdown-gap + .article-heading-rank-6 {
+    margin-block-start: var(--article-heading-peer-rank-6) !important;
+}
+
+/* 父→子覆盖：标题紧跟一个 rank 更深的标题时（中间无正文）→ 紧凑过渡间距。
+   规则放在 peer 之后，且覆盖了 .article-heading + .article-heading-rank-N 的更通用匹配。 */
+.prose.prose .article-heading-rank-1 + .article-heading-rank-2,
+.prose.prose .article-heading-rank-1 + .markdown-gap + .article-heading-rank-2,
+.prose.prose .article-heading-rank-1 + .article-heading-rank-3,
+.prose.prose .article-heading-rank-1 + .markdown-gap + .article-heading-rank-3,
+.prose.prose .article-heading-rank-1 + .article-heading-rank-4,
+.prose.prose .article-heading-rank-1 + .markdown-gap + .article-heading-rank-4,
+.prose.prose .article-heading-rank-1 + .article-heading-rank-5,
+.prose.prose .article-heading-rank-1 + .markdown-gap + .article-heading-rank-5,
+.prose.prose .article-heading-rank-1 + .article-heading-rank-6,
+.prose.prose .article-heading-rank-1 + .markdown-gap + .article-heading-rank-6,
+.prose.prose .article-heading-rank-2 + .article-heading-rank-3,
+.prose.prose .article-heading-rank-2 + .markdown-gap + .article-heading-rank-3,
+.prose.prose .article-heading-rank-2 + .article-heading-rank-4,
+.prose.prose .article-heading-rank-2 + .markdown-gap + .article-heading-rank-4,
+.prose.prose .article-heading-rank-2 + .article-heading-rank-5,
+.prose.prose .article-heading-rank-2 + .markdown-gap + .article-heading-rank-5,
+.prose.prose .article-heading-rank-2 + .article-heading-rank-6,
+.prose.prose .article-heading-rank-2 + .markdown-gap + .article-heading-rank-6,
+.prose.prose .article-heading-rank-3 + .article-heading-rank-4,
+.prose.prose .article-heading-rank-3 + .markdown-gap + .article-heading-rank-4,
+.prose.prose .article-heading-rank-3 + .article-heading-rank-5,
+.prose.prose .article-heading-rank-3 + .markdown-gap + .article-heading-rank-5,
+.prose.prose .article-heading-rank-3 + .article-heading-rank-6,
+.prose.prose .article-heading-rank-3 + .markdown-gap + .article-heading-rank-6,
+.prose.prose .article-heading-rank-4 + .article-heading-rank-5,
+.prose.prose .article-heading-rank-4 + .markdown-gap + .article-heading-rank-5,
+.prose.prose .article-heading-rank-4 + .article-heading-rank-6,
+.prose.prose .article-heading-rank-4 + .markdown-gap + .article-heading-rank-6,
+.prose.prose .article-heading-rank-5 + .article-heading-rank-6,
+.prose.prose .article-heading-rank-5 + .markdown-gap + .article-heading-rank-6 {
+    margin-block-start: var(--article-heading-parent-to-child) !important;
+}
+
+/* 标题紧跟正文（任何 block 类型）→ 紧凑间距，让标题与其内容看起来是同一块。
+   不区分 depth/rank，所有 .article-heading 一视同仁。*/
+.prose.prose .article-heading + :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .embed, .video-embed, .audio-player),
+.prose.prose .article-heading + .markdown-gap + :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .embed, .video-embed, .audio-player) {
+    margin-block-start: var(--article-heading-to-body) !important;
+}
+
+/* 文章首个标题不要顶部留白（保持现有 :first-child 语义，但用更高特异性确保胜出）*/
+.prose.prose > .article-heading:first-child {
+    margin-top: 0 !important;
+}
+
