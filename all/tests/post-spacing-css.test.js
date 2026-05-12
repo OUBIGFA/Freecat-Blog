@@ -25,8 +25,8 @@ test('final rhythm uses normal markdown scale values', () => {
     assert.equal(remFor('article-space-heading-peer-4'), 1.9);
     assert.equal(remFor('article-space-heading-peer-5'), 1.7);
     assert.equal(remFor('article-space-heading-peer-6'), 1.55);
-    assert.equal(remFor('article-space-divider-before'), 2.5);
-    assert.equal(remFor('article-space-divider-after'), 1.7);
+    assert.equal(remFor('article-space-divider-before'), 2.1);
+    assert.equal(remFor('article-space-divider-after'), 2.1);
 });
 
 test('heading ownership and section hierarchy remain ordered', () => {
@@ -67,12 +67,20 @@ test('generic content flow excludes headings so headings keep semantic spacing',
 });
 
 test('markdown gaps and dividers participate without adding hidden paragraph spacing', () => {
+    const hrBlock = rhythm.match(/\.prose hr \{[\s\S]*?\}/)?.[0] || '';
     assert.match(rhythm, /\.prose \.markdown-gap \{[\s\S]*?--md-gap-size: 0lh;[\s\S]*?height: var\(--md-gap-size\) !important;/);
     assert.match(rhythm, /\.prose \.markdown-gap\+:where\(p, ul, ol, dl, blockquote, table,[\s\S]*?margin-block-start: var\(--article-space-flow\) !important;/);
     assert.match(rhythm, /\.prose \.markdown-gap\+\.article-heading-depth-2,[\s\S]*?margin-block-start: var\(--article-space-heading-peer-2\) !important;/);
-    assert.doesNotMatch(rhythm, /background: linear-gradient/);
+    assert.doesNotMatch(hrBlock, /background: linear-gradient/);
     assert.match(rhythm, /\.prose hr \{[\s\S]*?background: #d8e0eb !important;/);
     assert.match(rhythm, /\.dark \.prose hr \{[\s\S]*?background: #475569 !important;/);
     assert.match(rhythm, /\.prose :where\(p, ul, ol, dl, blockquote, \.article-heading,[\s\S]*?\)\+hr,[\s\S]*?margin-block-start: var\(--article-space-divider-before\) !important;/);
     assert.match(rhythm, /\.prose hr\+:where\(p, ul, ol, dl, blockquote, table,[\s\S]*?margin-block-start: var\(--article-space-divider-after\) !important;/);
+});
+
+test('markdown tables keep transparent row backgrounds', () => {
+    assert.match(css, /\.prose thead \{[\s\S]*?background-color: transparent !important;/);
+    assert.match(css, /\.dark \.prose thead \{[\s\S]*?background-color: transparent !important;/);
+    assert.match(css, /\.prose tbody tr:nth-child\(even\) \{[\s\S]*?background-color: transparent !important;/);
+    assert.match(css, /\.dark \.prose tbody tr:nth-child\(even\) \{[\s\S]*?background-color: transparent !important;/);
 });

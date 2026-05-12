@@ -964,11 +964,11 @@
 }
 
 .prose thead {
-    background-color: #f1f5f9 !important;
+    background-color: transparent !important;
 }
 
 .dark .prose thead {
-    background-color: #1e293b !important;
+    background-color: transparent !important;
 }
 
 .prose th,
@@ -1010,11 +1010,11 @@
 }
 
 .prose tbody tr:nth-child(even) {
-    background-color: #f8fafc !important;
+    background-color: transparent !important;
 }
 
 .dark .prose tbody tr:nth-child(even) {
-    background-color: #1e293b !important;
+    background-color: transparent !important;
 }
 
 /* ===== 水平分割线 ===== */
@@ -1482,8 +1482,8 @@
     --article-space-heading-peer-4: 1.9rem;
     --article-space-heading-peer-5: 1.7rem;
     --article-space-heading-peer-6: 1.55rem;
-    --article-space-divider-before: 2.5rem;
-    --article-space-divider-after: 1.7rem;
+    --article-space-divider-before: 2.1rem;
+    --article-space-divider-after: 2.1rem;
 }
 
 .prose .markdown-gap {
