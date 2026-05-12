@@ -26,6 +26,10 @@
     --t-btn-press-scale: 0.96;
     --t-btn-icon-press-scale: 0.92;
 
+    /* ===== Theme switch motion tokens ===== */
+    --theme-transition-dur: 360ms;
+    --theme-transition-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
     /* ===== 全站统一：固定顶栏的占位与安全间距 =====
        所有页面以此为内容起点的最小上偏移；JS 会按真实 header 高度做实时同步。
        --freecat-page-top-offset 是“header 高度 + 安全间距”的合成值，
@@ -262,6 +266,49 @@
    视口宽度变化导致 fixed header 内的导航按钮整体抖动 */
 html {
     scrollbar-gutter: stable;
+    color-scheme: light;
+}
+
+html.dark {
+    color-scheme: dark;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: var(--theme-transition-dur);
+    animation-timing-function: var(--theme-transition-ease);
+    mix-blend-mode: normal;
+}
+
+html.theme-transitioning,
+html.theme-transitioning body,
+html.theme-transitioning body *,
+html.theme-transitioning body *::before,
+html.theme-transitioning body *::after {
+    transition-property:
+        color,
+        background-color,
+        border-color,
+        outline-color,
+        text-decoration-color,
+        fill,
+        stroke,
+        box-shadow,
+        opacity,
+        filter,
+        backdrop-filter !important;
+    transition-duration: var(--theme-transition-dur) !important;
+    transition-timing-function: var(--theme-transition-ease) !important;
+    transition-delay: 0ms !important;
+}
+
+html.theme-view-transitioning,
+html.theme-view-transitioning body,
+html.theme-view-transitioning body *,
+html.theme-view-transitioning body *::before,
+html.theme-view-transitioning body *::after {
+    transition: none !important;
+    animation-play-state: paused !important;
 }
 
 @keyframes fadeInUp {
@@ -404,6 +451,19 @@ body.search-active .page-blur-target::before {
 }
 
 @media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+        animation-duration: 1ms !important;
+    }
+
+    html.theme-transitioning,
+    html.theme-transitioning body,
+    html.theme-transitioning body *,
+    html.theme-transitioning body *::before,
+    html.theme-transitioning body *::after {
+        transition: none !important;
+    }
+
     .animate-fade-in-up { animation: none !important; opacity: 1 !important; }
     .t-panel-slide,
     .t-dropdown,

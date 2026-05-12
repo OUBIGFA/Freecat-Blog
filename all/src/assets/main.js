@@ -246,12 +246,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // (使用已声明的 themeToggleBtn 和 html)
 
 
-    // 统一主题应用逻辑
-    function applyTheme() {
+    const THEME_TRANSITION_CLASS = 'theme-transitioning';
+    const THEME_VIEW_TRANSITION_CLASS = 'theme-view-transitioning';
+    let themeTransitionTimer = 0;
+
+    function prefersReducedMotion() {
+        return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+
+    function resolveThemeIsDark() {
         const savedTheme = localStorage.getItem('theme');
         const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const isDark = savedTheme === 'dark' || (!savedTheme && systemPrefersDark);
+        return savedTheme === 'dark' || (!savedTheme && systemPrefersDark);
+    }
 
+    function setThemeState(isDark) {
         if (isDark) {
             html.classList.add('dark');
         } else {
@@ -263,11 +272,60 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 更新标签颜色
         updateTagColors();
+    }
 
+    function finishThemeTransition() {
+        window.clearTimeout(themeTransitionTimer);
+        themeTransitionTimer = 0;
+        html.classList.remove(THEME_TRANSITION_CLASS);
+    }
+
+    function startThemeTransition() {
+        html.classList.add(THEME_TRANSITION_CLASS);
+        window.clearTimeout(themeTransitionTimer);
+        themeTransitionTimer = window.setTimeout(
+            finishThemeTransition,
+            getCssDurationMs('--theme-transition-dur', 360) + 120
+        );
+    }
+
+    function refreshThemeDependentRenderers() {
         // 更新 Mermaid 主题 (如果已加载)
         if (getBeautifulMermaidApi()) {
             initMermaid();
         }
+    }
+
+    // 统一主题应用逻辑
+    function applyTheme(options = {}) {
+        const isDark = resolveThemeIsDark();
+        const shouldAnimate = !!options.animate && document.body && !prefersReducedMotion();
+
+        if (!shouldAnimate) {
+            setThemeState(isDark);
+            refreshThemeDependentRenderers();
+            return;
+        }
+
+        if (typeof document.startViewTransition === 'function') {
+            html.classList.add(THEME_VIEW_TRANSITION_CLASS);
+            const transition = document.startViewTransition(() => {
+                setThemeState(isDark);
+            });
+            transition.finished
+                .catch(() => { })
+                .finally(() => {
+                    html.classList.remove(THEME_VIEW_TRANSITION_CLASS);
+                    refreshThemeDependentRenderers();
+                });
+            return;
+        }
+
+        startThemeTransition();
+        // 确保统一过渡类先生效，再切换深浅色，避免局部 transition 各走各的时长。
+        void html.offsetWidth;
+        setThemeState(isDark);
+        refreshThemeDependentRenderers();
     }
 
     // 标签颜色更新函数
@@ -301,7 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
         themeToggleBtn.addEventListener('click', () => {
             const willBeDark = !html.classList.contains('dark');
             localStorage.setItem('theme', willBeDark ? 'dark' : 'light');
-            applyTheme();
+            applyTheme({ animate: true });
         });
     }
 
@@ -317,7 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 核心：处理多标签页同步
     window.addEventListener('storage', (event) => {
         if (event.key === 'theme') {
-            applyTheme();
+            applyTheme({ animate: true });
         }
     });
 
