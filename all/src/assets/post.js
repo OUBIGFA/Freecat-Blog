@@ -30,6 +30,18 @@
         controls.style.maxWidth = '';
     }
 
+    function setCollapsedCodeControlsLayout(controls) {
+        if (!controls) return;
+        controls.classList.remove('absolute', 'bottom-0', 'h-20', 'bg-gradient-to-t');
+        controls.classList.add('flex', 'justify-center', 'py-2', 'border-t', 'border-slate-200/50', 'dark:border-slate-700/50', 'bg-slate-50/50', 'dark:bg-transparent');
+    }
+
+    function setExpandedCodeControlsLayout(controls) {
+        if (!controls) return;
+        controls.classList.remove('absolute', 'bottom-0', 'h-20', 'bg-gradient-to-t');
+        controls.classList.add('flex', 'justify-center', 'py-2', 'border-t', 'border-slate-200/50', 'dark:border-slate-700/50', 'bg-slate-50/50', 'dark:bg-transparent');
+    }
+
     function getCodeControlsTarget(block, finalContentHeight) {
         var controls = block.querySelector('.code-fold-controls');
         var codeWrapper = block.querySelector('.code-wrapper');
@@ -245,8 +257,7 @@
                 foldContainer.classList.remove('collapsed-code');
                 foldContainer.classList.add('expanded-code');
                 if (controls) {
-                    controls.classList.remove('absolute', 'bottom-0', 'h-20', 'bg-gradient-to-t');
-                    controls.classList.add('flex', 'justify-center', 'py-2', 'border-t', 'border-slate-200/50', 'dark:border-slate-700/50', 'bg-slate-50/50', 'dark:bg-transparent');
+                    setExpandedCodeControlsLayout(controls);
                     openingTarget = getCodeControlsTarget(foldContainer, targetHeight);
                     if (openingTarget) {
                         controls.style.width = 'max-content';
@@ -292,10 +303,7 @@
                 if (controls) controls.classList.remove('code-controls-opening');
                 resetCodeControlsPosition(controls);
                 wrapper.style.maxHeight = CODE_COLLAPSED_HEIGHT + 'px';
-                if (controls) {
-                    controls.classList.add('absolute', 'bottom-0', 'h-20', 'bg-gradient-to-t');
-                    controls.classList.remove('py-2', 'py-4', 'border-t', 'border-slate-200/50', 'dark:border-slate-700/50', 'bg-slate-50/50', 'dark:bg-transparent');
-                }
+                setCollapsedCodeControlsLayout(controls);
 
                 if (expandIcon) expandIcon.classList.remove('hidden');
                 if (collapseIcon) collapseIcon.classList.add('hidden');
@@ -323,6 +331,7 @@
                 block.classList.remove('expanded-code');
                 content.style.maxHeight = CODE_COLLAPSED_HEIGHT + 'px';
                 controls.classList.remove('hidden');
+                setCollapsedCodeControlsLayout(controls);
             } else {
                 block.classList.remove('code-fold');
                 block.classList.remove('expanded-code');
