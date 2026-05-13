@@ -15,7 +15,22 @@
   </p>
 </div>
 
-> This guide is for users with no programming background. Follow the steps in order and you will have a free personal blog that can be written locally and published automatically.
+> A guide for users with no programming background. Follow it through and you will have a personal blog that supports long-term writing, automatic publishing, and free hosting.
+
+## Shortest Deployment Path
+
+1. Create your own private blog repository with GitHub Importer
+2. Clone it to your computer with GitHub Desktop
+3. Open the project locally and write an article
+4. Commit and push to GitHub
+5. Import the repository into Cloudflare Pages or Vercel and build
+6. Wait for the build to finish, then open the default URL to verify
+
+### Three things to remember
+
+- Your content stays local. It is not locked into any platform.
+- GitHub handles backup and notifies the deployment platform.
+- The deployment platform only generates the website. It is not your writing backend.
 
 ## Table of Contents
 
@@ -117,7 +132,7 @@ Deployment has two steps:
 | `Your old repository's clone URL` | `https://github.com/OUBIGFA/Freecat-Blog` |
 | `Owner` | Your GitHub account |
 | `Repository name` | Choose a name, such as `my-freecat-blog` |
-| `Privacy` | `Private` is recommended |
+| `Privacy` | Use `Private` |
 
 4. Click `Begin import` and wait for it to finish.
 5. Open GitHub Desktop and click `File` -> `Clone repository`.
