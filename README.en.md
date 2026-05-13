@@ -20,13 +20,22 @@
 ## Shortest Deployment Path
 
 1. Create your own private blog repository with GitHub Importer
-2. Clone it to your computer with GitHub Desktop
-3. Open the project locally and write an article
-4. Commit and push to GitHub
-5. Import the repository into Cloudflare Pages or Vercel and build
-6. Wait for the build to finish, then open the default URL to verify
+2. Import the repository into Cloudflare Pages or Vercel and build
+3. Wait for the build to finish, then open the default URL to verify
 
-### Three things to remember
+---
+
+## Shortest Usage Path
+
+1. Clone the repository to your computer with GitHub Desktop
+2. Open the project locally and write or drop an article into the `writing` folder
+3. Commit and push to GitHub via GitHub Desktop
+4. Wait for the platform to build and deploy automatically
+5. Done
+
+---
+
+## Just Three Things
 
 - Your content stays local. It is not locked into any platform.
 - GitHub handles backup and notifies the deployment platform.
@@ -92,7 +101,7 @@ What you get:
 | --- | --- | --- |
 | `writing/` | Yes | Blog articles. One Markdown file is one article |
 | `Control/` | Yes | Site name, avatar, home intro, social links, About page |
-| `all/` | Usually no | Build project. Deployment platforms run the build command here |
+| `all/` | No | Deployment platforms build the website from here |
 
 Remember this:
 

@@ -1,15 +1,18 @@
-<div>![Freecat Blog Preview](all/image/freecat_web_icon.png)   
-
-# Freecat Blog
-
-本地写作、GitHub 备份、免费部署的个人博客模板
-
-简体中文 | [English](README.en.md)
-
-     ![Platform](https://img.shields.io/badge/platform-Web-2563eb)     ![Node](https://img.shields.io/badge/Node-20-339933)     ![Deploy](https://img.shields.io/badge/deploy-Cloudflare%20%7C%20Vercel-f97316)     ![License](https://img.shields.io/badge/license-MIT-111827)   
-
-     [演示站点 01](https://freecat-blog.pages.dev) |     [演示站点 02](https://freecat-blog-test.pages.dev)   
-
+<div align="center">
+  <img src="all/image/freecat_web_icon.png" width="120" alt="Freecat Blog Preview">
+  <h1>Freecat Blog</h1>
+  <p>本地写作、GitHub 备份、免费部署的个人博客模板</p>
+  <p>简体中文 | <a href="README.en.md">English</a></p>
+  <p>
+    <img alt="Platform" src="https://img.shields.io/badge/platform-Web-2563eb">
+    <img alt="Node" src="https://img.shields.io/badge/Node-20-339933">
+    <img alt="Deploy" src="https://img.shields.io/badge/deploy-Cloudflare%20%7C%20Vercel-f97316">
+    <img alt="License" src="https://img.shields.io/badge/license-MIT-111827">
+  </p>
+  <p>
+    <a href="https://freecat-blog.pages.dev">演示站点 01</a> |
+    <a href="https://freecat-blog-test.pages.dev">演示站点 02</a>
+  </p>
 </div>
 
 > 一份写给零编程基础用户的上手文档。按顺序做完，你会得到一个能长期写作、自动发布、免费托管的个人博客。
@@ -17,13 +20,22 @@
 ## 最短部署路径预览
 
 1. 用 GitHub Importer 创建自己的私人博客仓库
-2. 用 GitHub Desktop 拉到本地
-3. 本地打开项目，写一篇文章
-4. 提交并同步到 GitHub
-5. 去 Cloudflare Pages 或 Vercel 导入仓库构建
-6. 等部署完成，打开默认网址确认
+2. 去 Cloudflare Pages 或 Vercel 导入仓库构建
+3. 等部署完成，打开默认网址确认
 
-### 就这三件事
+---
+
+## 最短使用路径预览
+
+1. 用 GitHub Desktop 拉到本地
+2. 本地打开项目，在`writing`文件夹中撰写或存入一篇文章
+3. 通过GitHub Desktop提交并同步到 GitHub
+4. 等待平台自动部署构建
+5. 完成
+
+---
+
+## 就三件事
 
 - 内容在本地，不锁死在任何平台。
 - GitHub 负责备份，顺便通知部署平台更新。
@@ -89,7 +101,7 @@ Cloudflare Pages / Vercel 自动构建
 | --- | --- | --- |
 | `writing/` | 要 | 放博客文章。一篇 Markdown 文件就是一篇文章 |
 | `Control/` | 要 | 改网站名称、头像、首页介绍、社交链接、About 页面 |
-| `all/` | 一般不要 | 网站构建工程。部署平台会进入这里运行构建命令 |
+| `all/` | 不需要 | 部署平台从这里构建网站 |
 
 记住这一句就够。
 
@@ -253,13 +265,13 @@ show: true
 在文章里用引用格式 + 音频直链，会自动生成播放器。
 
 ```md
->[这是示例音频](https://example.com/audio.m4a)
+> [这是示例音频](https://example.com/audio.m4a)
 ```
 
 链接没有明显音频后缀的话，在标题里加音乐符号强制识别。
 
 ```md
->[🎵这是示例音频](https://example.com/audio)
+> [🎵这是示例音频](https://example.com/audio)
 ```
 
 支持格式：`.mp3`、`.m4a`、`.wav`、`.ogg`、`.aac`、`.flac`、`.opus`。
