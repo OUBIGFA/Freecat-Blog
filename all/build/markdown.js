@@ -24,10 +24,32 @@ function slugify(text) {
 function autoSpacing(text) {
     if (!text) return '';
     const west = 'a-zA-Z0-9$%.';
-    let processed = text
-        .replace(new RegExp(`([\\u4e00-\\u9fa5])([${west}])`, 'g'), '$1 $2')
-        .replace(new RegExp(`([${west}])([\\u4e00-\\u9fa5])`, 'g'), '$1 $2');
-    return processed.replace(/ {2,}/g, ' ');
+    return preserveMarkdownLinkTargets(text, (safeText) => {
+        let processed = safeText
+            .replace(new RegExp(`([\\u4e00-\\u9fa5])([${west}])`, 'g'), '$1 $2')
+            .replace(new RegExp(`([${west}])([\\u4e00-\\u9fa5])`, 'g'), '$1 $2');
+        return processed.replace(/ {2,}/g, ' ');
+    });
+}
+
+function preserveMarkdownLinkTargets(text, transform) {
+    const input = String(text || '');
+    const protectedValues = [];
+
+    function protect(value) {
+        const key = `\uE000MD${protectedValues.length}\uE001`;
+        protectedValues.push(value);
+        return key;
+    }
+
+    const protectedText = input
+        .replace(/(\]|\]\[[^\]\n]*\])\((<[^>\n]+>|[^)\s\n]+)(?=(?:\s+(?:"[^"\n]*"|'[^'\n]*'|\([^)\n]*\)))?\))/g, (match, prefix, target) => {
+            return match.replace(target, protect(target));
+        })
+        .replace(/<((?:https?:)?\/\/[^<>\s]+)>/gi, (match, target) => `<${protect(target)}>`)
+        .replace(/(?:https?:)?\/\/[^\s<>()]+/gi, (match) => protect(match));
+
+    return transform(protectedText).replace(/\uE000MD(\d+)\uE001/g, (match, idx) => protectedValues[Number(idx)]);
 }
 
 function getFenceMarker(line) {
@@ -189,7 +211,7 @@ function preserveMarkdownGaps(content) {
 function prepareMarkdownSpacing(content) {
     if (!content) return '';
     return preserveFencedCodeBlocks(content, (text) => {
-        return text
+        return preserveMarkdownLinkTargets(text, (safeText) => safeText
             // 移除标题中的加粗符号
             .replace(/^(#{1,6}\s+)(.*)$/gm, (m, prefix, body) => prefix + body.replace(/\*\*\*|\*\*/g, ''))
             // 智能处理粗体/斜体/删除线前后的空格
@@ -213,7 +235,7 @@ function prepareMarkdownSpacing(content) {
             // 缩进 - 列表转换为 * 列表，避免被误识别为 Setext 标题。
             // 这里只能匹配同一行内的空格/Tab，不能用 \s；\s 会吞掉换行，
             // 导致普通列表块的第一项被误改成另一种列表标记。
-            .replace(/^([ \t]{2,})-\s/gm, '$1* ');
+            .replace(/^([ \t]{2,})-\s/gm, '$1* '));
     });
 }
 
