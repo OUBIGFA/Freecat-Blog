@@ -7,18 +7,35 @@ const { autoSpacing, autoSpacingHtml, applyParagraphAlignment, parseMarkdown, ex
 const { stripMarkdown } = require('../markdown.js');
 const seo = require('../seo.js');
 
+const ARTICLE_EXTENSIONS = new Set(['.md', '.markdown', '.txt']);
+
+function isArticleFile(file) {
+    return ARTICLE_EXTENSIONS.has(path.extname(file).toLowerCase());
+}
+
+function fileSlug(file) {
+    return path.basename(file, path.extname(file));
+}
+
+function hasYamlFrontmatter(raw) {
+    return /^---(?:\r?\n|$)/.test(String(raw || ''));
+}
+
 /**
  * 读取 writing/ 目录下的所有 Markdown 文章并归一化为 post 对象数组。
  * 跳过 frontmatter 标记 show: false 的文件。已按"置顶在前 + 时间倒序"排序。
  */
 function loadPosts({ postsDir, gitDates }) {
-    const postFiles = fs.readdirSync(postsDir).filter(f => f.endsWith('.md'));
+    const postFiles = fs.readdirSync(postsDir).filter(isArticleFile);
     const posts = [];
 
     postFiles.forEach(file => {
         const filePath = path.join(postsDir, file);
         const raw = fs.readFileSync(filePath, 'utf-8');
-        const slug = file.replace('.md', '');
+        const slug = fileSlug(file);
+        const ext = path.extname(file).toLowerCase();
+        const isMarkdown = ext === '.md' || ext === '.markdown';
+        const hasMetadata = hasYamlFrontmatter(raw);
         const { data, content } = matter(raw);
         const enableImageCaptions = data.show_image_captions === true || data.enable_image_captions === true || data.enableImageCaptions === true;
 
@@ -55,7 +72,8 @@ function loadPosts({ postsDir, gitDates }) {
             excerpt: autoSpacing(excerptRaw),
             preview: autoSpacing(previewRaw),
             summary: data.summary ? autoSpacing(data.summary) : '',
-            cover: data.cover || '',
+            cover: isMarkdown && hasMetadata ? (data.cover || '') : '',
+            coverPlaceholder: isMarkdown && hasMetadata && !data.cover,
             // 可选 frontmatter：cover_width / cover_height（整数像素）
             // 给 <img> 写 width/height 属性，预留盒子，消除首屏 CLS。
             coverWidth: parseInt(data.cover_width, 10) || 0,

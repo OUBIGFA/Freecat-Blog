@@ -45,6 +45,8 @@
         const modifiedDate = escapeHtml(post.modifiedDate || '');
         const tagsHtml = post.tagsHtml || '';
         const cover = escapeHtml(post.cover || '');
+        const coverPlaceholder = post.coverPlaceholder === true;
+        const imageSrc = cover || (coverPlaceholder ? '/image/404.png' : '');
         const pinned = !!post.pinned;
         const titleText = plainTextFromHtml(titleHtml);
         const desktopPreviewLines = titleText.length >= 24 ? 3 : 4;
@@ -57,12 +59,22 @@
             ? ` width="${coverWidth}" height="${coverHeight}"`
             : '';
 
-        const imageMarkup = cover
-            ? `<img src="${cover}"
+        const imageMarkup = imageSrc
+            ? `<img src="${imageSrc}"
                     alt="Cover"
                     class="w-full h-full object-cover"${coverDimAttrs}
                     ${IMG_FALLBACK_ATTR}
                     loading="lazy" />`
+            : '';
+        const mobileImageBlock = imageMarkup
+            ? `<div class="mt-8 h-[180px] shrink-0 rounded-2xl overflow-hidden sm:h-[200px]">
+                        ${imageMarkup}
+                    </div>`
+            : '';
+        const desktopImageBlock = imageMarkup
+            ? `<div class="col-start-2 row-start-1 h-full rounded-2xl overflow-hidden">
+                        ${imageMarkup}
+                    </div>`
             : '';
 
         const pinnedBadge = pinned
@@ -107,21 +119,17 @@
                     <div class="mt-7 shrink-0">
                         <p class="text-[#63718a] dark:text-gray-400 text-[14px] font-normal leading-7" style="${clampStyle(3)}">${excerptHtml}</p>
                     </div>
-                    <div class="mt-8 h-[180px] shrink-0 rounded-2xl overflow-hidden sm:h-[200px]">
-                        ${imageMarkup}
-                    </div>
+                    ${mobileImageBlock}
                     <div class="mt-4 shrink-0 border-t border-slate-200 dark:border-slate-700 pt-3">
                         <div class="flex min-h-5 items-center">${tagsBlock}</div>
                     </div>
                 </div>
-                <div class="hidden h-full min-w-0 grid-cols-[minmax(0,1fr)_minmax(360px,43%)] grid-rows-[1fr_auto] gap-x-14 lg:grid">
+                <div class="hidden h-full min-w-0 ${imageMarkup ? 'grid-cols-[minmax(0,1fr)_minmax(360px,43%)]' : 'grid-cols-1'} grid-rows-[1fr_auto] gap-x-14 lg:grid">
                     <div class="row-start-1 flex min-h-0 flex-col">
                         <h3 class="text-[#1e293b] dark:text-slate-200 text-[34px] font-black leading-tight" style="${clampStyle(2)}">${titleHtml}</h3>
                         <p class="mt-8 text-[#63718a] dark:text-gray-400 text-[16px] font-normal leading-[1.78]" style="${clampStyle(desktopPreviewLines)}">${excerptHtml}</p>
                     </div>
-                    <div class="col-start-2 row-start-1 h-full rounded-2xl overflow-hidden">
-                        ${imageMarkup}
-                    </div>
+                    ${desktopImageBlock}
                     <div class="col-start-1 row-start-2 border-t border-slate-200 dark:border-slate-700 pt-3">
                         <div class="flex min-h-5 items-center gap-5 text-xs">
                             ${desktopDateBlock}

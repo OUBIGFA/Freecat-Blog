@@ -804,6 +804,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 modifiedDate: post.modifiedDate,
                 tagsHtml,
                 cover: post.cover,
+                coverPlaceholder: post.coverPlaceholder,
                 coverWidth: post.coverWidth,
                 coverHeight: post.coverHeight,
                 pinned: post.pinned
@@ -913,6 +914,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 modifiedDate: post.modifiedDate,
                 tagsHtml,
                 cover: post.cover,
+                coverPlaceholder: post.coverPlaceholder,
                 coverWidth: post.coverWidth,
                 coverHeight: post.coverHeight,
                 pinned: post.pinned

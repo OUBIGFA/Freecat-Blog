@@ -26,6 +26,7 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir }) {
             tags: Array.isArray(post.tag) ? post.tag : (post.tag ? [post.tag] : []),
             link: post.link,
             cover: post.cover,
+            coverPlaceholder: post.coverPlaceholder,
             coverWidth: post.coverWidth || 0,
             coverHeight: post.coverHeight || 0,
             pinned: post.pinned,

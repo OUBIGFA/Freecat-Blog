@@ -23,6 +23,7 @@ function renderPostCardForList(post) {
         modifiedDate: post.modifiedDate.tz('Asia/Shanghai').format('YYYY-MM-DD'),
         tagsHtml,
         cover: post.cover,
+        coverPlaceholder: post.coverPlaceholder,
         coverWidth: post.coverWidth,
         coverHeight: post.coverHeight,
         pinned: post.pinned

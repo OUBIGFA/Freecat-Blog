@@ -19,7 +19,8 @@ function normalizeDateMap(raw) {
 }
 
 function listPostFiles(postsDir) {
-    return fs.readdirSync(postsDir).filter(file => file.endsWith('.md'));
+    const articleExtensions = new Set(['.md', '.markdown', '.txt']);
+    return fs.readdirSync(postsDir).filter(file => articleExtensions.has(path.extname(file).toLowerCase()));
 }
 
 function readSnapshot(snapshotPath) {
