@@ -127,6 +127,25 @@
                 --freecat-posts-edge-gap: 24px;
                 --freecat-posts-gap: 0px;
             }
+
+            .freecat-hero-layout {
+                align-items: center;
+            }
+
+            .freecat-hero-copy {
+                align-items: center;
+                text-align: center;
+            }
+
+            .freecat-hero-copy > div,
+            .freecat-hero-copy h1,
+            .freecat-hero-copy h2 {
+                text-align: center;
+            }
+
+            .freecat-hero-copy h2 {
+                margin-inline: auto;
+            }
         }
 
         /* 首页第一屏不展示分页头时，移除其占位空白 */
@@ -175,7 +194,7 @@
                                         class="freecat-hero-avatar animate-fade-in-up delay-300 w-[var(--freecat-hero-avatar-size)] bg-center bg-no-repeat bg-cover rounded-full"
                                         style='background-image: url("<!-- HERO_AVATAR -->");'></div>
                                 </div>
-                                <div class="flex flex-col gap-4 @[480px]:min-w-[400px] @[480px]:gap-8 flex-1">
+                                <div class="freecat-hero-copy flex flex-col gap-4 @[480px]:min-w-[400px] @[480px]:gap-8 flex-1">
                                     <div class="flex flex-col gap-3 @[480px]:gap-4 text-left">
                                         <h1
                                             class="animate-fade-in-up text-[#1e293b] dark:text-slate-200 text-[length:var(--freecat-hero-title-size)] font-black leading-[1.08] tracking-[-0.033em] @[1184px]:leading-tight">
