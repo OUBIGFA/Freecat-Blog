@@ -1,7 +1,7 @@
 ---
 title: Freecat Blog 免费博客构建指南 | 本地写作 + GitHub 备份 + 免费部署
 _01: 🔹 文章标题
-date: 2026-01-16
+date: 2026-05-15
 _02: 🔹 发布日期：发布或显示的时间
 tag:
   - free
@@ -20,6 +20,8 @@ show: true
 _09: 🔹 显示文章：是否在全站展示此文章
 ---
 Freecat Blog 是一套面向新手的个人博客模板。本地写 Markdown，把改动同步到 GitHub，Cloudflare Pages 或 Vercel 会自动发布成网站。
+
+GitHub 地址：https://github.com/OUBIGFA/Freecat-Blog
 
 不用买服务器，不用维护后台，也不用先学编程。日常只要记住三个文件夹。
 
