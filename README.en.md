@@ -371,6 +371,8 @@ Freecat Blog may continue to receive bug fixes, features, and style improvements
 
 Every Tuesday at 02:17 Beijing time, it syncs template files from [OUBIGFA/Freecat-Blog](https://github.com/OUBIGFA/Freecat-Blog) and commits them to your `main` branch. Cloudflare Pages / Vercel rebuilds automatically after that commit.
 
+Important: whether you created your repository with GitHub Importer or by forking this project, GitHub may not run repository Actions by default. Before relying on automatic template sync, open the `Actions` tab in your own repository and enable workflows if GitHub asks. The repository Actions permission must also allow write access, otherwise the sync can fetch upstream changes but cannot commit them back to your `main` branch.
+
 Sync scope:
 
 - Synced: `all/`, `README.md`, `README.en.md`
@@ -389,7 +391,7 @@ To run the sync immediately:
 Notes:
 
 - If upstream template files have not changed, the workflow skips the commit.
-- If GitHub asks you to enable workflows the first time you open `Actions`, confirm it.
+- If the `Actions` page says workflows are disabled, or this is the first time you open `Actions` after importing/forking, enable them first. After enabling, you can click `Run workflow` once to test it.
 - If you edited templates, styles, or build scripts in `all/`, automatic sync may overwrite those edits. Beginners usually do not need to edit `all/`.
 
 ---

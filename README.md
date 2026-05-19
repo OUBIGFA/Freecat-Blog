@@ -369,6 +369,8 @@ Freecat Blog 会持续修 bug、加功能、优化样式。仓库自带一个 Gi
 
 每周二北京时间凌晨 02:17，它会自动从主仓库 [OUBIGFA/Freecat-Blog](https://github.com/OUBIGFA/Freecat-Blog) 同步模板文件，提交到你的 `main` 分支。Cloudflare Pages / Vercel 会跟着自动重建。
 
+注意：无论你是用 GitHub Importer 导入，还是直接 fork 这个项目，GitHub 都可能默认不运行仓库里的 Actions。第一次使用模板自动同步前，请先打开你自己仓库的 `Actions` 标签，按 GitHub 提示启用 workflows。仓库的 Actions 权限也需要允许写入，否则同步完成后无法自动提交到 `main` 分支。
+
 同步范围：
 
 - 会同步：`all/`、`README.md`、`README.en.md`
@@ -387,7 +389,7 @@ Freecat Blog 会持续修 bug、加功能、优化样式。仓库自带一个 Gi
 几个细节：
 
 - 上游模板没变化时，工作流会跳过提交，不会产生空提交。
-- 第一次打开 `Actions` 标签，GitHub 可能提示要启用工作流，按提示确认即可。
+- 如果 `Actions` 页面提示 workflows 被禁用，或者这是 fork/import 后第一次打开 `Actions`，请先按提示启用。启用后可以手动点一次 `Run workflow` 测试。
 - 改过 `all/` 里的模板、样式或构建脚本的话，自动同步可能覆盖这些改动。新手通常别动 `all/`。
 
 ---
@@ -427,4 +429,3 @@ Freecat Blog 会持续修 bug、加功能、优化样式。仓库自带一个 Gi
 ## 许可证
 
 本项目使用 MIT License。
-
