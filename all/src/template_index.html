@@ -168,10 +168,27 @@
             width: 16rem;
         }
 
+        .freecat-home-recent-shell {
+            display: none;
+        }
+
         .freecat-home-recent-sidebar.is-fixed {
             position: fixed;
             top: calc(var(--freecat-header-height, 72px) + 56px);
             z-index: 20;
+        }
+
+        @media (min-width: 1600px) {
+            .freecat-home-recent-shell {
+                display: block;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .freecat-home-posts-column {
+                max-width: 960px;
+                margin-inline: auto;
+            }
         }
     </style>
 </head>
@@ -233,21 +250,19 @@
                         class="flex items-baseline justify-start pb-2 pt-0 mb-5">
                         <!-- PAGINATION_PLACEHOLDER -->
                     </div>
-                    <div class="flex flex-col lg:flex-row lg:gap-16 xl:gap-20 items-start w-full">
-                        <div class="w-full min-w-0 flex-1">
-                            <!-- === 动态文章注入区 === -->
-                            <div id="posts-list">
-                                <!-- POSTS_LIST_PLACEHOLDER -->
-                            </div>
-                            <!-- ===================== -->
-
-                            <!-- 底部主要分页器 -->
-                            <div id="pagination-buttons" class="flex justify-center">
-                                <!-- PAGINATION_BUTTONS_PLACEHOLDER -->
-                            </div>
+                    <div class="freecat-home-posts-column w-full min-w-0">
+                        <!-- === 动态文章注入区 === -->
+                        <div id="posts-list">
+                            <!-- POSTS_LIST_PLACEHOLDER -->
                         </div>
-                        <!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->
+                        <!-- ===================== -->
+
+                        <!-- 底部主要分页器 -->
+                        <div id="pagination-buttons" class="flex justify-center">
+                            <!-- PAGINATION_BUTTONS_PLACEHOLDER -->
+                        </div>
                     </div>
+                    <!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->
                     </div>
                 </div>
             </section>
@@ -260,8 +275,9 @@
     <script>
         (() => {
             const sidebar = document.getElementById('home-recent-posts-sidebar');
+            const shell = document.getElementById('home-recent-posts-shell');
             const postsPlane = document.querySelector('.freecat-posts-plane');
-            if (!sidebar || !postsPlane) return;
+            if (!sidebar || !shell || !postsPlane) return;
 
             let sidebarLeft = 0;
 
@@ -270,15 +286,28 @@
                 return (header ? header.getBoundingClientRect().height : 72) + 56;
             };
 
-            const getPostsGap = () => {
-                const value = getComputedStyle(document.documentElement)
-                    .getPropertyValue('--freecat-posts-gap');
-                return Number.parseFloat(value) || 0;
+            const alignShellToFirstCard = () => {
+                const firstCard = document.querySelector('#posts-list .post-card > div')
+                    || document.querySelector('#posts-list .post-card');
+                if (!firstCard) return;
+
+                const top = firstCard.getBoundingClientRect().top
+                    - postsPlane.getBoundingClientRect().top;
+                shell.style.marginTop = '0';
+                shell.style.top = `${Math.max(0, Math.round(top))}px`;
+            };
+
+            const captureSidebarLeft = () => {
+                alignShellToFirstCard();
+                sidebar.classList.remove('is-fixed');
+                sidebar.style.left = '';
+                sidebar.style.top = '';
+                sidebarLeft = sidebar.getBoundingClientRect().left;
             };
 
             const updateSidebarPosition = () => {
                 const fixedTop = getFixedTop();
-                const naturalTop = postsPlane.getBoundingClientRect().top + getPostsGap();
+                const naturalTop = shell.getBoundingClientRect().top;
                 const shouldFix = naturalTop <= fixedTop;
                 if (!shouldFix) {
                     sidebar.classList.remove('is-fixed');
@@ -288,18 +317,18 @@
                 }
 
                 if (!sidebar.classList.contains('is-fixed')) {
-                    sidebarLeft = sidebar.getBoundingClientRect().left;
+                    captureSidebarLeft();
                 }
                 sidebar.classList.add('is-fixed');
                 sidebar.style.left = `${sidebarLeft}px`;
                 sidebar.style.top = `${fixedTop}px`;
             };
 
+            captureSidebarLeft();
             updateSidebarPosition();
             window.addEventListener('scroll', updateSidebarPosition, { passive: true });
             window.addEventListener('resize', () => {
-                sidebar.classList.remove('is-fixed');
-                sidebar.style.left = '';
+                captureSidebarLeft();
                 updateSidebarPosition();
             }, { passive: true });
         })();

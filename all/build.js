@@ -171,7 +171,7 @@ if (siteConfig.show_recent_posts === true) {
                     </aside>`;
 
     recentPostsSidebarHomeWrapperHtml = `
-                    <aside class="hidden lg:block sticky top-32 w-64 flex-shrink-0 self-start" style="margin-top: var(--freecat-posts-gap);">
+                    <aside id="home-recent-posts-shell" class="freecat-home-recent-shell absolute top-0 w-64" style="margin-top: calc(var(--freecat-posts-gap) + 36px); left: min(calc(100% - 16rem), calc(50% + 600px));">
                         <div id="home-recent-posts-sidebar" class="freecat-home-recent-sidebar max-h-[calc(100vh-10rem)] overflow-y-auto pr-1 custom-scrollbar">
                             ${recentPostsSidebarInnerHtml.replace(' mt-8', '').trim()}
                         </div>
