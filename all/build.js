@@ -36,6 +36,7 @@ const { generateSitemap, generateRobotsTxt, generateLlmsTxt, generateFeed } = re
 
 // ===== 路径常量 =====
 const DEFAULT_POSTS_PER_PAGE = 8;
+const DEFAULT_RECENT_POSTS_LIMIT = 7;
 const DIRS = {
     posts: path.join(__dirname, '..', 'writing'),
     assets: path.join(__dirname, 'src', 'assets'),
@@ -142,7 +143,7 @@ let recentPostsSidebarInnerHtml = '';
 if (siteConfig.show_recent_posts === true) {
     const recentPosts = [...allPosts]
         .sort((a, b) => b.modifiedDate.valueOf() - a.modifiedDate.valueOf())
-        .slice(0, 10);
+        .slice(0, DEFAULT_RECENT_POSTS_LIMIT);
 
     const itemsHtml = recentPosts.map(post => {
         const safeTitle = engine.shared.escapeHtml(post.title);

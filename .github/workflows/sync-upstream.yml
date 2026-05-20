@@ -73,10 +73,10 @@ jobs:
       - name: Commit and push if changed
         if: steps.guard.outputs.skip != 'true'
         run: |
-          if [ -z "$(git status --porcelain)" ]; then
+          git add -A all/ README.md README.en.md
+          if git diff --cached --quiet -- all/ README.md README.en.md; then
             echo "Template files already match upstream, nothing to commit."
             exit 0
           fi
-          git add all/ README.md README.en.md
           git commit -m "chore(template): sync upstream from OUBIGFA/Freecat-Blog [auto]"
           git push
