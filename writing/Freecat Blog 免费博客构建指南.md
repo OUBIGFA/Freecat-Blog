@@ -21,7 +21,7 @@ _09: 🔹 显示文章：是否在全站展示此文章
 ---
 Freecat Blog 是一套面向新手的个人博客模板。本地写 Markdown，把改动同步到 GitHub，Cloudflare Pages 或 Vercel 会自动发布成网站。
 
-GitHub 地址：https://github.com/OUBIGFA/Freecat-Blog
+GitHub地址：https://github.com/OUBIGFA/Freecat-Blog
 
 不用买服务器，不用维护后台，也不用先学编程。日常只要记住三个文件夹。
 
