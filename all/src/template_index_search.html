@@ -5,6 +5,27 @@
     <!-- INCLUDE:head-base -->
     <title>Search - <!-- SITE_TITLE --></title>
     <!-- SEARCH_SEO_HEAD -->
+    <style>
+        .freecat-home-recent-sidebar {
+            width: 16rem;
+        }
+
+        .freecat-home-recent-shell {
+            display: none;
+        }
+
+        .freecat-home-recent-sidebar.is-fixed {
+            position: fixed;
+            top: calc(var(--freecat-header-height, 72px) + 56px);
+            z-index: 20;
+        }
+
+        @media (min-width: 1880px) {
+            .freecat-home-recent-shell {
+                display: block;
+            }
+        }
+    </style>
 </head>
 
 <body
@@ -17,7 +38,7 @@
              同其它模板：用 --freecat-page-top-offset 防止首屏渲染被固定顶栏遮挡。 -->
         <div
             class="layout-container page-blur-target mt-[var(--freecat-page-top-offset)] flex h-full grow flex-col px-8 md:px-20 lg:px-40 pt-3 pb-3 md:pt-4">
-            <div class="layout-content-container flex flex-col max-w-[1200px] flex-1 mx-auto w-full">
+            <div class="layout-content-container relative flex flex-col max-w-[1200px] flex-1 mx-auto w-full">
 
                 <!-- Go Back 按钮 (Moved to Header) -->
                 <div
@@ -59,16 +80,12 @@
                     </p>
                 </div>
 
-                <div class="flex flex-col lg:flex-row gap-12 items-start w-full">
-                    <div class="w-full min-w-0 flex-1">
-                        <!-- === 动态搜索结果注入区 === -->
-                        <div id="search-results">
-                            <!-- SEARCH_RESULTS_PLACEHOLDER -->
-                        </div>
-                        <!-- ===================== -->
-                    </div>
-                    <!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->
+                <!-- === 动态搜索结果注入区 === -->
+                <div id="search-results">
+                    <!-- SEARCH_RESULTS_PLACEHOLDER -->
                 </div>
+                <!-- ===================== -->
+                <!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->
 
                 <!-- 无结果提示 (默认隐藏) -->
                 <div id="no-results" class="hidden text-center py-20">
@@ -87,6 +104,74 @@
     </div>
 
     <!-- INCLUDE:scripts-end -->
+    <script>
+        (() => {
+            const sidebar = document.getElementById('home-recent-posts-sidebar');
+            const shell = document.getElementById('home-recent-posts-shell');
+            const positioningRoot = shell?.closest('.layout-content-container') || document.body;
+            if (!sidebar || !shell || !positioningRoot) return;
+
+            let sidebarLeft = 0;
+
+            const getFixedTop = () => {
+                const header = document.querySelector('header');
+                return (header ? header.getBoundingClientRect().height : 72) + 56;
+            };
+
+            const alignShellToFirstCard = () => {
+                const firstCard = document.querySelector('#search-results .post-card > div')
+                    || document.querySelector('#search-results .post-card')
+                    || document.getElementById('search-results');
+                if (!firstCard) return;
+
+                const top = firstCard.getBoundingClientRect().top
+                    - positioningRoot.getBoundingClientRect().top;
+                shell.style.marginTop = '0';
+                shell.style.top = `${Math.max(0, Math.round(top))}px`;
+            };
+
+            const captureSidebarLeft = () => {
+                alignShellToFirstCard();
+                sidebar.classList.remove('is-fixed');
+                sidebar.style.left = '';
+                sidebar.style.top = '';
+                sidebarLeft = sidebar.getBoundingClientRect().left;
+            };
+
+            const updateSidebarPosition = () => {
+                const fixedTop = getFixedTop();
+                const naturalTop = shell.getBoundingClientRect().top;
+                const shouldFix = naturalTop <= fixedTop;
+                if (!shouldFix) {
+                    sidebar.classList.remove('is-fixed');
+                    sidebar.style.left = '';
+                    sidebar.style.top = '';
+                    return;
+                }
+
+                if (!sidebar.classList.contains('is-fixed')) {
+                    captureSidebarLeft();
+                }
+                sidebar.classList.add('is-fixed');
+                sidebar.style.left = `${sidebarLeft}px`;
+                sidebar.style.top = `${fixedTop}px`;
+            };
+
+            const refreshSidebar = () => {
+                captureSidebarLeft();
+                updateSidebarPosition();
+            };
+
+            refreshSidebar();
+            window.addEventListener('scroll', updateSidebarPosition, { passive: true });
+            window.addEventListener('resize', refreshSidebar, { passive: true });
+
+            const results = document.getElementById('search-results');
+            if (results) {
+                new MutationObserver(refreshSidebar).observe(results, { childList: true, subtree: true });
+            }
+        })();
+    </script>
 </body>
 
 </html>

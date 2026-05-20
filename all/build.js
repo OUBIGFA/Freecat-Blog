@@ -191,7 +191,7 @@ if (siteConfig.show_recent_posts === true) {
 postPage.generateAll({ posts: allPosts, template: tplPost, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarInnerHtml });
 indexPage.generateAll({ posts: allPosts, template: tplIndex, postsPerPage: POSTS_PER_PAGE, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarHomeWrapperHtml });
 allPage.generate({ posts: allPosts, template: tplIndexAll, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarAllWrapperHtml });
-searchPage.generate({ posts: allPosts, template: tplSearch, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarWrapperHtml });
+searchPage.generate({ posts: allPosts, template: tplSearch, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarAllWrapperHtml });
 aboutPage.generate({ template: tplAbout, siteConfig, seoConfig, aboutConfig, outputDir: DIRS.output });
 generateSitemap({ posts: allPosts, siteConfig, seoConfig, outputDir: DIRS.output });
 generateRobotsTxt({ siteConfig, seoConfig, outputDir: DIRS.output });
