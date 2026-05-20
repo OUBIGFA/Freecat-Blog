@@ -138,6 +138,7 @@ const allPosts = postPage.loadPosts({ postsDir: DIRS.posts, gitDates });
 // ===== 5.5 生成最近更新文章列表 HTML =====
 let recentPostsSidebarWrapperHtml = '';
 let recentPostsSidebarHomeWrapperHtml = '';
+let recentPostsSidebarAllWrapperHtml = '';
 let recentPostsSidebarInnerHtml = '';
 
 if (siteConfig.show_recent_posts === true) {
@@ -177,12 +178,19 @@ if (siteConfig.show_recent_posts === true) {
                             ${recentPostsSidebarInnerHtml.replace(' mt-8', '').trim()}
                         </div>
                     </aside>`;
+
+    recentPostsSidebarAllWrapperHtml = `
+                    <aside id="home-recent-posts-shell" class="freecat-home-recent-shell absolute top-0 w-64" style="left: calc(100% + 96px);">
+                        <div id="home-recent-posts-sidebar" class="freecat-home-recent-sidebar max-h-[calc(100vh-10rem)] overflow-y-auto pr-1 custom-scrollbar">
+                            ${recentPostsSidebarInnerHtml.replace(' mt-8', '').trim()}
+                        </div>
+                    </aside>`;
 }
 
 // ===== 6. 生成各页面 =====
 postPage.generateAll({ posts: allPosts, template: tplPost, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarInnerHtml });
 indexPage.generateAll({ posts: allPosts, template: tplIndex, postsPerPage: POSTS_PER_PAGE, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarHomeWrapperHtml });
-allPage.generate({ posts: allPosts, template: tplIndexAll, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarWrapperHtml });
+allPage.generate({ posts: allPosts, template: tplIndexAll, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarAllWrapperHtml });
 searchPage.generate({ posts: allPosts, template: tplSearch, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarWrapperHtml });
 aboutPage.generate({ template: tplAbout, siteConfig, seoConfig, aboutConfig, outputDir: DIRS.output });
 generateSitemap({ posts: allPosts, siteConfig, seoConfig, outputDir: DIRS.output });

@@ -269,8 +269,10 @@
         (() => {
             const sidebar = document.getElementById('home-recent-posts-sidebar');
             const shell = document.getElementById('home-recent-posts-shell');
-            const postsPlane = document.querySelector('.freecat-posts-plane');
-            if (!sidebar || !shell || !postsPlane) return;
+            const positioningRoot = document.querySelector('.freecat-posts-plane')
+                || shell.closest('.layout-content-container')
+                || document.body;
+            if (!sidebar || !shell || !positioningRoot) return;
 
             let sidebarLeft = 0;
 
@@ -285,7 +287,7 @@
                 if (!firstCard) return;
 
                 const top = firstCard.getBoundingClientRect().top
-                    - postsPlane.getBoundingClientRect().top;
+                    - positioningRoot.getBoundingClientRect().top;
                 shell.style.marginTop = '0';
                 shell.style.top = `${Math.max(0, Math.round(top))}px`;
             };
