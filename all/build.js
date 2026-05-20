@@ -75,7 +75,8 @@ const siteDefaults = {
     default_theme: 'system',
     site_logo_icon: '',
     site_favicon: '/image/freecat_web_icon.png',
-    site_url: ''
+    site_url: '',
+    show_recent_posts: false
 };
 const siteConfig = loadConfig(DIRS.control, 'site', 'site.md', siteDefaults);
 if (!siteConfig.site_favicon) siteConfig.site_favicon = '/image/freecat_web_icon.png';
@@ -133,11 +134,55 @@ const tplAbout = engine.loadTemplate('template_index_About.html');
 console.log('📝 Processing posts...');
 const allPosts = postPage.loadPosts({ postsDir: DIRS.posts, gitDates });
 
+// ===== 5.5 生成最近更新文章列表 HTML =====
+let recentPostsSidebarWrapperHtml = '';
+let recentPostsSidebarHomeWrapperHtml = '';
+let recentPostsSidebarInnerHtml = '';
+
+if (siteConfig.show_recent_posts === true) {
+    const recentPosts = [...allPosts]
+        .sort((a, b) => b.modifiedDate.valueOf() - a.modifiedDate.valueOf())
+        .slice(0, 10);
+
+    const itemsHtml = recentPosts.map(post => {
+        const safeTitle = engine.shared.escapeHtml(post.title);
+        const safeLink = engine.shared.escapeHtml(post.link);
+        return `
+                            <li class="py-3">
+                                <a href="${safeLink}" class="block text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors duration-150 line-clamp-2">
+                                    ${safeTitle}
+                                </a>
+                            </li>`;
+    }).join('\n');
+
+    recentPostsSidebarInnerHtml = `
+                        <div class="flex flex-col flex-shrink-0 mt-8">
+                            <h3 class="text-sm font-semibold tracking-wider text-slate-600 dark:text-slate-300 mb-4">
+                                最近更新
+                            </h3>
+                            <ul class="flex flex-col divide-y divide-slate-200 dark:divide-slate-700">
+                                ${itemsHtml.trim()}
+                            </ul>
+                        </div>`;
+
+    recentPostsSidebarWrapperHtml = `
+                    <aside class="hidden lg:block sticky top-32 w-64 flex-shrink-0 self-start">
+                        ${recentPostsSidebarInnerHtml.trim()}
+                    </aside>`;
+
+    recentPostsSidebarHomeWrapperHtml = `
+                    <aside class="hidden lg:block sticky top-32 w-64 flex-shrink-0 self-start" style="margin-top: var(--freecat-posts-gap);">
+                        <div id="home-recent-posts-sidebar" class="freecat-home-recent-sidebar max-h-[calc(100vh-10rem)] overflow-y-auto pr-1 custom-scrollbar">
+                            ${recentPostsSidebarInnerHtml.replace(' mt-8', '').trim()}
+                        </div>
+                    </aside>`;
+}
+
 // ===== 6. 生成各页面 =====
-postPage.generateAll({ posts: allPosts, template: tplPost, siteConfig, seoConfig, outputDir: DIRS.output });
-indexPage.generateAll({ posts: allPosts, template: tplIndex, postsPerPage: POSTS_PER_PAGE, siteConfig, seoConfig, outputDir: DIRS.output });
-allPage.generate({ posts: allPosts, template: tplIndexAll, siteConfig, seoConfig, outputDir: DIRS.output });
-searchPage.generate({ posts: allPosts, template: tplSearch, siteConfig, seoConfig, outputDir: DIRS.output });
+postPage.generateAll({ posts: allPosts, template: tplPost, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarInnerHtml });
+indexPage.generateAll({ posts: allPosts, template: tplIndex, postsPerPage: POSTS_PER_PAGE, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarHomeWrapperHtml });
+allPage.generate({ posts: allPosts, template: tplIndexAll, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarWrapperHtml });
+searchPage.generate({ posts: allPosts, template: tplSearch, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarWrapperHtml });
 aboutPage.generate({ template: tplAbout, siteConfig, seoConfig, aboutConfig, outputDir: DIRS.output });
 generateSitemap({ posts: allPosts, siteConfig, seoConfig, outputDir: DIRS.output });
 generateRobotsTxt({ siteConfig, seoConfig, outputDir: DIRS.output });

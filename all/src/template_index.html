@@ -163,6 +163,16 @@
         #view-all-header:not(:empty) + #posts-list {
             padding-top: 0;
         }
+
+        .freecat-home-recent-sidebar {
+            width: 16rem;
+        }
+
+        .freecat-home-recent-sidebar.is-fixed {
+            position: fixed;
+            top: calc(var(--freecat-header-height, 72px) + 56px);
+            z-index: 20;
+        }
     </style>
 </head>
 
@@ -223,15 +233,20 @@
                         class="flex items-baseline justify-start pb-2 pt-0 mb-5">
                         <!-- PAGINATION_PLACEHOLDER -->
                     </div>
-                    <!-- === 动态文章注入区 === -->
-                    <div id="posts-list">
-                        <!-- POSTS_LIST_PLACEHOLDER -->
-                    </div>
-                    <!-- ===================== -->
+                    <div class="flex flex-col lg:flex-row lg:gap-16 xl:gap-20 items-start w-full">
+                        <div class="w-full min-w-0 flex-1">
+                            <!-- === 动态文章注入区 === -->
+                            <div id="posts-list">
+                                <!-- POSTS_LIST_PLACEHOLDER -->
+                            </div>
+                            <!-- ===================== -->
 
-                    <!-- 底部主要分页器 -->
-                    <div id="pagination-buttons" class="flex justify-center">
-                        <!-- PAGINATION_BUTTONS_PLACEHOLDER -->
+                            <!-- 底部主要分页器 -->
+                            <div id="pagination-buttons" class="flex justify-center">
+                                <!-- PAGINATION_BUTTONS_PLACEHOLDER -->
+                            </div>
+                        </div>
+                        <!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->
                     </div>
                     </div>
                 </div>
@@ -242,6 +257,53 @@
     </div>
 
     <!-- INCLUDE:scripts-end -->
+    <script>
+        (() => {
+            const sidebar = document.getElementById('home-recent-posts-sidebar');
+            const postsPlane = document.querySelector('.freecat-posts-plane');
+            if (!sidebar || !postsPlane) return;
+
+            let sidebarLeft = 0;
+
+            const getFixedTop = () => {
+                const header = document.querySelector('header');
+                return (header ? header.getBoundingClientRect().height : 72) + 56;
+            };
+
+            const getPostsGap = () => {
+                const value = getComputedStyle(document.documentElement)
+                    .getPropertyValue('--freecat-posts-gap');
+                return Number.parseFloat(value) || 0;
+            };
+
+            const updateSidebarPosition = () => {
+                const fixedTop = getFixedTop();
+                const naturalTop = postsPlane.getBoundingClientRect().top + getPostsGap();
+                const shouldFix = naturalTop <= fixedTop;
+                if (!shouldFix) {
+                    sidebar.classList.remove('is-fixed');
+                    sidebar.style.left = '';
+                    sidebar.style.top = '';
+                    return;
+                }
+
+                if (!sidebar.classList.contains('is-fixed')) {
+                    sidebarLeft = sidebar.getBoundingClientRect().left;
+                }
+                sidebar.classList.add('is-fixed');
+                sidebar.style.left = `${sidebarLeft}px`;
+                sidebar.style.top = `${fixedTop}px`;
+            };
+
+            updateSidebarPosition();
+            window.addEventListener('scroll', updateSidebarPosition, { passive: true });
+            window.addEventListener('resize', () => {
+                sidebar.classList.remove('is-fixed');
+                sidebar.style.left = '';
+                updateSidebarPosition();
+            }, { passive: true });
+        })();
+    </script>
 </body>
 
 </html>

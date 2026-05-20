@@ -23,4 +23,7 @@ theme_light: false
 _11: 🔹 浅色模式：全站强制使用明亮风格
 theme_dark: false
 _12: 🔹 深色模式：全站强制使用暗黑风格
+show_recent_posts: true
+_13: 🔹 最近更新开关：是否显示最近更新的十篇文章
 ---
+

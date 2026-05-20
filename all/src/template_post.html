@@ -186,17 +186,20 @@
                     <div class="hidden xl:grid grid-cols-[256px_48px] items-start gap-12">
                         <aside
                             class="w-64 flex-shrink-0 sticky top-32 h-[calc(100vh-300px)] self-start relative group/toc lg:mt-[68px]">
-                            <div class="flex h-full flex-col">
-                                <!-- 目录标题固定 -->
-                                <h3 class="text-sm font-bold tracking-wider text-slate-500 dark:text-slate-400 mb-4">
-                                    目录
-                                </h3>
-                                <!-- 只有列表区域可滚动，美化滚动条 -->
-                                <div id="toc-container" class="min-h-0 flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                                    <nav class="flex flex-col gap-1 border-l border-slate-200 dark:border-slate-700">
-                                        <!-- TOC_PLACEHOLDER -->
-                                    </nav>
+                            <div class="flex h-full flex-col gap-8">
+                                <div class="flex flex-col min-h-0 flex-1">
+                                    <!-- 目录标题固定 -->
+                                    <h3 class="text-sm font-bold tracking-wider text-slate-500 dark:text-slate-400 mb-4">
+                                        目录
+                                    </h3>
+                                    <!-- 只有列表区域可滚动，美化滚动条 -->
+                                    <div id="toc-container" class="min-h-0 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                                        <nav class="flex flex-col gap-1 border-l border-slate-200 dark:border-slate-700">
+                                            <!-- TOC_PLACEHOLDER -->
+                                        </nav>
+                                    </div>
                                 </div>
+                                <!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->
                             </div>
                         </aside>
                         <div class="sticky top-32 flex h-[calc(100vh-300px)] flex-col items-center lg:mt-[68px]">

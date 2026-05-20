@@ -9,7 +9,7 @@ const SEARCH_CONTENT_MAX_CHARS = 1500;
 /**
  * 生成搜索索引 (search-index.json) + 搜索页 (search.html)。
  */
-function generate({ posts, template, siteConfig, seoConfig, outputDir }) {
+function generate({ posts, template, siteConfig, seoConfig, outputDir, recentPostsSidebarHtml }) {
     console.log('🔍 Generating search index...');
     const searchIndex = posts.map(post => {
         const stripped = stripMarkdown(post.content);
@@ -52,7 +52,9 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir }) {
         image: seo.defaultImage(siteConfig, seoConfig),
         noindex: true
     });
-    fs.writeFileSync(path.join(outputDir, 'search.html'), template.replace('<!-- SEARCH_SEO_HEAD -->', () => seoHead));
+    fs.writeFileSync(path.join(outputDir, 'search.html'), template
+        .replace('<!-- SEARCH_SEO_HEAD -->', () => seoHead)
+        .replace('<!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->', () => recentPostsSidebarHtml || ''));
     console.log('  Generated: search.html');
 }
 

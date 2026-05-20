@@ -39,7 +39,7 @@ function renderViewAllLink(totalPages) {
             </a>`;
 }
 
-function generateAll({ posts, template, postsPerPage, siteConfig, seoConfig, outputDir }) {
+function generateAll({ posts, template, postsPerPage, siteConfig, seoConfig, outputDir, recentPostsSidebarHtml }) {
     const totalPages = postsPerPage === 0 ? 1 : Math.ceil(posts.length / postsPerPage);
 
     for (let page = 1; page <= totalPages; page++) {
@@ -68,7 +68,8 @@ function generateAll({ posts, template, postsPerPage, siteConfig, seoConfig, out
             .replace('<!-- HOME_JSONLD -->', () => jsonLd)
             .replace('<!-- POSTS_LIST_PLACEHOLDER -->', () => postsHtml)
             .replace('<!-- PAGINATION_BUTTONS_PLACEHOLDER -->', () => paginationBtns)
-            .replace('<!-- PAGINATION_PLACEHOLDER -->', () => renderViewAllLink(totalPages));
+            .replace('<!-- PAGINATION_PLACEHOLDER -->', () => renderViewAllLink(totalPages))
+            .replace('<!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->', () => recentPostsSidebarHtml || '');
 
         if (page === 1) {
             fs.writeFileSync(path.join(outputDir, 'index.html'), outputHtml);
