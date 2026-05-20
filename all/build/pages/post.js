@@ -104,7 +104,7 @@ function loadPosts({ postsDir, gitDates }) {
 /**
  * 渲染单篇文章详情页 HTML。
  */
-function renderPostPage({ post, template, siteConfig, seoConfig, recentPostsSidebarHtml }) {
+function renderPostPage({ post, template, siteConfig, seoConfig }) {
     const { toc, headings } = extractHeadingsAndGenerateTOC(post.content);
     let contentHtml = parseMarkdown(post.content, { enableImageCaptions: post.enableImageCaptions });
     const articleHeadings = headings.map(h => ({ ...h, renderedLevel: Math.min(h.level + 1, 6) }));
@@ -203,14 +203,13 @@ function renderPostPage({ post, template, siteConfig, seoConfig, recentPostsSide
         .replace('<!-- POST_HIGHLIGHT_JS -->', () => highlightJs)
         .replace('<!-- POST_AUDIO_CSS -->', () => audioCss)
         .replace('<!-- POST_AUDIO_JS -->', () => audioJs)
-        .replace('<!-- POST_JSONLD -->', () => jsonLd)
-        .replace('<!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->', () => recentPostsSidebarHtml || '');
+        .replace('<!-- POST_JSONLD -->', () => jsonLd);
 }
 
-function generateAll({ posts, template, siteConfig, seoConfig, outputDir, recentPostsSidebarHtml }) {
+function generateAll({ posts, template, siteConfig, seoConfig, outputDir }) {
     console.log('📄 Generating post pages...');
     posts.forEach(post => {
-        const html = renderPostPage({ post, template, siteConfig, seoConfig, recentPostsSidebarHtml });
+        const html = renderPostPage({ post, template, siteConfig, seoConfig });
         const outFile = path.join(outputDir, 'posts', `${post.slug}.html`);
         fs.writeFileSync(outFile, html);
         console.log(`  Generated: posts/${post.slug}.html`);
