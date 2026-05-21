@@ -1,6 +1,7 @@
-# Article Modified Dates
+# Article Date Snapshots
 
 `all/git-dates.json` stores the last Git commit time for every Markdown article in `writing/`.
+It also stores the first recorded publish time for articles that do not provide a `date` in frontmatter.
 
 ## Automatic Flow
 
@@ -17,8 +18,9 @@ Cloudflare Pages or Vercel then builds from the committed snapshot. No platform 
 ## Build Rule
 
 Production builds trust only `all/git-dates.json` for article modified dates.
+Articles with `date` frontmatter use that value as the publish date. Articles without `date` frontmatter use the stored publish value in `all/git-dates.json`, so their publish dates do not drift when the repository is checked out again.
 
-If the snapshot is missing, or if it does not contain a visible article, the build fails instead of falling back to file system times. Checkout file times are not real article edit times.
+If `all/git-dates.json` is missing, or if it does not contain a visible article, the build fails instead of falling back to file system times. Checkout file times are not real article edit times.
 
 ## Manual Refresh
 

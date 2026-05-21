@@ -60,7 +60,15 @@ if (fs.existsSync(DIRS.images)) copyDir(DIRS.images, path.join(DIRS.output, 'ima
 // Do not fall back to file mtimes here; checkout mtimes are not article edit times.
 const gitDates = gitDatesModule.loadSnapshot({
     snapshotPath: path.join(__dirname, 'git-dates.json'),
-    required: true
+    required: true,
+    label: 'Git modified date',
+    section: 'modified'
+});
+const postDates = gitDatesModule.loadSnapshot({
+    snapshotPath: path.join(__dirname, 'git-dates.json'),
+    required: false,
+    label: 'post publish date',
+    section: 'published'
 });
 
 // ===== 3. 加载配置（site / social / about） =====
@@ -133,7 +141,7 @@ const tplAbout = engine.loadTemplate('template_index_About.html');
 
 // ===== 5. 加载并排序文章 =====
 console.log('📝 Processing posts...');
-const allPosts = postPage.loadPosts({ postsDir: DIRS.posts, gitDates });
+const allPosts = postPage.loadPosts({ postsDir: DIRS.posts, gitDates, postDates });
 
 // ===== 5.5 生成最近更新文章列表 HTML =====
 let recentPostsSidebarWrapperHtml = '';

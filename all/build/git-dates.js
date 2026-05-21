@@ -23,9 +23,13 @@ function listPostFiles(postsDir) {
     return fs.readdirSync(postsDir).filter(file => articleExtensions.has(path.extname(file).toLowerCase()));
 }
 
-function readSnapshot(snapshotPath) {
+function readSnapshot(snapshotPath, section) {
     if (!fs.existsSync(snapshotPath)) return null;
     const raw = JSON.parse(fs.readFileSync(snapshotPath, 'utf-8'));
+    if (section && raw && typeof raw === 'object' && raw[section] && typeof raw[section] === 'object') {
+        return normalizeDateMap(raw[section]);
+    }
+    if (section) return {};
     return normalizeDateMap(raw);
 }
 
@@ -49,8 +53,8 @@ function makeDateStore(cache, source) {
     };
 }
 
-function loadSnapshot({ snapshotPath, required = true }) {
-    const cache = readSnapshot(snapshotPath);
+function loadSnapshot({ snapshotPath, required = true, label = 'Git modified date', section = '' }) {
+    const cache = readSnapshot(snapshotPath, section);
 
     if (!cache) {
         if (!required) return makeDateStore({}, 'none');
@@ -61,7 +65,7 @@ function loadSnapshot({ snapshotPath, required = true }) {
         );
     }
 
-    console.log(`Loaded Git modified date snapshot for ${Object.keys(cache).length} article files.`);
+    console.log(`Loaded ${label} snapshot for ${Object.keys(cache).length} article files.`);
     return makeDateStore(cache, 'snapshot');
 }
 
@@ -69,6 +73,33 @@ function extractFromGit(repoRoot, targetDir) {
     const map = {};
     const normalizedTarget = normalizePath(targetDir);
     const cmd = `git -c core.quotepath=false log --no-renames --name-only --pretty=format:"@@COMMIT@@%cI" -- "${normalizedTarget}"`;
+
+    const output = execSync(cmd, {
+        cwd: repoRoot,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+        maxBuffer: 32 * 1024 * 1024
+    });
+
+    const blocks = output.split('@@COMMIT@@').filter(Boolean);
+    for (const block of blocks) {
+        const lines = block.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+        if (lines.length === 0) continue;
+
+        const timestamp = lines[0];
+        for (let i = 1; i < lines.length; i++) {
+            const filename = path.posix.basename(normalizePath(lines[i]));
+            if (filename && !map[filename]) map[filename] = timestamp;
+        }
+    }
+
+    return map;
+}
+
+function extractFirstFromGit(repoRoot, targetDir) {
+    const map = {};
+    const normalizedTarget = normalizePath(targetDir);
+    const cmd = `git -c core.quotepath=false log --reverse --no-renames --name-only --pretty=format:"@@COMMIT@@%cI" -- "${normalizedTarget}"`;
 
     const output = execSync(cmd, {
         cwd: repoRoot,
@@ -114,8 +145,33 @@ function collectFromGit({ repoRoot, postsDir }) {
     return makeDateStore(cache, 'git');
 }
 
+function collectPublishDates({ repoRoot, postsDir, existing = {} }) {
+    const postFiles = listPostFiles(postsDir);
+    const normalizedExisting = normalizeDateMap(existing);
+    const postsDirRelToRepo = repoRoot ? normalizePath(path.relative(repoRoot, postsDir)) : '';
+    const firstGitDates = repoRoot ? extractFirstFromGit(repoRoot, postsDirRelToRepo) : {};
+    const cache = {};
+
+    for (const file of postFiles) {
+        const existingDate = normalizedExisting[file];
+        if (existingDate) {
+            cache[file] = existingDate;
+            continue;
+        }
+
+        const fileCreatedAt = fs.statSync(path.join(postsDir, file)).birthtime.toISOString();
+        cache[file] = process.env.GITHUB_ACTIONS === 'true'
+            ? (firstGitDates[file] || fileCreatedAt)
+            : fileCreatedAt;
+    }
+
+    return makeDateStore(cache, 'filesystem');
+}
+
 module.exports = {
+    collectPublishDates,
     collectFromGit,
+    extractFirstFromGit,
     extractFromGit,
     loadSnapshot,
     normalizeDateMap

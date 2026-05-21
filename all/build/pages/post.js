@@ -25,7 +25,7 @@ function hasYamlFrontmatter(raw) {
  * 读取 writing/ 目录下的所有 Markdown 文章并归一化为 post 对象数组。
  * 跳过 frontmatter 标记 show: false 的文件。已按"置顶在前 + 时间倒序"排序。
  */
-function loadPosts({ postsDir, gitDates }) {
+function loadPosts({ postsDir, gitDates, postDates }) {
     const postFiles = fs.readdirSync(postsDir).filter(isArticleFile);
     const posts = [];
 
@@ -44,8 +44,9 @@ function loadPosts({ postsDir, gitDates }) {
             return;
         }
 
-        const stats = fs.statSync(filePath);
-        const publishDate = data.date ? dayjs(data.date) : dayjs(stats.birthtime);
+        const storedPublishDate = postDates && typeof postDates.get === 'function' ? postDates.get(file) : null;
+        const fallbackPublishDate = gitDates && typeof gitDates.get === 'function' ? gitDates.get(file) : null;
+        const publishDate = data.date ? dayjs(data.date) : dayjs(storedPublishDate || fallbackPublishDate || fs.statSync(filePath).birthtime);
 
         let modifiedDate;
         if (data.updated) modifiedDate = dayjs(data.updated);

@@ -32,19 +32,19 @@ jobs:
         working-directory: all
         run: npm ci
 
-      - name: Generate article modified date snapshot
+      - name: Generate article date snapshots
         working-directory: all
         run: npm run extract-dates
 
-      - name: Commit updated snapshot
+      - name: Commit updated snapshots
         run: |
           if git diff --quiet -- all/git-dates.json; then
-            echo "all/git-dates.json is already up to date."
+            echo "Article date snapshots are already up to date."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add all/git-dates.json
-          git commit -m "chore: update article modified dates"
+          git commit -m "chore: update article date snapshots"
           git push
