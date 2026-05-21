@@ -1359,14 +1359,14 @@
 .prose {
     --article-space-tight: 0.42rem;
     --article-space-flow: 1.2rem;
-    --article-space-heading-to-content: 1rem;
-    --article-space-heading-parent-child: 1.59rem;
-    --article-space-heading-peer-1: 4.47rem;
-    --article-space-heading-peer-2: 3.29rem;
-    --article-space-heading-peer-3: 2.76rem;
-    --article-space-heading-peer-4: 2.24rem;
-    --article-space-heading-peer-5: 2rem;
-    --article-space-heading-peer-6: 1.82rem;
+    --article-space-heading-to-content: 1.25rem;
+    --article-space-heading-parent-child: 1.99rem;
+    --article-space-heading-peer-1: 5.59rem;
+    --article-space-heading-peer-2: 4.11rem;
+    --article-space-heading-peer-3: 3.45rem;
+    --article-space-heading-peer-4: 2.8rem;
+    --article-space-heading-peer-5: 2.5rem;
+    --article-space-heading-peer-6: 2.28rem;
     --article-space-divider-before: 2.1rem;
     --article-space-divider-after: 2.1rem;
 }

@@ -18,21 +18,21 @@ const remFor = (token) => {
 test('final rhythm uses normal markdown scale values', () => {
     assert.equal(remFor('article-space-tight'), 0.42);
     assert.equal(remFor('article-space-flow'), 1.2);
-    assert.equal(remFor('article-space-heading-to-content'), 1);
-    assert.equal(remFor('article-space-heading-parent-child'), 1.59);
-    assert.equal(remFor('article-space-heading-peer-1'), 4.47);
-    assert.equal(remFor('article-space-heading-peer-2'), 3.29);
-    assert.equal(remFor('article-space-heading-peer-3'), 2.76);
-    assert.equal(remFor('article-space-heading-peer-4'), 2.24);
-    assert.equal(remFor('article-space-heading-peer-5'), 2);
-    assert.equal(remFor('article-space-heading-peer-6'), 1.82);
+    assert.equal(remFor('article-space-heading-to-content'), 1.25);
+    assert.equal(remFor('article-space-heading-parent-child'), 1.99);
+    assert.equal(remFor('article-space-heading-peer-1'), 5.59);
+    assert.equal(remFor('article-space-heading-peer-2'), 4.11);
+    assert.equal(remFor('article-space-heading-peer-3'), 3.45);
+    assert.equal(remFor('article-space-heading-peer-4'), 2.8);
+    assert.equal(remFor('article-space-heading-peer-5'), 2.5);
+    assert.equal(remFor('article-space-heading-peer-6'), 2.28);
     assert.equal(remFor('article-space-divider-before'), 2.1);
     assert.equal(remFor('article-space-divider-after'), 2.1);
 });
 
 test('heading ownership and section hierarchy remain ordered', () => {
-    assert.ok(remFor('article-space-heading-to-content') < remFor('article-space-flow'));
-    assert.ok(remFor('article-space-flow') < remFor('article-space-heading-peer-6'));
+    assert.ok(remFor('article-space-heading-to-content') < remFor('article-space-heading-parent-child'));
+    assert.ok(remFor('article-space-heading-parent-child') < remFor('article-space-heading-peer-6'));
     assert.ok(remFor('article-space-heading-peer-6') < remFor('article-space-heading-peer-5'));
     assert.ok(remFor('article-space-heading-peer-5') < remFor('article-space-heading-peer-4'));
     assert.ok(remFor('article-space-heading-peer-4') < remFor('article-space-heading-peer-3'));
