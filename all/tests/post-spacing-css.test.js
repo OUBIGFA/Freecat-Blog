@@ -7,6 +7,7 @@ const css = fs.readFileSync(path.join(__dirname, '..', 'src', 'assets', 'post.cs
 const rhythmStart = css.lastIndexOf('/* Normal Markdown article rhythm:');
 assert.notEqual(rhythmStart, -1, 'missing final normal markdown rhythm layer');
 const rhythm = css.slice(rhythmStart);
+const beforeRhythm = css.slice(0, rhythmStart);
 
 const remFor = (token) => {
     const match = rhythm.match(new RegExp(`--${token}: ([0-9.]+)rem;`));
@@ -17,14 +18,14 @@ const remFor = (token) => {
 test('final rhythm uses normal markdown scale values', () => {
     assert.equal(remFor('article-space-tight'), 0.42);
     assert.equal(remFor('article-space-flow'), 1.2);
-    assert.equal(remFor('article-space-heading-to-content'), 0.85);
-    assert.equal(remFor('article-space-heading-parent-child'), 1.35);
-    assert.equal(remFor('article-space-heading-peer-1'), 3.8);
-    assert.equal(remFor('article-space-heading-peer-2'), 2.8);
-    assert.equal(remFor('article-space-heading-peer-3'), 2.35);
-    assert.equal(remFor('article-space-heading-peer-4'), 1.9);
-    assert.equal(remFor('article-space-heading-peer-5'), 1.7);
-    assert.equal(remFor('article-space-heading-peer-6'), 1.55);
+    assert.equal(remFor('article-space-heading-to-content'), 1);
+    assert.equal(remFor('article-space-heading-parent-child'), 1.59);
+    assert.equal(remFor('article-space-heading-peer-1'), 4.47);
+    assert.equal(remFor('article-space-heading-peer-2'), 3.29);
+    assert.equal(remFor('article-space-heading-peer-3'), 2.76);
+    assert.equal(remFor('article-space-heading-peer-4'), 2.24);
+    assert.equal(remFor('article-space-heading-peer-5'), 2);
+    assert.equal(remFor('article-space-heading-peer-6'), 1.82);
     assert.equal(remFor('article-space-divider-before'), 2.1);
     assert.equal(remFor('article-space-divider-after'), 2.1);
 });
@@ -52,9 +53,12 @@ test('article heading type scale is derived from the body size and keeps clear h
 
 test('final rhythm explicitly resets old margins that previously stacked with markdown gaps', () => {
     assert.doesNotMatch(rhythm, /calc\(var\(--article-rhythm\) \*/);
-    assert.match(rhythm, /\.prose p,[\s\S]*?\.prose table,[\s\S]*?\.prose \.article-heading,[\s\S]*?\.prose \.article-heading-depth-1,[\s\S]*?margin-block: 0 !important;/);
+    assert.doesNotMatch(css, /Adaptive Golden-Ratio Heading Hierarchy/);
+    assert.doesNotMatch(css, /--article-heading-to-body/);
+    assert.match(rhythm, /\.prose p,[\s\S]*?\.prose table,[\s\S]*?\.prose \.article-heading,[\s\S]*?\.prose \.article-heading-depth-1,[\s\S]*?margin: 0 !important;/);
     assert.match(rhythm, /\.prose li \{[\s\S]*?margin: 0 0 var\(--article-space-tight\) !important;/);
-    assert.match(rhythm, /\.prose li > p \{[\s\S]*?margin-block: 0 !important;/);
+    assert.match(rhythm, /\.prose li > p \{[\s\S]*?margin: 0 !important;/);
+    assert.doesNotMatch(beforeRhythm, /margin-(top|bottom): (0\.618em|1\.618em|2\.618em|1\.75rem|1\.5rem) !important;/);
 });
 
 test('generic content flow excludes headings so headings keep semantic spacing', () => {
