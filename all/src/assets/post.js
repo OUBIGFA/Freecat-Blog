@@ -670,7 +670,7 @@
             sequenceNumberColor: '#ffffff',
             signalColor: isDark ? '#8da0b6' : '#334155',
             signalTextColor: isDark ? '#e5edf6' : '#0f172a',
-            edgeLabelBackground: isDark ? '#0f172a' : '#f8fafc',
+            edgeLabelBackground: isDark ? '#1e293b' : '#f8fafc',
             labelBoxBkgColor: 'transparent',
             labelBoxBorderColor: isDark ? '#516176' : '#94a3b8',
             labelTextColor: isDark ? '#e5edf6' : '#0f172a',

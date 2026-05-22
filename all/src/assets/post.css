@@ -2066,9 +2066,18 @@
 }
 
 .mermaid-block .labelBkg {
-    background-color: rgba(248, 250, 252, 0.72) !important;
+    background-color: #f8fafc !important;
+    border: 1px solid #94a3b8 !important;
     border-radius: 4px;
     color: #0f172a !important;
+}
+
+.mermaid-block .labelBkg * {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .mermaid-block rect.note {
@@ -2113,7 +2122,8 @@
 }
 
 .dark .mermaid-block .labelBkg {
-    background-color: rgba(30, 41, 59, 0.72) !important;
+    background-color: #1e293b !important;
+    border-color: #64748b !important;
     color: #e7edf6 !important;
 }
 
