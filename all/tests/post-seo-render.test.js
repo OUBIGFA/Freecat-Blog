@@ -16,7 +16,7 @@ test('post page keeps one visible H1 and renders FAQ schema', () => {
         '<time datetime="<!-- DATE_ISO_PLACEHOLDER -->"><!-- DATE_PLACEHOLDER --></time>',
         '<div><!-- CONTENT_PLACEHOLDER --></div>',
         '<!-- TAGS_PLACEHOLDER --><!-- MODIFIED_PLACEHOLDER --><!-- COVER_PLACEHOLDER --><!-- TOC_PLACEHOLDER -->',
-        '<!-- POST_HEAD_LIBS --><!-- POST_HIGHLIGHT_CSS --><!-- POST_KATEX_CSS --><!-- POST_HIGHLIGHT_JS -->',
+        '<!-- POST_HIGHLIGHT_CSS --><!-- POST_KATEX_CSS --><!-- POST_HIGHLIGHT_JS -->',
         '</body></html>'
     ].join('');
     const post = {
@@ -52,4 +52,3 @@ test('post page keeps one visible H1 and renders FAQ schema', () => {
     assert.match(html, /<section class="article-faq/);
     assert.match(html, /"@type":"FAQPage"/);
 });
-

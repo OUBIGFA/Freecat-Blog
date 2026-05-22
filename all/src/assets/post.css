@@ -1,4 +1,4 @@
-/* From Uiverse.io by catraco - Modified for compatibility */
+﻿/* From Uiverse.io by catraco - Modified for compatibility */
 .copy-btn-container {
     --color: #7b8797;
     --size: 17px;
@@ -108,7 +108,7 @@
     }
 }
 
-/* 自定义滚动条样式 */
+/* 鑷畾涔夋粴鍔ㄦ潯鏍峰紡 */
 .custom-scrollbar::-webkit-scrollbar {
     width: 4px;
 }
@@ -126,11 +126,11 @@
     background-color: #475569;
 }
 
-/* ===== 黄金比例阅读间距系统 =====
-   基于科学的黄金比例 (φ = 1.618) 设计
-   - 段落间距 (p → p): 1.618em (大间距，区分不同段落)
-   - 标题到正文 (h → p): 0.618em (小间距，保持标题与内容的紧密关联)
-   - 新段落到标题 (p → h): 2.618em (最大间距，明确区分不同章节)
+/* ===== 榛勯噾姣斾緥闃呰闂磋窛绯荤粺 =====
+   鍩轰簬绉戝鐨勯粍閲戞瘮渚?(蠁 = 1.618) 璁捐
+   - 娈佃惤闂磋窛 (p 鈫?p): 1.618em (澶ч棿璺濓紝鍖哄垎涓嶅悓娈佃惤)
+   - 鏍囬鍒版鏂?(h 鈫?p): 0.618em (灏忛棿璺濓紝淇濇寔鏍囬涓庡唴瀹圭殑绱у瘑鍏宠仈)
+   - 鏂版钀藉埌鏍囬 (p 鈫?h): 2.618em (鏈€澶ч棿璺濓紝鏄庣‘鍖哄垎涓嶅悓绔犺妭)
 */
 
 /* Post Title Responsive Styles */
@@ -154,7 +154,7 @@
     /* Slate-200 */
 }
 
-/* 段落样式：段落之间使用黄金比例间距 */
+/* 娈佃惤鏍峰紡锛氭钀戒箣闂翠娇鐢ㄩ粍閲戞瘮渚嬮棿璺?*/
 .prose {
     font-size: 1.15rem !important;
 }
@@ -168,38 +168,38 @@
 .prose p {
     color: #1e293b !important;
     /* Slate-700 */
-    /* 从 2rem 减少到 1.75rem (28px) */
+    /* 浠?2rem 鍑忓皯鍒?1.75rem (28px) */
     line-height: 1.8 !important;
-    /* 默认左对齐，通过类名控制具体对齐方式 */
+    /* 榛樿宸﹀榻愶紝閫氳繃绫诲悕鎺у埗鍏蜂綋瀵归綈鏂瑰紡 */
     text-align: left;
-    /* 防止孤行标点：允许标点溢出容器边缘 */
+    /* 闃叉瀛よ鏍囩偣锛氬厑璁告爣鐐规孩鍑哄鍣ㄨ竟缂?*/
     hanging-punctuation: allow-end last;
-    /* 严格换行规则：防止标点出现在行首 */
+    /* 涓ユ牸鎹㈣瑙勫垯锛氶槻姝㈡爣鐐瑰嚭鐜板湪琛岄 */
     line-break: strict;
-    /* 允许长单词/URL换行但优先保持完整 */
+    /* 鍏佽闀垮崟璇?URL鎹㈣浣嗕紭鍏堜繚鎸佸畬鏁?*/
     overflow-wrap: break-word;
-    /* 强制不使用连字符换行 */
+    /* 寮哄埗涓嶄娇鐢ㄨ繛瀛楃鎹㈣ */
     -webkit-hyphens: none !important;
     -ms-hyphens: none !important;
     hyphens: none !important;
 }
 
-/* 纯中文段落：两端对齐 */
+/* 绾腑鏂囨钀斤細涓ょ瀵归綈 */
 .prose p.text-justify-cjk {
     text-align: justify !important;
     text-align-last: left !important;
-    /* 优化中文排版 */
+    /* 浼樺寲涓枃鎺掔増 */
     text-justify: inter-ideograph;
-    /* 防止孤行标点：允许标点溢出容器边缘 */
+    /* 闃叉瀛よ鏍囩偣锛氬厑璁告爣鐐规孩鍑哄鍣ㄨ竟缂?*/
     hanging-punctuation: allow-end last;
-    /* 严格换行规则 */
+    /* 涓ユ牸鎹㈣瑙勫垯 */
     line-break: strict;
 }
 
-/* 英文/混排段落：左对齐 */
+/* 鑻辨枃/娣锋帓娈佃惤锛氬乏瀵归綈 */
 .prose p.text-align-left {
     text-align: left !important;
-    /* 继承防止孤行标点的规则 */
+    /* 缁ф壙闃叉瀛よ鏍囩偣鐨勮鍒?*/
 }
 
 .dark .prose p {
@@ -207,17 +207,17 @@
     /* Slate-400 */
 }
 
-/* 移除段落末尾多余间距 */
+/* 绉婚櫎娈佃惤鏈熬澶氫綑闂磋窛 */
 
 
 
-/* 列表样式优化：列表内部保持紧凑，列表块之间再留出段落级间距 */
-/* 软换行 (Shift+Enter / <br>) 使用正常行间距 */
+/* 鍒楄〃鏍峰紡浼樺寲锛氬垪琛ㄥ唴閮ㄤ繚鎸佺揣鍑戯紝鍒楄〃鍧椾箣闂村啀鐣欏嚭娈佃惤绾ч棿璺?*/
+/* 杞崲琛?(Shift+Enter / <br>) 浣跨敤姝ｅ父琛岄棿璺?*/
 .prose br {
     display: block !important;
     content: "" !important;
     margin: 0 !important;
-    /* 行间距由 line-height 控制，不添加额外间距 */
+    /* 琛岄棿璺濈敱 line-height 鎺у埗锛屼笉娣诲姞棰濆闂磋窛 */
 }
 
 .prose .katex {
@@ -230,7 +230,7 @@
     overflow-y: hidden;
     padding: 0.2rem 0;
     margin: 2rem 0 !important;
-    /* 统一使用 2rem */
+    /* 缁熶竴浣跨敤 2rem */
 }
 
 .dark .prose .katex-display {
@@ -254,7 +254,7 @@
     white-space: nowrap;
 }
 
-/* H1 标题 - Highest Level */
+/* H1 鏍囬 - Highest Level */
 .prose h1 {
     color: #1e293b !important;
     font-size: 2.0rem !important;
@@ -263,7 +263,7 @@
     font-weight: 900 !important;
 }
 
-/* H2 标题 */
+/* H2 鏍囬 */
 .prose h2 {
     color: #1e293b !important;
     font-size: 1.75rem !important;
@@ -272,7 +272,7 @@
     font-weight: 800 !important;
 }
 
-/* H3 标题 */
+/* H3 鏍囬 */
 .prose h3 {
     color: #1e293b !important;
     font-size: 1.5rem !important;
@@ -281,7 +281,7 @@
     font-weight: 700 !important;
 }
 
-/* H4 标题 */
+/* H4 鏍囬 */
 .prose h4 {
     color: #1e293b !important;
     font-size: 1.25rem !important;
@@ -290,7 +290,7 @@
     font-weight: 600 !important;
 }
 
-/* H5 标题 */
+/* H5 鏍囬 */
 .prose h5 {
     color: #1e293b !important;
     font-size: 1.15rem !important;
@@ -299,7 +299,7 @@
     font-weight: 600 !important;
 }
 
-/* H6 标题 */
+/* H6 鏍囬 */
 .prose h6 {
     color: #1e293b !important;
     font-size: 1.05rem !important;
@@ -347,7 +347,7 @@
     }
 }
 
-/* 确保第一个标题没有顶部间距 */
+/* 纭繚绗竴涓爣棰樻病鏈夐《閮ㄩ棿璺?*/
 .prose>h1:first-child,
 .prose>h2:first-child,
 .prose>h3:first-child,
@@ -357,10 +357,10 @@
     margin-top: 0 !important;
 }
 
-/* 链接样式：下划线 + 灰色区分 + 无悬停变色 */
+/* 閾炬帴鏍峰紡锛氫笅鍒掔嚎 + 鐏拌壊鍖哄垎 + 鏃犳偓鍋滃彉鑹?*/
 .prose a {
     color: #6b7280 !important;
-    /* 中灰色 */
+    /* 涓伆鑹?*/
     text-decoration: underline !important;
     text-underline-offset: 4px !important;
     transition: opacity 0.2s ease !important;
@@ -373,10 +373,10 @@
 
 .prose a:hover {
     opacity: 0.8 !important;
-    /* 仅轻微透明度变化 */
+    /* 浠呰交寰€忔槑搴﹀彉鍖?*/
 }
 
-/* 优化正文对齐方式 */
+/* 浼樺寲姝ｆ枃瀵归綈鏂瑰紡 */
 .prose {
     word-break: break-word !important;
     overflow-wrap: break-word !important;
@@ -384,16 +384,13 @@
 
 
 
-/* ===== 图片容器间距规则 - 像段落一样的行为 ===== */
-/* 图片容器的间距逻辑：
-   - margin-top: 0（上方间距由前置元素的 margin-bottom 提供）
-   - margin-bottom: 1.618em（像段落一样，给下方元素基础间距）
-   - 后续元素（标题）会根据自身的 margin-top 规则添加额外间距
+/* ===== 鍥剧墖瀹瑰櫒闂磋窛瑙勫垯 - 鍍忔钀戒竴鏍风殑琛屼负 ===== */
+/* 鍥剧墖瀹瑰櫒鐨勯棿璺濋€昏緫锛?   - margin-top: 0锛堜笂鏂归棿璺濈敱鍓嶇疆鍏冪礌鐨?margin-bottom 鎻愪緵锛?   - margin-bottom: 1.618em锛堝儚娈佃惤涓€鏍凤紝缁欎笅鏂瑰厓绱犲熀纭€闂磋窛锛?   - 鍚庣画鍏冪礌锛堟爣棰橈級浼氭牴鎹嚜韬殑 margin-top 瑙勫垯娣诲姞棰濆闂磋窛
 */
 .prose .relative.w-full.inline-block {
     margin-top: 0 !important;
     margin-bottom: 2rem !important;
-    /* 统一 */
+    /* 缁熶竴 */
     display: inline-block;
     width: 100%;
 }
@@ -401,12 +398,12 @@
 .prose figure.post-image {
     margin-top: 0 !important;
     margin-bottom: 2rem !important;
-    /* 统一 */
+    /* 缁熶竴 */
     display: block;
     width: 100%;
 }
 
-/* 图片后面的标题：重置 margin-top，保持与段落相同的间距 */
+/* 鍥剧墖鍚庨潰鐨勬爣棰橈細閲嶇疆 margin-top锛屼繚鎸佷笌娈佃惤鐩稿悓鐨勯棿璺?*/
 .prose .relative.w-full.inline-block+h1,
 .prose .relative.w-full.inline-block+h2,
 .prose .relative.w-full.inline-block+h3,
@@ -414,7 +411,7 @@
 .prose .relative.w-full.inline-block+h5,
 .prose .relative.w-full.inline-block+h6 {
     margin-top: 0 !important;
-    /* 使用图片自己的 margin-bottom (1.618em) 作为唯一间距 */
+    /* 浣跨敤鍥剧墖鑷繁鐨?margin-bottom (1.618em) 浣滀负鍞竴闂磋窛 */
 }
 
 .prose figure.post-image+h1,
@@ -426,13 +423,13 @@
     margin-top: 0 !important;
 }
 
-/* 确保图片不会溢出 */
+/* 纭繚鍥剧墖涓嶄細婧㈠嚭 */
 .prose img {
     width: 100% !important;
     height: auto;
     border-radius: 0.75rem;
     margin-top: 0 !important;
-    /* 间距已由容器处理，img 自身不需要 margin */
+    /* 闂磋窛宸茬敱瀹瑰櫒澶勭悊锛宨mg 鑷韩涓嶉渶瑕?margin */
 }
 
 .prose .image-caption {
@@ -440,17 +437,17 @@
     line-height: 1.6 !important;
 }
 
-/* 允许 MD 中可能残留的 HTML 标签保留部分原生样式 */
+/* 鍏佽 MD 涓彲鑳芥畫鐣欑殑 HTML 鏍囩淇濈暀閮ㄥ垎鍘熺敓鏍峰紡 */
 .prose font {
     font-family: inherit;
 }
 
-/* 优化 Markdown 中嵌入的 HTML center 和 table 色块组合 */
+/* 浼樺寲 Markdown 涓祵鍏ョ殑 HTML center 鍜?table 鑹插潡缁勫悎 */
 .prose center {
     display: block !important;
     width: 100% !important;
     margin-bottom: 2rem !important;
-    /* 使用统一的大间距 */
+    /* 浣跨敤缁熶竴鐨勫ぇ闂磋窛 */
 }
 
 .prose center table {
@@ -458,19 +455,19 @@
     margin-right: auto !important;
     display: table !important;
     width: 100% !important;
-    /* 强制铺满全宽 */
+    /* 寮哄埗閾烘弧鍏ㄥ */
     border: none !important;
-    /* 移除外边框 */
+    /* 绉婚櫎澶栬竟妗?*/
     background-color: transparent !important;
-    /* 防止双重背景 */
+    /* 闃叉鍙岄噸鑳屾櫙 */
 }
 
 .prose center table td {
     border: none !important;
     padding: 0.5rem 1rem !important;
-    /* 增加一点内边距让色块更好看 */
+    /* 澧炲姞涓€鐐瑰唴杈硅窛璁╄壊鍧楁洿濂界湅 */
     text-align: center !important;
-    /* 保持文字居中 */
+    /* 淇濇寔鏂囧瓧灞呬腑 */
 }
 
 /* Dark Mode adaptation for legacy HTML bgcolor attributes */
@@ -480,52 +477,8 @@
     color: #b6c2cf !important;
 }
 
-/* ===== Mermaid 图表容器样式 ===== */
-.mermaid {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    background-color: #f8fafc !important;
-    /* Slate-50 */
-    border: 1px solid #e2e8f0 !important;
-    /* Slate-200 */
-    border-radius: 0.75rem !important;
-    padding: 2rem 1rem !important;
-    margin: 2rem auto !important;
-    overflow-x: auto !important;
-    /* 优雅的水平滚动条 */
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5e1 transparent;
-}
 
-.dark .mermaid {
-    background-color: #0f172a !important;
-    /* Slate-900 */
-    border-color: #1e293b !important;
-    /* Slate-700 */
-    scrollbar-color: #475569 transparent;
-}
-
-.mermaid {
-    overflow-y: hidden !important;
-    -webkit-overflow-scrolling: touch;
-}
-
-.mermaid svg {
-    display: block;
-    height: auto !important;
-    max-width: none !important;
-}
-
-.mermaid foreignObject {
-    overflow: visible;
-}
-
-.mermaid .edgeLabel {
-    white-space: nowrap;
-}
-
-/* ===== 代码块样式 ===== */
+/* ===== 浠ｇ爜鍧楁牱寮?===== */
 .prose :not(pre)>code {
     background-color: #f1f5f9 !important;
     color: #475569 !important;
@@ -543,7 +496,7 @@
     border-color: #233044 !important;
 }
 
-/* 代码块容器内的 pre 样式重置 */
+/* 浠ｇ爜鍧楀鍣ㄥ唴鐨?pre 鏍峰紡閲嶇疆 */
 .prose pre {
     background-color: transparent !important;
     color: #1e293b !important;
@@ -554,9 +507,9 @@
     font-size: 0.875rem !important;
     line-height: 1.7 !important;
     white-space: pre-wrap !important;
-    /* 核心：支持自动换行 */
+    /* 鏍稿績锛氭敮鎸佽嚜鍔ㄦ崲琛?*/
     word-break: break-all !important;
-    /* 配合换行 */
+    /* 閰嶅悎鎹㈣ */
 }
 
 .dark .prose pre {
@@ -566,23 +519,23 @@
 .prose pre code {
     background-color: transparent !important;
     color: #1e293b !important;
-    /* 深灰色，确保清晰可读 */
+    /* 娣辩伆鑹诧紝纭繚娓呮櫚鍙 */
     padding: 0 !important;
     border: none !important;
-    /* 核心：移除代码块内容的边框 */
+    /* 鏍稿績锛氱Щ闄や唬鐮佸潡鍐呭鐨勮竟妗?*/
     font-size: inherit !important;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
     white-space: pre-wrap !important;
-    /* 核心：支持自动换行 */
+    /* 鏍稿績锛氭敮鎸佽嚜鍔ㄦ崲琛?*/
 }
 
-/* 深色模式下代码块文字颜色 */
+/* 娣辫壊妯″紡涓嬩唬鐮佸潡鏂囧瓧棰滆壊 */
 .dark .prose pre code {
     color: #cbd5e1 !important;
-    /* 柔和的浅灰色 */
+    /* 鏌斿拰鐨勬祬鐏拌壊 */
 }
 
-/* ===== 引用块样式 (Blockquote) ===== */
+/* ===== 寮曠敤鍧楁牱寮?(Blockquote) ===== */
 .prose blockquote {
     border-left: 3px solid #64748b !important;
     background-color: #f8fafc !important;
@@ -745,7 +698,7 @@
     margin-top: 0 !important;
 }
 
-/* 嵌套引用 */
+/* 宓屽寮曠敤 */
 .prose blockquote blockquote {
     margin: 0.9em 0 0 0.75em !important;
     border-left-color: #94a3b8 !important;
@@ -774,8 +727,8 @@
     color: #94a3b8 !important;
 }
 
-/* ===== 列表样式 ===== */
-/* 无序列表 */
+/* ===== 鍒楄〃鏍峰紡 ===== */
+/* 鏃犲簭鍒楄〃 */
 .prose ul {
     list-style-type: disc !important;
     padding-left: 1.5em !important;
@@ -791,7 +744,7 @@
     list-style-type: square !important;
 }
 
-/* 有序列表 */
+/* 鏈夊簭鍒楄〃 */
 .prose ol {
     list-style-type: decimal !important;
     padding-left: 1.5em !important;
@@ -803,7 +756,7 @@
     margin: 0.5em 0 !important;
 }
 
-/* 列表项 */
+/* 鍒楄〃椤?*/
 .prose li {
     margin-bottom: 0.5em !important;
     line-height: 1.7 !important;
@@ -828,12 +781,12 @@
 
 .prose li::marker {
     color: #9ca3af !important;
-    /* 中灰色 */
+    /* 涓伆鑹?*/
 }
 
 .dark .prose li::marker {
     color: #6b7280 !important;
-    /* 深色模式中灰色 */
+    /* 娣辫壊妯″紡涓伆鑹?*/
 }
 
 .prose li>p {
@@ -854,14 +807,14 @@
     margin: 0.35em 0 !important;
 }
 
-/* 任务列表 (Checkbox) */
+/* 浠诲姟鍒楄〃 (Checkbox) */
 .prose input[type="checkbox"] {
     margin-right: 0.5em !important;
     accent-color: #6b7280 !important;
-    /* 中灰色 */
+    /* 涓伆鑹?*/
 }
 
-/* ===== 表格样式 ===== */
+/* ===== 琛ㄦ牸鏍峰紡 ===== */
 .prose table {
     width: 100% !important;
     display: table !important;
@@ -925,7 +878,7 @@
     background-color: transparent !important;
 }
 
-/* ===== 水平分割线 ===== */
+/* ===== 姘村钩鍒嗗壊绾?===== */
 .prose hr {
     border: none !important;
     border-top: 2px solid #e2e8f0 !important;
@@ -936,14 +889,14 @@
     border-top-color: #475569 !important;
 }
 
-/* ===== 删除线 ===== */
+/* ===== 鍒犻櫎绾?===== */
 .prose del,
 .prose s {
     text-decoration: line-through !important;
     color: #94a3b8 !important;
 }
 
-/* ===== 加粗和斜体 ===== */
+/* ===== 鍔犵矖鍜屾枩浣?===== */
 .prose strong {
     font-weight: 700 !important;
     color: #1e293b !important;
@@ -961,7 +914,7 @@
     font-style: italic !important;
 }
 
-/* ===== 标记/高亮 ===== */
+/* ===== 鏍囪/楂樹寒 ===== */
 .prose mark {
     background-color: #fef08a;
     color: #854d0e;
@@ -1079,7 +1032,7 @@
     color: #b6c2cf !important;
 }
 
-/* ===== 脚注样式 ===== */
+/* ===== 鑴氭敞鏍峰紡 ===== */
 .prose sup {
     font-size: 0.75em !important;
     vertical-align: super !important;
@@ -1090,7 +1043,7 @@
     vertical-align: sub !important;
 }
 
-/* ===== 定义列表 ===== */
+/* ===== 瀹氫箟鍒楄〃 ===== */
 .prose dl {
     margin: 1.618em 0 !important;
 }
@@ -1990,4 +1943,279 @@
 .prose .fold-toggle-btn span {
     color: currentColor !important;
     font-size: 0.98rem !important;
+}
+
+.diagram-block {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    background-color: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 0.75rem !important;
+    padding: 2rem 1rem !important;
+    margin: 2rem auto !important;
+    overflow: visible !important;
+    min-height: 180px;
+}
+
+.dark .diagram-block {
+    background-color: #0f172a !important;
+    border-color: #1e293b !important;
+}
+
+.mermaid-block .mermaid {
+    width: 100%;
+    min-width: 0;
+    background: transparent !important;
+    border: 0 !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    overflow: visible !important;
+}
+
+.diagram-block svg {
+    flex: 0 0 auto;
+    display: block;
+    height: auto !important;
+    max-width: none !important;
+}
+
+.diagram-block foreignObject {
+    overflow: visible;
+}
+
+.diagram-block .edgeLabel {
+    white-space: nowrap;
+}
+
+.mermaid-block g.cluster rect {
+    fill: rgba(248, 250, 252, 0.28) !important;
+    stroke: #a8b5c6 !important;
+    stroke-width: 0.75px !important;
+}
+
+.mermaid-block .cluster-label,
+.mermaid-block .cluster-label div,
+.mermaid-block .cluster-label span,
+.mermaid-block .cluster-label p {
+    color: #0f172a !important;
+}
+
+.mermaid-block .node rect,
+.mermaid-block .node polygon,
+.mermaid-block rect.actor,
+.mermaid-block rect.labelBox {
+    fill: transparent !important;
+    stroke: #718096 !important;
+    stroke-width: 1.35px !important;
+}
+
+.mermaid-block .node circle,
+.mermaid-block .node ellipse {
+    fill: transparent !important;
+    stroke: #718096 !important;
+    stroke-width: 1.35px !important;
+}
+
+.mermaid-block .flowchart-link,
+.mermaid-block .messageLine0,
+.mermaid-block .messageLine1,
+.mermaid-block .loopLine,
+.mermaid-block .actor-line {
+    stroke: #64748b !important;
+}
+
+.mermaid-block marker path,
+.mermaid-block .arrowheadPath {
+    fill: #64748b !important;
+    stroke: #64748b !important;
+}
+
+.diagram-block .actor,
+.diagram-block .labelBox {
+    rx: 4px;
+    ry: 4px;
+}
+
+.diagram-block .messageText,
+.diagram-block .noteText,
+.diagram-block .loopText,
+.diagram-block .actor>text,
+.diagram-block .labelText {
+    font-weight: 400 !important;
+}
+
+.mermaid-block .actor>text,
+.mermaid-block .actor tspan,
+.mermaid-block .messageText,
+.mermaid-block .messageText tspan,
+.mermaid-block .noteText,
+.mermaid-block .noteText tspan,
+.mermaid-block .loopText,
+.mermaid-block .loopText tspan,
+.mermaid-block .labelText,
+.mermaid-block .labelText tspan {
+    fill: #0f172a !important;
+    stroke: none !important;
+}
+
+.mermaid-block .edgeLabel,
+.mermaid-block .edgeLabel p,
+.mermaid-block .edgeLabel span {
+    color: #0f172a !important;
+}
+
+.mermaid-block .labelBkg {
+    border-radius: 4px;
+}
+
+.dark .mermaid-block .node rect,
+.dark .mermaid-block .node polygon,
+.dark .mermaid-block rect.actor,
+.dark .mermaid-block rect.labelBox,
+.dark .mermaid-block .node circle,
+.dark .mermaid-block .node ellipse {
+    stroke: #9aa8bc !important;
+}
+
+.dark .mermaid-block .flowchart-link,
+.dark .mermaid-block .messageLine0,
+.dark .mermaid-block .messageLine1,
+.dark .mermaid-block .loopLine,
+.dark .mermaid-block .actor-line {
+    stroke: #94a3b8 !important;
+}
+
+.dark .mermaid-block marker path,
+.dark .mermaid-block .arrowheadPath {
+    fill: #94a3b8 !important;
+    stroke: #94a3b8 !important;
+}
+
+.dark .mermaid-block g.cluster rect {
+    fill: rgba(30, 41, 59, 0.2) !important;
+    stroke: #56657a !important;
+    stroke-width: 0.75px !important;
+}
+
+.dark .mermaid-block .cluster-label,
+.dark .mermaid-block .cluster-label div,
+.dark .mermaid-block .cluster-label span,
+.dark .mermaid-block .cluster-label p {
+    color: #e7edf6 !important;
+}
+
+.dark .mermaid-block .labelBkg {
+    background-color: rgba(30, 41, 59, 0.72) !important;
+    color: #e7edf6 !important;
+}
+
+.dark .mermaid-block .actor>text,
+.dark .mermaid-block .actor tspan,
+.dark .mermaid-block .messageText,
+.dark .mermaid-block .messageText tspan,
+.dark .mermaid-block .noteText,
+.dark .mermaid-block .noteText tspan,
+.dark .mermaid-block .loopText,
+.dark .mermaid-block .loopText tspan,
+.dark .mermaid-block .labelText,
+.dark .mermaid-block .labelText tspan {
+    fill: #e7edf6 !important;
+    stroke: none !important;
+}
+
+.dark .mermaid-block .edgeLabel,
+.dark .mermaid-block .edgeLabel p,
+.dark .mermaid-block .edgeLabel span {
+    color: #e7edf6 !important;
+}
+
+.freecat-gantt {
+    display: block;
+    overflow: visible;
+}
+
+.freecat-gantt-title {
+    fill: #1f2937;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.freecat-gantt-section-bg {
+    fill: rgba(226, 232, 240, 0.34);
+}
+
+.freecat-gantt-section-label,
+.freecat-gantt-task-text,
+.freecat-gantt-tick {
+    fill: #334155;
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.freecat-gantt-section-label {
+    font-size: 13px;
+}
+
+.freecat-gantt-grid {
+    stroke: #d8e0ea;
+    stroke-width: 1;
+}
+
+.freecat-gantt-axis {
+    stroke: #cbd5e1;
+    stroke-width: 1;
+}
+
+.freecat-gantt-task {
+    fill: #64748b;
+    stroke: #475569;
+    stroke-width: 1;
+}
+
+.freecat-gantt-task-text.inside {
+    fill: #ffffff;
+}
+
+.dark .freecat-gantt-title,
+.dark .freecat-gantt-section-label,
+.dark .freecat-gantt-task-text,
+.dark .freecat-gantt-tick {
+    fill: #dbe4f0;
+}
+
+.dark .freecat-gantt-section-bg {
+    fill: rgba(30, 41, 59, 0.5);
+}
+
+.dark .freecat-gantt-grid,
+.dark .freecat-gantt-axis {
+    stroke: #2f3d51;
+}
+
+.echarts-block {
+    min-height: 420px;
+    align-items: center !important;
+    overflow: hidden !important;
+}
+
+.echarts-canvas {
+    width: 100%;
+    min-width: min(100%, 520px);
+    height: 380px;
+}
+
+.diagram-error {
+    min-height: 120px;
+    text-align: center;
+}
+
+.diagram-error p {
+    margin: 0 !important;
+    color: #475569 !important;
+    font-size: 0.95rem !important;
+}
+
+.dark .diagram-error p {
+    color: #94a3b8 !important;
 }

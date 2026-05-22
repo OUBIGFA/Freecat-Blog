@@ -788,13 +788,47 @@ function buildRenderer() {
         return paragraphRenderer.call(renderer, text);
     };
 
-    renderer.code = (code, language) => {
-        const escapedCode = code
+    function escapeHtml(value) {
+        return String(value || '')
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;');
+    }
+
+    function normalizeCodeLanguage(language) {
+        return String(language || '').trim().split(/\s+/)[0].toLowerCase();
+    }
+
+    function base64EncodeUtf8(value) {
+        return Buffer.from(String(value || ''), 'utf8').toString('base64');
+    }
+
+    renderer.code = (code, language) => {
+        const normalizedLanguage = normalizeCodeLanguage(language);
+        const escapedCode = escapeHtml(code);
+
+        if (normalizedLanguage === 'mermaid') {
+            return `
+    <div class="diagram-block mermaid-block my-6" data-diagram-type="mermaid">
+        <div class="mermaid" data-mermaid-source="${base64EncodeUtf8(code)}">${escapedCode}</div>
+    </div>`;
+        }
+
+        if (normalizedLanguage === 'echarts' || normalizedLanguage === 'chart') {
+            let error = '';
+            try {
+                JSON.parse(String(code || ''));
+            } catch (err) {
+                error = err && err.message ? err.message : 'Invalid JSON';
+            }
+            const errorAttr = error ? ` data-chart-error="${escapeHtml(error)}"` : '';
+            return `
+    <div class="diagram-block echarts-block my-6"${errorAttr} data-chart-options="${base64EncodeUtf8(code)}">
+        <div class="echarts-canvas" role="img" aria-label="ECharts chart"></div>
+    </div>`;
+        }
 
         const langClass = language ? `language-${language}` : '';
         const langLabel = language

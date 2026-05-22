@@ -45,93 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeToggleBtn = document.getElementById('theme-toggle');
     const html = document.documentElement;
 
-    // ============================================================
-    // [Feature] Mermaid 图表渲染（文章页用，但加载在 main.js 里因为依赖主题切换联动）
-    // ============================================================
-    function normalizeMermaidBlocks() {
-        const selector = [
-            'pre > code.language-mermaid',
-            'pre > code.lang-mermaid',
-            'pre > code.mermaid'
-        ].join(',');
-        const mermaidCodeBlocks = document.querySelectorAll(selector);
-
-        mermaidCodeBlocks.forEach((code) => {
-            if (code.closest('.mermaid')) return;
-
-            const sourceCode = code.textContent || '';
-            const mermaidDiv = document.createElement('div');
-            mermaidDiv.className = 'mermaid';
-            mermaidDiv.setAttribute('data-mermaid-source', sourceCode);
-            mermaidDiv.textContent = sourceCode;
-
-            const container = code.closest('.code-block-container');
-            if (container) {
-                container.replaceWith(mermaidDiv);
-                return;
-            }
-
-            const pre = code.closest('pre');
-            if (pre) {
-                pre.replaceWith(mermaidDiv);
-                return;
-            }
-
-            code.replaceWith(mermaidDiv);
-        });
-    }
-
-    function getBeautifulMermaidApi() {
-        return window.beautifulMermaid || window.__mermaid || null;
-    }
-
-    function getBeautifulMermaidTheme() {
-        const isDark = html.classList.contains('dark');
-        return {
-            bg: isDark ? '#101622' : '#f6f6f8',
-            fg: isDark ? '#e2e8f0' : '#1e293b',
-            line: isDark ? '#8b9bb3' : '#475569',
-            accent: isDark ? '#38bdf8' : '#2563eb',
-            muted: isDark ? '#94a3b8' : '#64748b',
-            surface: isDark ? '#1A2332' : '#ffffff',
-            border: isDark ? '#2a3648' : '#d7dde5',
-            font: 'Inter, ui-sans-serif, system-ui, sans-serif',
-            padding: 32,
-            nodeSpacing: 28,
-            layerSpacing: 46,
-            transparent: true
-        };
-    }
-
-    async function initMermaid() {
-        const api = getBeautifulMermaidApi();
-        if (!api || typeof api.renderMermaid !== 'function') return;
-
-        normalizeMermaidBlocks();
-
-        const mermaidDivs = document.querySelectorAll('.mermaid');
-        const theme = getBeautifulMermaidTheme();
-
-        for (const div of mermaidDivs) {
-            let sourceCode = div.getAttribute('data-mermaid-source');
-            if (!sourceCode) {
-                sourceCode = div.innerText;
-                div.setAttribute('data-mermaid-source', sourceCode);
-            }
-
-            try {
-                const svg = await api.renderMermaid(sourceCode, theme);
-                div.innerHTML = svg;
-                div.removeAttribute('data-processed');
-            } catch (err) {
-                console.error('Beautiful Mermaid rendering error:', err);
-                div.innerHTML = `<pre class="mermaid-error">Mermaid 渲染失败，请检查图表语法。</pre>`;
-            }
-        }
-    }
-    // ============================================================
-    // [Feature] 全局图片加载失败兜底（事件捕获阶段拦截，防止重复触发）
-    // ============================================================
     document.addEventListener('error', (e) => {
         const target = e.target;
         if (!target || target.tagName !== 'IMG') return;
@@ -289,12 +202,6 @@ document.addEventListener('DOMContentLoaded', () => {
         );
     }
 
-    function refreshThemeDependentRenderers() {
-        // 更新 Mermaid 主题 (如果已加载)
-        if (getBeautifulMermaidApi()) {
-            initMermaid();
-        }
-    }
 
     // 统一主题应用逻辑
     function applyTheme(options = {}) {
@@ -303,7 +210,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!shouldAnimate) {
             setThemeState(isDark);
-            refreshThemeDependentRenderers();
             return;
         }
 
@@ -316,7 +222,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 .catch(() => { })
                 .finally(() => {
                     html.classList.remove(THEME_VIEW_TRANSITION_CLASS);
-                    refreshThemeDependentRenderers();
                 });
             return;
         }
@@ -325,7 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // 确保统一过渡类先生效，再切换深浅色，避免局部 transition 各走各的时长。
         void html.offsetWidth;
         setThemeState(isDark);
-        refreshThemeDependentRenderers();
     }
 
     // 标签颜色更新函数
@@ -390,13 +294,6 @@ document.addEventListener('DOMContentLoaded', () => {
             updateContentTopOffset();
             scheduleHomeHeroMeasure();
         });
-    }
-
-    // 确保 Mermaid 在合适时机初始化
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initMermaid);
-    } else {
-        initMermaid();
     }
 
     // ============================================================

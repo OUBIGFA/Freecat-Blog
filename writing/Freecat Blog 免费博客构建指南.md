@@ -96,8 +96,6 @@ GitHub地址：https://github.com/OUBIGFA/Freecat-Blog
 | Cloudflare 账户 | 推荐 | 用于自动构建和发布网站 |
 | Vercel 账户 | 可选 | 另一种自动部署方式 |
 
-GitHub 账户和 GitHub Desktop 是底子，Cloudflare Pages 和 Vercel 二选一。
-
 ---
 
 ## 第一步：建一个自己的博客仓库

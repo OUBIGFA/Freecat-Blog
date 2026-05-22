@@ -146,15 +146,17 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
     // 按需加载：扫描渲染后的 HTML，只为真正用到的特性引入对应 CSS/JS
     const needsHighlight = /<pre[^>]*><code/i.test(finalContentHtml);
     const needsKatex = /class="katex/i.test(finalContentHtml);
-    const needsMermaid = /class="language-mermaid|class="lang-mermaid|class="mermaid"|<code[^>]*mermaid/i.test(finalContentHtml);
+    const needsMermaid = /data-diagram-type="mermaid"|class="(?:[^"]*\s)?mermaid-block(?:\s[^"]*)?"/i.test(finalContentHtml);
+    const needsEcharts = /class="(?:[^"]*\s)?echarts-block(?:\s[^"]*)?"|data-chart-options=/i.test(finalContentHtml);
     // 音频播放器：在 markdown 渲染结果里检测 🎵 标记或音频后缀链接。
     // audio-player.js 自身还要求链接在 <blockquote> 中，没匹配上时只是 no-op；
     // 因此即便误判命中，副作用仅是多下载一份 JS+CSS（约 25KB），没有功能问题。
     const needsAudioPlayer = /🎵|<a [^>]*href="[^"]*\.(?:mp3|m4a|wav|ogg|aac|flac|opus)\b/i.test(finalContentHtml);
 
-    const headLibs = needsMermaid
-        ? '<script src="https://cdn.jsdelivr.net/npm/beautiful-mermaid/dist/beautiful-mermaid.browser.global.js" defer></script>'
-        : '';
+    const chartJs = [
+        needsMermaid ? '<script src="https://cdn.jsdelivr.net/npm/vditor@3.11.2/dist/js/mermaid/mermaid.min.js"></script>' : '',
+        needsEcharts ? '<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>' : ''
+    ].filter(Boolean).join('\n    ');
     const highlightCss = needsHighlight
         ? '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />'
         : '';
@@ -198,10 +200,10 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
         .replace('<!-- CONTENT_PLACEHOLDER -->', () => finalContentHtml)
         .replace('<!-- TOC_PLACEHOLDER -->', () => toc)
         .replace('<!-- POST_SEO_HEAD -->', () => seoHead)
-        .replace('<!-- POST_HEAD_LIBS -->', () => headLibs)
         .replace('<!-- POST_HIGHLIGHT_CSS -->', () => highlightCss)
         .replace('<!-- POST_KATEX_CSS -->', () => katexCss)
         .replace('<!-- POST_HIGHLIGHT_JS -->', () => highlightJs)
+        .replace('<!-- POST_CHART_JS -->', () => chartJs)
         .replace('<!-- POST_AUDIO_CSS -->', () => audioCss)
         .replace('<!-- POST_AUDIO_JS -->', () => audioJs)
         .replace('<!-- POST_JSONLD -->', () => jsonLd);
