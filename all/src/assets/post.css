@@ -2066,7 +2066,14 @@
 }
 
 .mermaid-block .labelBkg {
+    background-color: rgba(248, 250, 252, 0.72) !important;
     border-radius: 4px;
+    color: #0f172a !important;
+}
+
+.mermaid-block rect.note {
+    fill: #fff7c2 !important;
+    stroke: #d8ca70 !important;
 }
 
 .dark .mermaid-block .node rect,
@@ -2108,6 +2115,11 @@
 .dark .mermaid-block .labelBkg {
     background-color: rgba(30, 41, 59, 0.72) !important;
     color: #e7edf6 !important;
+}
+
+.dark .mermaid-block rect.note {
+    fill: rgba(30, 41, 59, 0.78) !important;
+    stroke: #64748b !important;
 }
 
 .dark .mermaid-block .actor>text,

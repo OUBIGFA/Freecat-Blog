@@ -359,7 +359,18 @@
         if (message) container.setAttribute('title', message);
     }
 
+    var mermaidRenderState = {
+        rendering: false,
+        pending: false,
+        observed: false
+    };
+
     function initMermaidBlocks() {
+        renderMermaidBlocks();
+        observeMermaidThemeChanges();
+    }
+
+    function renderMermaidBlocks() {
         var blocks = Array.prototype.slice.call(document.querySelectorAll('.mermaid-block .mermaid'));
         if (!blocks.length) return;
         var mermaidBlocks = [];
@@ -367,6 +378,7 @@
             var source = decodeBase64Utf8(block.getAttribute('data-mermaid-source'));
             if (source) {
                 block.textContent = source;
+                block.removeAttribute('data-processed');
                 var kind = getMermaidDiagramKind(source);
                 var container = block.closest('.diagram-block');
                 if (container) container.setAttribute('data-mermaid-kind', kind);
@@ -384,6 +396,12 @@
             });
             return;
         }
+        if (mermaidRenderState.rendering) {
+            mermaidRenderState.pending = true;
+            return;
+        }
+        mermaidRenderState.rendering = true;
+        mermaidRenderState.pending = false;
 
         try {
             window.mermaid.initialize({
@@ -418,11 +436,18 @@
                 }
             });
             var result = window.mermaid.run({ nodes: mermaidBlocks });
+            var finish = function () {
+                polishMermaidSvg(mermaidBlocks);
+                applyMermaidSvgSizes(mermaidBlocks);
+                mermaidRenderState.rendering = false;
+                if (mermaidRenderState.pending) {
+                    mermaidRenderState.pending = false;
+                    requestAnimationFrame(renderMermaidBlocks);
+                }
+            };
             if (result && typeof result.catch === 'function') {
-                result.then(function () {
-                    polishMermaidSvg(mermaidBlocks);
-                    applyMermaidSvgSizes(mermaidBlocks);
-                }).catch(function (err) {
+                result.then(finish).catch(function (err) {
+                    mermaidRenderState.rendering = false;
                     mermaidBlocks.forEach(function (block) {
                         if (!block.querySelector('svg')) {
                             renderChartError(block.closest('.diagram-block') || block, err && err.message);
@@ -430,10 +455,10 @@
                     });
                 });
             } else {
-                polishMermaidSvg(mermaidBlocks);
-                applyMermaidSvgSizes(mermaidBlocks);
+                finish();
             }
         } catch (err) {
+            mermaidRenderState.rendering = false;
             mermaidBlocks.forEach(function (block) {
                 renderChartError(block.closest('.diagram-block') || block, err && err.message);
             });
@@ -624,7 +649,8 @@
     }
 
     function getMermaidThemeVariables() {
-        var isDark = document.documentElement.classList.contains('dark');
+        var root = document.documentElement;
+        var isDark = !!(root && root.classList && root.classList.contains && root.classList.contains('dark'));
         return {
             fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
             fontSize: '14px',
@@ -733,6 +759,19 @@
             labelBkg.style.width = '100%';
             labelBkg.style.height = '100%';
         });
+    }
+
+    function observeMermaidThemeChanges() {
+        if (typeof MutationObserver === 'undefined' || !document.documentElement) return;
+        if (mermaidRenderState.observed) return;
+        mermaidRenderState.observed = true;
+        var observer = new MutationObserver(function (mutations) {
+            var changed = mutations.some(function (mutation) {
+                return mutation.type === 'attributes' && mutation.attributeName === 'class';
+            });
+            if (changed) requestAnimationFrame(renderMermaidBlocks);
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     }
 
     function applyMermaidSvgSizes(blocks) {
