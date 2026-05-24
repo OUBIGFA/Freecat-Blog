@@ -32,6 +32,19 @@ test('SEO head emits absolute canonical URLs and noindex when requested', () => 
     assert.match(html, /<meta property="og:url" content="https:\/\/example\.com\/search\.html" \/>/);
 });
 
+test('SEO canonical URLs encode article paths with special characters', () => {
+    const html = seo.renderHeadTags({
+        title: 'Special Article',
+        description: 'Article path contains a plus sign.',
+        canonicalPath: '/posts/国内银联卡 + 86 手机号.html',
+        siteConfig: { site_title: 'FreeCat Blog', site_url: 'https://example.com/' },
+        seoConfig: { site_language: 'zh-CN' }
+    });
+
+    assert.match(html, /href="https:\/\/example\.com\/posts\/%E5%9B%BD%E5%86%85%E9%93%B6%E8%81%94%E5%8D%A1%20%2B%2086%20%E6%89%8B%E6%9C%BA%E5%8F%B7\.html"/);
+    assert.doesNotMatch(html, /href="[^"]*\+[^"]*"/);
+});
+
 test('FAQ frontmatter normalizes into visible FAQ and JSON-LD data', () => {
     const faq = seo.normalizeFaq([
         { question: 'What is FreeCat?', answer: 'A static blog template.' },
@@ -59,4 +72,3 @@ test('FAQ frontmatter normalizes into visible FAQ and JSON-LD data', () => {
     assert.match(jsonLd, /"@type":"BlogPosting"/);
     assert.match(jsonLd, /"@type":"BreadcrumbList"/);
 });
-

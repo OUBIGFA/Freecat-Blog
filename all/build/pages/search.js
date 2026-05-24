@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { stripMarkdown } = require('../markdown.js');
 const seo = require('../seo.js');
+const shared = require('../../src/assets/shared.js');
 
 // 搜索索引每篇文章正文的截断字符数（够命中关键词，又不会让 index 文件爆炸）
 const SEARCH_CONTENT_MAX_CHARS = 1500;
@@ -24,7 +25,7 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir, recentPos
             preview: post.preview || post.excerpt,
             content: truncated,
             tags: Array.isArray(post.tag) ? post.tag : (post.tag ? [post.tag] : []),
-            link: post.link,
+            link: shared.encodeSitePath(post.link),
             cover: post.cover,
             coverPlaceholder: post.coverPlaceholder,
             coverWidth: post.coverWidth || 0,

@@ -143,7 +143,7 @@ const tplAbout = engine.loadTemplate('template_index_About.html');
 console.log('📝 Processing posts...');
 let allPosts;
 try {
-    allPosts = postPage.loadPosts({ postsDir: DIRS.posts, gitDates, postDates });
+    allPosts = postPage.loadPosts({ postsDir: DIRS.posts, gitDates, postDates, skipMissingGitDates: true });
 } catch (err) {
     if (!skipBuildUntilGitDatesUpdate(err)) throw err;
 }
@@ -161,7 +161,7 @@ if (siteConfig.show_recent_posts === true) {
 
     const itemsHtml = recentPosts.map(post => {
         const safeTitle = engine.shared.escapeHtml(post.title);
-        const safeLink = engine.shared.escapeHtml(post.link);
+        const safeLink = engine.shared.escapeHtml(engine.shared.encodeSitePath(post.link));
         return `
                             <li class="py-3">
                                 <a href="${safeLink}" class="block text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors duration-150 line-clamp-2">

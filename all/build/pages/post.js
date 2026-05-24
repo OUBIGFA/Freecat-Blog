@@ -25,7 +25,7 @@ function hasYamlFrontmatter(raw) {
  * 读取 writing/ 目录下的所有 Markdown 文章并归一化为 post 对象数组。
  * 跳过 frontmatter 标记 show: false 的文件。已按"置顶在前 + 时间倒序"排序。
  */
-function loadPosts({ postsDir, gitDates, postDates }) {
+function loadPosts({ postsDir, gitDates, postDates, skipMissingGitDates = false }) {
     const postFiles = fs.readdirSync(postsDir).filter(isArticleFile);
     const posts = [];
 
@@ -44,20 +44,23 @@ function loadPosts({ postsDir, gitDates, postDates }) {
             return;
         }
 
+        const storedModifiedDate = gitDates && typeof gitDates.get === 'function' ? gitDates.get(file) : null;
+        if (!storedModifiedDate) {
+            if (skipMissingGitDates) {
+                console.log(`  Skipping article until git-dates workflow updates snapshot: ${file}`);
+                return;
+            }
+            if (gitDates && typeof gitDates.assertHas === 'function') gitDates.assertHas(file);
+            throw new Error(`Missing Git modified date for "${file}".`);
+        }
+
         const storedPublishDate = postDates && typeof postDates.get === 'function' ? postDates.get(file) : null;
-        const fallbackPublishDate = gitDates && typeof gitDates.get === 'function' ? gitDates.get(file) : null;
-        const publishDate = data.date ? dayjs(data.date) : dayjs(storedPublishDate || fallbackPublishDate || fs.statSync(filePath).birthtime);
+        const publishDate = data.date ? dayjs(data.date) : dayjs(storedPublishDate || storedModifiedDate || fs.statSync(filePath).birthtime);
 
         let modifiedDate;
         if (data.updated) modifiedDate = dayjs(data.updated);
         else if (data.date_updated) modifiedDate = dayjs(data.date_updated);
-        else {
-            const gitDate = gitDates.assertHas ? gitDates.assertHas(file) : gitDates.get(file);
-            if (!gitDate) {
-                throw new Error(`Missing Git modified date for "${file}".`);
-            }
-            modifiedDate = dayjs(gitDate);
-        }
+        else modifiedDate = dayjs(storedModifiedDate);
 
         const cleanContent = stripMarkdown(content);
         const previewRaw = data.description || cleanContent;

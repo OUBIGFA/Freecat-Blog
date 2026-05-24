@@ -86,6 +86,25 @@ test('missing git modified date is a skippable build condition', () => {
     );
 });
 
+test('posts missing git dates can be skipped during deploy builds', () => {
+    const postsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'freecat-posts-'));
+    const snapshotPath = path.join(postsDir, 'git-dates.json');
+
+    fs.writeFileSync(path.join(postsDir, 'ready.md'), '# Ready\n\nBody', 'utf-8');
+    fs.writeFileSync(path.join(postsDir, 'new.md'), '# New\n\nBody', 'utf-8');
+    fs.writeFileSync(snapshotPath, JSON.stringify({
+        modified: { 'ready.md': '2026-05-20T10:00:00+08:00' },
+        published: { 'ready.md': '2026-05-20T10:00:00+08:00' }
+    }), 'utf-8');
+
+    const gitDates = loadSnapshot({ snapshotPath, section: 'modified' });
+    const postDates = loadSnapshot({ snapshotPath, required: false, section: 'published' });
+    const posts = loadPosts({ postsDir, gitDates, postDates, skipMissingGitDates: true });
+
+    assert.equal(posts.length, 1);
+    assert.equal(posts[0].slug, 'ready');
+});
+
 test('date extraction can fall back to file modified time for articles without git history', () => {
     const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'freecat-repo-'));
     const postsDir = path.join(repoRoot, 'writing');

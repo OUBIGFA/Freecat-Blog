@@ -52,6 +52,28 @@
             .replace(/"/g, '&quot;');
     }
 
+    function encodePathSegment(segment) {
+        try {
+            return encodeURIComponent(decodeURIComponent(segment));
+        } catch (_) {
+            return encodeURIComponent(segment);
+        }
+    }
+
+    function encodeSitePath(url) {
+        const raw = String(url == null ? '' : url);
+        if (!raw || raw === '#' || /^[a-z][a-z0-9+.-]*:/i.test(raw) || raw.startsWith('//')) return raw;
+
+        const hashIndex = raw.indexOf('#');
+        const beforeHash = hashIndex === -1 ? raw : raw.slice(0, hashIndex);
+        const hash = hashIndex === -1 ? '' : raw.slice(hashIndex);
+        const queryIndex = beforeHash.indexOf('?');
+        const pathPart = queryIndex === -1 ? beforeHash : beforeHash.slice(0, queryIndex);
+        const query = queryIndex === -1 ? '' : beforeHash.slice(queryIndex);
+
+        return pathPart.split('/').map(encodePathSegment).join('/') + query + hash;
+    }
+
     function processTitleHtml(title) {
         if (!title) return '';
         return String(title).replace(/\|/g, '<span class="font-normal mx-[1px]">|</span>');
@@ -113,6 +135,7 @@
         hashTagColor,
         escapeHtml,
         escapeAttr,
+        encodeSitePath,
         processTitleHtml,
         renderTagSpan,
         IMG_FALLBACK_ATTR,

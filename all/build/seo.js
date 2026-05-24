@@ -33,8 +33,8 @@ function absoluteUrl(siteConfig, url) {
 
     const baseUrl = normalizeBaseUrl(siteConfig);
     if (!baseUrl) return '';
-    if (raw.startsWith('/')) return `${baseUrl}${raw}`;
-    return `${baseUrl}/${raw.replace(/^\.?\//, '')}`;
+    if (raw.startsWith('/')) return `${baseUrl}${shared.encodeSitePath(raw)}`;
+    return `${baseUrl}/${shared.encodeSitePath(raw.replace(/^\.?\//, ''))}`;
 }
 
 function pageUrl(siteConfig, path) {

@@ -38,7 +38,8 @@
         .trim();
 
     function renderPostCard(post) {
-        const link = escapeHtml(post.link || '#');
+        const encodeSitePath = (shared && shared.encodeSitePath) || function (url) { return url; };
+        const link = escapeHtml(encodeSitePath(post.link || '#'));
         const titleHtml = post.titleHtml || '';
         const excerptHtml = post.excerptHtml || '';
         const date = escapeHtml(post.date || '');
