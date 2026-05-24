@@ -403,6 +403,39 @@
     width: 100%;
 }
 
+.prose figure.external-embed {
+    margin: 0 0 2rem 0 !important;
+    display: block;
+    width: 100%;
+}
+
+.prose figure.external-embed iframe.external-embed-frame {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    height: auto;
+    border: 0;
+    border-radius: 0.75rem;
+    background: #f8fafc;
+}
+
+.prose figure.external-embed-twitter {
+    max-width: 550px;
+}
+
+.prose figure.external-embed-link {
+    border: 1px solid #d8e0eb;
+    border-radius: 0.75rem;
+    padding: 1rem 1.1rem;
+    background: #f8fafc;
+}
+
+.dark .prose figure.external-embed-link,
+.dark .prose figure.external-embed iframe.external-embed-frame {
+    border-color: #233044;
+    background: #121a28;
+}
+
 /* 鍥剧墖鍚庨潰鐨勬爣棰橈細閲嶇疆 margin-top锛屼繚鎸佷笌娈佃惤鐩稿悓鐨勯棿璺?*/
 .prose .relative.w-full.inline-block+h1,
 .prose .relative.w-full.inline-block+h2,

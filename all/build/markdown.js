@@ -311,6 +311,106 @@ function normalizeImageHref(href) {
     return raw;
 }
 
+function escapeHtml(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function isLikelyImageUrl(href) {
+    const raw = String(href || '').trim();
+    if (!raw) return false;
+    if (/^(?:data|blob):/i.test(raw)) return true;
+    if (!/^(?:https?:)?\/\//i.test(raw)) return true;
+
+    try {
+        const url = new URL(raw, 'https://example.com');
+        return /\.(?:avif|gif|jpe?g|png|svg|webp|bmp|ico|tiff?)(?:$|[?#])/i.test(url.pathname);
+    } catch (err) {
+        return false;
+    }
+}
+
+function normalizeEmbedUrl(href) {
+    const raw = String(href || '').trim();
+    if (!raw || !/^(?:https?:)?\/\//i.test(raw)) return '';
+    return raw.startsWith('//') ? `https:${raw}` : raw;
+}
+
+function getExternalEmbed(url) {
+    let parsed;
+    try {
+        parsed = new URL(url);
+    } catch (err) {
+        return null;
+    }
+
+    const host = parsed.hostname.replace(/^www\./i, '').toLowerCase();
+    const providers = [
+        {
+            name: 'youtube',
+            match: () => host === 'youtube.com' || host === 'youtu.be',
+            render() {
+                const id = host === 'youtu.be'
+                    ? parsed.pathname.split('/').filter(Boolean)[0]
+                    : parsed.searchParams.get('v') || /^\/embed\/([^/?#]+)/.exec(parsed.pathname)?.[1];
+                if (!id) return null;
+                const safeId = encodeURIComponent(id);
+                return `<iframe class="external-embed-frame" src="https://www.youtube.com/embed/${safeId}" title="Embedded video" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
+            }
+        },
+        {
+            name: 'vimeo',
+            match: () => host === 'vimeo.com' || host === 'player.vimeo.com',
+            render() {
+                const id = /^\/(?:video\/)?(\d+)/.exec(parsed.pathname)?.[1];
+                if (!id) return null;
+                return `<iframe class="external-embed-frame" src="https://player.vimeo.com/video/${id}" title="Embedded video" loading="lazy" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+            }
+        },
+        {
+            name: 'twitter',
+            match: () => ['x.com', 'twitter.com', 'mobile.twitter.com'].includes(host) && /\/status(?:es)?\/\d+/i.test(parsed.pathname),
+            render() {
+                const href = escapeHtml(url);
+                return `<blockquote class="twitter-tweet"><a href="${href}"></a></blockquote>`;
+            }
+        }
+    ];
+
+    for (const provider of providers) {
+        if (!provider.match()) continue;
+        const html = provider.render();
+        if (html) return { provider: provider.name, html };
+    }
+
+    return null;
+}
+
+function renderExternalEmbed(href, text) {
+    const url = normalizeEmbedUrl(href);
+    if (!url) return '';
+    const embed = getExternalEmbed(url);
+    const safeUrl = escapeHtml(url);
+    const label = String(text || '').trim() || url;
+    const safeLabel = escapeHtml(label);
+
+    if (embed) {
+        return `
+    <figure class="external-embed external-embed-${embed.provider}" data-embed-provider="${embed.provider}">
+        ${embed.html}
+    </figure>`;
+    }
+
+    return `
+    <figure class="external-embed external-embed-link" data-embed-provider="link">
+        <a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${safeLabel}</a>
+    </figure>`;
+}
+
 // 解析图片 markdown title 中的尺寸标记。
 //   ![alt](src "1200x800")           → width=1200, height=800, cleanTitle=''
 //   ![alt](src "Cover 1200x800")     → width=1200, height=800, cleanTitle='Cover'
@@ -746,6 +846,8 @@ function buildRenderer() {
     };
 
     renderer.image = (href, title, text) => {
+        if (!isLikelyImageUrl(href)) return renderExternalEmbed(href, text);
+
         const fallbackSrc = '/image/404.png';
         const safeHref = normalizeImageHref(href).replace(/"/g, '&quot;');
         const safeAlt = (text || '').replace(/"/g, '&quot;');
@@ -785,17 +887,11 @@ function buildRenderer() {
         if (/^<figure\b[^>]*\bpost-image\b[^>]*>[\s\S]*<\/figure>$/i.test(trimmed)) {
             return trimmed + '\n';
         }
+        if (/^<figure\b[^>]*\bexternal-embed\b[^>]*>[\s\S]*<\/figure>$/i.test(trimmed)) {
+            return trimmed + '\n';
+        }
         return paragraphRenderer.call(renderer, text);
     };
-
-    function escapeHtml(value) {
-        return String(value || '')
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-    }
 
     function normalizeCodeLanguage(language) {
         return String(language || '').trim().split(/\s+/)[0].toLowerCase();
