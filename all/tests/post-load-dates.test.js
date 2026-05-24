@@ -5,6 +5,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const { loadPosts } = require('../build/pages/post');
+const { loadSnapshot, MISSING_GIT_DATE_CODE } = require('../build/git-dates');
 
 function makeDateStore(values) {
     return {
@@ -67,4 +68,20 @@ test('legacy snapshots fall back to git dates instead of file checkout times', (
 
     assert.equal(posts.length, 1);
     assert.equal(posts[0].date.toISOString(), '2023-07-08T01:10:11.000Z');
+});
+
+test('missing git modified date is a skippable build condition', () => {
+    const postsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'freecat-posts-'));
+    const snapshotPath = path.join(postsDir, 'git-dates.json');
+
+    fs.writeFileSync(path.join(postsDir, 'missing.md'), '# Missing\n\nBody', 'utf-8');
+    fs.writeFileSync(snapshotPath, JSON.stringify({ modified: {}, published: {} }), 'utf-8');
+
+    const gitDates = loadSnapshot({ snapshotPath, section: 'modified' });
+    const postDates = loadSnapshot({ snapshotPath, required: false, section: 'published' });
+
+    assert.throws(
+        () => loadPosts({ postsDir, gitDates, postDates }),
+        err => err && err.code === MISSING_GIT_DATE_CODE && err.filename === 'missing.md'
+    );
 });

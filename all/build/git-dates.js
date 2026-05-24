@@ -2,6 +2,20 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
+const MISSING_GIT_DATE_CODE = 'MISSING_GIT_DATE';
+
+class MissingGitDateError extends Error {
+    constructor(filename) {
+        super(
+            `Missing Git modified date for "${filename}". ` +
+            'Wait for the GitHub Actions git-dates update to finish, or run "cd all && npm run extract-dates" and commit all/git-dates.json.'
+        );
+        this.name = 'MissingGitDateError';
+        this.code = MISSING_GIT_DATE_CODE;
+        this.filename = filename;
+    }
+}
+
 function normalizePath(filePath) {
     return String(filePath || '').replace(/\\/g, '/');
 }
@@ -43,10 +57,7 @@ function makeDateStore(cache, source) {
         assertHas(filename) {
             const value = this.get(filename);
             if (!value) {
-                throw new Error(
-                    `Missing Git modified date for "${filename}". ` +
-                    'Wait for the GitHub Actions git-dates update to finish, or run "cd all && npm run extract-dates" and commit all/git-dates.json.'
-                );
+                throw new MissingGitDateError(filename);
             }
             return value;
         }
@@ -174,5 +185,7 @@ module.exports = {
     extractFirstFromGit,
     extractFromGit,
     loadSnapshot,
+    MissingGitDateError,
+    MISSING_GIT_DATE_CODE,
     normalizeDateMap
 };
