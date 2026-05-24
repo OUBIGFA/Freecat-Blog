@@ -511,7 +511,7 @@ Markdown 是纯文本，整理、改写、拆分都方便，特别适合配合 A
 
 编程软件参考：
 
-> [用户体验拉满的编程软件汇总](https://free-blog-pied.vercel.app/posts/%E7%BC%96%E7%A8%8B%E8%BD%AF%E4%BB%B6%E6%B1%87%E6%80%BB.html)
+> [用户体验拉满的编程软件汇总](https://blog.freeorg.dpdns.org/posts/%E7%94%A8%E6%88%B7%E4%BD%93%E9%AA%8C%E6%8B%89%E6%BB%A1%E7%9A%84%E7%BC%96%E7%A8%8B%E8%BD%AF%E4%BB%B6%E6%B1%87%E6%80%BB.html)
 
 ---
 
