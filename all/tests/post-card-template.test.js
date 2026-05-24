@@ -18,6 +18,7 @@ test('post card omits image containers when no cover is provided', () => {
     assert.doesNotMatch(html, /<img\b/);
     assert.doesNotMatch(html, /h-\[180px\]/);
     assert.doesNotMatch(html, /col-start-2 row-start-1 h-full/);
+    assert.match(html, /class="post-card has-no-cover /);
     assert.match(html, /grid-cols-1/);
 });
 
@@ -35,6 +36,7 @@ test('post card renders fallback image when cover placeholder is requested', () 
     });
 
     assert.match(html, /<img\b[^>]*src="\/image\/404\.png"/);
+    assert.match(html, /class="post-card has-cover /);
     assert.match(html, /h-\[180px\]/);
     assert.match(html, /grid-cols-\[minmax\(0,1fr\)_minmax\(360px,43%\)\]/);
 });

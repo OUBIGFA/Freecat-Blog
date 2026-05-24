@@ -436,6 +436,27 @@
     background: #121a28;
 }
 
+.prose table :is(th, td):has(> figure.external-embed) {
+    height: auto !important;
+    min-height: 0 !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+.prose table :is(th, td)>figure.external-embed {
+    margin: 0 auto !important;
+    max-width: 100%;
+}
+
+.prose table :is(th, td)>figure.external-embed-twitter {
+    width: min(100%, 550px);
+}
+
+.prose table :is(th, td)>figure.external-embed .twitter-tweet {
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
 /* 鍥剧墖鍚庨潰鐨勬爣棰橈細閲嶇疆 margin-top锛屼繚鎸佷笌娈佃惤鐩稿悓鐨勯棿璺?*/
 .prose .relative.w-full.inline-block+h1,
 .prose .relative.w-full.inline-block+h2,

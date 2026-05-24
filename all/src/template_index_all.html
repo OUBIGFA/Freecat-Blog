@@ -35,6 +35,10 @@
             border-radius: 1rem;
         }
 
+        .freecat-all-page #posts-list .post-card.has-no-cover > div {
+            min-height: clamp(21rem, 27vw, 23.4rem);
+        }
+
         .freecat-all-page #posts-list .post-card .lg\:hidden {
             display: flex !important;
             height: 100%;
@@ -59,6 +63,11 @@
             min-height: 2.9rem;
         }
 
+        .freecat-all-page #posts-list .post-card.has-no-cover p {
+            -webkit-line-clamp: 7 !important;
+            min-height: clamp(12.3rem, 15vw, 14.45rem);
+        }
+
         .freecat-all-page #posts-list .post-card h3 + div {
             margin-top: 0.625rem !important;
             min-height: 1.25rem;
@@ -77,6 +86,10 @@
 
         .freecat-all-page #posts-list .post-card .mt-4.shrink-0 {
             margin-top: 1rem !important;
+        }
+
+        .freecat-all-page #posts-list .post-card.has-no-cover .mt-4.shrink-0 {
+            margin-top: auto !important;
         }
 
         .freecat-all-page #posts-list .post-card .tags-fit {
@@ -112,9 +125,18 @@
                 padding: 1rem;
             }
 
+            .freecat-all-page #posts-list .post-card.has-no-cover > div {
+                min-height: 18.5rem;
+            }
+
             .freecat-all-page #posts-list .post-card h3 {
                 font-size: 1.125rem !important;
                 min-height: 2.8rem;
+            }
+
+            .freecat-all-page #posts-list .post-card.has-no-cover p {
+                -webkit-line-clamp: 5 !important;
+                min-height: 9rem;
             }
 
             .freecat-all-page #posts-list .post-card .mt-8.h-\[180px\] {

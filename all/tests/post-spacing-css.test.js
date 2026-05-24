@@ -94,3 +94,10 @@ test('markdown table alignment attributes are honored by article CSS', () => {
     assert.match(css, /\.prose th\[align="center"\],[\s\S]*?\.prose td\[align="center"\] \{[\s\S]*?text-align: center !important;/);
     assert.match(css, /\.prose th\[align="right"\],[\s\S]*?\.prose td\[align="right"\] \{[\s\S]*?text-align: right !important;/);
 });
+
+test('external embeds are centered and size table rows by content', () => {
+    assert.match(css, /\.prose table :is\(th, td\):has\(> figure\.external-embed\) \{[\s\S]*?height: auto !important;[\s\S]*?text-align: center !important;[\s\S]*?vertical-align: middle !important;/);
+    assert.match(css, /\.prose table :is\(th, td\)>figure\.external-embed \{[\s\S]*?margin: 0 auto !important;/);
+    assert.match(css, /\.prose table :is\(th, td\)>figure\.external-embed-twitter \{[\s\S]*?width: min\(100%, 550px\);/);
+    assert.match(css, /\.prose table :is\(th, td\)>figure\.external-embed \.twitter-tweet \{[\s\S]*?margin-left: auto !important;[\s\S]*?margin-right: auto !important;/);
+});
