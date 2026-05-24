@@ -89,6 +89,99 @@ document.addEventListener('DOMContentLoaded', () => {
         return Number.isFinite(n) ? n : 0;
     }
 
+    function initFloatingNavButtons() {
+        const backToTopBtn = document.getElementById('back-to-top');
+        const scrollToBottomBtn = document.getElementById('scroll-to-bottom');
+        const floatingGoBackBtn = document.getElementById('floating-go-back');
+
+        if (!backToTopBtn && !scrollToBottomBtn && !floatingGoBackBtn) return;
+
+        function getContainerBottomScrollY() {
+            const container = document.querySelector('[data-floating-nav-container]')
+                || document.querySelector('main > div')
+                || document.querySelector('main')
+                || document.querySelector('article')
+                || document.querySelector('.layout-container')
+                || document.body;
+            const scrollingElement = document.scrollingElement || document.documentElement;
+            const docHeight = scrollingElement ? scrollingElement.scrollHeight : 0;
+            const maxScroll = Math.max(0, docHeight - window.innerHeight);
+
+            if (!container) return maxScroll;
+
+            const rect = container.getBoundingClientRect();
+            let target = rect.bottom + window.pageYOffset - window.innerHeight;
+            if (target > maxScroll) target = maxScroll;
+            if (target < 0) target = 0;
+            return target;
+        }
+
+        function toggleNavButtons() {
+            const show = window.scrollY > 500;
+            [backToTopBtn, scrollToBottomBtn, floatingGoBackBtn].forEach((btn) => {
+                if (btn) btn.classList.toggle('is-hidden', !show);
+            });
+        }
+
+        if (backToTopBtn) {
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                const tocContainer = document.getElementById('toc-container');
+                if (tocContainer) tocContainer.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        if (scrollToBottomBtn) {
+            scrollToBottomBtn.addEventListener('click', () => {
+                let startY = window.scrollY;
+                let startTime = performance.now();
+                let lastTarget = getContainerBottomScrollY();
+                let distance = Math.abs(lastTarget - startY);
+                let duration = Math.min(2200, Math.max(700, distance * 0.35));
+
+                function easeOutCubic(t) {
+                    return 1 - Math.pow(1 - t, 3);
+                }
+
+                function animate(now) {
+                    const target = getContainerBottomScrollY();
+                    if (Math.abs(target - lastTarget) > 1) lastTarget = target;
+
+                    const elapsed = now - startTime;
+                    const t = Math.min(1, elapsed / duration);
+                    const nextY = startY + (lastTarget - startY) * easeOutCubic(t);
+                    window.scrollTo(0, nextY);
+
+                    const remaining = Math.abs(window.scrollY - lastTarget);
+                    if (t < 1 || remaining > 1) {
+                        if (t >= 1) {
+                            startY = window.scrollY;
+                            startTime = now;
+                            distance = Math.abs(lastTarget - startY);
+                            duration = Math.min(900, Math.max(240, distance * 0.45));
+                        }
+                        requestAnimationFrame(animate);
+                    }
+                }
+
+                requestAnimationFrame(animate);
+            });
+        }
+
+        if (floatingGoBackBtn) {
+            floatingGoBackBtn.addEventListener('click', () => {
+                if (document.referrer && document.referrer.includes(window.location.host)) {
+                    history.back();
+                } else {
+                    window.location.href = '/';
+                }
+            });
+        }
+
+        toggleNavButtons();
+        window.addEventListener('scroll', toggleNavButtons, { passive: true });
+    }
+
     // ============================================================
     // [Fix] 固定顶栏遮挡内容：按实际 header 高度动态同步内容区上边距
     // 安全间距与 transitions.css 中 --freecat-header-safe-gap 的下限保持一致：
@@ -249,6 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
     applyTheme();
     updateContentTopOffset();
     observeHeaderOffsetChanges();
+    initFloatingNavButtons();
     observeHomeHeroContentChanges();
     scheduleHomeHeroMeasure();
     ensureAnimationStyles(); // Ensure global animation styles are present

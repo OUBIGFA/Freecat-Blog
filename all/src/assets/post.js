@@ -975,9 +975,9 @@
     // 已挪到 transitions.css，不再运行时注入。
 
     // Back-to-top / Scroll-to-bottom / Floating Go Back
-    var backToTopBtn = document.getElementById('back-to-top');
-    var scrollToBottomBtn = document.getElementById('scroll-to-bottom');
-    var floatingGoBackBtn = document.getElementById('floating-go-back');
+    var backToTopBtn = null;
+    var scrollToBottomBtn = null;
+    var floatingGoBackBtn = null;
 
     // 计算"文章容器底部"对应的滚动位置：
     //   目标 = <main> 下第一层包装 div（class="...pb-36 lg:pb-48" 那层）的底边对齐到视口底边。

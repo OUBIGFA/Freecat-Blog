@@ -25,3 +25,11 @@ test('unknown external page image syntax falls back to a link card', () => {
     assert.match(html, /href="https:\/\/example\.com\/page"/);
     assert.match(html, />Example<\/a>/);
 });
+
+test('image format query parameters still render as images', () => {
+    const html = parseMarkdown('![](https://pbs.twimg.com/media/GwHiyUsWoAAzp9o?format=jpg&name=large)');
+
+    assert.match(html, /<figure class="post-image/);
+    assert.match(html, /<img\b[^>]*src="https:\/\/pbs\.twimg\.com\/media\/GwHiyUsWoAAzp9o\?format=jpg&name=large"/);
+    assert.doesNotMatch(html, /external-embed/);
+});

@@ -326,9 +326,20 @@ function isLikelyImageUrl(href) {
     if (/^(?:data|blob):/i.test(raw)) return true;
     if (!/^(?:https?:)?\/\//i.test(raw)) return true;
 
+    const imageExtensions = /^(?:avif|gif|jpe?g|png|svg|webp|bmp|ico|tiff?)$/i;
+
     try {
         const url = new URL(raw, 'https://example.com');
-        return /\.(?:avif|gif|jpe?g|png|svg|webp|bmp|ico|tiff?)(?:$|[?#])/i.test(url.pathname);
+        if (/\.(?:avif|gif|jpe?g|png|svg|webp|bmp|ico|tiff?)(?:$|[?#])/i.test(url.pathname)) return true;
+
+        for (const [key, value] of url.searchParams.entries()) {
+            const normalizedKey = key.toLowerCase();
+            if ((normalizedKey === 'format' || normalizedKey === 'fm' || normalizedKey === 'type') && imageExtensions.test(value)) {
+                return true;
+            }
+        }
+
+        return false;
     } catch (err) {
         return false;
     }
