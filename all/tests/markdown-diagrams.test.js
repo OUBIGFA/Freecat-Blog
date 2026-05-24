@@ -9,6 +9,8 @@ dayjs.extend(timezone);
 
 const { parseMarkdown } = require('../build/markdown');
 const { renderPostPage } = require('../build/pages/post');
+const fs = require('node:fs');
+const path = require('node:path');
 
 function createPost(content) {
     return {
@@ -75,4 +77,21 @@ test('post pages load Mermaid and ECharts only when diagrams are present', () =>
 
     assert.match(html, /vditor@3\.11\.2\/dist\/js\/mermaid\/mermaid\.min\.js/);
     assert.match(html, /echarts@5\/dist\/echarts\.min\.js/);
+});
+
+test('client diagram sizing preserves gantt and scales other diagrams into the container', () => {
+    const js = fs.readFileSync(path.join(__dirname, '../src/assets/post.js'), 'utf8');
+
+    assert.match(js, /if \(kind === 'gantt'\) \{\s*renderGanttBlock\(block, source\);/s);
+    assert.match(js, /function getDiagramAvailableWidth\(container\)/);
+    assert.match(js, /function positionMermaidClusterLabels\(svg\)/);
+    assert.match(js, /label\.classList\.add\('freecat-mermaid-cluster-label'\)/);
+    assert.match(js, /function normalizeMermaidActorBoxes\(svg\)/);
+    assert.match(js, /actorEdgesByCenter/);
+    assert.match(js, /line\.setAttribute\('y1', edges\.topBottom\)/);
+    assert.match(js, /line\.setAttribute\('y2', edges\.bottomTop\)/);
+    assert.match(js, /function fitMermaidSequenceNumbers\(svg\)/);
+    assert.doesNotMatch(js, /fitMermaidRects\(svg\.querySelectorAll\('\.node rect, rect\.actor, rect\.labelBox'\)/);
+    assert.match(js, /svg\.style\.width = finalWidth \+ 'px';/);
+    assert.match(js, /svg\.style\.maxWidth = '100%';/);
 });

@@ -1946,21 +1946,49 @@
 }
 
 .diagram-block {
+    --diagram-bg: transparent;
+    --diagram-surface: #f8fafc;
+    --diagram-text: #172033;
+    --diagram-muted: #475569;
+    --diagram-border: #cbd5e1;
+    --diagram-line: #64748b;
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
-    background-color: #f8fafc !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 0.75rem !important;
-    padding: 2rem 1rem !important;
+    width: 100% !important;
+    max-width: min(100%, calc(100vw - 2rem)) !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
     margin: 2rem auto !important;
-    overflow: visible !important;
-    min-height: 180px;
+    overflow: hidden !important;
+    min-height: 0;
+    box-shadow: none !important;
+    box-sizing: border-box;
+    max-width: 100% !important;
 }
 
 .dark .diagram-block {
-    background-color: #0f172a !important;
-    border-color: #1e293b !important;
+    --diagram-bg: transparent;
+    --diagram-surface: #172033;
+    --diagram-text: #e7edf6;
+    --diagram-muted: #a8b5c6;
+    --diagram-border: #475569;
+    --diagram-line: #94a3b8;
+    background: transparent !important;
+    border-color: transparent !important;
+}
+
+.mermaid-block[data-mermaid-kind="flowchart"],
+.mermaid-block[data-mermaid-kind="diagram"] {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.mermaid-block[data-mermaid-kind="sequence"],
+.mermaid-block[data-mermaid-kind="gantt"] {
+    width: 100% !important;
 }
 
 .mermaid-block .mermaid {
@@ -1977,7 +2005,7 @@
     flex: 0 0 auto;
     display: block;
     height: auto !important;
-    max-width: none !important;
+    max-width: 100% !important;
 }
 
 .diagram-block foreignObject {
@@ -1989,9 +2017,11 @@
 }
 
 .mermaid-block g.cluster rect {
-    fill: rgba(248, 250, 252, 0.28) !important;
-    stroke: #a8b5c6 !important;
-    stroke-width: 0.75px !important;
+    fill: color-mix(in srgb, var(--diagram-surface) 46%, transparent) !important;
+    stroke: color-mix(in srgb, var(--diagram-line) 30%, transparent) !important;
+    stroke-width: 0.5px !important;
+    rx: 6px;
+    ry: 6px;
 }
 
 .mermaid-block .cluster-label,
@@ -1999,22 +2029,43 @@
 .mermaid-block .cluster-label span,
 .mermaid-block .cluster-label p {
     color: #0f172a !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+}
+
+.mermaid-block .cluster-label div {
+    display: inline-block !important;
+    width: auto !important;
+    padding: 1px 7px !important;
+    background: var(--diagram-bg) !important;
+    border-radius: 4px !important;
+    line-height: 1.35 !important;
+}
+
+.mermaid-block .freecat-mermaid-cluster-label {
+    pointer-events: none;
+}
+
+.mermaid-block .freecat-mermaid-cluster-label div {
+    padding: 2px 8px !important;
+    background: color-mix(in srgb, var(--diagram-bg) 92%, var(--diagram-surface)) !important;
+    border: 0.5px solid color-mix(in srgb, var(--diagram-line) 20%, transparent) !important;
 }
 
 .mermaid-block .node rect,
 .mermaid-block .node polygon,
 .mermaid-block rect.actor,
 .mermaid-block rect.labelBox {
-    fill: transparent !important;
-    stroke: #718096 !important;
-    stroke-width: 1.35px !important;
+    fill: color-mix(in srgb, var(--diagram-surface) 56%, transparent) !important;
+    stroke: var(--diagram-line) !important;
+    stroke-width: 0.55px !important;
 }
 
 .mermaid-block .node circle,
 .mermaid-block .node ellipse {
-    fill: transparent !important;
-    stroke: #718096 !important;
-    stroke-width: 1.35px !important;
+    fill: color-mix(in srgb, var(--diagram-surface) 56%, transparent) !important;
+    stroke: var(--diagram-line) !important;
+    stroke-width: 0.55px !important;
 }
 
 .mermaid-block .flowchart-link,
@@ -2022,13 +2073,14 @@
 .mermaid-block .messageLine1,
 .mermaid-block .loopLine,
 .mermaid-block .actor-line {
-    stroke: #64748b !important;
+    stroke: var(--diagram-line) !important;
+    stroke-width: 0.75px !important;
 }
 
 .mermaid-block marker path,
 .mermaid-block .arrowheadPath {
-    fill: #64748b !important;
-    stroke: #64748b !important;
+    fill: var(--diagram-line) !important;
+    stroke: var(--diagram-line) !important;
 }
 
 .diagram-block .actor,
@@ -2065,9 +2117,21 @@
     color: #0f172a !important;
 }
 
+.mermaid-block .freecat-mermaid-sequence-number-bg {
+    fill: #eef4fb !important;
+    stroke: #9aa8bc !important;
+    stroke-width: 0.55px !important;
+}
+
+.mermaid-block .freecat-mermaid-sequence-number {
+    fill: #334155 !important;
+    font-size: 10px !important;
+    font-weight: 500 !important;
+}
+
 .mermaid-block .labelBkg {
     background-color: #f8fafc !important;
-    border: 1px solid #94a3b8 !important;
+    border: 0.7px solid #9aa8bc !important;
     border-radius: 4px;
     color: #0f172a !important;
 }
@@ -2109,9 +2173,9 @@
 }
 
 .dark .mermaid-block g.cluster rect {
-    fill: rgba(30, 41, 59, 0.2) !important;
-    stroke: #56657a !important;
-    stroke-width: 0.75px !important;
+    fill: rgba(30, 41, 59, 0.28) !important;
+    stroke: rgba(148, 163, 184, 0.3) !important;
+    stroke-width: 0.5px !important;
 }
 
 .dark .mermaid-block .cluster-label,
@@ -2121,9 +2185,18 @@
     color: #e7edf6 !important;
 }
 
+.dark .mermaid-block .cluster-label div {
+    background: var(--diagram-bg) !important;
+}
+
+.dark .mermaid-block .freecat-mermaid-cluster-label div {
+    background: color-mix(in srgb, var(--diagram-bg) 88%, var(--diagram-surface)) !important;
+    border-color: rgba(148, 163, 184, 0.18) !important;
+}
+
 .dark .mermaid-block .labelBkg {
-    background-color: #1e293b !important;
-    border-color: #64748b !important;
+    background-color: #172033 !important;
+    border-color: #718096 !important;
     color: #e7edf6 !important;
 }
 
@@ -2152,8 +2225,18 @@
     color: #e7edf6 !important;
 }
 
+.dark .mermaid-block .freecat-mermaid-sequence-number-bg {
+    fill: #172033 !important;
+    stroke: #64748b !important;
+}
+
+.dark .mermaid-block .freecat-mermaid-sequence-number {
+    fill: #dbe4f0 !important;
+}
+
 .freecat-gantt {
     display: block;
+    max-width: 100%;
     overflow: visible;
 }
 
@@ -2164,7 +2247,7 @@
 }
 
 .freecat-gantt-section-bg {
-    fill: rgba(226, 232, 240, 0.34);
+    fill: rgba(226, 232, 240, 0.3);
 }
 
 .freecat-gantt-section-label,
@@ -2190,7 +2273,7 @@
 }
 
 .freecat-gantt-task {
-    fill: #64748b;
+    fill: #5f7087;
     stroke: #475569;
     stroke-width: 1;
 }
@@ -2213,6 +2296,11 @@
 .dark .freecat-gantt-grid,
 .dark .freecat-gantt-axis {
     stroke: #2f3d51;
+}
+
+.dark .freecat-gantt-task {
+    fill: #718096;
+    stroke: #9aa8bc;
 }
 
 .echarts-block {

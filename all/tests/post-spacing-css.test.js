@@ -88,3 +88,9 @@ test('markdown tables keep transparent row backgrounds', () => {
     assert.match(css, /\.prose tbody tr:nth-child\(even\) \{[\s\S]*?background-color: transparent !important;/);
     assert.match(css, /\.dark \.prose tbody tr:nth-child\(even\) \{[\s\S]*?background-color: transparent !important;/);
 });
+
+test('markdown table alignment attributes are honored by article CSS', () => {
+    assert.match(css, /\.prose th\[align="left"\],[\s\S]*?\.prose td\[align="left"\] \{[\s\S]*?text-align: left !important;/);
+    assert.match(css, /\.prose th\[align="center"\],[\s\S]*?\.prose td\[align="center"\] \{[\s\S]*?text-align: center !important;/);
+    assert.match(css, /\.prose th\[align="right"\],[\s\S]*?\.prose td\[align="right"\] \{[\s\S]*?text-align: right !important;/);
+});

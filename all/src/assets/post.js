@@ -698,8 +698,11 @@
         blocks.forEach(function (block) {
             var svg = block.querySelector('svg');
             if (!svg || typeof svg.createSVGRect === 'undefined') return;
-            fitMermaidRects(svg.querySelectorAll('.node rect, rect.actor, rect.labelBox'), 14, 10);
+            fitMermaidRects(svg.querySelectorAll('.node rect, rect.labelBox'), 14, 10);
+            normalizeMermaidActorBoxes(svg);
             fitMermaidLabelBackgrounds(svg);
+            positionMermaidClusterLabels(svg);
+            fitMermaidSequenceNumbers(svg);
         });
     }
 
@@ -725,6 +728,38 @@
             } catch (err) {
                 // Some browsers defer SVG bbox calculation for hidden nodes.
             }
+        });
+    }
+
+    function normalizeMermaidActorBoxes(svg) {
+        var actorEdgesByCenter = {};
+        Array.prototype.forEach.call(svg.querySelectorAll('rect.actor'), function (rect) {
+            var height = parseFloat(rect.getAttribute('height'));
+            var x = parseFloat(rect.getAttribute('x'));
+            var width = parseFloat(rect.getAttribute('width'));
+            var y = parseFloat(rect.getAttribute('y'));
+            if (!Number.isFinite(height) || !Number.isFinite(x) || !Number.isFinite(width) || !Number.isFinite(y)) return;
+            var targetHeight = 38;
+            var centerY = y + height / 2;
+            var nextY = centerY - targetHeight / 2;
+            var centerX = Math.round(x + width / 2);
+            rect.setAttribute('y', centerY - targetHeight / 2);
+            rect.setAttribute('height', targetHeight);
+            rect.setAttribute('rx', 4);
+            rect.setAttribute('ry', 4);
+            if (!actorEdgesByCenter[centerX]) actorEdgesByCenter[centerX] = {};
+            if (rect.classList.contains('actor-top')) actorEdgesByCenter[centerX].topBottom = nextY + targetHeight;
+            if (rect.classList.contains('actor-bottom')) actorEdgesByCenter[centerX].bottomTop = nextY;
+        });
+
+        Array.prototype.forEach.call(svg.querySelectorAll('.actor-line'), function (line) {
+            var x1 = parseFloat(line.getAttribute('x1'));
+            var x2 = parseFloat(line.getAttribute('x2'));
+            if (!Number.isFinite(x1) || !Number.isFinite(x2) || Math.round(x1) !== Math.round(x2)) return;
+            var edges = actorEdgesByCenter[Math.round(x1)];
+            if (!edges) return;
+            if (Number.isFinite(edges.topBottom)) line.setAttribute('y1', edges.topBottom);
+            if (Number.isFinite(edges.bottomTop)) line.setAttribute('y2', edges.bottomTop);
         });
     }
 
@@ -761,6 +796,59 @@
         });
     }
 
+    function positionMermaidClusterLabels(svg) {
+        Array.prototype.forEach.call(svg.querySelectorAll('g.cluster'), function (cluster) {
+            var rect = cluster.querySelector('rect');
+            var label = cluster.querySelector('.cluster-label');
+            var foreignObject = label ? label.querySelector('foreignObject') : null;
+            if (!rect || !label || !foreignObject || !(label.textContent || '').trim()) return;
+
+            var x = parseFloat(rect.getAttribute('x'));
+            var y = parseFloat(rect.getAttribute('y'));
+            if (!Number.isFinite(x) || !Number.isFinite(y)) return;
+
+            var currentWidth = parseFloat(foreignObject.getAttribute('width')) || 0;
+            var currentHeight = parseFloat(foreignObject.getAttribute('height')) || 0;
+            if (currentWidth > 0) foreignObject.setAttribute('width', Math.ceil(currentWidth + 16));
+            if (currentHeight > 0) foreignObject.setAttribute('height', Math.ceil(currentHeight + 4));
+
+            label.classList.add('freecat-mermaid-cluster-label');
+            label.setAttribute('transform', 'translate(' + (x + 14) + ', ' + (y + 8) + ')');
+        });
+    }
+
+    function fitMermaidSequenceNumbers(svg) {
+        Array.prototype.forEach.call(svg.querySelectorAll('rect.freecat-mermaid-sequence-number-bg'), function (rect) {
+            rect.remove();
+        });
+
+        Array.prototype.forEach.call(svg.querySelectorAll('text.sequenceNumber'), function (text) {
+            if (!text.textContent || !text.textContent.trim() || typeof text.getBBox !== 'function') return;
+            try {
+                var box = text.getBBox();
+                var padX = 4;
+                var padY = 2;
+                var size = Math.max(16, Math.ceil(Math.max(box.width + padX * 2, box.height + padY * 2)));
+                var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('class', 'freecat-mermaid-sequence-number-bg');
+                rect.setAttribute('x', Math.round(box.x + box.width / 2 - size / 2));
+                rect.setAttribute('y', Math.round(box.y + box.height / 2 - size / 2));
+                rect.setAttribute('width', size);
+                rect.setAttribute('height', size);
+                rect.setAttribute('rx', 4);
+                rect.setAttribute('ry', 4);
+                text.parentNode.insertBefore(rect, text);
+                text.classList.add('freecat-mermaid-sequence-number');
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('dominant-baseline', 'central');
+                text.setAttribute('x', Math.round(box.x + box.width / 2));
+                text.setAttribute('y', Math.round(box.y + box.height / 2));
+            } catch (err) {
+                // Some browsers defer SVG bbox calculation for hidden nodes.
+            }
+        });
+    }
+
     function observeMermaidThemeChanges() {
         if (typeof MutationObserver === 'undefined' || !document.documentElement) return;
         if (mermaidRenderState.observed) return;
@@ -774,25 +862,43 @@
         observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     }
 
+    function getDiagramAvailableWidth(container) {
+        if (!container) return 0;
+        var style = window.getComputedStyle ? window.getComputedStyle(container) : null;
+        var paddingLeft = style ? parseFloat(style.paddingLeft) || 0 : 0;
+        var paddingRight = style ? parseFloat(style.paddingRight) || 0 : 0;
+        var innerWidth = container.clientWidth - paddingLeft - paddingRight;
+        return Math.max(240, Math.floor(innerWidth));
+    }
+
+    function getSvgViewBoxWidth(svg) {
+        var viewBox = String(svg.getAttribute('viewBox') || '').trim().split(/\s+/).map(Number);
+        if (viewBox.length === 4 && Number.isFinite(viewBox[2]) && viewBox[2] > 0) {
+            return Math.ceil(viewBox[2]);
+        }
+        var attrWidth = parseFloat(svg.getAttribute('width'));
+        if (Number.isFinite(attrWidth) && attrWidth > 0) return Math.ceil(attrWidth);
+        return 0;
+    }
+
     function applyMermaidSvgSizes(blocks) {
         blocks.forEach(function (block) {
             var svg = block.querySelector('svg');
             if (!svg) return;
             var container = block.closest('.diagram-block');
             var kind = container ? container.getAttribute('data-mermaid-kind') : '';
-            var viewBox = String(svg.getAttribute('viewBox') || '').trim().split(/\s+/).map(Number);
-            var width = viewBox.length === 4 ? Math.ceil(viewBox[2]) : 0;
-            var availableWidth = container ? Math.max(280, container.clientWidth - 48) : 0;
+            var width = getSvgViewBoxWidth(svg);
+            var availableWidth = getDiagramAvailableWidth(container);
             var finalWidth = width;
-            if ((kind === 'sequence' || kind === 'flowchart') && availableWidth > 0) {
-                finalWidth = Math.min(width, availableWidth);
-            } else if (kind === 'gantt' && availableWidth > 0) {
+            if (kind === 'gantt' && availableWidth > 0) {
                 finalWidth = availableWidth;
+            } else if (availableWidth > 0 && width > 0) {
+                finalWidth = Math.min(width, availableWidth);
             } else {
-                finalWidth = availableWidth > 0 ? Math.min(width, availableWidth) : width;
+                finalWidth = availableWidth || width;
             }
             if (finalWidth > 0) svg.style.width = finalWidth + 'px';
-            svg.style.maxWidth = 'none';
+            svg.style.maxWidth = '100%';
             if (container) {
                 container.scrollLeft = 0;
                 container.scrollTop = 0;
