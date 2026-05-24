@@ -22,6 +22,7 @@
         }
 
         .freecat-all-page #posts-list .post-card {
+            height: 100%;
             margin: 0;
             min-width: 0;
         }
@@ -32,16 +33,11 @@
             padding: 1.25rem;
             border: 1px solid rgba(148, 163, 184, 0.22);
             border-radius: 1rem;
-            box-shadow: none;
-        }
-
-        .freecat-all-page #posts-list .post-card:hover > div {
-            box-shadow: none;
-            border-color: rgba(100, 116, 139, 0.35);
         }
 
         .freecat-all-page #posts-list .post-card .lg\:hidden {
             display: flex !important;
+            height: 100%;
         }
 
         .freecat-all-page #posts-list .post-card .lg\:grid {
@@ -49,9 +45,10 @@
         }
 
         .freecat-all-page #posts-list .post-card h3 {
-            font-size: clamp(1.125rem, 1.05vw, 1.35rem) !important;
-            line-height: 1.22 !important;
+            font-size: 1.25rem !important;
+            line-height: 1.24 !important;
             font-weight: 700 !important;
+            min-height: 3.1rem;
         }
 
         .freecat-all-page #posts-list .post-card p {
@@ -59,18 +56,17 @@
             font-size: 0.875rem !important;
             line-height: 1.65 !important;
             -webkit-line-clamp: 2 !important;
+            min-height: 2.9rem;
         }
 
         .freecat-all-page #posts-list .post-card h3 + div {
             margin-top: 0.625rem !important;
+            min-height: 1.25rem;
+            overflow: hidden;
         }
 
-        .freecat-all-page #posts-list .post-card img {
-            transition: transform 220ms ease-out;
-        }
-
-        .freecat-all-page #posts-list .post-card:hover img {
-            transform: scale(1.02);
+        .freecat-all-page #posts-list .post-card .mt-7.shrink-0 {
+            margin-top: 1rem !important;
         }
 
         .freecat-all-page #posts-list .post-card .mt-8.h-\[180px\] {
@@ -114,6 +110,11 @@
 
             .freecat-all-page #posts-list .post-card > div {
                 padding: 1rem;
+            }
+
+            .freecat-all-page #posts-list .post-card h3 {
+                font-size: 1.125rem !important;
+                min-height: 2.8rem;
             }
 
             .freecat-all-page #posts-list .post-card .mt-8.h-\[180px\] {
