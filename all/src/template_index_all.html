@@ -6,30 +6,125 @@
     <title>All Articles - <!-- SITE_TITLE --></title>
     <!-- ALL_SEO_HEAD -->
     <style>
-        .freecat-home-recent-sidebar {
-            width: 16rem;
+        .freecat-all-page .layout-container {
+            padding-left: clamp(1rem, 3vw, 3rem);
+            padding-right: clamp(1rem, 3vw, 3rem);
         }
 
-        .freecat-home-recent-shell {
-            display: none;
+        .freecat-all-page .layout-content-container {
+            max-width: 1560px;
         }
 
-        .freecat-home-recent-sidebar.is-fixed {
-            position: fixed;
-            top: calc(var(--freecat-header-height, 72px) + 56px);
-            z-index: 20;
+        .freecat-all-page #posts-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
         }
 
-        @media (min-width: 1880px) {
-            .freecat-home-recent-shell {
-                display: block;
+        .freecat-all-page #posts-list .post-card {
+            margin: 0;
+            min-width: 0;
+        }
+
+        .freecat-all-page #posts-list .post-card > div {
+            height: 100%;
+            min-height: 0;
+            padding: 1.25rem;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            border-radius: 1rem;
+            box-shadow: none;
+        }
+
+        .freecat-all-page #posts-list .post-card:hover > div {
+            box-shadow: none;
+            border-color: rgba(100, 116, 139, 0.35);
+        }
+
+        .freecat-all-page #posts-list .post-card .lg\:hidden {
+            display: flex !important;
+        }
+
+        .freecat-all-page #posts-list .post-card .lg\:grid {
+            display: none !important;
+        }
+
+        .freecat-all-page #posts-list .post-card h3 {
+            font-size: clamp(1.125rem, 1.05vw, 1.35rem) !important;
+            line-height: 1.22 !important;
+            font-weight: 700 !important;
+        }
+
+        .freecat-all-page #posts-list .post-card p {
+            margin-top: 1rem !important;
+            font-size: 0.875rem !important;
+            line-height: 1.65 !important;
+            -webkit-line-clamp: 2 !important;
+        }
+
+        .freecat-all-page #posts-list .post-card h3 + div {
+            margin-top: 0.625rem !important;
+        }
+
+        .freecat-all-page #posts-list .post-card img {
+            transition: transform 220ms ease-out;
+        }
+
+        .freecat-all-page #posts-list .post-card:hover img {
+            transform: scale(1.02);
+        }
+
+        .freecat-all-page #posts-list .post-card .mt-8.h-\[180px\] {
+            height: clamp(8.75rem, 12vw, 10.75rem) !important;
+            margin-top: 1rem !important;
+            border-radius: 0.875rem !important;
+        }
+
+        .freecat-all-page #posts-list .post-card .mt-4.shrink-0 {
+            margin-top: 1rem !important;
+        }
+
+        .freecat-all-page #posts-list .post-card .tags-fit {
+            overflow: hidden;
+        }
+
+        .freecat-all-page #posts-list .post-card .tags-fit > * {
+            flex: 0 1 auto;
+            min-width: 0;
+        }
+
+        @media (min-width: 720px) {
+            .freecat-all-page #posts-list {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 1.125rem;
+            }
+        }
+
+        @media (min-width: 1120px) {
+            .freecat-all-page #posts-list {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 1.25rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .freecat-all-page .layout-container {
+                padding-left: 0.875rem;
+                padding-right: 0.875rem;
+            }
+
+            .freecat-all-page #posts-list .post-card > div {
+                padding: 1rem;
+            }
+
+            .freecat-all-page #posts-list .post-card .mt-8.h-\[180px\] {
+                height: 9rem !important;
             }
         }
     </style>
 </head>
 
 <body
-    class="bg-background-light dark:bg-background-dark font-display text-[#1e293b] dark:text-slate-200 transition-colors duration-200">
+    class="freecat-all-page bg-background-light dark:bg-background-dark font-display text-[#1e293b] dark:text-slate-200 transition-colors duration-200">
     <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
 
         <!-- INCLUDE:header -->
@@ -64,7 +159,6 @@
                     <!-- ALL_POSTS_LIST_PLACEHOLDER -->
                 </div>
                 <!-- ===================== -->
-                <!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->
 
             </div>
         </div>
@@ -73,67 +167,6 @@
     </div>
 
     <!-- INCLUDE:scripts-end -->
-    <script>
-        (() => {
-            const sidebar = document.getElementById('home-recent-posts-sidebar');
-            const shell = document.getElementById('home-recent-posts-shell');
-            const positioningRoot = shell?.closest('.layout-content-container') || document.body;
-            if (!sidebar || !shell || !positioningRoot) return;
-
-            let sidebarLeft = 0;
-
-            const getFixedTop = () => {
-                const header = document.querySelector('header');
-                return (header ? header.getBoundingClientRect().height : 72) + 56;
-            };
-
-            const alignShellToFirstCard = () => {
-                const firstCard = document.querySelector('#posts-list .post-card > div')
-                    || document.querySelector('#posts-list .post-card');
-                if (!firstCard) return;
-
-                const top = firstCard.getBoundingClientRect().top
-                    - positioningRoot.getBoundingClientRect().top;
-                shell.style.marginTop = '0';
-                shell.style.top = `${Math.max(0, Math.round(top))}px`;
-            };
-
-            const captureSidebarLeft = () => {
-                alignShellToFirstCard();
-                sidebar.classList.remove('is-fixed');
-                sidebar.style.left = '';
-                sidebar.style.top = '';
-                sidebarLeft = sidebar.getBoundingClientRect().left;
-            };
-
-            const updateSidebarPosition = () => {
-                const fixedTop = getFixedTop();
-                const naturalTop = shell.getBoundingClientRect().top;
-                const shouldFix = naturalTop <= fixedTop;
-                if (!shouldFix) {
-                    sidebar.classList.remove('is-fixed');
-                    sidebar.style.left = '';
-                    sidebar.style.top = '';
-                    return;
-                }
-
-                if (!sidebar.classList.contains('is-fixed')) {
-                    captureSidebarLeft();
-                }
-                sidebar.classList.add('is-fixed');
-                sidebar.style.left = `${sidebarLeft}px`;
-                sidebar.style.top = `${fixedTop}px`;
-            };
-
-            captureSidebarLeft();
-            updateSidebarPosition();
-            window.addEventListener('scroll', updateSidebarPosition, { passive: true });
-            window.addEventListener('resize', () => {
-                captureSidebarLeft();
-                updateSidebarPosition();
-            }, { passive: true });
-        })();
-    </script>
 </body>
 
 </html>
