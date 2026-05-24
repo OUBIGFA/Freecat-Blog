@@ -8,7 +8,7 @@ const repoRoot = path.join(__dirname, '..');
 const postsDir = path.join(repoRoot, 'writing');
 const datesFile = path.join(__dirname, 'git-dates.json');
 
-const dates = collectFromGit({ repoRoot, postsDir });
+const dates = collectFromGit({ repoRoot, postsDir, fallbackMissingToFileStat: true });
 const sorted = Object.fromEntries(
     Object.entries(dates.raw).sort(([a], [b]) => a.localeCompare(b, 'zh-Hans-CN'))
 );

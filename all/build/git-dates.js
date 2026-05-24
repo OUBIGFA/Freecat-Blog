@@ -134,11 +134,20 @@ function extractFirstFromGit(repoRoot, targetDir) {
     return map;
 }
 
-function collectFromGit({ repoRoot, postsDir }) {
+function fileModifiedAt(filePath) {
+    return fs.statSync(filePath).mtime.toISOString();
+}
+
+function collectFromGit({ repoRoot, postsDir, fallbackMissingToFileStat = false }) {
     const postsDirRelToRepo = normalizePath(path.relative(repoRoot, postsDir));
     const postFiles = listPostFiles(postsDir);
     const postFileSet = new Set(postFiles);
-    const gitMap = extractFromGit(repoRoot, postsDirRelToRepo);
+    let gitMap = {};
+    try {
+        gitMap = extractFromGit(repoRoot, postsDirRelToRepo);
+    } catch (err) {
+        if (!fallbackMissingToFileStat) throw err;
+    }
     const cache = {};
 
     for (const [filename, timestamp] of Object.entries(gitMap)) {
@@ -147,6 +156,13 @@ function collectFromGit({ repoRoot, postsDir }) {
 
     const missing = postFiles.filter(file => !cache[file]);
     if (missing.length > 0) {
+        if (fallbackMissingToFileStat) {
+            for (const file of missing) {
+                cache[file] = fileModifiedAt(path.join(postsDir, file));
+            }
+            return makeDateStore(cache, 'git+filesystem');
+        }
+
         throw new Error(
             `Could not extract Git dates for ${missing.length} article file(s): ${missing.slice(0, 5).join(', ')}` +
             (missing.length > 5 ? ', ...' : '')

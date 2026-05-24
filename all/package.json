@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "extract-dates": "node extract-git-dates.js",
-    "build": "node build.js",
+    "build": "node extract-git-dates.js && node build.js",
     "dev": "node dev.js",
     "test": "node --test"
   },

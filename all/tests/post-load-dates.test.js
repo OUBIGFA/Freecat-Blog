@@ -5,7 +5,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const { loadPosts } = require('../build/pages/post');
-const { loadSnapshot, MISSING_GIT_DATE_CODE } = require('../build/git-dates');
+const { collectFromGit, loadSnapshot, MISSING_GIT_DATE_CODE } = require('../build/git-dates');
 
 function makeDateStore(values) {
     return {
@@ -84,4 +84,18 @@ test('missing git modified date is a skippable build condition', () => {
         () => loadPosts({ postsDir, gitDates, postDates }),
         err => err && err.code === MISSING_GIT_DATE_CODE && err.filename === 'missing.md'
     );
+});
+
+test('date extraction can fall back to file modified time for articles without git history', () => {
+    const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'freecat-repo-'));
+    const postsDir = path.join(repoRoot, 'writing');
+    fs.mkdirSync(postsDir);
+
+    fs.writeFileSync(path.join(postsDir, 'new.md'), '# New\n\nBody', 'utf-8');
+
+    const dates = collectFromGit({ repoRoot, postsDir, fallbackMissingToFileStat: true });
+    const value = dates.get('new.md');
+
+    assert.match(value, /^\d{4}-\d{2}-\d{2}T/);
+    assert.equal(Number.isNaN(Date.parse(value)), false);
 });
