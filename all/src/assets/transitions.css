@@ -379,6 +379,10 @@ html.theme-view-transitioning body *::after {
 
 .tag-menu-panel {
     backdrop-filter: blur(18px);
+    translate: -50% 0;
+    width: max-content;
+    min-width: 14rem;
+    max-width: calc(100vw - 2rem);
 }
 
 .tag-menu-items {
@@ -408,6 +412,7 @@ html.theme-view-transitioning body *::after {
         right: 1rem !important;
         top: calc(var(--freecat-header-height, 64px) + 0.75rem) !important;
         width: auto !important;
+        translate: 0 0;
         transform-origin: top center;
     }
 }
