@@ -63,7 +63,8 @@
                     <span class="audio-duration">0:00</span>
                 </span>
             </div>
-            <div class="audio-progress-container">
+            <div class="audio-progress-container" role="slider" tabindex="0" aria-label="Audio progress"
+                aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" aria-valuetext="0:00">
                 <div class="audio-progress-bar"></div>
                 <div class="audio-progress-thumb"></div>
                 <div class="audio-progress-tooltip">0:00</div>
@@ -161,44 +162,93 @@
         });
 
         // Update progress bar
+        function setProgressUi(time) {
+            const duration = Number.isFinite(audio.duration) ? audio.duration : 0;
+            const progress = duration > 0 ? (time / duration) * 100 : 0;
+            const clampedProgress = Math.max(0, Math.min(100, progress));
+            const formattedTime = formatTime(time);
+
+            progressBar.style.width = clampedProgress + '%';
+            progressThumb.style.left = clampedProgress + '%';
+            currentTimeEl.textContent = formattedTime;
+            progressContainer.setAttribute('aria-valuemax', String(Math.floor(duration)));
+            progressContainer.setAttribute('aria-valuenow', String(Math.floor(time)));
+            progressContainer.setAttribute('aria-valuetext', `${formattedTime} / ${formatTime(duration)}`);
+        }
+
         audio.addEventListener('timeupdate', () => {
-            const progress = (audio.currentTime / audio.duration) * 100;
-            progressBar.style.width = progress + '%';
-            progressThumb.style.left = progress + '%';
-            currentTimeEl.textContent = formatTime(audio.currentTime);
+            setProgressUi(audio.currentTime);
         });
 
         // Set duration when metadata is loaded
         audio.addEventListener('loadedmetadata', () => {
             durationEl.textContent = formatTime(audio.duration);
+            setProgressUi(audio.currentTime);
         });
 
         // Progress bar click and drag to seek
         let isDragging = false;
-        let hasDragged = false;
 
-        progressContainer.addEventListener('mousedown', (e) => {
+        progressContainer.addEventListener('pointerdown', (e) => {
             isDragging = true;
-            hasDragged = false;
-            updateProgress(e);
+            progressContainer.classList.add('is-dragging');
+            progressContainer.setPointerCapture(e.pointerId);
+            updateProgress(e, { playAfterSeek: true });
         });
 
-        document.addEventListener('mousemove', (e) => {
+        progressContainer.addEventListener('pointermove', (e) => {
             if (isDragging) {
-                hasDragged = true;
-                updateProgress(e);
+                updateProgress(e, { playAfterSeek: true });
             }
         });
 
-        document.addEventListener('mouseup', () => {
+        progressContainer.addEventListener('pointerup', (e) => {
             isDragging = false;
+            progressContainer.classList.remove('is-dragging');
+            if (progressContainer.hasPointerCapture(e.pointerId)) {
+                progressContainer.releasePointerCapture(e.pointerId);
+            }
         });
 
-        function updateProgress(e) {
+        progressContainer.addEventListener('pointercancel', () => {
+            isDragging = false;
+            progressContainer.classList.remove('is-dragging');
+        });
+
+        progressContainer.addEventListener('keydown', (e) => {
+            if (!audio.duration) return;
+
+            const step = e.shiftKey ? 10 : 5;
+            let nextTime = audio.currentTime;
+
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+                nextTime -= step;
+            } else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+                nextTime += step;
+            } else if (e.key === 'Home') {
+                nextTime = 0;
+            } else if (e.key === 'End') {
+                nextTime = audio.duration;
+            } else {
+                return;
+            }
+
+            e.preventDefault();
+            seekToTime(nextTime, { playAfterSeek: false });
+        });
+
+        function updateProgress(e, options = {}) {
             const rect = progressContainer.getBoundingClientRect();
             const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-            audio.currentTime = pos * audio.duration;
-            audio.play();
+            seekToTime(pos * audio.duration, options);
+        }
+
+        function seekToTime(time, { playAfterSeek = false } = {}) {
+            if (!audio.duration) return;
+            const nextTime = Math.max(0, Math.min(audio.duration, time));
+            audio.currentTime = nextTime;
+            setProgressUi(nextTime);
+            if (playAfterSeek) audio.play();
         }
 
         // Progress bar hover tooltip

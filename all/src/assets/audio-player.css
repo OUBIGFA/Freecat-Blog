@@ -52,27 +52,69 @@
 .audio-progress-container {
     position: relative;
     width: 100%;
-    height: 6px;
-    background-color: #cbd5e1;
-    border-radius: 3px;
+    height: 1.125rem;
+    border-radius: 999px;
     cursor: pointer;
     margin-bottom: 1rem;
+    touch-action: none;
 }
 
-.dark .audio-progress-container {
-    background-color: #475569;
+.audio-progress-container::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 0.25rem;
+    transform: translateY(-50%);
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.34);
+    transition: background-color 180ms ease, height 180ms ease;
+}
+
+.audio-progress-container:hover::before,
+.audio-progress-container:focus-visible::before,
+.audio-progress-container.is-dragging::before {
+    height: 0.3125rem;
+    background: rgba(148, 163, 184, 0.46);
+}
+
+.audio-progress-container:focus-visible {
+    outline: 2px solid rgba(71, 85, 105, 0.24);
+    outline-offset: 0.125rem;
+}
+
+.dark .audio-progress-container::before {
+    background: rgba(100, 116, 139, 0.42);
+}
+
+.dark .audio-progress-container:hover::before,
+.dark .audio-progress-container:focus-visible::before,
+.dark .audio-progress-container.is-dragging::before {
+    background: rgba(148, 163, 184, 0.42);
 }
 
 /* Progress Bar Fill */
 .audio-progress-bar {
     position: absolute;
     left: 0;
-    top: 0;
-    height: 100%;
+    top: 50%;
+    height: 0.25rem;
+    transform: translateY(-50%);
     background: #475569;
-    border-radius: 3px;
+    border-radius: 999px;
     width: 0%;
-    transition: width 0.1s linear;
+    transition: width 120ms linear, height 180ms ease, background-color 180ms ease;
+}
+
+.audio-progress-container:hover .audio-progress-bar,
+.audio-progress-container:focus-visible .audio-progress-bar,
+.audio-progress-container.is-dragging .audio-progress-bar {
+    height: 0.3125rem;
+}
+
+.dark .audio-progress-bar {
+    background: #cbd5e1;
 }
 
 /* Progress Bar Thumb */
@@ -80,17 +122,28 @@
     position: absolute;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 14px;
-    height: 14px;
+    width: 0.875rem;
+    height: 0.875rem;
     background: white;
     border: 2px solid #475569;
     border-radius: 50%;
-    opacity: 0;
-    transition: opacity 0.2s ease;
+    opacity: 0.86;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.18);
+    transition: transform 180ms ease, opacity 180ms ease, box-shadow 180ms ease;
+    will-change: transform;
 }
 
-.audio-progress-container:hover .audio-progress-thumb {
+.audio-progress-container:hover .audio-progress-thumb,
+.audio-progress-container:focus-visible .audio-progress-thumb,
+.audio-progress-container.is-dragging .audio-progress-thumb {
+    transform: translate(-50%, -50%) scale(1.18);
     opacity: 1;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.22);
+}
+
+.dark .audio-progress-thumb {
+    background: #0f172a;
+    border-color: #cbd5e1;
 }
 
 /* Progress Bar Time Tooltip */
@@ -108,7 +161,7 @@
     white-space: nowrap;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.2s ease;
+    transition: opacity 160ms ease, transform 160ms ease;
     z-index: 10;
 }
 
@@ -119,6 +172,7 @@
 
 .audio-progress-tooltip.visible {
     opacity: 1;
+    transform: translateX(-50%) translateY(-0.125rem);
 }
 
 .audio-progress-tooltip::after {
@@ -430,6 +484,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .audio-progress-container::before,
+    .audio-progress-bar,
+    .audio-progress-thumb,
+    .audio-progress-tooltip,
     .audio-speed-dropdown {
         transition: none !important;
     }

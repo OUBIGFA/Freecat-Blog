@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     const shared = window.FreecatShared;
     if (!shared) throw new Error('FreecatShared not loaded — ensure shared.js loads before main.js');
-    const { escapeHtml, processTitleHtml, renderTagSpan, copyText } = shared;
+    const { escapeHtml, processTitleHtml, renderTagSpan, copyText, hashTagColor } = shared;
 
     // ============================================================
     // [Feature] 代码块复制按钮（首页/全部/搜索页可能也有代码片段）
@@ -567,8 +567,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchContainer = document.getElementById('search-container');
     const searchInput = document.getElementById('search-input');
     const navLinks = document.getElementById('nav-links');
+    const tagMenuToggle = document.getElementById('tag-menu-toggle');
+    const tagMenu = document.getElementById('tag-menu');
+    const tagMenuItems = tagMenu ? tagMenu.querySelector('[data-tag-menu-items]') : null;
 
     let searchIndex = null;
+    let tagMenuBuilt = false;
     const dropdownCloseMs = getCssDurationMs('--dropdown-close-dur', 150);
     const panelCloseMs = getCssDurationMs('--panel-close-dur', 350);
     // 顶栏搜索的遮罩 / 输入框定位 / overlay 样式已挪到 transitions.css，
@@ -624,12 +628,130 @@ document.addEventListener('DOMContentLoaded', () => {
         }).slice(0, isTagSearch ? 100 : 20); // 标签搜索显示更多
     }
 
+    function closeHeaderSearch(immediate = false) {
+        if (!searchContainer || !searchToggle) return;
+        searchContainer.dataset.open = 'false';
+        searchToggle.dataset.uiState = 'idle';
+        document.body.classList.remove('search-active');
+        if (searchInput) {
+            searchInput.value = '';
+            searchInput.blur();
+        }
+        closeSearchResults(immediate);
+        const finishClose = () => {
+            searchContainer.classList.add('hidden');
+            searchContainer.classList.remove('flex');
+        };
+        if (immediate) {
+            finishClose();
+        } else {
+            setTimeout(finishClose, panelCloseMs);
+        }
+    }
+
+    function getAllTags(posts) {
+        const tagsByKey = new Map();
+        posts.forEach(post => {
+            (post.tags || []).forEach(tag => {
+                const label = String(tag || '').trim();
+                if (!label) return;
+                const key = label.toLowerCase();
+                const current = tagsByKey.get(key);
+                if (current) {
+                    current.count += 1;
+                    return;
+                }
+                tagsByKey.set(key, { label, count: 1 });
+            });
+        });
+        return Array.from(tagsByKey.values()).sort((a, b) =>
+            a.label.localeCompare(b.label, undefined, { sensitivity: 'base' })
+        );
+    }
+
+    function renderTagMenu(tags) {
+        if (!tagMenuItems) return;
+        tagMenuItems.innerHTML = '';
+        if (!tags.length) {
+            const empty = document.createElement('p');
+            empty.className = 'px-3 py-2 text-sm text-slate-500 dark:text-slate-400';
+            empty.textContent = 'No tags yet';
+            tagMenuItems.appendChild(empty);
+            return;
+        }
+
+        tags.forEach((tag, index) => {
+            const colors = hashTagColor(tag.label);
+            const link = document.createElement('a');
+            link.href = `/search.html?tag=${encodeURIComponent(tag.label)}`;
+            link.role = 'menuitem';
+            link.className = 'tag-menu-item flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-400 dark:text-slate-200 dark:hover:bg-slate-800';
+            link.style.setProperty('--tag-menu-index', index);
+            link.innerHTML = `
+                <span class="min-w-0 truncate">${escapeHtml(tag.label)}</span>
+                <span class="shrink-0 rounded-md px-2 py-0.5 text-[11px] font-semibold" style="background:${colors.bg};color:${colors.text};">${tag.count}</span>
+            `;
+            tagMenuItems.appendChild(link);
+        });
+    }
+
+    async function buildTagMenu() {
+        if (tagMenuBuilt) return;
+        const posts = await loadSearchIndex();
+        renderTagMenu(getAllTags(posts));
+        tagMenuBuilt = true;
+    }
+
+    function setTagMenuOpen(open) {
+        if (!tagMenu || !tagMenuToggle) return;
+        tagMenuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        tagMenu.classList.toggle('is-open', open);
+        tagMenu.classList.remove('is-closing');
+    }
+
+    function closeTagMenu() {
+        if (!tagMenu || !tagMenuToggle || !tagMenu.classList.contains('is-open')) return;
+        tagMenuToggle.setAttribute('aria-expanded', 'false');
+        tagMenu.classList.remove('is-open');
+        tagMenu.classList.add('is-closing');
+        setTimeout(() => tagMenu.classList.remove('is-closing'), dropdownCloseMs);
+    }
+
+    if (tagMenuToggle && tagMenu) {
+        tagMenuToggle.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const willOpen = !tagMenu.classList.contains('is-open');
+            if (!willOpen) {
+                closeTagMenu();
+                return;
+            }
+            closeHeaderSearch(true);
+            await buildTagMenu();
+            setTagMenuOpen(true);
+        });
+
+        tagMenu.addEventListener('click', (e) => {
+            if (e.target.closest('a')) closeTagMenu();
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!tagMenu.classList.contains('is-open')) return;
+            if (tagMenu.contains(e.target) || tagMenuToggle.contains(e.target)) return;
+            closeTagMenu();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeTagMenu();
+        });
+    }
+
     // 搜索 UI 切换
     if (searchToggle && searchContainer && navLinks) {
         searchContainer.classList.add('t-panel-slide');
         searchContainer.dataset.open = 'false';
         searchToggle.dataset.uiState = 'idle';
         searchToggle.addEventListener('click', async () => {
+            closeTagMenu();
             searchContainer.classList.remove('hidden');
             searchContainer.classList.add('flex');
             searchToggle.dataset.uiState = 'active';

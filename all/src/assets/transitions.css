@@ -377,6 +377,41 @@ html.theme-view-transitioning body *::after {
         opacity var(--dropdown-close-dur) var(--dropdown-ease);
 }
 
+.tag-menu-panel {
+    backdrop-filter: blur(18px);
+}
+
+.tag-menu-items {
+    scrollbar-width: thin;
+}
+
+.tag-menu-item {
+    opacity: 0;
+    transform: translateY(-4px);
+}
+
+.tag-menu-panel.is-open .tag-menu-item {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+        opacity 180ms var(--dropdown-ease),
+        transform 180ms var(--dropdown-ease),
+        background-color 150ms ease,
+        color 150ms ease;
+    transition-delay: calc(var(--tag-menu-index) * 18ms);
+}
+
+@media (max-width: 767px) {
+    .tag-menu-panel {
+        position: fixed !important;
+        left: 1rem !important;
+        right: 1rem !important;
+        top: calc(var(--freecat-header-height, 64px) + 0.75rem) !important;
+        width: auto !important;
+        transform-origin: top center;
+    }
+}
+
 .page-transitioning-out {
     opacity: 0;
     transform: translateX(calc(var(--page-slide-distance) * -1));
@@ -467,6 +502,7 @@ body.search-active .page-blur-target::before {
     .animate-fade-in-up { animation: none !important; opacity: 1 !important; }
     .t-panel-slide,
     .t-dropdown,
+    .tag-menu-item,
     .page-transitioning-out,
     .page-transitioning-in,
     .icon-breathe,

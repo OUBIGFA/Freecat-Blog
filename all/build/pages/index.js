@@ -32,15 +32,6 @@ function renderPostCardForList(post) {
     });
 }
 
-function renderViewAllLink(totalPages) {
-    if (totalPages <= 1) return '';
-    return `
-            <a href="/all.html" class="flex items-center gap-2 h-10 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors duration-150 -mb-2">
-                <span class="text-sm font-bold">View All</span>
-                <svg class="text-xl t-btn-arrow-next" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path></svg>
-            </a>`;
-}
-
 function generateAll({ posts, template, postsPerPage, siteConfig, seoConfig, outputDir, recentPostsSidebarHtml }) {
     const totalPages = postsPerPage === 0 ? 1 : Math.ceil(posts.length / postsPerPage);
 
@@ -70,7 +61,7 @@ function generateAll({ posts, template, postsPerPage, siteConfig, seoConfig, out
             .replace('<!-- HOME_JSONLD -->', () => jsonLd)
             .replace('<!-- POSTS_LIST_PLACEHOLDER -->', () => postsHtml)
             .replace('<!-- PAGINATION_BUTTONS_PLACEHOLDER -->', () => paginationBtns)
-            .replace('<!-- PAGINATION_PLACEHOLDER -->', () => renderViewAllLink(totalPages))
+            .replace('<!-- PAGINATION_PLACEHOLDER -->', () => '')
             .replace('<!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->', () => recentPostsSidebarHtml || '');
 
         if (page === 1) {
