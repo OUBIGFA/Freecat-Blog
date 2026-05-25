@@ -109,15 +109,15 @@
         .freecat-all-sort {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            height: 2.5rem;
-            padding: 0 0.875rem;
-            border: 1px solid rgba(148, 163, 184, 0.35);
+            gap: 0.3125rem;
+            height: 1.875rem;
+            padding: 0 0.5rem;
+            border: 1px solid rgba(148, 163, 184, 0.32);
             border-radius: 999px;
             color: #64748b;
             background: transparent;
-            font-size: 0.875rem;
-            font-weight: 700;
+            font-size: 0.6875rem;
+            font-weight: 600;
             line-height: 1;
             transition: color 150ms ease, border-color 150ms ease, background-color 150ms ease;
         }
@@ -125,25 +125,25 @@
         .freecat-all-sort:hover,
         .freecat-all-sort[aria-pressed="true"] {
             color: #334155;
-            border-color: rgba(100, 116, 139, 0.55);
-            background: rgba(241, 245, 249, 0.72);
+            border-color: rgba(100, 116, 139, 0.42);
+            background: rgba(241, 245, 249, 0.68);
         }
 
         .dark .freecat-all-sort {
             color: #94a3b8;
-            border-color: rgba(71, 85, 105, 0.7);
+            border-color: rgba(71, 85, 105, 0.62);
         }
 
         .dark .freecat-all-sort:hover,
         .dark .freecat-all-sort[aria-pressed="true"] {
             color: #e2e8f0;
-            border-color: rgba(148, 163, 184, 0.6);
-            background: rgba(30, 41, 59, 0.72);
+            border-color: rgba(148, 163, 184, 0.46);
+            background: rgba(30, 41, 59, 0.64);
         }
 
         .freecat-all-sort svg {
-            width: 1.125rem;
-            height: 1.125rem;
+            width: 0.875rem;
+            height: 0.875rem;
             flex: none;
         }
 
@@ -301,6 +301,17 @@
             if (!list || buttons.length === 0) return;
 
             const cards = Array.from(list.querySelectorAll('.post-card')).map((card, index) => ({ card, index }));
+            const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const applyCurrentOrderAnimations = () => {
+                if (prefersReducedMotion()) return;
+                Array.from(list.querySelectorAll('.post-card')).forEach((card, index) => {
+                    card.classList.remove('animate-fade-in-up');
+                    card.style.animationDelay = `${index * 90}ms`;
+                    void card.offsetWidth;
+                    card.classList.add('animate-fade-in-up');
+                });
+            };
+
             const sortCards = (mode) => {
                 cards
                     .sort((a, b) => {
@@ -316,6 +327,8 @@
                 buttons.forEach((button) => {
                     button.setAttribute('aria-pressed', String(button.dataset.sortMode === mode));
                 });
+
+                requestAnimationFrame(applyCurrentOrderAnimations);
             };
 
             buttons.forEach((button) => {
