@@ -56,3 +56,22 @@ test('post card encodes special characters in internal article links', () => {
     assert.match(html, /href="\/posts\/%E5%9B%BD%E5%86%85%E9%93%B6%E8%81%94%E5%8D%A1%20%2B%2086%20%E6%89%8B%E6%9C%BA%E5%8F%B7\.html"/);
     assert.doesNotMatch(html, /href="[^"]*\+[^"]*"/);
 });
+
+test('post card exposes publish and modified timestamps for sorting', () => {
+    const html = postCardTemplate.renderPostCard({
+        link: '/posts/sortable.html',
+        titleHtml: 'Sortable Article',
+        excerptHtml: 'Article with sortable dates.',
+        date: '2026-05-01',
+        modifiedDate: '2026-05-24',
+        sortDate: 1777564800000,
+        sortModifiedDate: 1779552000000,
+        tagsHtml: '',
+        cover: '',
+        pinned: false
+    });
+
+    assert.match(html, /data-sort-date="1777564800000"/);
+    assert.match(html, /data-sort-modified="1779552000000"/);
+    assert.match(html, /data-sort-pinned="0"/);
+});

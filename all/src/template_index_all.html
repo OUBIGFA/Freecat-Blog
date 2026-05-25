@@ -106,6 +106,47 @@
             display: none;
         }
 
+        .freecat-all-sort {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            height: 2.5rem;
+            padding: 0 0.875rem;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            border-radius: 999px;
+            color: #64748b;
+            background: transparent;
+            font-size: 0.875rem;
+            font-weight: 700;
+            line-height: 1;
+            transition: color 150ms ease, border-color 150ms ease, background-color 150ms ease;
+        }
+
+        .freecat-all-sort:hover,
+        .freecat-all-sort[aria-pressed="true"] {
+            color: #334155;
+            border-color: rgba(100, 116, 139, 0.55);
+            background: rgba(241, 245, 249, 0.72);
+        }
+
+        .dark .freecat-all-sort {
+            color: #94a3b8;
+            border-color: rgba(71, 85, 105, 0.7);
+        }
+
+        .dark .freecat-all-sort:hover,
+        .dark .freecat-all-sort[aria-pressed="true"] {
+            color: #e2e8f0;
+            border-color: rgba(148, 163, 184, 0.6);
+            background: rgba(30, 41, 59, 0.72);
+        }
+
+        .freecat-all-sort svg {
+            width: 1.125rem;
+            height: 1.125rem;
+            flex: none;
+        }
+
         @media (min-width: 720px) {
             .freecat-all-page #posts-list {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -155,6 +196,17 @@
             .freecat-all-page #posts-list .post-card .mt-8.h-\[180px\] {
                 height: 9rem !important;
             }
+
+            .freecat-all-page [data-all-toolbar] {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 0.875rem;
+            }
+
+            .freecat-all-page [data-all-sort-controls] {
+                flex-wrap: wrap;
+                gap: 0.625rem;
+            }
         }
     </style>
 </head>
@@ -174,7 +226,7 @@
             <div class="layout-content-container relative flex flex-col max-w-[1200px] flex-1 mx-auto w-full">
                 <h1 class="sr-only">All Articles</h1>
 
-                <div
+                <div data-all-toolbar
                     class="flex items-center justify-start gap-4 pb-6 pt-6 border-b border-gray-300 dark:border-gray-800 mb-12">
                     <a href="/"
                         onclick="if(document.referrer.includes(window.location.host)){history.back();return false;}"
@@ -188,6 +240,16 @@
                         </svg>
                         <span class="text-sm font-bold">Go Back</span>
                     </a>
+                    <div data-all-sort-controls class="flex items-center gap-2">
+                        <button type="button" class="freecat-all-sort" data-sort-mode="date" aria-pressed="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12H4C4 16.4183 7.58172 20 12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C9.25022 4 6.82447 5.38734 5.38451 7.50024L8 7.5V9.5H2V3.5H4L3.99989 5.99918C5.82434 3.57075 8.72873 2 12 2ZM13 7L12.9998 11.585L16.2426 14.8284L14.8284 16.2426L10.9998 12.413L11 7H13Z"></path></svg>
+                            <span>按时间排序</span>
+                        </button>
+                        <button type="button" class="freecat-all-sort" data-sort-mode="modified" aria-pressed="false">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4H4V2H20V4H18V6C18 7.61543 17.1838 8.91468 16.1561 9.97667C15.4532 10.703 14.598 11.372 13.7309 12C14.598 12.628 15.4532 13.297 16.1561 14.0233C17.1838 15.0853 18 16.3846 18 18V20H20V22H4V20H6V18C6 16.3846 6.81616 15.0853 7.8439 14.0233C8.54682 13.297 9.40202 12.628 10.2691 12C9.40202 11.372 8.54682 10.703 7.8439 9.97667C6.81616 8.91468 6 7.61543 6 6V4ZM8 4V6C8 6.88457 8.43384 7.71032 9.2811 8.58583C10.008 9.33699 10.9548 10.0398 12 10.7781C13.0452 10.0398 13.992 9.33699 14.7189 8.58583C15.5662 7.71032 16 6.88457 16 6V4H8ZM12 13.2219C10.9548 13.9602 10.008 14.663 9.2811 15.4142C8.43384 16.2897 8 17.1154 8 18V20H16V18C16 17.1154 15.5662 16.2897 14.7189 15.4142C13.992 14.663 13.0452 13.9602 12 13.2219Z"></path></svg>
+                            <span>按更新排序</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- === 动态文章注入区（显示所有文章，无分页） === -->
@@ -232,6 +294,35 @@
     </div>
 
     <!-- INCLUDE:scripts-end -->
+    <script>
+        (function () {
+            const list = document.getElementById('posts-list');
+            const buttons = Array.from(document.querySelectorAll('[data-sort-mode]'));
+            if (!list || buttons.length === 0) return;
+
+            const cards = Array.from(list.querySelectorAll('.post-card')).map((card, index) => ({ card, index }));
+            const sortCards = (mode) => {
+                cards
+                    .sort((a, b) => {
+                        const pinnedDelta = mode === 'date'
+                            ? Number(b.card.dataset.sortPinned || 0) - Number(a.card.dataset.sortPinned || 0)
+                            : 0;
+                        const field = mode === 'modified' ? 'sortModified' : 'sortDate';
+                        const delta = pinnedDelta || Number(b.card.dataset[field] || 0) - Number(a.card.dataset[field] || 0);
+                        return delta || a.index - b.index;
+                    })
+                    .forEach(({ card }) => list.appendChild(card));
+
+                buttons.forEach((button) => {
+                    button.setAttribute('aria-pressed', String(button.dataset.sortMode === mode));
+                });
+            };
+
+            buttons.forEach((button) => {
+                button.addEventListener('click', () => sortCards(button.dataset.sortMode));
+            });
+        }());
+    </script>
 </body>
 
 </html>

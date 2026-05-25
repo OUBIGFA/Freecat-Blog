@@ -21,6 +21,8 @@ function renderPostCardForList(post) {
         excerptHtml: shared.escapeHtml(post.preview || post.excerpt),
         date: post.date.tz('Asia/Shanghai').format('YYYY-MM-DD'),
         modifiedDate: post.modifiedDate.tz('Asia/Shanghai').format('YYYY-MM-DD'),
+        sortDate: post.date.valueOf(),
+        sortModifiedDate: post.modifiedDate.valueOf(),
         tagsHtml,
         cover: post.cover,
         coverPlaceholder: post.coverPlaceholder,
