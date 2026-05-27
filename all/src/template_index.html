@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="<!-- SITE_LANGUAGE -->">
 
 <head>
@@ -37,297 +37,275 @@
         :root {
             /* 注：--freecat-header-height / --freecat-header-safe-gap / --freecat-page-top-offset
                已在 assets/transitions.css 中作为全站默认值定义，这里只补充首页专属变量。 */
-            --freecat-hero-content-fallback-height: 420px;
-            --freecat-hero-bottom-safe-gap: clamp(44px, 8svh, 88px);
-            --freecat-hero-slot-height: 0px;
-            --freecat-hero-avatar-size: 20rem;
-            --freecat-hero-title-size: clamp(2.5rem, 3.2vw, 3rem);
-            --freecat-hero-height: max(
-                var(--freecat-hero-slot-height),
-                var(--freecat-hero-measured-height, calc(var(--freecat-hero-content-fallback-height) + var(--freecat-hero-bottom-safe-gap)))
-            );
-            --freecat-posts-edge-gap: clamp(6px, 1.2vw, 14px);
-            --freecat-posts-gap: clamp(18px, 3vw, 36px);
             --freecat-canvas: #f6f6f8;
             --freecat-hero-canvas: #fafbfc;
-            --freecat-line: #d7dde5;
-            --freecat-posts-plane-border: #f0f2f4;
+            /* sidebar 自身宽度独立，与 inner 居中无关 */
+            --freecat-home-sidebar-width: clamp(420px, 24vw, 500px);
+            /* sidebar 内的内容尺寸独立，与 sidebar 宽度无关（只要 sidebar 装得下即可） */
+            --freecat-hero-avatar-size: clamp(180px, 14vw, 260px);
+            --freecat-hero-title-size: clamp(1.625rem, 2vw, 2rem);
+            --freecat-hero-text-max: 420px;
+            /* 文章 inner 的目标最大宽度；实际宽度还受"不被 sidebar 遮挡"约束。 */
+            --freecat-home-content-max: 1100px;
         }
 
         .dark {
             --freecat-canvas: #101622;
             --freecat-hero-canvas: #151d2a;
-            --freecat-line: #233044;
-            --freecat-posts-plane-border: #1f2937;
         }
 
         .freecat-home-stage {
             background: var(--freecat-canvas);
             isolation: isolate;
+            overflow-x: clip;
         }
 
-        .freecat-hero-bg {
-            position: fixed;
-            inset: 0 0 auto 0;
-            z-index: 0;
-            height: calc(var(--freecat-page-top-offset) + var(--freecat-hero-height));
-            overflow: hidden;
+        .freecat-home-layout {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .freecat-home-sidebar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.75rem;
+            min-width: 0;
             background: var(--freecat-hero-canvas);
-            padding-top: var(--freecat-page-top-offset);
         }
 
-        .freecat-hero-spacer {
-            height: calc(var(--freecat-page-top-offset) + var(--freecat-hero-height));
-            flex: 0 0 auto;
+        .freecat-home-sidebar-top {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.75rem;
+            width: 100%;
+            min-width: 0;
+        }
+
+        .freecat-home-sidebar-bottom {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .freecat-home-sidebar-hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.75rem;
+            width: 100%;
+        }
+
+            .freecat-home-sidebar-hero-text {
+            width: 100%;
+            text-align: left;
+        }
+
+        .freecat-home-sidebar-hero-text h1,
+        .freecat-home-sidebar-hero-text h2 {
+            text-align: left;
+        }
+
+            .freecat-home-sidebar-recent {
+            width: 100%;
+        }
+
+        .freecat-home-posts {
+            min-width: 0;
+            width: 100%;
+            background: var(--freecat-canvas);
         }
 
         .freecat-hero-avatar {
             background-color: color-mix(in srgb, white 82%, var(--freecat-hero-canvas));
             aspect-ratio: 1 / 1;
             border-radius: 50% !important;
-            box-shadow:
-                0 38px 80px rgba(17, 19, 24, 0.12),
-                inset 0 1px 0 rgba(255, 255, 255, 0.86);
         }
 
-        .freecat-posts-plane {
-            position: relative;
-            z-index: 10;
-            min-height: 100vh;
-            padding-top: var(--freecat-posts-edge-gap);
-            background: var(--freecat-canvas);
-            border-top: 1px solid var(--freecat-posts-plane-border);
-        }
+        /* 桌面端：sidebar 用 position: fixed 钉在视口左侧，整列从顶到底铺满；
+           不随页面滚动，footer 滚入时由更高的 z-index 自然覆盖在它之上。
+           最近更新跟随介绍靠上排列。 */
+        @media (min-width: 1024px) {
+            .freecat-home-layout {
+                position: relative;
+                min-height: calc(100vh - var(--freecat-header-height, 80px));
+            }
 
-        .freecat-hero-layout {
-            min-height: var(--freecat-hero-slot-height);
-        }
+            .freecat-home-sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: var(--freecat-home-sidebar-width);
+                background: var(--freecat-hero-canvas);
+                display: flex;
+                flex-direction: column;
+                gap: 0;
+                padding: calc(var(--freecat-page-top-offset, 112px) + 40px) clamp(44px, 3.2vw, 64px) 1.5rem;
+                z-index: 1;
+                overflow: hidden;
+            }
 
-        @media (min-width: 641px) and (max-width: 1183px) {
-            :root {
-                --freecat-hero-content-fallback-height: 638px;
-                --freecat-hero-bottom-safe-gap: clamp(28px, 4svh, 52px);
+            .freecat-home-sidebar-top {
+                padding-bottom: 0;
+                flex: 0 0 auto;
+            }
+
+            /* sidebar-bottom 占用剩余高度并允许收缩；溢出时底部用渐变遮罩做"省略号"效果 */
+            .freecat-home-sidebar-bottom {
+                margin-top: clamp(2rem, 5vh, 4rem);
+                padding-bottom: 0;
+                flex: 1 1 auto;
+                min-height: 0;
+                overflow: hidden;
+                -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 32px), transparent 100%);
+                mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 32px), transparent 100%);
+            }
+
+            .freecat-home-sidebar-recent {
+                margin-top: 0;
+                padding-top: 0;
+                max-width: var(--freecat-hero-text-max);
+            }
+
+            .freecat-home-sidebar-hero-text {
+                max-width: var(--freecat-hero-text-max);
+            }
+
+            .freecat-home-posts {
+                /* 跨整个视口；left padding 把 inner 推到 sidebar 右侧，
+                   宽屏时则把 inner 居中于整个视口（sidebar 自然被覆盖在下层）。 */
+                width: 100%;
+                padding:
+                    calc(var(--freecat-page-top-offset, 112px) + 40px)
+                    0
+                    56px
+                    max(
+                        var(--freecat-home-sidebar-width),
+                        calc((100vw - var(--freecat-home-content-max)) / 2)
+                    );
+            }
+
+            /* 自适应规则：先保宽度，再让位，最后等比缩小（保持卡片内部比例）；
+               - 视口够宽（≥ inner_max + 2*sidebar）时，inner 居中于整个视口；
+               - 视口收窄时，inner 保持原尺寸不压缩，整体向右"贴"sidebar 右侧；
+               - 直到 inner 右边触到视口右缘后（视口 < inner_max + sidebar），
+                 用 zoom 等比缩小，卡片图片/文字/留白同比例缩，绝不单向压宽。 */
+            .freecat-home-posts-inner {
+                width: var(--freecat-home-content-max);
+                max-width: var(--freecat-home-content-max);
+                padding: 0 clamp(16px, 1.6vw, 28px);
+                zoom: min(
+                    1,
+                    calc(
+                        (100vw - var(--freecat-home-sidebar-width))
+                        / var(--freecat-home-content-max)
+                    )
+                );
             }
         }
 
-        @media (min-width: 1184px) {
+        /* 移动端 / 平板：单列堆叠；最近更新整段隐藏；sidebar 自己 padding-top 让位顶栏。 */
+        @media (max-width: 1023px) {
             :root {
-                --freecat-hero-slot-height: clamp(460px, 58svh, 540px);
-                --freecat-hero-content-fallback-height: 360px;
-                --freecat-hero-bottom-safe-gap: clamp(14px, 2.4svh, 24px);
-            }
-        }
-
-        @media (max-width: 640px) {
-            :root {
-                --freecat-hero-content-fallback-height: 300px;
-                --freecat-hero-bottom-safe-gap: clamp(10px, 1.6svh, 14px);
-                --freecat-hero-avatar-size: clamp(96px, 22vw, 128px);
+                --freecat-hero-avatar-size: clamp(180px, 36vw, 240px);
                 --freecat-hero-title-size: clamp(1.75rem, 6.6vw, 2.25rem);
-                --freecat-posts-edge-gap: 24px;
-                --freecat-posts-gap: 0px;
             }
 
-            .freecat-hero-layout {
-                align-items: center;
+            .freecat-home-sidebar {
+                padding: calc(var(--freecat-page-top-offset, 96px) + 16px) clamp(20px, 5vw, 36px) 36px;
             }
 
-            .freecat-hero-copy {
-                align-items: center;
-                text-align: center;
+            .freecat-home-posts {
+                padding: 28px clamp(20px, 5vw, 40px) 48px;
             }
 
-            .freecat-hero-copy > div,
-            .freecat-hero-copy h1,
-            .freecat-hero-copy h2 {
-                text-align: center;
-            }
-
-            .freecat-hero-copy h2 {
-                margin-inline: auto;
+            .freecat-home-sidebar-recent {
+                display: none;
             }
         }
 
-        /* 首页第一屏不展示分页头时，移除其占位空白 */
-        #view-all-header:empty {
+        /* 首页第一屏不展示分页头时，移除其占位空白；
+           构建器把占位符替换成空字符串，HTML 缩进会留下文本节点，
+           所以用 :not(:has(*)) 才能真正命中"没有元素子节点"的状态。 */
+        #view-all-header:empty,
+        #view-all-header:not(:has(*)) {
             display: none;
             margin: 0;
             padding: 0;
             border: 0;
-        }
-
-        #posts-list {
-            padding-top: var(--freecat-posts-gap);
-        }
-
-        #view-all-header:not(:empty) + #posts-list {
-            padding-top: 0;
-        }
-
-        .freecat-home-recent-sidebar {
-            width: 16rem;
-        }
-
-        .freecat-home-recent-shell {
-            display: none;
-        }
-
-        .freecat-home-recent-sidebar.is-fixed {
-            position: fixed;
-            top: calc(var(--freecat-header-height, 72px) + 56px);
-            z-index: 20;
-        }
-
-        @media (min-width: 1880px) {
-            .freecat-home-recent-shell {
-                display: block;
-            }
         }
     </style>
 </head>
 
 <body
     class="bg-background-light dark:bg-background-dark font-display text-[#1e293b] dark:text-slate-200 transition-colors duration-200">
-    <div class="freecat-home-stage relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+    <div class="freecat-home-stage relative flex h-auto min-h-screen w-full flex-col">
 
         <!-- INCLUDE:header -->
 
-        <!-- 主内容区 -->
-        <div class="layout-container page-blur-target flex h-full grow flex-col">
-            <div id="avatar-trigger-area" class="freecat-hero-bg w-full">
-                <div class="px-8 md:px-20 lg:px-40">
-                    <div class="layout-content-container flex flex-col max-w-[1200px] flex-1 mx-auto w-full">
+        <!-- 主内容区：freecat-home-hero 标记让 main.js 跳过 layout-container 的 margin-top，
+             左/右两块各自承担让位顶栏的 padding-top。 -->
+        <div class="layout-container page-blur-target freecat-home-hero flex h-full grow flex-col">
+            <div class="freecat-home-layout w-full">
 
-                        <!-- Hero Section (只在第一页显示，或者保留不动)
-                             注意 DOM 顺序：avatar 在前、文字在后。
-                             - 窄屏 (<864px) 用 flex-col，items 自上而下排列：
-                               avatar 顶部、文字底部；若内容超过 hero 高度，溢出会向"下"
-                               （被 hero-bg overflow:hidden 与上层 posts-plane 遮住），
-                               不会再向"上"侵入固定顶栏。
-                             - 宽屏用 flex-row-reverse，DOM 顺序保持
-                               avatar 在前、文字在后，但视觉仍是文字左、avatar 右。 -->
-                        <div id="hero-section" class="@container">
-                            <div
-                                class="freecat-hero-layout flex flex-col justify-center gap-4 pt-4 pb-[var(--freecat-hero-bottom-safe-gap)] @[480px]:gap-8 @[480px]:pt-10 @[1184px]:flex-row-reverse @[1184px]:items-center @[1184px]:pt-[var(--freecat-hero-bottom-safe-gap)] @[1184px]:gap-12">
-                                <div class="w-full @[1184px]:w-1/2 flex justify-center @[1184px]:justify-end">
-                                    <div id="hero-avatar"
-                                        class="freecat-hero-avatar animate-fade-in-up delay-300 w-[var(--freecat-hero-avatar-size)] bg-center bg-no-repeat bg-cover rounded-full"
-                                        style='background-image: url("<!-- HERO_AVATAR -->");'></div>
-                                </div>
-                                <div class="freecat-hero-copy flex flex-col gap-4 @[480px]:min-w-[400px] @[480px]:gap-8 flex-1">
-                                    <div class="flex flex-col gap-3 @[480px]:gap-4 text-left">
-                                        <h1
-                                            class="animate-fade-in-up text-[#1e293b] dark:text-slate-200 text-[length:var(--freecat-hero-title-size)] font-black leading-[1.08] tracking-[-0.033em] @[1184px]:leading-tight">
-                                            <!-- HERO_TITLE -->
-                                        </h1>
-                                        <h2
-                                            class="animate-fade-in-up delay-150 text-[#616f89] dark:text-gray-400 text-xs @[480px]:text-sm font-normal leading-relaxed max-w-xl">
-                                            <!-- HERO_SUBTITLE -->
-                                        </h2>
-                                    </div>
-                                </div>
+                <!-- 左侧侧栏：fixed 撑满浏览器视口；
+                     最近更新跟随介绍靠上排列，并与侧栏一起固定。
+                     保留 avatar-trigger-area / hero-avatar / hero-section 三个 id，
+                     以维持 main.js 中头像光影动效与尺寸观察逻辑。 -->
+                <aside id="avatar-trigger-area" class="freecat-home-sidebar">
+                    <div id="hero-section" class="freecat-home-sidebar-top freecat-home-sidebar-hero @container">
+                        <div id="hero-avatar"
+                            class="freecat-hero-avatar animate-fade-in-up delay-300 w-[var(--freecat-hero-avatar-size)] bg-center bg-no-repeat bg-cover rounded-full"
+                            style='background-image: url("<!-- HERO_AVATAR -->");'></div>
+                        <div class="freecat-home-sidebar-hero-text flex flex-col gap-3">
+                            <h1
+                                class="animate-fade-in-up text-[#1e293b] dark:text-slate-200 text-[length:var(--freecat-hero-title-size)] font-black leading-[1.1] tracking-[-0.02em]">
+                                <!-- HERO_TITLE -->
+                            </h1>
+                            <h2
+                                class="animate-fade-in-up delay-150 text-[#616f89] dark:text-gray-400 text-sm lg:text-[15px] font-normal leading-relaxed">
+                                <!-- HERO_SUBTITLE -->
+                            </h2>
+                        </div>
+                    </div>
+                    <div class="freecat-home-sidebar-bottom">
+                        <div class="freecat-home-sidebar-recent">
+                            <!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- 右侧文章列表区：inner 居中于视口，同时避开左侧 sidebar。 -->
+                <section class="freecat-home-posts">
+                    <div class="freecat-home-posts-inner w-full">
+                        <div id="view-all-header"
+                            class="flex items-baseline justify-start pb-2 pt-0 mb-5">
+                            <!-- PAGINATION_PLACEHOLDER -->
+                        </div>
+                        <div class="freecat-home-posts-column w-full min-w-0">
+                            <!-- === 动态文章注入区 === -->
+                            <div id="posts-list">
+                                <!-- POSTS_LIST_PLACEHOLDER -->
+                            </div>
+                            <!-- ===================== -->
+
+                            <!-- 底部主要分页器 -->
+                            <div id="pagination-buttons" class="flex justify-center">
+                                <!-- PAGINATION_BUTTONS_PLACEHOLDER -->
                             </div>
                         </div>
-
-                        <!-- 文章列表标题 -->
                     </div>
-                </div>
+                </section>
+
             </div>
-
-            <div class="freecat-hero-spacer" aria-hidden="true"></div>
-
-            <section class="freecat-posts-plane w-full">
-                <div class="w-full px-10 sm:px-12 md:px-20 lg:px-12">
-                    <div class="layout-content-container flex flex-col max-w-[1200px] flex-1 mx-auto w-full">
-                    <div id="view-all-header"
-                        class="flex items-baseline justify-start pb-2 pt-0 mb-5">
-                        <!-- PAGINATION_PLACEHOLDER -->
-                    </div>
-                    <div class="freecat-home-posts-column w-full min-w-0">
-                        <!-- === 动态文章注入区 === -->
-                        <div id="posts-list">
-                            <!-- POSTS_LIST_PLACEHOLDER -->
-                        </div>
-                        <!-- ===================== -->
-
-                        <!-- 底部主要分页器 -->
-                        <div id="pagination-buttons" class="flex justify-center">
-                            <!-- PAGINATION_BUTTONS_PLACEHOLDER -->
-                        </div>
-                    </div>
-                    <!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->
-                    </div>
-                </div>
-            </section>
         </div>
 
         <!-- INCLUDE:footer -->
     </div>
 
     <!-- INCLUDE:scripts-end -->
-    <script>
-        (() => {
-            const sidebar = document.getElementById('home-recent-posts-sidebar');
-            const shell = document.getElementById('home-recent-posts-shell');
-            const positioningRoot = document.querySelector('.freecat-posts-plane')
-                || shell.closest('.layout-content-container')
-                || document.body;
-            if (!sidebar || !shell || !positioningRoot) return;
-
-            let sidebarLeft = 0;
-
-            const getFixedTop = () => {
-                const header = document.querySelector('header');
-                return (header ? header.getBoundingClientRect().height : 72) + 56;
-            };
-
-            const alignShellToFirstCard = () => {
-                const firstCard = document.querySelector('#posts-list .post-card > div')
-                    || document.querySelector('#posts-list .post-card');
-                if (!firstCard) return;
-
-                const top = firstCard.getBoundingClientRect().top
-                    - positioningRoot.getBoundingClientRect().top;
-                shell.style.marginTop = '0';
-                shell.style.top = `${Math.max(0, Math.round(top))}px`;
-            };
-
-            const captureSidebarLeft = () => {
-                alignShellToFirstCard();
-                sidebar.classList.remove('is-fixed');
-                sidebar.style.left = '';
-                sidebar.style.top = '';
-                sidebarLeft = sidebar.getBoundingClientRect().left;
-            };
-
-            const updateSidebarPosition = () => {
-                const fixedTop = getFixedTop();
-                const naturalTop = shell.getBoundingClientRect().top;
-                const shouldFix = naturalTop <= fixedTop;
-                if (!shouldFix) {
-                    sidebar.classList.remove('is-fixed');
-                    sidebar.style.left = '';
-                    sidebar.style.top = '';
-                    return;
-                }
-
-                if (!sidebar.classList.contains('is-fixed')) {
-                    captureSidebarLeft();
-                }
-                sidebar.classList.add('is-fixed');
-                sidebar.style.left = `${sidebarLeft}px`;
-                sidebar.style.top = `${fixedTop}px`;
-            };
-
-            captureSidebarLeft();
-            updateSidebarPosition();
-            window.addEventListener('scroll', updateSidebarPosition, { passive: true });
-            window.addEventListener('resize', () => {
-                captureSidebarLeft();
-                updateSidebarPosition();
-            }, { passive: true });
-        })();
-    </script>
 </body>
 
 </html>

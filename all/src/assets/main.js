@@ -198,13 +198,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.documentElement.style.setProperty('--freecat-page-top-offset', topOffset);
         const targets = document.querySelectorAll('.layout-container.page-blur-target, main.page-blur-target');
         targets.forEach((el) => {
-            if (el.querySelector('.freecat-hero-bg, .freecat-home-hero')) {
+            if (el.matches('.freecat-home-hero') || el.querySelector('.freecat-hero-bg, .freecat-home-hero')) {
                 el.style.marginTop = '0px';
                 return;
             }
             el.style.marginTop = topOffset;
         });
         scheduleHomeHeroMeasure();
+        scheduleHomeSidebarFooterAvoid();
     }
 
     function observeHeaderOffsetChanges() {
@@ -243,6 +244,30 @@ document.addEventListener('DOMContentLoaded', () => {
         if (heroSection.firstElementChild) {
             observer.observe(heroSection.firstElementChild);
         }
+    }
+
+    // ============================================================
+    // [Feature] 首页 / 搜索页：fixed sidebar 在 footer 滚入视口时
+    // 从底部收缩，让其内容始终不会被 footer 遮住；溢出由 CSS 渐变遮罩
+    // 做"省略号"提示。
+    // ============================================================
+    let sidebarFooterAvoidFrame = 0;
+    function updateHomeSidebarFooterAvoid() {
+        sidebarFooterAvoidFrame = 0;
+        const sidebar = document.querySelector('.freecat-home-sidebar');
+        if (!sidebar) return;
+        if (getComputedStyle(sidebar).position !== 'fixed') {
+            sidebar.style.bottom = '';
+            return;
+        }
+        const footer = document.querySelector('footer');
+        if (!footer) return;
+        const intrusion = Math.max(0, window.innerHeight - footer.getBoundingClientRect().top);
+        sidebar.style.bottom = `${intrusion}px`;
+    }
+    function scheduleHomeSidebarFooterAvoid() {
+        if (sidebarFooterAvoidFrame) return;
+        sidebarFooterAvoidFrame = requestAnimationFrame(updateHomeSidebarFooterAvoid);
     }
 
     // ============================================================
@@ -345,6 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initFloatingNavButtons();
     observeHomeHeroContentChanges();
     scheduleHomeHeroMeasure();
+    scheduleHomeSidebarFooterAvoid();
     ensureAnimationStyles(); // Ensure global animation styles are present
 
     // Apply staggered animation to existing post cards on load
@@ -367,6 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
             applyTheme();
             updateContentTopOffset();
             scheduleHomeHeroMeasure();
+            scheduleHomeSidebarFooterAvoid();
         }
     });
 
@@ -378,7 +405,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     window.addEventListener('resize', updateContentTopOffset);
+    window.addEventListener('resize', scheduleHomeSidebarFooterAvoid);
+    window.addEventListener('scroll', scheduleHomeSidebarFooterAvoid, { passive: true });
     window.addEventListener('load', updateContentTopOffset);
+    window.addEventListener('load', scheduleHomeSidebarFooterAvoid);
     requestAnimationFrame(() => {
         updateContentTopOffset();
         requestAnimationFrame(updateContentTopOffset);
@@ -1050,13 +1080,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (heroAvatar && avatarTriggerArea) {
         let avatarShadowFrame = null;
         let isAvatarShadowResetting = true;
-        const baseAvatarShadow = window.getComputedStyle(heroAvatar).boxShadow;
+        // 取计算后的 box-shadow 作为基线；若 CSS 未声明则为 'none'，
+        // 此时不能直接和 dynamicShadow 拼成 "none, ..."（非法 CSS），
+        // 需要把基线归零，渲染时只输出动态部分。
+        const rawBaseShadow = window.getComputedStyle(heroAvatar).boxShadow;
+        const baseAvatarShadow = rawBaseShadow && rawBaseShadow !== 'none' ? rawBaseShadow : '';
         const currentShadow = { x: 0, y: 0, blur: 10, alpha: 0 };
         const targetShadow = { x: 0, y: 0, blur: 10, alpha: 0 };
 
         const renderAvatarShadow = () => {
             if (currentShadow.alpha <= 0.01) {
-                heroAvatar.style.boxShadow = baseAvatarShadow;
+                heroAvatar.style.boxShadow = baseAvatarShadow || '';
                 return;
             }
 
@@ -1066,7 +1100,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 `${currentShadow.x.toFixed(2)}px ${(currentShadow.y + 5).toFixed(2)}px ${currentShadow.blur.toFixed(2)}px rgba(0, 225, 255, ${glowAlpha})`
             ].join(', ');
 
-            heroAvatar.style.boxShadow = `${baseAvatarShadow}, ${dynamicShadow}`;
+            heroAvatar.style.boxShadow = baseAvatarShadow
+                ? `${baseAvatarShadow}, ${dynamicShadow}`
+                : dynamicShadow;
         };
 
         const animateAvatarShadow = () => {

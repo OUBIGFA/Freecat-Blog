@@ -136,16 +136,16 @@
 /* Post Title Responsive Styles */
 .post-title {
     color: #1e293b !important;
-    line-height: 1.2 !important;
+    line-height: 1.4 !important;
     margin-top: 1.25rem !important;
     margin-bottom: 2rem !important;
-    font-size: 2.25rem !important;
+    font-size: 2.3rem !important;
 }
 
 @media (min-width: 768px) {
     .post-title {
         margin-bottom: 3.5rem !important;
-        font-size: 3.51rem !important;
+        font-size: 2.5rem !important;
     }
 }
 
@@ -252,99 +252,6 @@
 
 .prose .katex-display>.katex {
     white-space: nowrap;
-}
-
-/* H1 鏍囬 - Highest Level */
-.prose h1 {
-    color: #1e293b !important;
-    font-size: 2.0rem !important;
-    /* Mobile */
-    line-height: 1.2 !important;
-    font-weight: 900 !important;
-}
-
-/* H2 鏍囬 */
-.prose h2 {
-    color: #1e293b !important;
-    font-size: 1.75rem !important;
-    /* Mobile */
-    line-height: 1.3 !important;
-    font-weight: 800 !important;
-}
-
-/* H3 鏍囬 */
-.prose h3 {
-    color: #1e293b !important;
-    font-size: 1.5rem !important;
-    /* Mobile */
-    line-height: 1.4 !important;
-    font-weight: 700 !important;
-}
-
-/* H4 鏍囬 */
-.prose h4 {
-    color: #1e293b !important;
-    font-size: 1.25rem !important;
-    /* Mobile */
-    line-height: 1.5 !important;
-    font-weight: 600 !important;
-}
-
-/* H5 鏍囬 */
-.prose h5 {
-    color: #1e293b !important;
-    font-size: 1.15rem !important;
-    /* Mobile */
-    line-height: 1.5 !important;
-    font-weight: 600 !important;
-}
-
-/* H6 鏍囬 */
-.prose h6 {
-    color: #1e293b !important;
-    font-size: 1.05rem !important;
-    /* Mobile */
-    line-height: 1.5 !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.05em;
-}
-
-/* Dark Mode Headings Color Update */
-.dark .prose h1,
-.dark .prose h2,
-.dark .prose h3,
-.dark .prose h4,
-.dark .prose h5,
-.dark .prose h6 {
-    color: #94a3b8 !important;
-    /* Slate-400 */
-}
-
-/* Desktop Golden Ratio Overrides */
-@media (min-width: 768px) {
-    .prose h1 {
-        font-size: 3.51rem !important;
-    }
-
-    .prose h2 {
-        font-size: 2.808rem !important;
-    }
-
-    .prose h3 {
-        font-size: 2.246rem !important;
-    }
-
-    .prose h4 {
-        font-size: 1.797rem !important;
-    }
-
-    .prose h5 {
-        font-size: 1.438rem !important;
-    }
-
-    .prose h6 {
-        font-size: 1.15rem !important;
-    }
 }
 
 /* 纭繚绗竴涓爣棰樻病鏈夐《閮ㄩ棿璺?*/
@@ -1199,37 +1106,37 @@
 .prose .article-heading-depth-1 {
     font-size: var(--article-heading-h1) !important;
     line-height: 1.16 !important;
-    font-weight: 860 !important;
+    font-weight: 600 !important;
 }
 
 .prose .article-heading-depth-2 {
     font-size: var(--article-heading-h2) !important;
     line-height: 1.22 !important;
-    font-weight: 840 !important;
+    font-weight: 600 !important;
 }
 
 .prose .article-heading-depth-3 {
     font-size: var(--article-heading-h3) !important;
     line-height: 1.3 !important;
-    font-weight: 820 !important;
+    font-weight: 600 !important;
 }
 
 .prose .article-heading-depth-4 {
     font-size: var(--article-heading-h4) !important;
     line-height: 1.34 !important;
-    font-weight: 800 !important;
+    font-weight: 600 !important;
 }
 
 .prose .article-heading-depth-5 {
     font-size: var(--article-heading-h5) !important;
     line-height: 1.38 !important;
-    font-weight: 790 !important;
+    font-weight: 600 !important;
 }
 
 .prose .article-heading-depth-6 {
     font-size: var(--article-heading-h6) !important;
     line-height: 1.42 !important;
-    font-weight: 800 !important;
+    font-weight: 600 !important;
 }
 
 .prose>.article-heading:first-child {

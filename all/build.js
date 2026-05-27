@@ -159,11 +159,16 @@ if (siteConfig.show_recent_posts === true) {
         .sort((a, b) => b.modifiedDate.valueOf() - a.modifiedDate.valueOf())
         .slice(0, DEFAULT_RECENT_POSTS_LIMIT);
 
-    const itemsHtml = recentPosts.map(post => {
+    // 入场动画延迟：h3 450ms 起步（接续 hero 阶梯 0→150→300），每条 li 再加 75ms
+    const HEADING_DELAY = 450;
+    const ITEM_DELAY_STEP = 75;
+
+    const itemsHtml = recentPosts.map((post, i) => {
         const safeTitle = engine.shared.escapeHtml(post.title);
         const safeLink = engine.shared.escapeHtml(engine.shared.encodeSitePath(post.link));
+        const delay = HEADING_DELAY + (i + 1) * ITEM_DELAY_STEP;
         return `
-                            <li class="py-3">
+                            <li class="py-3 animate-fade-in-up" style="animation-delay: ${delay}ms">
                                 <a href="${safeLink}" class="block text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors duration-150 line-clamp-2">
                                     ${safeTitle}
                                 </a>
@@ -172,7 +177,7 @@ if (siteConfig.show_recent_posts === true) {
 
     recentPostsSidebarInnerHtml = `
                         <div class="flex flex-col flex-shrink-0 mt-8">
-                            <h3 class="text-sm font-semibold tracking-wider text-slate-600 dark:text-slate-300 mb-4">
+                            <h3 class="text-sm font-semibold tracking-wider text-slate-600 dark:text-slate-300 mb-4 animate-fade-in-up" style="animation-delay: ${HEADING_DELAY}ms">
                                 最近更新
                             </h3>
                             <ul class="flex flex-col divide-y divide-slate-200 dark:divide-slate-700">
@@ -185,12 +190,9 @@ if (siteConfig.show_recent_posts === true) {
                         ${recentPostsSidebarInnerHtml.trim()}
                     </aside>`;
 
-    recentPostsSidebarHomeWrapperHtml = `
-                    <aside id="home-recent-posts-shell" class="freecat-home-recent-shell absolute top-0 w-64" style="margin-top: calc(var(--freecat-posts-gap) + 36px); left: min(calc(100% - 16rem), calc(50% + 720px));">
-                        <div id="home-recent-posts-sidebar" class="freecat-home-recent-sidebar max-h-[calc(100vh-10rem)] overflow-y-auto pr-1 custom-scrollbar">
-                            ${recentPostsSidebarInnerHtml.replace(' mt-8', '').trim()}
-                        </div>
-                    </aside>`;
+    // 首页 / 搜索页改版后：最近更新直接渲染到左侧栏底部容器内，
+    // 不再需要额外的 absolute/sticky shell 包裹，直接复用 inner 结构。
+    recentPostsSidebarHomeWrapperHtml = recentPostsSidebarInnerHtml.replace(' mt-8', '').trim();
 
     recentPostsSidebarAllWrapperHtml = `
                     <aside id="home-recent-posts-shell" class="freecat-home-recent-shell absolute top-0 w-64" style="left: calc(100% + 96px);">
@@ -212,7 +214,7 @@ if (fs.existsSync(DIRS.images)) copyDir(DIRS.images, path.join(DIRS.output, 'ima
 postPage.generateAll({ posts: allPosts, template: tplPost, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarInnerHtml });
 indexPage.generateAll({ posts: allPosts, template: tplIndex, postsPerPage: POSTS_PER_PAGE, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarHomeWrapperHtml });
 allPage.generate({ posts: allPosts, template: tplIndexAll, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarAllWrapperHtml });
-searchPage.generate({ posts: allPosts, template: tplSearch, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarAllWrapperHtml });
+searchPage.generate({ posts: allPosts, template: tplSearch, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarHomeWrapperHtml });
 aboutPage.generate({ template: tplAbout, siteConfig, seoConfig, aboutConfig, outputDir: DIRS.output });
 generateSitemap({ posts: allPosts, siteConfig, seoConfig, outputDir: DIRS.output });
 generateRobotsTxt({ siteConfig, seoConfig, outputDir: DIRS.output });

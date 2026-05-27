@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="<!-- SITE_LANGUAGE -->">
 
 <head>
@@ -6,23 +6,199 @@
     <title>Search - <!-- SITE_TITLE --></title>
     <!-- SEARCH_SEO_HEAD -->
     <style>
-        .freecat-home-recent-sidebar {
-            width: 16rem;
+        /* Hero 区入场动画与首页保持一致 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translate3d(0, 20px, 0);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
         }
 
-        .freecat-home-recent-shell {
-            display: none;
+        .animate-fade-in-up {
+            animation: fadeInUp 1.0s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+            opacity: 0;
         }
 
-        .freecat-home-recent-sidebar.is-fixed {
-            position: fixed;
-            top: calc(var(--freecat-header-height, 72px) + 56px);
-            z-index: 20;
+        .delay-150 {
+            animation-delay: 150ms;
         }
 
-        @media (min-width: 1880px) {
-            .freecat-home-recent-shell {
-                display: block;
+        .delay-300 {
+            animation-delay: 300ms;
+        }
+
+        :root {
+            --freecat-canvas: #f6f6f8;
+            --freecat-hero-canvas: #fafbfc;
+            --freecat-home-sidebar-width: clamp(420px, 24vw, 500px);
+            --freecat-hero-avatar-size: clamp(180px, 14vw, 260px);
+            --freecat-hero-title-size: clamp(1.625rem, 2vw, 2rem);
+            --freecat-hero-text-max: 420px;
+            --freecat-home-content-max: 1100px;
+        }
+
+        .dark {
+            --freecat-canvas: #101622;
+            --freecat-hero-canvas: #151d2a;
+        }
+
+        .freecat-home-stage {
+            background: var(--freecat-canvas);
+            isolation: isolate;
+            overflow-x: clip;
+        }
+
+        .freecat-home-layout {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .freecat-home-sidebar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.75rem;
+            min-width: 0;
+            background: var(--freecat-hero-canvas);
+        }
+
+        .freecat-home-sidebar-top {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.75rem;
+            width: 100%;
+            min-width: 0;
+        }
+
+        .freecat-home-sidebar-bottom {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .freecat-home-sidebar-hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.75rem;
+            width: 100%;
+        }
+
+        .freecat-home-sidebar-hero-text {
+            width: 100%;
+            max-width: var(--freecat-hero-text-max);
+            text-align: left;
+        }
+
+        .freecat-home-sidebar-hero-text h1,
+        .freecat-home-sidebar-hero-text h2 {
+            text-align: left;
+        }
+
+        .freecat-home-sidebar-recent {
+            width: 100%;
+            max-width: var(--freecat-hero-text-max);
+        }
+
+        .freecat-home-posts {
+            min-width: 0;
+            width: 100%;
+            background: var(--freecat-canvas);
+        }
+
+        .freecat-hero-avatar {
+            background-color: color-mix(in srgb, white 82%, var(--freecat-hero-canvas));
+            aspect-ratio: 1 / 1;
+            border-radius: 50% !important;
+        }
+
+        @media (min-width: 1024px) {
+            .freecat-home-layout {
+                position: relative;
+                min-height: calc(100vh - var(--freecat-header-height, 80px));
+            }
+
+            .freecat-home-sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: var(--freecat-home-sidebar-width);
+                background: var(--freecat-hero-canvas);
+                display: flex;
+                flex-direction: column;
+                gap: 0;
+                padding: calc(var(--freecat-page-top-offset, 112px) + 40px) clamp(44px, 3.2vw, 64px) 1.5rem;
+                z-index: 1;
+                overflow: hidden;
+            }
+
+            .freecat-home-sidebar-top {
+                padding-bottom: 0;
+                flex: 0 0 auto;
+            }
+
+            .freecat-home-sidebar-bottom {
+                margin-top: clamp(2rem, 5vh, 4rem);
+                padding-bottom: 0;
+                flex: 1 1 auto;
+                min-height: 0;
+                overflow: hidden;
+                -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 32px), transparent 100%);
+                mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 32px), transparent 100%);
+            }
+
+            .freecat-home-sidebar-recent {
+                margin-top: 0;
+                padding-top: 0;
+            }
+
+            .freecat-home-posts {
+                width: 100%;
+                padding: calc(var(--freecat-page-top-offset, 112px) + 40px) 0 56px;
+            }
+
+            /* 自适应规则：先保宽度，再让位；
+               - 视口够宽（≥ inner_max + 2*sidebar）时，inner 居中于整个视口；
+               - 视口收窄时，inner 保持原尺寸不压缩，整体向右"贴"sidebar 右侧；
+               - 直到 inner 右边触到视口右缘后（视口 < inner_max + sidebar），才等比缩小。 */
+            .freecat-home-posts-inner {
+                margin-left: max(
+                    var(--freecat-home-sidebar-width),
+                    calc((100vw - var(--freecat-home-content-max)) / 2)
+                );
+                margin-right: 0;
+                width: 100%;
+                max-width: min(
+                    var(--freecat-home-content-max),
+                    calc(100vw - var(--freecat-home-sidebar-width))
+                );
+                padding: 0 clamp(16px, 1.6vw, 28px);
+            }
+        }
+
+        @media (max-width: 1023px) {
+            :root {
+                --freecat-hero-avatar-size: clamp(180px, 36vw, 240px);
+                --freecat-hero-title-size: clamp(1.75rem, 6.6vw, 2.25rem);
+            }
+
+            .freecat-home-sidebar {
+                padding: calc(var(--freecat-page-top-offset, 96px) + 16px) clamp(20px, 5vw, 36px) 36px;
+            }
+
+            .freecat-home-posts {
+                padding: 28px clamp(20px, 5vw, 40px) 48px;
+            }
+
+            .freecat-home-sidebar-recent {
+                display: none;
             }
         }
     </style>
@@ -30,72 +206,99 @@
 
 <body
     class="bg-background-light dark:bg-background-dark font-display text-[#1e293b] dark:text-slate-200 transition-colors duration-200">
-    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+    <div class="freecat-home-stage relative flex h-auto min-h-screen w-full flex-col">
 
         <!-- INCLUDE:header -->
 
-        <!-- 主内容区
-             同其它模板：用 --freecat-page-top-offset 防止首屏渲染被固定顶栏遮挡。 -->
-        <div
-            class="layout-container page-blur-target mt-[var(--freecat-page-top-offset)] flex h-full grow flex-col px-8 md:px-20 lg:px-40 pt-3 pb-3 md:pt-4">
-            <div class="layout-content-container relative flex flex-col max-w-[1200px] flex-1 mx-auto w-full">
+        <!-- 主内容区：freecat-home-hero 标记让 main.js 跳过 layout-container 的 margin-top，
+             左/右两块各自承担让位顶栏的 padding-top。 -->
+        <div class="layout-container page-blur-target freecat-home-hero flex h-full grow flex-col">
+            <div class="freecat-home-layout w-full">
 
-                <!-- Go Back 按钮 (Moved to Header) -->
-                <div
-                    class="flex items-center justify-between pb-6 pt-10 border-b border-gray-300 dark:border-gray-800 mb-12">
-                    <a href="/"
-                        onclick="if(document.referrer.includes(window.location.host)){history.back();return false;}"
-                        class="group inline-flex items-center gap-2 h-10 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors duration-150">
-                        <svg class="text-xl t-btn-arrow-prev"
-                            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em"
-                            height="1em">
-                            <path
-                                d="M10.8284 12.0007L15.7782 16.9504L14.364 18.3646L8 12.0007L14.364 5.63672L15.7782 7.05093L10.8284 12.0007Z">
-                            </path>
-                        </svg>
-                        <span class="text-sm font-bold">Go Back</span>
-                    </a>
-                </div>
+                <!-- 左侧侧栏：fixed 撑满浏览器视口；最近更新跟随介绍靠上排列。 -->
+                <aside id="avatar-trigger-area" class="freecat-home-sidebar">
+                    <div id="hero-section" class="freecat-home-sidebar-top freecat-home-sidebar-hero @container">
+                        <div id="hero-avatar"
+                            class="freecat-hero-avatar animate-fade-in-up delay-300 w-[var(--freecat-hero-avatar-size)] bg-center bg-no-repeat bg-cover rounded-full"
+                            style='background-image: url("<!-- HERO_AVATAR -->");'></div>
+                        <div class="freecat-home-sidebar-hero-text flex flex-col gap-3">
+                            <h1
+                                class="animate-fade-in-up text-[#1e293b] dark:text-slate-200 text-[length:var(--freecat-hero-title-size)] font-black leading-[1.1] tracking-[-0.02em]">
+                                <!-- HERO_TITLE -->
+                            </h1>
+                            <h2
+                                class="animate-fade-in-up delay-150 text-[#616f89] dark:text-gray-400 text-sm lg:text-[15px] font-normal leading-relaxed">
+                                <!-- HERO_SUBTITLE -->
+                            </h2>
+                        </div>
+                    </div>
+                    <div class="freecat-home-sidebar-bottom">
+                        <div class="freecat-home-sidebar-recent">
+                            <!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->
+                        </div>
+                    </div>
+                </aside>
 
-                <!-- 搜索结果标题 (Moved Content) -->
-                <div class="flex items-center gap-3 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                        class="w-7 h-7 text-primary">
-                        <path
-                            d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z">
-                        </path>
-                    </svg>
-                    <h1
-                        class="text-[#1e293b] dark:text-slate-200 text-[22px] font-bold leading-tight tracking-[-0.015em]">
-                        Search Results</h1>
-                    <span id="results-count" class="text-sm text-gray-500 dark:text-gray-400"></span>
-                </div>
+                <!-- 右侧搜索结果主体：inner 居中于视口，同时避开左侧 sidebar。 -->
+                <section class="freecat-home-posts">
+                    <div class="freecat-home-posts-inner w-full">
+                        <!-- Go Back 按钮 -->
+                        <div
+                            class="flex items-center justify-between pb-6 border-b border-gray-300 dark:border-gray-800 mb-8">
+                            <a href="/"
+                                onclick="if(document.referrer.includes(window.location.host)){history.back();return false;}"
+                                class="group inline-flex items-center gap-2 h-10 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors duration-150">
+                                <svg class="text-xl t-btn-arrow-prev"
+                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em"
+                                    height="1em">
+                                    <path
+                                        d="M10.8284 12.0007L15.7782 16.9504L14.364 18.3646L8 12.0007L14.364 5.63672L15.7782 7.05093L10.8284 12.0007Z">
+                                    </path>
+                                </svg>
+                                <span class="text-sm font-bold">Go Back</span>
+                            </a>
+                        </div>
 
-                <!-- 搜索查询显示 -->
-                <div id="search-query-display"
-                    class="mb-12 p-4 rounded-xl bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700">
-                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                        Searching for: <span id="current-query"
-                            class="font-semibold text-[#1e293b] dark:text-slate-200"></span>
-                    </p>
-                </div>
+                        <!-- 搜索结果标题 -->
+                        <div class="flex items-center gap-3 mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                class="w-7 h-7 text-primary">
+                                <path
+                                    d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z">
+                                </path>
+                            </svg>
+                            <h1
+                                class="text-[#1e293b] dark:text-slate-200 text-[22px] font-bold leading-tight tracking-[-0.015em]">
+                                Search Results</h1>
+                            <span id="results-count" class="text-sm text-gray-500 dark:text-gray-400"></span>
+                        </div>
 
-                <!-- === 动态搜索结果注入区 === -->
-                <div id="search-results">
-                    <!-- SEARCH_RESULTS_PLACEHOLDER -->
-                </div>
-                <!-- ===================== -->
-                <!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->
+                        <!-- 搜索查询显示 -->
+                        <div id="search-query-display"
+                            class="mb-10 p-4 rounded-xl bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700">
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                Searching for: <span id="current-query"
+                                    class="font-semibold text-[#1e293b] dark:text-slate-200"></span>
+                            </p>
+                        </div>
 
-                <!-- 无结果提示 (默认隐藏) -->
-                <div id="no-results" class="hidden text-center py-20">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"
-                        class="inline-block w-16 h-16 text-gray-300 dark:text-gray-600 mb-4">
-                        <path d="M2.39732 1.86908L4.15967 0.107422L23.2796 19.2273L21.5176 20.9897L18.0309 17.5031C16.4909 18.7351 14.5379 19.5 12.4 19.5C7.43168 19.5 3.4 15.4683 3.4 10.5C3.4 8.36211 4.16493 6.40911 5.39686 4.86908L2.39732 1.86908ZM6.81106 6.28332C5.95212 7.4458 5.4 8.91211 5.4 10.5C5.4 14.3675 8.5325 17.5 12.4 17.5C13.9879 17.5 15.4542 16.9479 16.6167 16.0889L6.81106 6.28332ZM12.4 1.5C17.3683 1.5 21.4 5.53168 21.4 10.5C21.4 12.4458 20.7888 14.2542 19.7556 15.7349L18.3115 14.2908C19.0606 13.2168 19.4 11.9035 19.4 10.5C19.4 6.6325 16.2675 3.5 12.4 3.5C10.9965 3.5 9.6832 3.83942 8.6092 4.58849L7.16511 3.14441C8.6458 2.11119 10.4542 1.5 12.4 1.5Z"/>
-                    </svg>
-                    <h3 class="text-xl font-bold text-gray-500 dark:text-gray-400 mb-2">No results found</h3>
-                    <p class="text-gray-400 dark:text-gray-500">Try searching with different keywords</p>
-                </div>
+                        <!-- === 动态搜索结果注入区 === -->
+                        <div id="search-results">
+                            <!-- SEARCH_RESULTS_PLACEHOLDER -->
+                        </div>
+                        <!-- ===================== -->
+
+                        <!-- 无结果提示 (默认隐藏) -->
+                        <div id="no-results" class="hidden text-center py-20">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"
+                                class="inline-block w-16 h-16 text-gray-300 dark:text-gray-600 mb-4">
+                                <path d="M2.39732 1.86908L4.15967 0.107422L23.2796 19.2273L21.5176 20.9897L18.0309 17.5031C16.4909 18.7351 14.5379 19.5 12.4 19.5C7.43168 19.5 3.4 15.4683 3.4 10.5C3.4 8.36211 4.16493 6.40911 5.39686 4.86908L2.39732 1.86908ZM6.81106 6.28332C5.95212 7.4458 5.4 8.91211 5.4 10.5C5.4 14.3675 8.5325 17.5 12.4 17.5C13.9879 17.5 15.4542 16.9479 16.6167 16.0889L6.81106 6.28332ZM12.4 1.5C17.3683 1.5 21.4 5.53168 21.4 10.5C21.4 12.4458 20.7888 14.2542 19.7556 15.7349L18.3115 14.2908C19.0606 13.2168 19.4 11.9035 19.4 10.5C19.4 6.6325 16.2675 3.5 12.4 3.5C10.9965 3.5 9.6832 3.83942 8.6092 4.58849L7.16511 3.14441C8.6458 2.11119 10.4542 1.5 12.4 1.5Z"/>
+                            </svg>
+                            <h3 class="text-xl font-bold text-gray-500 dark:text-gray-400 mb-2">No results found</h3>
+                            <p class="text-gray-400 dark:text-gray-500">Try searching with different keywords</p>
+                        </div>
+                    </div>
+                </section>
 
             </div>
         </div>
@@ -104,74 +307,6 @@
     </div>
 
     <!-- INCLUDE:scripts-end -->
-    <script>
-        (() => {
-            const sidebar = document.getElementById('home-recent-posts-sidebar');
-            const shell = document.getElementById('home-recent-posts-shell');
-            const positioningRoot = shell?.closest('.layout-content-container') || document.body;
-            if (!sidebar || !shell || !positioningRoot) return;
-
-            let sidebarLeft = 0;
-
-            const getFixedTop = () => {
-                const header = document.querySelector('header');
-                return (header ? header.getBoundingClientRect().height : 72) + 56;
-            };
-
-            const alignShellToFirstCard = () => {
-                const firstCard = document.querySelector('#search-results .post-card > div')
-                    || document.querySelector('#search-results .post-card')
-                    || document.getElementById('search-results');
-                if (!firstCard) return;
-
-                const top = firstCard.getBoundingClientRect().top
-                    - positioningRoot.getBoundingClientRect().top;
-                shell.style.marginTop = '0';
-                shell.style.top = `${Math.max(0, Math.round(top))}px`;
-            };
-
-            const captureSidebarLeft = () => {
-                alignShellToFirstCard();
-                sidebar.classList.remove('is-fixed');
-                sidebar.style.left = '';
-                sidebar.style.top = '';
-                sidebarLeft = sidebar.getBoundingClientRect().left;
-            };
-
-            const updateSidebarPosition = () => {
-                const fixedTop = getFixedTop();
-                const naturalTop = shell.getBoundingClientRect().top;
-                const shouldFix = naturalTop <= fixedTop;
-                if (!shouldFix) {
-                    sidebar.classList.remove('is-fixed');
-                    sidebar.style.left = '';
-                    sidebar.style.top = '';
-                    return;
-                }
-
-                if (!sidebar.classList.contains('is-fixed')) {
-                    captureSidebarLeft();
-                }
-                sidebar.classList.add('is-fixed');
-                sidebar.style.left = `${sidebarLeft}px`;
-                sidebar.style.top = `${fixedTop}px`;
-            };
-
-            const refreshSidebar = () => {
-                captureSidebarLeft();
-                updateSidebarPosition();
-            };
-
-            refreshSidebar();
-            window.addEventListener('scroll', updateSidebarPosition, { passive: true });
-            window.addEventListener('resize', refreshSidebar, { passive: true });
-
-            const results = document.getElementById('search-results');
-            if (results) {
-                new MutationObserver(refreshSidebar).observe(results, { childList: true, subtree: true });
-            }
-        })();
-    </script>
 </body>
 
 </html>
