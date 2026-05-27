@@ -531,24 +531,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 更新浏览器地址栏
                 window.history.pushState({}, '', url);
 
-                // 平滑滚动回到列表顶部
-                const viewAllHeader = document.getElementById('view-all-header');
-                const scrollTarget = viewAllHeader || postsList;
-
-                if (scrollTarget) {
-                    // 精准定位：直接读取固定顶栏的实时底边位置作为目标线，
-                    // 让文章版块顶部与顶栏底部"零间距"贴齐。
-                    // 完全自适应：无论 header 的高度 / padding / margin / 内容
-                    // 之后如何调整，getBoundingClientRect().bottom 都会同步反映，
-                    // 无需手动维护任何偏移数值。
-                    const header = document.querySelector('header.fixed');
-                    const headerBottom = header
-                        ? header.getBoundingClientRect().bottom
-                        : 0;
-                    const targetTopAbs = scrollTarget.getBoundingClientRect().top + window.pageYOffset;
-                    const top = Math.max(0, targetTopAbs - headerBottom);
-                    window.scrollTo({ top, behavior: 'smooth' });
-                }
+                // 翻页后回到页面顶部，对齐进入首页时的初始位置。
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             } catch (err) {
                 clearTimeout(fadeTimer);
                 postsList.classList.remove('page-transitioning-out');

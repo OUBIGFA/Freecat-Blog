@@ -11,7 +11,7 @@
   </p>
   <p>
     <a href="https://freecat-blog.pages.dev">演示站点 01</a> |
-    <a href="https://freecat-blog-test.pages.dev">演示站点 02</a>
+    <a href="https://freecat-blog-op.pages.dev">演示站点 02</a>
   </p>
 </div>
 

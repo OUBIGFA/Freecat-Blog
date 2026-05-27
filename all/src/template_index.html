@@ -204,6 +204,16 @@
                     )
                 );
             }
+
+            /* 底部分页器：跨整个视口居中（与 footer 视觉一致），
+               用 negative margin-left 抵消 posts 的 padding-left，避免被 sidebar 推偏。 */
+            .freecat-home-pagination {
+                margin-left: calc(-1 * max(
+                    var(--freecat-home-sidebar-width),
+                    (100vw - var(--freecat-home-content-max)) / 2
+                ));
+                width: 100vw;
+            }
         }
 
         /* 移动端 / 平板：单列堆叠；最近更新整段隐藏；sidebar 自己 padding-top 让位顶栏。 */
@@ -290,12 +300,13 @@
                                 <!-- POSTS_LIST_PLACEHOLDER -->
                             </div>
                             <!-- ===================== -->
-
-                            <!-- 底部主要分页器 -->
-                            <div id="pagination-buttons" class="flex justify-center">
-                                <!-- PAGINATION_BUTTONS_PLACEHOLDER -->
-                            </div>
                         </div>
+                    </div>
+
+                    <!-- 底部主要分页器：独立于 inner，跨整个视口居中，
+                         避免被 sidebar padding-left 推偏，也不受 inner 的 zoom 缩放影响。 -->
+                    <div id="pagination-buttons" class="freecat-home-pagination flex justify-center">
+                        <!-- PAGINATION_BUTTONS_PLACEHOLDER -->
                     </div>
                 </section>
 

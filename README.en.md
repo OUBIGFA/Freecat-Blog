@@ -11,7 +11,7 @@
   </p>
   <p>
     <a href="https://freecat-blog.pages.dev">Live Demo 01</a> |
-    <a href="https://freecat-blog-test.pages.dev">Live Demo 02</a>
+    <a href="https://freecat-blog-op.pages.dev">Live Demo 02</a>
   </p>
 </div>
 
