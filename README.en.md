@@ -1,15 +1,18 @@
-<div>![Freecat Blog Preview](all/image/freecat_web_icon.png)   
-
-# Freecat Blog
-
-Write locally, back up with GitHub, and deploy a personal blog for free
-
-[简体中文](README.md) | English
-
-     ![Platform](https://img.shields.io/badge/platform-Web-2563eb)     ![Node](https://img.shields.io/badge/Node-20-339933)     ![Deploy](https://img.shields.io/badge/deploy-Cloudflare%20%7C%20Vercel-f97316)     ![License](https://img.shields.io/badge/license-MIT-111827)   
-
-     [Live Demo 01](https://freecat-blog.pages.dev) |     [Live Demo 02](https://freecat-blog-op.pages.dev)   
-
+<div align="center">
+  <img src="all/image/freecat_web_icon.png" width="120" alt="Freecat Blog Preview">
+  <h1>Freecat Blog</h1>
+  <p>Write locally, back up with GitHub, and deploy a personal blog for free</p>
+  <p><a href="README.md">简体中文</a> | English</p>
+  <p>
+    <img alt="Platform" src="https://img.shields.io/badge/platform-Web-2563eb">
+    <img alt="Node" src="https://img.shields.io/badge/Node-20-339933">
+    <img alt="Deploy" src="https://img.shields.io/badge/deploy-Cloudflare%20%7C%20Vercel-f97316">
+    <img alt="License" src="https://img.shields.io/badge/license-MIT-111827">
+  </p>
+  <p>
+    <a href="https://freecat-blog.pages.dev">Live Demo 01</a> |
+    <a href="https://freecat-blog-op.pages.dev">Live Demo 02</a>
+  </p>
 </div>
 
 > **Tip:** If you run into build issues, simply go to the main repository, copy the latest [sync-upstream](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/sync-upstream.yml) workflow file to your repo, and run it manually. It only syncs build files and will not overwrite your custom settings or writing/ folder.
