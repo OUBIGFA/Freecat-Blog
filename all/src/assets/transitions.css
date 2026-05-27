@@ -277,6 +277,9 @@
     --icon-swap-blur: 2px;
     --icon-swap-start-scale: 0.25;
     --icon-swap-ease: ease-in-out;
+    --post-card-enter-dur: 680ms;
+    --post-card-enter-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --post-card-hover-dur: 260ms;
 }
 
 /* 始终预留垂直滚动条宽度，避免 body.overflow:hidden 切换时
@@ -329,13 +332,27 @@ html.theme-view-transitioning body *::after {
 }
 
 @keyframes fadeInUp {
-    from { opacity: 0; transform: translate3d(0, 10px, 0); }
-    to   { opacity: 1; transform: translate3d(0, 0, 0); }
+    from { opacity: 0; transform: translate3d(0, 14px, 0) scale(0.992); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
 }
 
 .animate-fade-in-up {
-    animation: fadeInUp 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+    animation: fadeInUp var(--post-card-enter-dur) var(--post-card-enter-ease) both;
     opacity: 0;
+    transform-origin: center top;
+    will-change: opacity, transform;
+}
+
+.post-card > div {
+    transform: translate3d(0, 0, 0);
+    transition:
+        transform var(--post-card-hover-dur) var(--post-card-enter-ease),
+        box-shadow var(--post-card-hover-dur) var(--post-card-enter-ease),
+        border-color var(--post-card-hover-dur) var(--post-card-enter-ease);
+}
+
+.post-card:hover > div {
+    transform: translate3d(0, -2px, 0);
 }
 
 .t-panel-slide {
@@ -521,7 +538,12 @@ body.search-active .page-blur-target::before {
         transition: none !important;
     }
 
-    .animate-fade-in-up { animation: none !important; opacity: 1 !important; }
+    .animate-fade-in-up { animation: none !important; opacity: 1 !important; transform: none !important; }
+    .post-card > div,
+    .post-card:hover > div {
+        transform: none !important;
+        transition: none !important;
+    }
     .t-panel-slide,
     .t-dropdown,
     .tag-menu-item,

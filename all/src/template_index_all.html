@@ -312,17 +312,43 @@
 
             const cards = Array.from(list.querySelectorAll('.post-card')).map((card, index) => ({ card, index }));
             const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            const applyCurrentOrderAnimations = () => {
+            const applyInitialAnimations = () => {
                 if (prefersReducedMotion()) return;
                 Array.from(list.querySelectorAll('.post-card')).forEach((card, index) => {
                     card.classList.remove('animate-fade-in-up');
-                    card.style.animationDelay = `${index * 90}ms`;
+                    card.style.animationDelay = `${Math.min(index, 10) * 70}ms`;
                     void card.offsetWidth;
                     card.classList.add('animate-fade-in-up');
                 });
             };
 
+            const animateReorder = (beforeRects) => {
+                if (prefersReducedMotion()) return;
+
+                requestAnimationFrame(() => {
+                    cards.forEach(({ card }) => {
+                        const before = beforeRects.get(card);
+                        if (!before) return;
+                        const after = card.getBoundingClientRect();
+                        const dx = before.left - after.left;
+                        const dy = before.top - after.top;
+                        if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) return;
+
+                        card.animate([
+                            { transform: `translate3d(${dx}px, ${dy}px, 0)`, opacity: 0.92 },
+                            { transform: 'translate3d(0, 0, 0)', opacity: 1 }
+                        ], {
+                            duration: 520,
+                            easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                            fill: 'both'
+                        });
+                    });
+                });
+            };
+
             const sortCards = (mode) => {
+                const beforeRects = new Map(cards.map(({ card }) => [card, card.getBoundingClientRect()]));
+
                 cards
                     .sort((a, b) => {
                         const pinnedDelta = mode === 'date'
@@ -335,9 +361,10 @@
                     .forEach(({ card }) => list.appendChild(card));
 
                 updateSortSwitch.setAttribute('aria-checked', String(mode === 'modified'));
-
-                requestAnimationFrame(applyCurrentOrderAnimations);
+                animateReorder(beforeRects);
             };
+
+            requestAnimationFrame(applyInitialAnimations);
 
             updateSortSwitch.addEventListener('click', () => {
                 const useModifiedSort = updateSortSwitch.getAttribute('aria-checked') !== 'true';

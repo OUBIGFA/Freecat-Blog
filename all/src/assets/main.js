@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const elements = document.querySelectorAll(selector);
         const replay = options.replay !== false;
         elements.forEach((el, index) => {
-            const delay = `${index * delayStep}ms`;
+            const delay = `${Math.min(index, 10) * delayStep}ms`;
             if (!replay && el.classList.contains('animate-fade-in-up')) {
                 if (!el.style.animationDelay) el.style.animationDelay = delay;
                 return;
