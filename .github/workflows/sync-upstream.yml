@@ -55,15 +55,58 @@ jobs:
           export LANG=C.UTF-8
 
           paths=(all/ README.md README.en.md)
+          restore_template_paths() {
+            local commit="$1"
+
+            git rm -rf --ignore-unmatch all/
+
+            if git ls-tree -r --name-only "$commit" -- all/ | grep -q .; then
+              git checkout "$commit" -- all/
+            fi
+
+            for path in README.md README.en.md; do
+              if git ls-tree -r --name-only "$commit" -- "$path" | grep -q .; then
+                git checkout "$commit" -- "$path"
+              fi
+            done
+          }
+
           last_synced=$(git log --grep='^Upstream-Commit:' --format=%B | sed -n 's/^Upstream-Commit: //p' | head -n 1)
           upstream_head=$(git rev-parse upstream/main)
 
           if [ -z "$last_synced" ]; then
-            echo "No previous upstream marker found. Creating a baseline marker at $upstream_head."
-            git commit --allow-empty \
-              -m "chore(template): mark upstream sync baseline" \
-              -m "Upstream-Repository: OUBIGFA/Freecat-Blog" \
-              -m "Upstream-Commit: $upstream_head"
+            echo "No previous upstream marker found. Migrating to upstream sync markers."
+
+            if [ -f all/git-dates.json ]; then
+              cp all/git-dates.json /tmp/freecat-git-dates.json
+              has_local_git_dates=true
+            else
+              has_local_git_dates=false
+            fi
+
+            restore_template_paths "$upstream_head"
+
+            if [ "$has_local_git_dates" = "true" ]; then
+              mkdir -p all
+              mv /tmp/freecat-git-dates.json all/git-dates.json
+            else
+              git rm -f --ignore-unmatch all/git-dates.json
+            fi
+
+            git add -A all/ README.md README.en.md
+            if git diff --cached --quiet -- all/ README.md README.en.md; then
+              git commit --allow-empty \
+                -m "chore(template): mark upstream sync baseline" \
+                -m "Upstream-Repository: OUBIGFA/Freecat-Blog" \
+                -m "Upstream-Commit: $upstream_head"
+            else
+              git commit \
+                -m "chore(template): sync upstream baseline" \
+                -m "Upstream-Repository: OUBIGFA/Freecat-Blog" \
+                -m "Upstream-Commit: $upstream_head"
+            fi
+
+            git push
             exit 0
           fi
 
@@ -78,8 +121,11 @@ jobs:
             exit 0
           fi
 
+          last_replayed=
+
           for commit in $commits; do
             echo "Replaying upstream commit $commit"
+            last_replayed=$commit
 
             if [ -f all/git-dates.json ]; then
               cp all/git-dates.json /tmp/freecat-git-dates.json
@@ -88,8 +134,7 @@ jobs:
               has_local_git_dates=false
             fi
 
-            git rm -rf --ignore-unmatch all/ README.md README.en.md
-            git checkout "$commit" -- all/ README.md README.en.md
+            restore_template_paths "$commit"
 
             if [ "$has_local_git_dates" = "true" ]; then
               mkdir -p all
@@ -122,5 +167,13 @@ jobs:
               GIT_COMMITTER_DATE="$commit_date" \
               git commit -F /tmp/freecat-upstream-message.txt
           done
+
+          current_marker=$(git log -1 --format=%B | sed -n 's/^Upstream-Commit: //p' | head -n 1)
+          if [ "$current_marker" != "$last_replayed" ]; then
+            git commit --allow-empty \
+              -m "chore(template): mark upstream sync checkpoint" \
+              -m "Upstream-Repository: OUBIGFA/Freecat-Blog" \
+              -m "Upstream-Commit: $last_replayed"
+          fi
 
           git push
