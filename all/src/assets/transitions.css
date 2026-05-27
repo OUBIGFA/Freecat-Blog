@@ -344,15 +344,9 @@ html.theme-view-transitioning body *::after {
 }
 
 .post-card > div {
-    transform: translate3d(0, 0, 0);
     transition:
-        transform var(--post-card-hover-dur) var(--post-card-enter-ease),
         box-shadow var(--post-card-hover-dur) var(--post-card-enter-ease),
         border-color var(--post-card-hover-dur) var(--post-card-enter-ease);
-}
-
-.post-card:hover > div {
-    transform: translate3d(0, -2px, 0);
 }
 
 .t-panel-slide {
@@ -539,9 +533,7 @@ body.search-active .page-blur-target::before {
     }
 
     .animate-fade-in-up { animation: none !important; opacity: 1 !important; transform: none !important; }
-    .post-card > div,
-    .post-card:hover > div {
-        transform: none !important;
+    .post-card > div {
         transition: none !important;
     }
     .t-panel-slide,
