@@ -15,7 +15,9 @@
   </p>
 </div>
 
-> 一份写给零编程基础用户的上手文档。按顺序做完，你会得到一个能长期写作、自动发布、免费托管的个人博客。
+> 
+> **提示：** 如遇构建相关问题，只需前往主仓库复制最新的 [sync-upstream](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/sync-upstream.yml) 工作流文件到你的仓库并手动运行一次。该工作流仅同步构建文件，不会覆盖你的自定义设置和 writing/ 写作文件夹。
+一份写给零编程基础用户的上手文档。按顺序做完，你会得到一个能长期写作、自动发布、免费托管的个人博客。
 
 ## 最短部署路径预览
 
@@ -236,7 +238,6 @@ date: 2026-01-01
 tag:
   - 随笔
 cover:
-show_cover: false
 show_image_captions: true
 description:
 pinned: false
@@ -254,7 +255,6 @@ show: true
 | `date` | 发布日期 | `2026-01-01` |
 | `tag` | 文章标签，可以写多个 | `- 随笔` |
 | `cover` | 封面图片链接，留空则没有封面 | `https://...` |
-| `show_cover` | 是否在文章页显示封面 | `true` / `false` |
 | `show_image_captions` | 是否显示图片说明文字 | `true` / `false` |
 | `description` | 文章摘要，留空会自动截取 | `一段简短介绍` |
 | `pinned` | 是否置顶 | `true` / `false` |

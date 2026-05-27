@@ -310,6 +310,17 @@
     width: 100%;
 }
 
+.prose figure.post-image .post-image-placeholder {
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    object-position: center;
+}
+
+.prose figure.post-image .post-image-loaded {
+    aspect-ratio: auto;
+    object-fit: contain;
+}
+
 .prose figure.external-embed {
     margin: 0 0 2rem 0 !important;
     display: block;

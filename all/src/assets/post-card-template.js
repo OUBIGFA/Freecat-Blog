@@ -11,9 +11,6 @@
         root.PostCardTemplate = factory(root.FreecatShared || {});
     }
 }(typeof self !== 'undefined' ? self : this, function (shared) {
-    const IMG_FALLBACK_ATTR = (shared && shared.IMG_FALLBACK_ATTR) ||
-        "onerror=\"if(this.dataset.fallbackApplied!=='true'){this.dataset.fallbackApplied='true';this.removeAttribute('srcset');this.src='/image/404.png';}\"";
-
     const escapeHtml = (shared && shared.escapeHtml) || function (text) {
         if (text == null) return '';
         return String(text)
@@ -63,11 +60,10 @@
             : '';
 
         const imageMarkup = imageSrc
-            ? `<img src="${imageSrc}"
+            ? `<img src="/image/404.png"${cover ? ` data-src="${cover}"` : ''}
                     alt="Cover"
                     class="w-full h-full object-cover"${coverDimAttrs}
-                    ${IMG_FALLBACK_ATTR}
-                    loading="lazy" />`
+                    loading="lazy" decoding="async" />`
             : '';
         const mobileImageBlock = imageMarkup
             ? `<div class="mt-8 h-[180px] shrink-0 rounded-2xl overflow-hidden sm:h-[200px]">

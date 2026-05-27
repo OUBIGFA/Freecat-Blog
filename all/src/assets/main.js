@@ -45,15 +45,58 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeToggleBtn = document.getElementById('theme-toggle');
     const html = document.documentElement;
 
+    const imageFallback = '/image/404.png';
+
+    function loadDeferredImage(img) {
+        const realSrc = img && img.dataset ? img.dataset.src : '';
+        if (!realSrc || img.dataset.imageLoadStarted === 'true') return;
+        img.dataset.imageLoadStarted = 'true';
+
+        const probe = new Image();
+        probe.onload = () => {
+            img.src = realSrc;
+            img.classList.remove('post-image-placeholder');
+            img.classList.add('post-image-loaded');
+            img.removeAttribute('data-src');
+        };
+        probe.onerror = () => {
+            img.dataset.fallbackApplied = 'true';
+            img.classList.add('post-image-failed');
+            img.removeAttribute('data-src');
+        };
+        probe.src = realSrc;
+    }
+
+    function initDeferredImages() {
+        const images = Array.from(document.querySelectorAll('img[data-src]'));
+        if (!images.length) return;
+
+        if (!('IntersectionObserver' in window)) {
+            images.forEach(loadDeferredImage);
+            return;
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                observer.unobserve(entry.target);
+                loadDeferredImage(entry.target);
+            });
+        }, { rootMargin: '320px 0px' });
+
+        images.forEach((img) => observer.observe(img));
+    }
+
+    initDeferredImages();
+
     document.addEventListener('error', (e) => {
         const target = e.target;
         if (!target || target.tagName !== 'IMG') return;
-        const fallback = '/image/404.png';
         if (target.dataset.fallbackApplied === 'true') return;
-        if (target.src && target.src.indexOf(fallback) !== -1) return;
+        if (target.src && target.src.indexOf(imageFallback) !== -1) return;
         target.dataset.fallbackApplied = 'true';
         target.removeAttribute('srcset');
-        target.src = fallback;
+        target.src = imageFallback;
     }, true);
 
     // ============================================================
@@ -247,23 +290,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================================
-    // [Feature] 首页 / 搜索页：fixed sidebar 在 footer 滚入视口时
-    // 从底部收缩，让其内容始终不会被 footer 遮住；溢出由 CSS 渐变遮罩
-    // 做"省略号"提示。
+    // [Fix] 首页 / 搜索页：fixed sidebar 始终铺满视口高度。
+    // footer 自身层级更高，会自然盖在 sidebar 背景之上；这里仅清理旧版
+    // 动态避让逻辑可能留下的 inline bottom，避免无感分页后高度卡住。
     // ============================================================
     let sidebarFooterAvoidFrame = 0;
     function updateHomeSidebarFooterAvoid() {
         sidebarFooterAvoidFrame = 0;
         const sidebar = document.querySelector('.freecat-home-sidebar');
         if (!sidebar) return;
-        if (getComputedStyle(sidebar).position !== 'fixed') {
-            sidebar.style.bottom = '';
-            return;
-        }
-        const footer = document.querySelector('footer');
-        if (!footer) return;
-        const intrusion = Math.max(0, window.innerHeight - footer.getBoundingClientRect().top);
-        sidebar.style.bottom = `${intrusion}px`;
+        sidebar.style.bottom = '';
     }
     function scheduleHomeSidebarFooterAvoid() {
         if (sidebarFooterAvoidFrame) return;
@@ -517,6 +553,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 postsList.innerHTML = newPosts;
                 paginationContainer.innerHTML = newPagination;
                 fitTagRows();
+                initDeferredImages();
 
                 // 恢复显示
                 postsList.classList.remove('page-transitioning-out');
@@ -950,6 +987,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${resultsHtml}
             </div >
             `;
+        initDeferredImages();
         // Animate search overlay results
         setTimeout(() => applyStaggeredAnimations('#search-results-overlay .post-card'), 0);
     }
@@ -1050,6 +1088,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         searchResultsContainer.innerHTML = html;
         fitTagRows();
+        initDeferredImages();
     }
 
 

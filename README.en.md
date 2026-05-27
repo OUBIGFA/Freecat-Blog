@@ -15,7 +15,9 @@
   </p>
 </div>
 
-> A guide for users with no programming background. Follow it through and you will have a personal blog that supports long-term writing, automatic publishing, and free hosting.
+> 
+> **Tip:** If you run into build issues, simply go to the main repository, copy the latest [sync-upstream](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/sync-upstream.yml) workflow file to your repo, and run it manually. It only syncs build files and will not overwrite your custom settings or writing/ folder.
+A guide for users with no programming background. Follow it through and you will have a personal blog that supports long-term writing, automatic publishing, and free hosting.
 
 ## Shortest Deployment Path
 
@@ -236,7 +238,6 @@ date: 2026-01-01
 tag:
   - notes
 cover:
-show_cover: false
 show_image_captions: true
 description:
 pinned: false
@@ -254,7 +255,6 @@ Common fields:
 | `date` | Publish date | `2026-01-01` |
 | `tag` | Article tags; multiple allowed | `- notes` |
 | `cover` | Cover image URL; empty means no cover | `https://...` |
-| `show_cover` | Show cover image on the article page | `true` / `false` |
 | `show_image_captions` | Show image captions | `true` / `false` |
 | `description` | Article summary; empty means auto excerpt | `A short intro` |
 | `pinned` | Pin to top | `true` / `false` |

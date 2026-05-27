@@ -13,7 +13,7 @@ hero_subtitle: Always maintain a strong curiosity and be willing to explore a wo
 _06: 🔹 首页详情介绍
 hero_avatar:
 _07: 🔹 个人头像
-posts_per_page: 3
+posts_per_page: 
 _08: 🔹 首页文章显示数量 (数值为空使用默认值 8，0 = 显示所有)
 footer_copyright: © FreeCat | Curiosity is the best motivation.
 _09: 🔹 网站底部版权信息

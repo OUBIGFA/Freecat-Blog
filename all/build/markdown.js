@@ -868,9 +868,6 @@ function buildRenderer() {
         // 支持两种写法：![alt](src "1200x800") 或 ![alt](src "Title 1200x800")
         // 也支持 width=1200 height=800 的形式。提取后从可见 title / caption 中剥离。
         const dims = parseImageDimensions(title);
-        const dimAttrs = (dims.width && dims.height)
-            ? ` width="${dims.width}" height="${dims.height}"`
-            : '';
         const visibleTitle = dims.cleanTitle;
         const safeTitle = visibleTitle ? ` title="${visibleTitle.replace(/"/g, '&quot;')}"` : '';
         const caption = visibleTitle || (text || '').trim();
@@ -878,16 +875,7 @@ function buildRenderer() {
 
         return `
     <figure class="post-image relative w-full">
-        <span class="loader absolute top-12 left-12 z-10" style="display:none"></span>
-        <img src="${safeHref}" alt="${safeAlt}"${safeTitle}${dimAttrs}
-            onerror="if(this.dataset.fallbackApplied!=='true'){
-                this.dataset.fallbackApplied='true';
-                this.removeAttribute('srcset');
-                this.src='${fallbackSrc}';
-                const loader = this.previousElementSibling;
-                if(loader && loader.classList.contains('loader')) loader.style.display='block';
-            }"
-            loading="lazy" />
+        <img class="post-image-img post-image-placeholder" src="${fallbackSrc}" data-src="${safeHref}" alt="${safeAlt}"${safeTitle} loading="lazy" decoding="async" />
         ${(enableCaption && caption) ? `<figcaption class="image-caption block text-center text-sm text-slate-500 dark:text-slate-400">${caption.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</figcaption>` : ''}
     </figure>`;
     };

@@ -93,7 +93,6 @@ function loadPosts({ postsDir, gitDates, postDates, skipMissingGitDates = false 
             coverHeight: parseInt(data.cover_height, 10) || 0,
             tag: data.tag || data.tags || [],
             link: `/posts/${slug}.html`,
-            showCover: data.show_cover !== false,
             pinned: data.pinned === true,
             enableImageCaptions,
             author: data.author || '',
@@ -125,21 +124,10 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
 
     const safeCover = shared.escapeHtml(String(post.cover || ''));
     const safeTitle = shared.escapeHtml(post.title);
-    const coverDimAttrs = (post.coverWidth > 0 && post.coverHeight > 0)
-        ? ` width="${post.coverWidth}" height="${post.coverHeight}"`
-        : '';
-    const coverHtml = (post.cover && post.showCover)
+    const coverHtml = post.cover
         ? `
         <div class="w-full rounded-xl overflow-hidden mb-32 relative">
-            <div class="loader absolute top-12 left-12 z-10" style="display:none"></div>
-            <img alt="${safeTitle}" class="w-full h-auto object-cover" src="${safeCover}"${coverDimAttrs}
-                onerror="if(this.dataset.fallbackApplied!=='true'){
-                    this.dataset.fallbackApplied='true';
-                    this.src='/image/404.png';
-                    const loader = this.previousElementSibling;
-                    if(loader && loader.classList.contains('loader')) loader.style.display='block';
-                }"
-                loading="lazy" />
+            <img alt="${safeTitle}" class="w-full h-auto object-cover" src="/image/404.png" data-src="${safeCover}" loading="lazy" decoding="async" />
         </div>
     `
         : '<div class="mb-24"></div>';

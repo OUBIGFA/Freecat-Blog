@@ -8,20 +8,20 @@ tag:
 _03: 🔹 标签分类：用于文章归类和搜索
 cover: https://i.pinimg.com/originals/af/89/3e/af893ef77c62353ce8590e418a94783a.gif
 _04: 🔹 封面图片：文章在列表和顶部的展示图
-show_cover: false
-_05: 🔹 显示封面：是否在文章详情页展示顶部封面图
 show_image_captions: true
-_06: 🔹 显示图注：是否在文章中显示图片下方的说明文字
+_05: 🔹 显示图注：是否在文章中显示图片下方的说明文字
 description: 一套适合新手的免费个人博客方案：在 writing 文件夹写 Markdown 文章，在 Control 文件夹改网站信息，再通过 GitHub、Cloudflare Pages 或 Vercel 自动发布成网站。
-_07: 🔹 文章摘要：不填写则自动截取文章内容
+_06: 🔹 文章摘要：不填写则自动截取文章内容
 pinned: true
-_08: 🔹 置顶文章：是否将此文章固定在首页顶部
+_07: 🔹 置顶文章：是否将此文章固定在首页顶部
 show: true
-_09: 🔹 显示文章：是否在全站展示此文章
+_08: 🔹 显示文章：是否在全站展示此文章
 ---
 Freecat Blog 是一套面向新手的个人博客模板。本地写 Markdown，把改动同步到 GitHub，Cloudflare Pages 或 Vercel 会自动发布成网站。
 
 GitHub地址：https://github.com/OUBIGFA/Freecat-Blog
+> **提示：** 如遇构建相关问题，只需前往主仓库复制最新的 [sync-upstream](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/sync-upstream.yml) 工作流文件到你的仓库并手动运行一次。该工作流仅同步构建文件，不会覆盖你的自定义设置和 writing/ 写作文件夹。
+
 
 不用买服务器，不用维护后台，也不用先学编程。日常只要记住三个文件夹。
 
@@ -287,7 +287,6 @@ date: 2026-05-03
 tag:
   - 随笔
 cover:
-show_cover: false
 show_image_captions: true
 description: 这里写文章摘要
 pinned: false
@@ -305,7 +304,6 @@ show: true
 | `date` | 发布或显示日期 |
 | `tag` | 标签，可以写多个 |
 | `cover` | 封面图片 URL，留空则没有封面 |
-| `show_cover` | 是否在文章详情页显示封面 |
 | `show_image_captions` | 是否显示图片下方说明文字 |
 | `description` | 文章摘要，留空则自动截取 |
 | `pinned` | 是否置顶 |
@@ -558,4 +556,3 @@ Markdown 是纯文本，整理、改写、拆分都方便，特别适合配合 A
 ### 可以直接改 `all/` 吗
 
 新手不建议。`all/` 是模板工程目录，自动同步上游模板时这里的改动可能被覆盖。日常写作和个性化主要在 `writing/` 和 `Control/` 里改。
-
