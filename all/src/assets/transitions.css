@@ -111,7 +111,7 @@
 
 /* ============================================================
  * .t-btn-icon —— 圆形图标按钮（无抬升，仅按压缩放）
- * 适用：顶栏搜索 / 主题 / 移动端 about / 文章页浮动按钮 / 折叠按钮
+ * 适用：顶栏搜索 / 主题 / 移动端 about / 浮动导航按钮 / 折叠按钮
  * ============================================================ */
 .t-btn-icon {
     transition:
@@ -131,7 +131,7 @@
 }
 
 /* ============================================================
- * .t-floating-nav —— 文章页浮动导航按钮（返回顶部 / 落到底部 / 返回上一页）
+ * .t-floating-nav —— 浮动导航按钮（返回顶部 / 落到底部 / 返回上一页）
  * 与普通 .t-btn-icon 的差异：
  *   - 入场/离场是滚动驱动的状态切换（opacity 0↔1），需要更长 + 更柔的过渡，
  *     不能用 220ms expo-out（到末端急刹）；这里用 360ms 标准 ease-out。
@@ -142,6 +142,23 @@
  * 用法：在按钮上同时挂 .t-btn-icon 和 .t-floating-nav；
  *      JS 通过切换 .is-hidden 控制显隐（不要再用 invisible / opacity-0 等）。
  * ============================================================ */
+.freecat-floating-nav-panel {
+    display: none;
+    position: fixed;
+    top: 8rem;
+    height: calc(100vh - 300px);
+    flex-direction: column;
+    align-items: center;
+}
+
+@media (min-width: 1760px) {
+    .freecat-floating-nav-panel {
+        display: flex;
+        left: calc(50% + 780px + 3rem);
+        right: auto;
+    }
+}
+
 .t-floating-nav {
     transition:
         opacity 360ms cubic-bezier(0.4, 0, 0.2, 1),

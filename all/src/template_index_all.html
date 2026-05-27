@@ -102,10 +102,6 @@
             min-width: 0;
         }
 
-        .freecat-all-floating-nav {
-            display: none;
-        }
-
         .freecat-all-switch-label {
             display: inline-flex;
             align-items: center;
@@ -183,14 +179,6 @@
             .freecat-all-page #posts-list {
                 grid-template-columns: repeat(3, minmax(0, 1fr));
                 gap: 1.25rem;
-            }
-        }
-
-        @media (min-width: 1760px) {
-            .freecat-all-floating-nav {
-                display: flex;
-                left: calc(50% + 780px + 3rem);
-                right: auto;
             }
         }
 
@@ -283,7 +271,7 @@
             </div>
         </div>
 
-        <div class="freecat-all-floating-nav fixed top-32 h-[calc(100vh-300px)] flex-col items-center">
+        <div class="freecat-floating-nav-panel">
             <div class="flex flex-1 flex-col justify-center gap-4">
                 <button id="back-to-top" aria-label="Back to Top"
                     class="t-btn-icon t-floating-nav is-hidden group relative flex items-center justify-center rounded-full size-12 bg-[#fcfcfd] dark:bg-card-dark text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300">

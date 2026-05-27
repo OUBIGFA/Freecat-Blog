@@ -122,15 +122,7 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
     const articleHeadings = headings.map(h => ({ ...h, renderedLevel: Math.min(h.level + 1, 6) }));
     contentHtml = addHeadingIds(contentHtml, articleHeadings);
 
-    const safeCover = shared.escapeHtml(String(post.cover || ''));
     const safeTitle = shared.escapeHtml(post.title);
-    const coverHtml = post.cover
-        ? `
-        <div class="w-full rounded-xl overflow-hidden mb-32 relative">
-            <img alt="${safeTitle}" class="w-full h-auto object-cover" src="/image/404.png" data-src="${safeCover}" loading="lazy" decoding="async" />
-        </div>
-    `
-        : '<div class="mb-24"></div>';
 
     const tags = Array.isArray(post.tag) ? post.tag : (post.tag ? [post.tag] : []);
     const tagsHtml = tags.map(t => shared.renderTagSpan(t)).join('\n');
@@ -200,7 +192,6 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
         .replace('<!-- DATE_PLACEHOLDER -->', () => post.date.tz('Asia/Shanghai').format('YYYY-MM-DD'))
         .replace('<!-- DATE_ISO_PLACEHOLDER -->', () => post.date.toISOString())
         .replace('<!-- MODIFIED_PLACEHOLDER -->', () => post.modifiedDate.tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm'))
-        .replace('<!-- COVER_PLACEHOLDER -->', () => coverHtml)
         .replace('<!-- CONTENT_PLACEHOLDER -->', () => finalContentHtml)
         .replace('<!-- TOC_PLACEHOLDER -->', () => toc)
         .replace('<!-- POST_SEO_HEAD -->', () => seoHead)
