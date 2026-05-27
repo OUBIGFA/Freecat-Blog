@@ -1,8 +1,8 @@
 # Cloudflare Pages headers
 # JS/CSS file names are stable, so browsers must revalidate them after each deploy.
 # Images can keep a long cache because they do not control site behavior.
-# HTML uses short max-age + stale-while-revalidate so idle users get an instant
-# cached response when clicking pagination, while the edge silently refreshes.
+# HTML must revalidate on each visit so users do not see a stale page first and
+# then a silently refreshed page shortly after navigation.
 
 /assets/*
   Cache-Control: public, max-age=0, must-revalidate
@@ -11,10 +11,10 @@
   Cache-Control: public, max-age=31536000, immutable
 
 /*.html
-  Cache-Control: public, max-age=60, stale-while-revalidate=604800
+  Cache-Control: public, max-age=0, must-revalidate
 
 /
-  Cache-Control: public, max-age=60, stale-while-revalidate=604800
+  Cache-Control: public, max-age=0, must-revalidate
 
 /sitemap.xml
   Cache-Control: public, max-age=3600

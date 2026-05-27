@@ -103,7 +103,7 @@ function generateSocialLinks(socialConfig) {
         const safeAria = shared.escapeHtml(capitalizedName);
         // platform.icon 来自 social-defaults.js（受信任的 SVG 字符串）或用户配置的 URL；
         // 若用户配置 *_icon 为 URL，generateSocialLinks 不在此处理图片（保持现有行为）
-        return `<a class="block w-6 h-6 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-[color,opacity,transform] duration-300 ease-out hover:opacity-95 hover:-translate-y-0.5 will-change-transform"
+        return `<a class="block w-6 h-6 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-[color,opacity] duration-300 ease-out hover:opacity-95"
                 href="${safeHref}"
                 aria-label="${safeAria}"
                 target="_blank"

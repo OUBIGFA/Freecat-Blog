@@ -1095,11 +1095,7 @@
 
         if (floatingGoBackBtn) {
             floatingGoBackBtn.addEventListener('click', function () {
-                if (document.referrer && document.referrer.includes(window.location.host)) {
-                    history.back();
-                } else {
-                    window.location.href = '/';
-                }
+                window.location.href = '/';
             });
         }
     }

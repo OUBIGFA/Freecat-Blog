@@ -219,11 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (floatingGoBackBtn) {
             floatingGoBackBtn.addEventListener('click', () => {
-                if (document.referrer && document.referrer.includes(window.location.host)) {
-                    history.back();
-                } else {
-                    window.location.href = '/';
-                }
+                window.location.href = '/';
             });
         }
 
