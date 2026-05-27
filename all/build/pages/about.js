@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const shared = require('../../src/assets/shared.js');
-const { autoSpacing, applyParagraphAlignment } = require('../markdown.js');
+const { autoSpacing } = require('../markdown.js');
 const { autoLineBreak } = require('../template-engine.js');
 const seo = require('../seo.js');
 

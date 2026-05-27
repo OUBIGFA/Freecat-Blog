@@ -73,4 +73,4 @@ function loadConfig(controlDir, keyword, label, defaults) {
     return result;
 }
 
-module.exports = { findConfigPath, parseLooseConfig, loadConfig };
+module.exports = { loadConfig };

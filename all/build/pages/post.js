@@ -3,8 +3,7 @@ const path = require('path');
 const dayjs = require('dayjs');
 const matter = require('gray-matter');
 const shared = require('../../src/assets/shared.js');
-const { autoSpacing, autoSpacingHtml, applyParagraphAlignment, parseMarkdown, extractHeadingsAndGenerateTOC, addHeadingIds } = require('../markdown.js');
-const { stripMarkdown } = require('../markdown.js');
+const { autoSpacing, autoSpacingHtml, applyParagraphAlignment, parseMarkdown, extractHeadingsAndGenerateTOC, addHeadingIds, stripMarkdown } = require('../markdown.js');
 const seo = require('../seo.js');
 
 const ARTICLE_EXTENSIONS = new Set(['.md', '.markdown', '.txt']);
@@ -130,7 +129,6 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
     finalContentHtml = applyParagraphAlignment(finalContentHtml);
     finalContentHtml += seo.renderFaqHtml(post.faq || []);
 
-    const baseUrl = String(siteConfig.site_url || '');
     const canonical = seo.pageUrl(siteConfig, post.link);
     const rawCover = String(post.cover || '');
     const ogImage = seo.absoluteUrl(siteConfig, rawCover || seo.defaultImage(siteConfig, seoConfig));

@@ -218,4 +218,4 @@ function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, s
     return { loadTemplate, applySiteConfig, generateSocialLinks: () => socialLinks, shared };
 }
 
-module.exports = { createEngine, generateThemeScript, generateLogoIcon, generateSocialLinks, injectPartials, autoLineBreak, versionAssetUrls, replacePlaceholder };
+module.exports = { createEngine, autoLineBreak };

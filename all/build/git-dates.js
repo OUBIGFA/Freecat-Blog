@@ -198,10 +198,6 @@ function collectPublishDates({ repoRoot, postsDir, existing = {} }) {
 module.exports = {
     collectPublishDates,
     collectFromGit,
-    extractFirstFromGit,
-    extractFromGit,
     loadSnapshot,
-    MissingGitDateError,
     MISSING_GIT_DATE_CODE,
-    normalizeDateMap
 };
