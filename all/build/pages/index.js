@@ -8,7 +8,7 @@ const seo = require('../seo.js');
 /**
  * 渲染分页首页（index.html + page/N/index.html）。
  */
-function renderPostCardForList(post) {
+function renderPostCardForList(post, index = 0) {
     const tags = Array.isArray(post.tag) ? post.tag : (post.tag ? [post.tag] : []);
     // 首页 / 全部页 使用带 dark hover 的 tag 风格（与原有视觉一致）
     const tagsHtml = tags.map(t => shared.renderTagSpan(t, { darkHover: true })).join('');
@@ -28,7 +28,8 @@ function renderPostCardForList(post) {
         coverPlaceholder: post.coverPlaceholder,
         coverWidth: post.coverWidth,
         coverHeight: post.coverHeight,
-        pinned: post.pinned
+        pinned: post.pinned,
+        animationDelay: index * 120
     });
 }
 

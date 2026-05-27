@@ -108,13 +108,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     function ensureAnimationStyles() { /* no-op：样式已外置 */ }
 
-    function applyStaggeredAnimations(selector, delayStep = 120) {
+    function applyStaggeredAnimations(selector, delayStep = 120, options = {}) {
         const elements = document.querySelectorAll(selector);
+        const replay = options.replay !== false;
         elements.forEach((el, index) => {
-            el.classList.remove('animate-fade-in-up'); // Reset if exists
-            void el.offsetWidth; // Trigger reflow
+            const delay = `${index * delayStep}ms`;
+            if (!replay && el.classList.contains('animate-fade-in-up')) {
+                if (!el.style.animationDelay) el.style.animationDelay = delay;
+                return;
+            }
+            el.classList.remove('animate-fade-in-up');
+            el.style.animationDelay = delay;
+            void el.offsetWidth;
             el.classList.add('animate-fade-in-up');
-            el.style.animationDelay = `${index * delayStep}ms`;
         });
     }
 
@@ -411,7 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Apply staggered animation to existing post cards on load
     if (document.getElementById('posts-list')) {
-        applyStaggeredAnimations('.post-card');
+        applyStaggeredAnimations('.post-card', 120, { replay: false });
     }
 
     // 监听主题切换按钮
@@ -957,7 +963,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const renderer = window.PostCardTemplate && typeof window.PostCardTemplate.renderPostCard === 'function';
-        const resultsHtml = results.map(post => {
+        const resultsHtml = results.map((post, index) => {
             const tagsHtml = generateTagsHtml(post.tags);
             // PostCardTemplate 在所有模板中都会随主 script 一起加载；这里没有 fallback 路径
             return renderer ? window.PostCardTemplate.renderPostCard({
@@ -971,7 +977,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 coverPlaceholder: post.coverPlaceholder,
                 coverWidth: post.coverWidth,
                 coverHeight: post.coverHeight,
-                pinned: post.pinned
+                pinned: post.pinned,
+                animationDelay: index * 120
             }) : '';
         }).join('');
 
@@ -1069,7 +1076,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!searchResultsContainer) return;
 
         const renderer = window.PostCardTemplate && typeof window.PostCardTemplate.renderPostCard === 'function';
-        const html = results.map(post => {
+        const html = results.map((post, index) => {
             const tagsHtml = generateTagsHtml(post.tags);
             return renderer ? window.PostCardTemplate.renderPostCard({
                 link: post.link,
@@ -1082,7 +1089,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 coverPlaceholder: post.coverPlaceholder,
                 coverWidth: post.coverWidth,
                 coverHeight: post.coverHeight,
-                pinned: post.pinned
+                pinned: post.pinned,
+                animationDelay: index * 120
             }) : '';
         }).join('');
 

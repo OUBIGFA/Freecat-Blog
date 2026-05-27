@@ -48,6 +48,7 @@
         const coverPlaceholder = post.coverPlaceholder === true;
         const imageSrc = cover || (coverPlaceholder ? '/image/404.png' : '');
         const pinned = !!post.pinned;
+        const animationDelay = Math.max(0, Number(post.animationDelay) || 0);
         const titleText = plainTextFromHtml(titleHtml);
         const desktopPreviewLines = titleText.length >= 24 ? 3 : 4;
         // 给 <img> 写 width/height 以预留盒子，消除卡片图片加载的 CLS。
@@ -101,7 +102,7 @@
             : '';
 
         return `
-        <a href="${link}" class="post-card ${imageMarkup ? 'has-cover' : 'has-no-cover'} block mb-8 md:mb-10 group cursor-pointer" data-sort-date="${sortDate}" data-sort-modified="${sortModifiedDate}" data-sort-pinned="${pinned ? '1' : '0'}">
+        <a href="${link}" class="post-card ${imageMarkup ? 'has-cover' : 'has-no-cover'} animate-fade-in-up block mb-8 md:mb-10 group cursor-pointer" style="animation-delay: ${animationDelay}ms" data-sort-date="${sortDate}" data-sort-modified="${sortModifiedDate}" data-sort-pinned="${pinned ? '1' : '0'}">
             <div class="relative rounded-2xl bg-white dark:bg-card-dark px-9 pt-9 pb-4 shadow-sm transition-[box-shadow,border-color] duration-300 ease-out group-hover:shadow-2xl group-hover:shadow-gray-400/20 dark:group-hover:shadow-black/40 lg:h-[390px] lg:px-16 lg:py-12">
                 ${pinnedBadge}
                 <div class="flex h-full min-w-0 flex-col lg:hidden">

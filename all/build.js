@@ -42,6 +42,64 @@ function skipBuildUntilGitDatesUpdate(err) {
     process.exit(0);
 }
 
+function escapeXmlAttr(value) {
+    return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
+function safeFaviconUrl(value) {
+    const raw = String(value == null ? '' : value).trim();
+    if (!raw) return '';
+    if (/^(https?:)?\/\//i.test(raw)) return raw;
+    if (raw.startsWith('/') || raw.startsWith('./') || raw.startsWith('../')) return raw;
+    if (/^[a-zA-Z]/.test(raw) && !raw.includes(':')) return raw;
+    return '';
+}
+
+function faviconMimeType(filePath) {
+    const ext = path.extname(filePath).toLowerCase();
+    if (ext === '.jpg' || ext === '.jpeg') return 'image/jpeg';
+    if (ext === '.webp') return 'image/webp';
+    if (ext === '.svg') return 'image/svg+xml';
+    if (ext === '.gif') return 'image/gif';
+    return 'image/png';
+}
+
+function localFaviconPath(sourceUrl, imagesDir) {
+    const raw = safeFaviconUrl(sourceUrl);
+    if (!raw || /^(https?:)?\/\//i.test(raw)) return '';
+    const clean = raw.split(/[?#]/, 1)[0].replace(/\\/g, '/');
+    let candidate = '';
+    if (clean.startsWith('/image/')) candidate = path.join(imagesDir, clean.slice('/image/'.length));
+    else if (clean.startsWith('image/')) candidate = path.join(imagesDir, clean.slice('image/'.length));
+    else if (!clean.includes('/')) candidate = path.join(imagesDir, clean);
+    if (!candidate) return '';
+    const resolved = path.resolve(candidate);
+    const root = path.resolve(imagesDir) + path.sep;
+    return resolved.startsWith(root) && fs.existsSync(resolved) ? resolved : '';
+}
+
+function circularFaviconHref(sourceUrl, imagesDir) {
+    const localPath = localFaviconPath(sourceUrl, imagesDir);
+    if (localPath) {
+        const data = fs.readFileSync(localPath).toString('base64');
+        return `data:${faviconMimeType(localPath)};base64,${data}`;
+    }
+    return safeFaviconUrl(sourceUrl) || '/image/freecat_web_icon.png';
+}
+
+function writeCircularFavicon({ outputDir, imagesDir, sourceUrl }) {
+    const faviconHref = circularFaviconHref(sourceUrl, imagesDir);
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs><clipPath id="circle"><circle cx="32" cy="32" r="32"/></clipPath></defs>
+  <image href="${escapeXmlAttr(faviconHref)}" width="64" height="64" preserveAspectRatio="xMidYMid slice" clip-path="url(#circle)"/>
+</svg>
+`;
+    fs.writeFileSync(path.join(outputDir, 'favicon.svg'), svg, 'utf-8');
+}
 // ===== 路径常量 =====
 const DEFAULT_POSTS_PER_PAGE = 8;
 const DEFAULT_RECENT_POSTS_LIMIT = 7;
@@ -89,6 +147,8 @@ const siteDefaults = {
 };
 const siteConfig = loadConfig(DIRS.control, 'site', 'site.md', siteDefaults);
 if (!siteConfig.site_favicon) siteConfig.site_favicon = '/image/freecat_web_icon.png';
+const rawSiteFavicon = siteConfig.site_favicon;
+siteConfig.site_favicon = '/favicon.svg';
 if (!siteConfig.hero_avatar) siteConfig.hero_avatar = '/image/freecat.png';
 
 const rawPostsPerPage = siteConfig.posts_per_page;
@@ -209,6 +269,7 @@ fs.mkdirSync(path.join(DIRS.output, 'posts'));
 console.log('📦 Moving assets and configs...');
 if (fs.existsSync(DIRS.assets)) copyDir(DIRS.assets, path.join(DIRS.output, 'assets'));
 if (fs.existsSync(DIRS.images)) copyDir(DIRS.images, path.join(DIRS.output, 'image'));
+writeCircularFavicon({ outputDir: DIRS.output, imagesDir: DIRS.images, sourceUrl: rawSiteFavicon });
 
 // ===== 6. 生成各页面 =====
 postPage.generateAll({ posts: allPosts, template: tplPost, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarInnerHtml });

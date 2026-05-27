@@ -1,23 +1,18 @@
-<div align="center">
-  <img src="all/image/freecat_web_icon.png" width="120" alt="Freecat Blog Preview">
-  <h1>Freecat Blog</h1>
-  <p>本地写作、GitHub 备份、免费部署的个人博客模板</p>
-  <p>简体中文 | <a href="README.en.md">English</a></p>
-  <p>
-    <img alt="Platform" src="https://img.shields.io/badge/platform-Web-2563eb">
-    <img alt="Node" src="https://img.shields.io/badge/Node-20-339933">
-    <img alt="Deploy" src="https://img.shields.io/badge/deploy-Cloudflare%20%7C%20Vercel-f97316">
-    <img alt="License" src="https://img.shields.io/badge/license-MIT-111827">
-  </p>
-  <p>
-    <a href="https://freecat-blog.pages.dev">演示站点 01</a> |
-    <a href="https://freecat-blog-op.pages.dev">演示站点 02</a>
-  </p>
+<div>![Freecat Blog Preview](all/image/freecat_web_icon.png)   
+
+# Freecat Blog
+
+本地写作、GitHub 备份、免费部署的个人博客模板
+
+简体中文 | [English](README.en.md)
+
+     ![Platform](https://img.shields.io/badge/platform-Web-2563eb)     ![Node](https://img.shields.io/badge/Node-20-339933)     ![Deploy](https://img.shields.io/badge/deploy-Cloudflare%20%7C%20Vercel-f97316)     ![License](https://img.shields.io/badge/license-MIT-111827)   
+
+     [演示站点 01](https://freecat-blog.pages.dev) |     [演示站点 02](https://freecat-blog-op.pages.dev)   
+
 </div>
 
-> 
 > **提示：** 如遇构建相关问题，只需前往主仓库复制最新的 [sync-upstream](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/sync-upstream.yml) 工作流文件到你的仓库并手动运行一次。该工作流仅同步构建文件，不会覆盖你的自定义设置和 writing/ 写作文件夹。
-一份写给零编程基础用户的上手文档。按顺序做完，你会得到一个能长期写作、自动发布、免费托管的个人博客。
 
 ## 最短部署路径预览
 
@@ -429,3 +424,4 @@ Freecat Blog 会持续修 bug、加功能、优化样式。仓库自带一个 Gi
 ## 许可证
 
 本项目使用 MIT License。
+

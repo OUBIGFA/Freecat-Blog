@@ -1,23 +1,18 @@
-<div align="center">
-  <img src="all/image/freecat_web_icon.png" width="120" alt="Freecat Blog Preview">
-  <h1>Freecat Blog</h1>
-  <p>Write locally, back up with GitHub, and deploy a personal blog for free</p>
-  <p><a href="README.md">简体中文</a> | English</p>
-  <p>
-    <img alt="Platform" src="https://img.shields.io/badge/platform-Web-2563eb">
-    <img alt="Node" src="https://img.shields.io/badge/Node-20-339933">
-    <img alt="Deploy" src="https://img.shields.io/badge/deploy-Cloudflare%20%7C%20Vercel-f97316">
-    <img alt="License" src="https://img.shields.io/badge/license-MIT-111827">
-  </p>
-  <p>
-    <a href="https://freecat-blog.pages.dev">Live Demo 01</a> |
-    <a href="https://freecat-blog-op.pages.dev">Live Demo 02</a>
-  </p>
+<div>![Freecat Blog Preview](all/image/freecat_web_icon.png)   
+
+# Freecat Blog
+
+Write locally, back up with GitHub, and deploy a personal blog for free
+
+[简体中文](README.md) | English
+
+     ![Platform](https://img.shields.io/badge/platform-Web-2563eb)     ![Node](https://img.shields.io/badge/Node-20-339933)     ![Deploy](https://img.shields.io/badge/deploy-Cloudflare%20%7C%20Vercel-f97316)     ![License](https://img.shields.io/badge/license-MIT-111827)   
+
+     [Live Demo 01](https://freecat-blog.pages.dev) |     [Live Demo 02](https://freecat-blog-op.pages.dev)   
+
 </div>
 
-> 
 > **Tip:** If you run into build issues, simply go to the main repository, copy the latest [sync-upstream](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/sync-upstream.yml) workflow file to your repo, and run it manually. It only syncs build files and will not overwrite your custom settings or writing/ folder.
-A guide for users with no programming background. Follow it through and you will have a personal blog that supports long-term writing, automatic publishing, and free hosting.
 
 ## Shortest Deployment Path
 
@@ -107,7 +102,7 @@ What you get:
 
 Remember this:
 
-**Write articles in `writing/`, edit site information in `Control/`, and set the deployment root directory to `all`.**
+**Write articles in** `writing/`, edit site information in `Control/`, and set the deployment root directory to `all`.
 
 ---
 
@@ -145,9 +140,9 @@ Deployment has two steps:
 | `Repository name` | Choose a name, such as `my-freecat-blog` |
 | `Privacy` | Use `Private` |
 
-4. Click `Begin import` and wait for it to finish.
-5. Open GitHub Desktop and click `File` -> `Clone repository`.
-6. Select the imported repository and clone it to your computer.
+1. Click `Begin import` and wait for it to finish.
+2. Open GitHub Desktop and click `File` -> `Clone repository`.
+3. Select the imported repository and clone it to your computer.
 
 ![GitHub Desktop clone](all/image/Tutorial/10.png)
 
@@ -162,19 +157,19 @@ Cloudflare Pages is the recommended option. The key is filling in the build sett
 
 ![Cloudflare step 1](all/image/Tutorial/01.png)
 
-3. Select Pages.
+1. Select Pages.
 
 ![Cloudflare step 2](all/image/Tutorial/02.png)
 
-4. Choose "Import an existing Git repository".
+1. Choose "Import an existing Git repository".
 
 ![Cloudflare step 3](all/image/Tutorial/03.png)
 
-5. Select your blog repository.
+1. Select your blog repository.
 
 ![Cloudflare step 4](all/image/Tutorial/04.png)
 
-6. Fill in the build settings:
+1. Fill in the build settings:
 
 | Cloudflare English UI | Cloudflare Chinese UI | Value |
 | --- | --- | --- |
@@ -188,8 +183,8 @@ Cloudflare Pages is the recommended option. The key is filling in the build sett
 
 > The most common mistake: set output directory to `dist`, not `all/dist`, because the root directory is already `all`.
 
-7. Click `Save and Deploy` and wait 1-3 minutes.
-8. When the build finishes, open the default URL from Cloudflare, such as `xxx.pages.dev`.
+1. Click `Save and Deploy` and wait 1-3 minutes.
+2. When the build finishes, open the default URL from Cloudflare, such as `xxx.pages.dev`.
 
 ![Cloudflare step 6](all/image/Tutorial/06.png)
 
@@ -215,7 +210,7 @@ If you already use Vercel, you can choose it directly.
 | Output Directory | `dist` |
 | Node Version | `20` |
 
-5. Click `Deploy`.
+1. Click `Deploy`.
 
 To bind a custom domain, open project settings -> `Domains` and follow the DNS instructions.
 
@@ -431,3 +426,4 @@ Yes. Sample articles are in `writing/`. Delete them, then commit and push.
 ## License
 
 This project is released under the MIT License.
+
