@@ -3,6 +3,10 @@
 
 <head>
     <script><!-- THEME_SCRIPT --></script>
+    <!-- 显式接管 speculation rules slot，禁用 Chrome NavigationPredictor /
+         Cloudflare Speed Brain 的投机性 prerender。
+         详细原因见 partials/head-base.html 里的同款注释。 -->
+    <script type="speculationrules">{"prefetch":[],"prerender":[]}</script>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title><!-- TITLE_PLACEHOLDER --> - <!-- SITE_TITLE --></title>

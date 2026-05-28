@@ -1,6 +1,19 @@
 <!-- partials/head-base.html · 4 个非 post 模板共用的 head 内容
      模板里用 INCLUDE 注释引入；template_index 在此基础上额外追加 OG meta 与 fade 动画样式。 -->
 <script><!-- THEME_SCRIPT --></script>
+<!-- 显式接管 speculation rules slot，禁用对站内链接的投机性 prerender。
+     触发该 bug 的两条路径：
+       1. Chrome 自身的 NavigationPredictor（"Preload pages" 设置默认开启）会
+          根据 hover / 用户行为对站内链接做隐藏 prerender；点击时把 prerender
+          实例提升为可见标签 —— 此时若激活校验（cache-control / vary / cookie /
+          etag 任一不一致）失败，Chrome 会丢弃 prerender 并发起真实导航，
+          表现就是页面"已正常显示后突然又刷新一次"。
+       2. Cloudflare Pages 默认的 "Speed Brain" 会主动注入 speculation rules
+          做同样的事；切到 CF 部署时同样命中此 bug。
+     W3C 规范约定：页面自带 speculation rules 时，浏览器走页面给的规则而非
+     内部启发式；CF Speed Brain 也跳过已有规则的页面。空规则 = 站点级关闭
+     所有投机加载，从机制层根治该问题。 -->
+<script type="speculationrules">{"prefetch":[],"prerender":[]}</script>
 <meta charset="utf-8" />
 <meta content="width=device-width, initial-scale=1.0" name="viewport" />
 <!-- 网站图标 -->
