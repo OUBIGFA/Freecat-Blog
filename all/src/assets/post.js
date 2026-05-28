@@ -1023,24 +1023,14 @@
     }
 
     function toggleNavButtons() {
-        var scrollY = window.scrollY;
-        var show = scrollY > 500;
-
-        function setVisibility(btn) {
-            if (!btn) return;
-            // 仅切换 .is-hidden —— 由 .t-floating-nav 处理 opacity / transform 过渡。
-            // 不再用 Tailwind 的 invisible（visibility:hidden）做硬切，
-            // 否则元素在 opacity 还没淡出完时就被 visibility 一刀切，看起来很突兀。
-            btn.classList.toggle('is-hidden', !show);
-        }
-
-        setVisibility(backToTopBtn);
-        setVisibility(scrollToBottomBtn);
-        setVisibility(floatingGoBackBtn);
+        // 始终显示浮动按钮，不再随滚动隐藏。
+        [backToTopBtn, scrollToBottomBtn, floatingGoBackBtn].forEach(function (btn) {
+            if (btn) btn.classList.remove('is-hidden');
+        });
     }
 
     if (backToTopBtn || scrollToBottomBtn || floatingGoBackBtn) {
-        window.addEventListener('scroll', toggleNavButtons);
+        toggleNavButtons();
 
         if (backToTopBtn) {
             backToTopBtn.addEventListener('click', function () {

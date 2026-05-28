@@ -90,6 +90,7 @@ Cloudflare Pages / Vercel 自动构建
 - 自动生成首页、文章页、归档页、搜索页、About 页
 - 文章支持标签、封面、摘要、置顶、显示/隐藏
 - 自动优化中英混排、数字单位间距、代码块、数学公式
+- 内置 SEO 和 AI 检索支持，可生成 Sitemap、RSS、llms.txt，并引导你提交到 Google 与 Bing。详情见 [`Control/SEO_搜索优化.md`](Control/SEO_搜索优化.md)
 - 文章里放音频直链就能自动生成播放器
 - 不写代码就能改网站名、头像、社交链接和主题
 

@@ -33,6 +33,8 @@ GitHub地址：https://github.com/OUBIGFA/Freecat-Blog
 
 **写文章去** `writing/`，个性化去 `Control/`，部署构建根目录填 `all`。
 
+Freecat Blog 也内置了搜索优化支持：可生成 Sitemap、RSS、llms.txt，并配有 Google、Bing 收录提交教程。需要设置正式域名、SEO 摘要、作者信息或 AI 爬虫策略时，直接看 [`Control/SEO_搜索优化.md`](../Control/SEO_搜索优化.md)。
+
 ---
 
 ## 最短部署路径预览

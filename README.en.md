@@ -90,6 +90,7 @@ What you get:
 - Auto-generated home page, article pages, archive, search, and About page
 - Article fields for tags, cover image, summary, pinning, and visibility
 - Automatic formatting for mixed Chinese/English text, number-unit spacing, code blocks, and math
+- Built-in SEO and AI discovery support, including Sitemap, RSS, llms.txt, and a simple Google/Bing submission guide. See [`Control/SEO_搜索优化.md`](Control/SEO_搜索优化.md) for details
 - Audio player generation from direct audio links in articles
 - Site name, avatar, social links, and theme customization without writing code
 

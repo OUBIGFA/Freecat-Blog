@@ -175,12 +175,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return target;
         }
 
-        function toggleNavButtons() {
-            const show = window.scrollY > 500;
-            [backToTopBtn, scrollToBottomBtn, floatingGoBackBtn].forEach((btn) => {
-                if (btn) btn.classList.toggle('is-hidden', !show);
-            });
-        }
+        [backToTopBtn, scrollToBottomBtn, floatingGoBackBtn].forEach((btn) => {
+            if (btn) btn.classList.remove('is-hidden');
+        });
 
         if (backToTopBtn) {
             backToTopBtn.addEventListener('click', () => {
@@ -239,9 +236,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 goBackOrHome();
             });
         });
-
-        toggleNavButtons();
-        window.addEventListener('scroll', toggleNavButtons, { passive: true });
     }
 
     // ============================================================
@@ -665,18 +659,27 @@ document.addEventListener('DOMContentLoaded', () => {
     function searchPosts(query, posts, isTagSearch = false) {
         if (!query.trim()) return [];
         const q = query.toLowerCase().trim();
+        const isUntaggedSearch = isTagSearch && q === '__untagged__';
 
         const filtered = posts.filter(post => {
-            const tags = (post.tags || []).map(t => t.toLowerCase());
+            const tags = (post.tags || [])
+                .map(t => String(t || '').trim())
+                .filter(Boolean);
+
+            if (isUntaggedSearch) {
+                return tags.length === 0;
+            }
+
+            const lowerTags = tags.map(t => t.toLowerCase());
 
             if (isTagSearch) {
-                return tags.includes(q);
+                return lowerTags.includes(q);
             }
 
             const title = (post.title || '').toLowerCase();
             const excerpt = (post.excerpt || '').toLowerCase();
             const content = (post.content || '').toLowerCase();
-            const tagsStr = tags.join(' ');
+            const tagsStr = lowerTags.join(' ');
 
             // 精确匹配优先
             if (title.includes(q) || excerpt.includes(q) || content.includes(q) || tagsStr.includes(q)) {
@@ -721,10 +724,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getAllTags(posts) {
         const tagsByKey = new Map();
+        let untaggedCount = 0;
         posts.forEach(post => {
-            (post.tags || []).forEach(tag => {
-                const label = String(tag || '').trim();
-                if (!label) return;
+            const labels = (post.tags || [])
+                .map(t => String(t || '').trim())
+                .filter(Boolean);
+            if (!labels.length) {
+                untaggedCount += 1;
+                return;
+            }
+            labels.forEach(label => {
                 const key = label.toLowerCase();
                 const current = tagsByKey.get(key);
                 if (current) {
@@ -734,9 +743,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 tagsByKey.set(key, { label, count: 1 });
             });
         });
-        return Array.from(tagsByKey.values()).sort((a, b) =>
-            a.label.localeCompare(b.label, undefined, { sensitivity: 'base' })
-        );
+        const list = Array.from(tagsByKey.values()).sort((a, b) => {
+            if (b.count !== a.count) return b.count - a.count;
+            return a.label.localeCompare(b.label, undefined, { sensitivity: 'base' });
+        });
+        if (untaggedCount > 0) {
+            list.unshift({ label: '未打标签', count: untaggedCount, untagged: true });
+        }
+        return list;
     }
 
     function renderTagMenu(tags) {
@@ -751,9 +765,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         tags.forEach((tag, index) => {
-            const colors = hashTagColor(tag.label);
+            const isUntagged = !!tag.untagged;
+            const colors = isUntagged
+                ? { bg: 'rgba(148, 163, 184, 0.18)', text: '#475569' }
+                : hashTagColor(tag.label);
             const link = document.createElement('a');
-            link.href = `/search.html?tag=${encodeURIComponent(tag.label)}`;
+            link.href = isUntagged
+                ? '/search.html?tag=__untagged__'
+                : `/search.html?tag=${encodeURIComponent(tag.label)}`;
             link.role = 'menuitem';
             link.className = 'tag-menu-item flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-400 dark:text-slate-200 dark:hover:bg-slate-800';
             link.style.setProperty('--tag-menu-index', index);
@@ -1052,9 +1071,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (query || tag) {
             const searchTerm = query || tag;
             const isTagSearch = !!tag;
+            const isUntaggedSearch = isTagSearch && searchTerm === '__untagged__';
 
             if (currentQueryDisplay) {
-                currentQueryDisplay.textContent = isTagSearch ? `# ${searchTerm} ` : searchTerm;
+                if (isUntaggedSearch) {
+                    currentQueryDisplay.textContent = '未打标签';
+                } else if (isTagSearch) {
+                    currentQueryDisplay.textContent = `# ${searchTerm} `;
+                } else {
+                    currentQueryDisplay.textContent = searchTerm;
+                }
             }
 
             // 同步到搜索输入框 (仅对普通搜索同步)
