@@ -2,6 +2,13 @@ const fs = require('fs');
 const path = require('path');
 const seo = require('../seo.js');
 
+// RSS / AI 检索文件的文章数上限。理由：
+//   - RSS 设计本质是"推送增量更新"，不是"历史归档"（归档由 sitemap.xml + /all.html 承担）
+//   - 文章 >100 篇后，feed.xml 体积会让阅读器轮询带宽显著上升（每订阅者每月数 GB）
+//   - 100 足以覆盖大多数个人博客 3~5 年产量；超出后旧文章仍能通过 sitemap / 归档页被发现
+const FEED_MAX_ITEMS = 100;
+const LLMS_MAX_ITEMS = 100;
+
 function xmlEscape(s) {
     return String(s)
         .replace(/&/g, '&amp;')
@@ -117,7 +124,7 @@ function generateLlmsTxt({ posts, siteConfig, seoConfig = {}, outputDir }) {
         '## Articles'
     ];
 
-    visiblePosts(posts).slice(0, 50).forEach(post => {
+    visiblePosts(posts).slice(0, LLMS_MAX_ITEMS).forEach(post => {
         lines.push(`- ${post.title}: ${baseUrl}${encodePath(post.link)} - ${seo.truncate(seo.articleSummary(post), 180)}`);
     });
 
@@ -133,7 +140,9 @@ function generateFeed({ posts, siteConfig, seoConfig = {}, outputDir }) {
     }
 
     console.log('📡 Generating feed.xml...');
-    const indexedPosts = visiblePosts(posts).slice(0, 30);
+    // 取前 FEED_MAX_ITEMS 篇（置顶在前、时间倒序）。文章 ≤ 上限时等同于全输出；
+    // 超过时新文章入榜会顶替最老的文章。旧文章仍可通过 sitemap.xml / /all.html 被发现。
+    const indexedPosts = visiblePosts(posts).slice(0, FEED_MAX_ITEMS);
     const updated = indexedPosts[0] ? indexedPosts[0].modifiedDate.toISOString() : new Date().toISOString();
     const lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
