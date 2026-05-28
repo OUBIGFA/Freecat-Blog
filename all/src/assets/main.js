@@ -142,8 +142,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const backToTopBtn = document.getElementById('back-to-top');
         const scrollToBottomBtn = document.getElementById('scroll-to-bottom');
         const floatingGoBackBtn = document.getElementById('floating-go-back');
+        const goBackLinks = document.querySelectorAll('[data-go-back]');
 
-        if (!backToTopBtn && !scrollToBottomBtn && !floatingGoBackBtn) return;
+        if (!backToTopBtn && !scrollToBottomBtn && !floatingGoBackBtn && !goBackLinks.length) return;
+
+        function goBackOrHome() {
+            if (window.history.length > 1) {
+                window.history.back();
+                return;
+            }
+
+            window.location.href = '/';
+        }
 
         function getContainerBottomScrollY() {
             const container = document.querySelector('[data-floating-nav-container]')
@@ -219,9 +229,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (floatingGoBackBtn) {
             floatingGoBackBtn.addEventListener('click', () => {
-                window.location.href = '/';
+                goBackOrHome();
             });
         }
+
+        goBackLinks.forEach((link) => {
+            link.addEventListener('click', (event) => {
+                event.preventDefault();
+                goBackOrHome();
+            });
+        });
 
         toggleNavButtons();
         window.addEventListener('scroll', toggleNavButtons, { passive: true });
