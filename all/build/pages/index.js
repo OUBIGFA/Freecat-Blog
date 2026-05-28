@@ -46,13 +46,24 @@ function generateAll({ posts, template, postsPerPage, siteConfig, seoConfig, out
             ? (siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog')
             : `${siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog'} - Page ${page}`;
         const canonicalPath = page === 1 ? '/' : `/page/${page}/`;
+        // 分页页（page > 1）打 noindex,follow：让爬虫顺着链接发现文章页本身,
+        // 但不让分页页与首页产生重复内容信号互相稀释排名。
+        const isPagination = page > 1;
+        const pagination = isPagination
+            ? {
+                prevUrl: seo.pageUrl(siteConfig, page === 2 ? '/' : `/page/${page - 1}/`),
+                nextUrl: page < totalPages ? seo.pageUrl(siteConfig, `/page/${page + 1}/`) : ''
+            }
+            : (totalPages > 1 ? { nextUrl: seo.pageUrl(siteConfig, '/page/2/') } : null);
         const seoHead = seo.renderHeadTags({
             title,
             description: seo.defaultDescription(siteConfig, seoConfig),
             canonicalPath,
             siteConfig,
             seoConfig,
-            image: seo.defaultImage(siteConfig, seoConfig)
+            image: seo.defaultImage(siteConfig, seoConfig),
+            noindex: isPagination,
+            pagination
         });
         const jsonLd = page === 1 ? seo.renderWebsiteJsonLd({ siteConfig, seoConfig }) : '';
 

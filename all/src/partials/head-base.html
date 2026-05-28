@@ -16,8 +16,14 @@
 <script type="speculationrules">{"prefetch":[],"prerender":[]}</script>
 <meta charset="utf-8" />
 <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<!-- 主题色：随系统浅/深色模式切换，影响移动端浏览器地址栏与 PWA 启动画面 -->
+<meta name="theme-color" content="#f6f6f8" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#101622" media="(prefers-color-scheme: dark)" />
 <!-- 网站图标 -->
 <link rel="icon" href="<!-- SITE_FAVICON -->" />
+<!-- RSS / 站内搜索自动发现：让 RSS 阅读器与浏览器自动识别站点的订阅与搜索能力 -->
+<link rel="alternate" type="application/rss+xml" title="<!-- SITE_TITLE -->" href="/feed.xml" />
+<link rel="search" type="application/opensearchdescription+xml" title="<!-- SITE_TITLE -->" href="/opensearch.xml" />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

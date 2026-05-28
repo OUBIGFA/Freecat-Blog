@@ -168,6 +168,11 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
         : '';
 
     const pageTitle = `${post.title} - ${siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog'}`;
+    // cover_width / cover_height 仅在 frontmatter 显式给出时透传给 renderHeadTags，
+    // og:image 尺寸只有在 frontmatter 明确给值时才输出 —— 避免方图被谎报成 1200x630
+    // 后被社交平台裁切异常。
+    const coverWidth = post.coverWidth || 0;
+    const coverHeight = post.coverHeight || 0;
     const seoHead = seo.renderHeadTags({
         title: pageTitle,
         description: seo.articleSummary(post),
@@ -176,10 +181,13 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
         seoConfig,
         type: 'article',
         image: rawCover || seo.defaultImage(siteConfig, seoConfig),
+        imageWidth: coverWidth,
+        imageHeight: coverHeight,
         noindex: post.noindex,
         tags,
         publishedTime: post.date.toISOString(),
-        modifiedTime: post.modifiedDate.toISOString()
+        modifiedTime: post.modifiedDate.toISOString(),
+        author: post.author
     });
     const jsonLd = seo.renderArticleJsonLd({ post, siteConfig, seoConfig, canonical, ogImage, tags, faqItems: post.faq || [] });
 

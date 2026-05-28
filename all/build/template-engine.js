@@ -88,7 +88,8 @@ function generateSocialLinks(socialConfig) {
     const platforms = SOCIAL_PLATFORM_ORDER.map(name => ({
         name,
         enabled: socialConfig[`${name}_enabled`],
-        icon: socialConfig[`${name}_icon`],
+        iconUrl: socialConfig[`${name}_icon_url`],
+        iconSvg: socialConfig[`${name}_icon`],
         url: socialConfig[`${name}_url`]
     }));
 
@@ -98,17 +99,24 @@ function generateSocialLinks(socialConfig) {
     return enabled.map(platform => {
         const capitalizedName = platform.name.charAt(0).toUpperCase() + platform.name.slice(1);
         const rawUrl = String(platform.url || '').trim();
-        // 仅放行 http(s) / mailto / tel；其它（含 javascript:）一律置为 #
-        const safeHref = /^(https?:|mailto:|tel:)/i.test(rawUrl) ? shared.escapeHtml(rawUrl) : '#';
+        // 放行 http(s) / mailto / tel / 同站根相对路径（单 / 开头但非 //）；其它（含 javascript:）一律置为 #
+        const safeHref = /^(https?:|mailto:|tel:)/i.test(rawUrl) || /^\/(?!\/)/.test(rawUrl)
+            ? shared.escapeHtml(rawUrl)
+            : '#';
         const safeAria = shared.escapeHtml(capitalizedName);
-        // platform.icon 来自 social-defaults.js（受信任的 SVG 字符串）或用户配置的 URL；
-        // 若用户配置 *_icon 为 URL，generateSocialLinks 不在此处理图片（保持现有行为）
+        // 图标渲染：用户在 Control/social_社交媒体.md 填了 *_icon_url 且是合法 URL（http(s) / 同站根路径）→ 渲染成 <img>；
+        // 否则回退到 SOCIAL_DEFAULTS 提供的内置 SVG（platform.iconSvg）。
+        const rawIconUrl = String(platform.iconUrl || '').trim();
+        const isSafeIconUrl = rawIconUrl && (/^https?:\/\//i.test(rawIconUrl) || /^\/(?!\/)/.test(rawIconUrl));
+        const iconHtml = isSafeIconUrl
+            ? `<img src="${shared.escapeHtml(rawIconUrl)}" alt="${safeAria}" class="w-full h-full object-contain" loading="lazy" />`
+            : platform.iconSvg;
         return `<a class="block w-6 h-6 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-[color,opacity] duration-300 ease-out hover:opacity-95"
                 href="${safeHref}"
                 aria-label="${safeAria}"
                 target="_blank"
                 rel="noopener noreferrer">
-                ${platform.icon}
+                ${iconHtml}
             </a>`;
     }).join('\n            ');
 }

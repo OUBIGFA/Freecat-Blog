@@ -18,17 +18,21 @@ function generate({ template, siteConfig, seoConfig, aboutConfig, outputDir }) {
     const finalAvatar = aboutConfig.about_hero_avatar || siteConfig.hero_avatar;
 
     const title = `About - ${siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog'}`;
+    const canonicalPath = '/about.html';
+    const canonical = seo.pageUrl(siteConfig, canonicalPath);
     const seoHead = seo.renderHeadTags({
         title,
         description: seo.stripHtml(finalSubtitle || seo.defaultDescription(siteConfig, seoConfig)),
-        canonicalPath: '/about.html',
+        canonicalPath,
         siteConfig,
         seoConfig,
         image: finalAvatar || seo.defaultImage(siteConfig, seoConfig)
     });
+    const jsonLd = seo.renderAboutJsonLd({ siteConfig, seoConfig, aboutConfig, canonical });
 
     const html = template
         .replace('<!-- ABOUT_SEO_HEAD -->', () => seoHead)
+        .replace('<!-- ABOUT_JSONLD -->', () => jsonLd)
         .replace(/<!-- ABOUT_HERO_TITLE -->/g, () => autoLineBreak(shared.escapeHtml(autoSpacing(finalTitle))))
         .replace(/<!-- ABOUT_HERO_SUBTITLE -->/g, () => autoLineBreak(shared.escapeHtml(autoSpacing(finalSubtitle))))
         .replace(/<!-- ABOUT_HERO_AVATAR -->/g, () => shared.escapeHtml(String(finalAvatar || '')));

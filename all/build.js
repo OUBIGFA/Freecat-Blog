@@ -32,7 +32,8 @@ const indexPage = require('./build/pages/index.js');
 const allPage = require('./build/pages/all.js');
 const searchPage = require('./build/pages/search.js');
 const aboutPage = require('./build/pages/about.js');
-const { generateSitemap, generateRobotsTxt, generateLlmsTxt, generateFeed } = require('./build/pages/sitemap.js');
+const notFoundPage = require('./build/pages/notfound.js');
+const { generateSitemap, generateRobotsTxt, generateLlmsTxt, generateFeed, generateOpenSearchXml } = require('./build/pages/sitemap.js');
 
 function skipBuildUntilGitDatesUpdate(err) {
     if (!err || err.code !== gitDatesModule.MISSING_GIT_DATE_CODE) return false;
@@ -110,6 +111,7 @@ const seoConfig = loadConfig(DIRS.control, 'SEO', 'SEO_搜索优化.md', {
     site_language: 'zh-CN',
     site_author: '',
     site_author_url: '',
+    site_author_sameas: [],
     site_default_image: '',
     allow_ai_crawlers: true,
     enable_llms_txt: true
@@ -138,6 +140,7 @@ const tplPost = engine.loadTemplate('template_post.html');
 const tplIndexAll = engine.loadTemplate('template_index_all.html');
 const tplSearch = engine.loadTemplate('template_index_search.html');
 const tplAbout = engine.loadTemplate('template_index_About.html');
+const tplNotFound = engine.loadTemplate('template_index_404.html');
 
 // ===== 5. 加载并排序文章 =====
 console.log('📝 Processing posts...');
@@ -216,10 +219,12 @@ indexPage.generateAll({ posts: allPosts, template: tplIndex, postsPerPage: POSTS
 allPage.generate({ posts: allPosts, template: tplIndexAll, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarAllWrapperHtml });
 searchPage.generate({ posts: allPosts, template: tplSearch, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarHomeWrapperHtml });
 aboutPage.generate({ template: tplAbout, siteConfig, seoConfig, aboutConfig, outputDir: DIRS.output });
+notFoundPage.generateNotFoundPage({ template: tplNotFound, outputDir: DIRS.output });
 generateSitemap({ posts: allPosts, siteConfig, seoConfig, outputDir: DIRS.output });
 generateRobotsTxt({ siteConfig, seoConfig, outputDir: DIRS.output });
 generateLlmsTxt({ posts: allPosts, siteConfig, seoConfig, outputDir: DIRS.output });
 generateFeed({ posts: allPosts, siteConfig, seoConfig, outputDir: DIRS.output });
+generateOpenSearchXml({ siteConfig, seoConfig, outputDir: DIRS.output });
 
 // ===== 7. 复制部署平台配置 (_headers / vercel.json) =====
 const deployConfigs = ['_headers', 'vercel.json'];

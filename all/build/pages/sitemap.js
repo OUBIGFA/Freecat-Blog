@@ -163,4 +163,38 @@ function generateFeed({ posts, siteConfig, seoConfig = {}, outputDir }) {
     console.log('  Generated: feed.xml');
 }
 
-module.exports = { generateSitemap, generateRobotsTxt, generateLlmsTxt, generateFeed };
+/**
+ * 生成 OpenSearch 描述文件 (/opensearch.xml)。
+ * 让浏览器（Chrome / Edge / Firefox）把站内搜索集成进地址栏。
+ * 依赖 site_url —— 缺失时与 sitemap / feed 一致，静默跳过。
+ */
+function generateOpenSearchXml({ siteConfig, seoConfig = {}, outputDir }) {
+    const baseUrl = seo.normalizeBaseUrl(siteConfig);
+    if (!baseUrl) {
+        console.log('⚠️  site_url is not configured; skipping opensearch.xml');
+        return;
+    }
+
+    console.log('🔭 Generating opensearch.xml...');
+    const shortName = seo.text(siteConfig.site_name || siteConfig.site_title || 'FreeCat Blog');
+    const description = seo.truncate(seo.defaultDescription(siteConfig, seoConfig), 1024) || shortName;
+    const favicon = seo.absoluteUrl(siteConfig, siteConfig.site_favicon || '/image/freecat_web_icon.png');
+    const inputEncoding = 'UTF-8';
+    const lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">',
+        `  <ShortName>${xmlEscape(shortName)}</ShortName>`,
+        `  <Description>${xmlEscape(description)}</Description>`,
+        `  <InputEncoding>${inputEncoding}</InputEncoding>`
+    ];
+    if (favicon) {
+        lines.push(`  <Image width="16" height="16" type="image/x-icon">${xmlEscape(favicon)}</Image>`);
+    }
+    lines.push(`  <Url type="text/html" method="get" template="${xmlEscape(baseUrl + '/search.html?q={searchTerms}')}" />`);
+    lines.push(`  <Url type="application/opensearchdescription+xml" rel="self" template="${xmlEscape(baseUrl + '/opensearch.xml')}" />`);
+    lines.push('</OpenSearchDescription>');
+    fs.writeFileSync(path.join(outputDir, 'opensearch.xml'), lines.join('\n'));
+    console.log('  Generated: opensearch.xml');
+}
+
+module.exports = { generateSitemap, generateRobotsTxt, generateLlmsTxt, generateFeed, generateOpenSearchXml };
