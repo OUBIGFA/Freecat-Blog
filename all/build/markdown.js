@@ -384,7 +384,7 @@ function getExternalEmbed(url) {
         },
         {
             name: 'twitter',
-            match: () => ['x.com', 'twitter.com', 'mobile.twitter.com'].includes(host) && /^\/(?!i\/)[^/]+\/status(?:es)?\/\d+\/?$/i.test(parsed.pathname),
+            match: () => ['x.com', 'twitter.com', 'mobile.twitter.com'].includes(host) && /\/status(?:es)?\/\d+/i.test(parsed.pathname),
             render() {
                 const href = escapeHtml(url);
                 return `<blockquote class="twitter-tweet"><a href="${href}"></a></blockquote>`;
@@ -411,7 +411,7 @@ function renderExternalEmbed(href, text) {
 
     if (embed) {
         return `
-    <figure class="external-embed external-embed-${embed.provider}" data-embed-provider="${embed.provider}">
+    <figure class="external-embed external-embed-${embed.provider}" data-embed-provider="${embed.provider}" data-embed-url="${safeUrl}">
         ${embed.html}
     </figure>`;
     }

@@ -1224,13 +1224,58 @@
     });
 
     // highlight.js 初始化
+    function escapeHtmlText(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function replaceFailedTwitterEmbed(figure) {
+        var url = figure && figure.getAttribute('data-embed-url');
+        if (!url) return;
+        var safeUrl = escapeHtmlText(url);
+        figure.className = 'external-embed external-embed-link';
+        figure.setAttribute('data-embed-provider', 'link');
+        figure.innerHTML = '<a href="' + safeUrl + '" target="_blank" rel="noopener noreferrer">' + safeUrl + '</a>';
+    }
+
+    function isFailedTwitterEmbed(figure) {
+        if (!figure) return false;
+        var text = (figure.textContent || '').replace(/\s+/g, ' ').trim();
+        if (/^Not found$/i.test(text)) return true;
+        var iframe = figure.querySelector('iframe');
+        if (!iframe) return false;
+        var rect = iframe.getBoundingClientRect();
+        if (rect.height > 0 && rect.height < 120) return true;
+        return text && /not found/i.test(text) && rect.height < 180;
+    }
+
+    function fallbackFailedTwitterEmbeds() {
+        document.querySelectorAll('figure.external-embed-twitter[data-embed-url]').forEach(function (figure) {
+            if (isFailedTwitterEmbed(figure)) replaceFailedTwitterEmbed(figure);
+        });
+    }
+
+    function initTwitterEmbedFallback() {
+        if (!document.querySelector('figure.external-embed-twitter[data-embed-url]')) return;
+        [1800, 4000, 8000].forEach(function (delay) {
+            window.setTimeout(fallbackFailedTwitterEmbeds, delay);
+        });
+    }
     function initHighlight() {
         if (window.hljs) window.hljs.highlightAll();
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initHighlight);
+        document.addEventListener('DOMContentLoaded', function () {
+            initHighlight();
+            initTwitterEmbedFallback();
+        });
     } else {
         initHighlight();
+        initTwitterEmbedFallback();
     }
 })();
