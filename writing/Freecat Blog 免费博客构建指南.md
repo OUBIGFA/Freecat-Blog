@@ -20,6 +20,7 @@ _08: 🔹 显示文章：是否在全站展示此文章
 Freecat Blog 是一套面向新手的个人博客模板。本地写 Markdown，把改动同步到 GitHub，Cloudflare Pages 或 Vercel 会自动发布成网站。
 
 GitHub地址：https://github.com/OUBIGFA/Freecat-Blog
+
 > **提示：** 如遇构建相关问题，只需前往主仓库复制最新的 [sync-upstream](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/sync-upstream.yml) 工作流文件到你的仓库并手动运行一次。该工作流仅同步构建文件，不会覆盖你的自定义设置和 writing/ 写作文件夹。
 
 
@@ -33,7 +34,7 @@ GitHub地址：https://github.com/OUBIGFA/Freecat-Blog
 
 **写文章去** `writing/`，个性化去 `Control/`，部署构建根目录填 `all`。
 
-Freecat Blog 也内置了搜索优化支持：可生成 Sitemap、RSS、llms.txt，并配有 Google、Bing 收录提交教程。需要设置正式域名、SEO 摘要、作者信息或 AI 爬虫策略时，直接看 [`Control/SEO_搜索优化.md`](../Control/SEO_搜索优化.md)。
+Freecat Blog 也内置了搜索优化支持：可生成 Sitemap、RSS、llms.txt，并配有 Google、Bing 收录提交教程。需要设置正式域名、SEO 摘要、作者信息或 AI 爬虫策略时，直接看 `Control/SEO_搜索优化.md`。
 
 ---
 

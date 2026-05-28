@@ -159,9 +159,10 @@
     }
 }
 
-/* 首页隐藏返回上一页按钮 */
+/* 首页隐藏返回上一页按钮（保留占位，避免上面两个按钮的居中点偏移） */
 body[data-page="home"] #floating-go-back {
-    display: none;
+    visibility: hidden;
+    pointer-events: none;
 }
 
 /* 顶栏搜索激活时，隐藏浮动按钮块 */
