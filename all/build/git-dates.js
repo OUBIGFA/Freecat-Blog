@@ -37,9 +37,112 @@ function listPostFiles(postsDir) {
     return fs.readdirSync(postsDir).filter(file => articleExtensions.has(path.extname(file).toLowerCase()));
 }
 
+function hasConflictMarkers(text) {
+    return /^(<<<<<<<|=======|>>>>>>>)/m.test(text);
+}
+
+function buildConflictVariants(text) {
+    const left = [];
+    const right = [];
+    const lines = String(text || '').split(/(\r?\n)/);
+    let state = 'normal';
+    let leftBuffer = [];
+    let rightBuffer = [];
+
+    for (let i = 0; i < lines.length; i += 2) {
+        const line = lines[i] || '';
+        const newline = lines[i + 1] || '';
+        const fullLine = line + newline;
+
+        if (line.startsWith('<<<<<<<')) {
+            state = 'left';
+            leftBuffer = [];
+            rightBuffer = [];
+            continue;
+        }
+
+        if (state === 'left' && line.startsWith('=======')) {
+            state = 'right';
+            continue;
+        }
+
+        if (state === 'right' && line.startsWith('>>>>>>>')) {
+            left.push(...leftBuffer);
+            right.push(...rightBuffer);
+            state = 'normal';
+            leftBuffer = [];
+            rightBuffer = [];
+            continue;
+        }
+
+        if (state === 'left') {
+            leftBuffer.push(fullLine);
+            continue;
+        }
+
+        if (state === 'right') {
+            rightBuffer.push(fullLine);
+            continue;
+        }
+
+        left.push(fullLine);
+        right.push(fullLine);
+    }
+
+    return [left.join(''), right.join('')];
+}
+
+function newestTimestamp(raw) {
+    let newest = 0;
+
+    function visit(value) {
+        if (!value) return;
+        if (typeof value === 'string') {
+            const timestamp = Date.parse(value);
+            if (Number.isFinite(timestamp) && timestamp > newest) newest = timestamp;
+            return;
+        }
+        if (typeof value !== 'object') return;
+        for (const item of Object.values(value)) visit(item);
+    }
+
+    visit(raw);
+    return newest;
+}
+
+function recoverSnapshotConflict(snapshotPath, text) {
+    const candidates = buildConflictVariants(text)
+        .map((content) => {
+            try {
+                const raw = JSON.parse(content);
+                return { raw, content, newest: newestTimestamp(raw) };
+            } catch (err) {
+                return null;
+            }
+        })
+        .filter(Boolean)
+        .sort((a, b) => b.newest - a.newest);
+
+    if (candidates.length === 0) {
+        throw new Error(`${path.basename(snapshotPath)} contains Git conflict markers, but neither side is valid JSON.`);
+    }
+
+    const winner = candidates[0].raw;
+    fs.writeFileSync(snapshotPath, `${JSON.stringify(winner, null, 2)}\n`, 'utf-8');
+    console.warn(`Recovered ${path.basename(snapshotPath)} from Git conflict markers using the newest valid snapshot side.`);
+    return winner;
+}
+
 function readSnapshot(snapshotPath, section) {
     if (!fs.existsSync(snapshotPath)) return null;
-    const raw = JSON.parse(fs.readFileSync(snapshotPath, 'utf-8'));
+    const content = fs.readFileSync(snapshotPath, 'utf-8');
+    let raw;
+    try {
+        raw = JSON.parse(content);
+    } catch (err) {
+        if (!hasConflictMarkers(content)) throw err;
+        raw = recoverSnapshotConflict(snapshotPath, content);
+    }
     if (section && raw && typeof raw === 'object' && raw[section] && typeof raw[section] === 'object') {
         return normalizeDateMap(raw[section]);
     }
