@@ -18,7 +18,8 @@
         .freecat-all-page #posts-list {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 1rem;
+            column-gap: 1rem;
+            row-gap: 1.25rem;
         }
 
         .freecat-all-page #posts-list .post-card {
@@ -31,7 +32,6 @@
             height: 100%;
             min-height: 0;
             padding: 1.25rem;
-            border: 1px solid rgba(148, 163, 184, 0.22);
             border-radius: 1rem;
         }
 
@@ -171,14 +171,16 @@
         @media (min-width: 720px) {
             .freecat-all-page #posts-list {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 1.125rem;
+                column-gap: 1.125rem;
+                row-gap: 1.5rem;
             }
         }
 
         @media (min-width: 1120px) {
             .freecat-all-page #posts-list {
                 grid-template-columns: repeat(3, minmax(0, 1fr));
-                gap: 1.25rem;
+                column-gap: 1.25rem;
+                row-gap: 1.75rem;
             }
         }
 
@@ -235,7 +237,7 @@
              定义在 assets/transitions.css 中）作为 margin-top，
              保证首屏渲染就避开固定顶栏；JS 仍会按真实 header 尺寸做实时同步。 -->
         <div data-floating-nav-container
-            class="layout-container page-blur-target mt-[var(--freecat-page-top-offset)] flex h-full grow flex-col px-10 sm:px-12 md:px-20 lg:px-12 pt-3 pb-2 md:pt-4">
+            class="layout-container page-blur-target mt-[var(--freecat-page-top-offset)] flex h-full grow flex-col px-10 sm:px-12 md:px-20 lg:px-12 pt-3 pb-20 md:pt-4 md:pb-24">
             <div class="layout-content-container relative flex flex-col max-w-[1200px] flex-1 mx-auto w-full">
                 <h1 class="sr-only">All Articles</h1>
 
