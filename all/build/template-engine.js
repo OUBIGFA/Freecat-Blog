@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const shared = require('../src/assets/shared.js');
+const seo = require('./seo.js');
 const { autoSpacing } = require('./markdown.js');
 const { SOCIAL_PLATFORM_ORDER } = require('./social-defaults.js');
 
@@ -84,7 +85,16 @@ function generateLogoIcon(siteConfig) {
     return defaultIcon;
 }
 
-function generateSocialLinks(socialConfig) {
+function shouldRenderSocialPlatform(platform, siteConfig) {
+    if (!platform.enabled) return false;
+    if (platform.name !== 'rss') return true;
+
+    const rawUrl = String(platform.url || '').trim();
+    if (/^https?:\/\//i.test(rawUrl)) return true;
+    return !!seo.normalizeBaseUrl(siteConfig);
+}
+
+function generateSocialLinks(socialConfig, siteConfig) {
     const platforms = SOCIAL_PLATFORM_ORDER.map(name => ({
         name,
         enabled: socialConfig[`${name}_enabled`],
@@ -93,7 +103,7 @@ function generateSocialLinks(socialConfig) {
         url: socialConfig[`${name}_url`]
     }));
 
-    const enabled = platforms.filter(p => p.enabled);
+    const enabled = platforms.filter(platform => shouldRenderSocialPlatform(platform, siteConfig));
     if (enabled.length === 0) return '<!-- No social links enabled -->';
 
     return enabled.map(platform => {
@@ -119,6 +129,16 @@ function generateSocialLinks(socialConfig) {
                 ${iconHtml}
             </a>`;
     }).join('\n            ');
+}
+
+function generateDiscoveryLinks(siteConfig) {
+    if (!seo.normalizeBaseUrl(siteConfig)) return '';
+    const title = escapeText(siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog');
+    return [
+        `<!-- RSS / 站内搜索自动发现：让 RSS 阅读器与浏览器自动识别站点的订阅与搜索能力 -->`,
+        `<link rel="alternate" type="application/rss+xml" title="${title}" href="/feed.xml" />`,
+        `<link rel="search" type="application/opensearchdescription+xml" title="${title}" href="/opensearch.xml" />`
+    ].join('\n');
 }
 
 function injectPartials(html, partialsCache, partialsDir) {
@@ -188,7 +208,8 @@ function versionAssetUrls(html, assetVersion) {
 function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, socialConfig, assetVersion }) {
     const themeScript = generateThemeScript(siteConfig);
     const logoIcon = generateLogoIcon(siteConfig);
-    const socialLinks = generateSocialLinks(socialConfig);
+    const socialLinks = generateSocialLinks(socialConfig, siteConfig);
+    const discoveryLinks = generateDiscoveryLinks(siteConfig);
     const partialsCache = loadPartialsCache(partialsDir);
 
     function applySiteConfig(template) {
@@ -210,6 +231,7 @@ function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, s
         out = replacePlaceholder(out, /<!-- SITE_LOGO_ICON -->/g, logoIcon);
         out = replacePlaceholder(out, /<!-- THEME_SCRIPT -->/g, themeScript);
         out = replacePlaceholder(out, /<!-- SOCIAL_LINKS -->/g, socialLinks);
+        out = replacePlaceholder(out, /<!-- DISCOVERY_LINKS -->/g, discoveryLinks);
         out = replacePlaceholder(out, /<!-- SITE_LANGUAGE -->/g, escapeText(seoConfig.site_language || 'zh-CN'));
         out = replacePlaceholder(out, /<!-- SITE_URL -->/g, safeUrlField);
         return out;

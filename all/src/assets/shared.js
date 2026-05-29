@@ -79,6 +79,10 @@
         return String(title).replace(/\|/g, '<span class="font-normal mx-[1px]">|</span>');
     }
 
+    function encodeTagQueryValue(tag) {
+        return encodeURIComponent(String(tag == null ? '' : tag)).replace(/'/g, '%27');
+    }
+
     // 统一的图片兜底 onerror 处理。注意：作为 HTML 属性内联使用，必须是单引号字符串。
     const IMG_FALLBACK_ATTR =
         "onerror=\"if(this.dataset.fallbackApplied!=='true'){" +
@@ -92,8 +96,8 @@
         const dataAttrs = options.withDataAttrs
             ? ` data-bg-light="${colors.bg}" data-text-light="${colors.text}" data-bg-dark="${colors.bgDark}" data-text-dark="${colors.textDark}"`
             : '';
-        const escapedForClick = escapeAttr(tag);
-        const visibleText = options.escapeText ? escapeHtml(tag) : tag;
+        const encodedForClick = encodeTagQueryValue(tag);
+        const visibleText = options.escapeText === false ? tag : escapeHtml(tag);
         const extraClass = options.darkHover ? ' dark:hover:brightness-110' : '';
         // tag-span 类名仅在 withDataAttrs（即客户端渲染场景）时添加，
         // 这样 main.js 中 updateTagColors 才能在切换主题时找到这些标签。
@@ -101,7 +105,7 @@
         return (
             '<span class="' + tagSpanClass + 'relative z-10 inline-flex items-center px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider cursor-pointer hover:brightness-95' + extraClass + ' transition-[filter] duration-200 ease-out whitespace-nowrap" ' +
             'style="background: ' + colors.bg + '; color: ' + colors.text + ';"' + dataAttrs + ' ' +
-            "onclick=\"event.preventDefault(); event.stopPropagation(); window.location.href='/search.html?tag=' + encodeURIComponent('" + escapedForClick + "');\">" +
+            "onclick=\"event.preventDefault(); event.stopPropagation(); window.location.href='/search.html?tag=" + encodedForClick + "';\">" +
             visibleText +
             '</span>'
         );

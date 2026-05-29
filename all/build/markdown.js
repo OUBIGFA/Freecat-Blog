@@ -320,6 +320,19 @@ function escapeHtml(value) {
         .replace(/'/g, '&#39;');
 }
 
+function decodeBasicHtmlEntities(value) {
+    return String(value || '')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&amp;/g, '&');
+}
+
+function escapeRenderedText(value) {
+    return escapeHtml(decodeBasicHtmlEntities(value));
+}
+
 function isLikelyImageUrl(href) {
     const raw = String(href || '').trim();
     if (!raw) return false;
@@ -858,7 +871,8 @@ const calloutBlockExtension = {
             caution: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5a7 7 0 017 7 7 7 0 11-7-7zm1 10h-2v-2h2zm0-4h-2V7h2z"/></svg>'
         };
         const svgIcon = iconMap[token.calloutType] || iconMap.note;
-        return `<div class="callout callout-${token.calloutType}" data-callout="${token.calloutType}"><div class="callout-title"><span class="callout-icon">${svgIcon}</span><span class="callout-title-inner">${token.title}</span></div><div class="callout-content">${innerHtml}</div></div>\n`;
+        const safeTitle = escapeRenderedText(token.title);
+        return `<div class="callout callout-${token.calloutType}" data-callout="${token.calloutType}"><div class="callout-title"><span class="callout-icon">${svgIcon}</span><span class="callout-title-inner">${safeTitle}</span></div><div class="callout-content">${innerHtml}</div></div>\n`;
     }
 };
 
@@ -888,8 +902,8 @@ function buildRenderer() {
         if (!isLikelyImageUrl(href)) return renderExternalEmbed(href, text);
 
         const fallbackSrc = '/image/404.png';
-        const safeHref = normalizeImageHref(href).replace(/"/g, '&quot;');
-        const safeAlt = (text || '').replace(/"/g, '&quot;');
+        const safeHref = escapeHtml(normalizeImageHref(href));
+        const safeAlt = escapeRenderedText(text || '');
 
         // 从 markdown 图片 title 中解析尺寸，写入 width/height 属性，
         // 让浏览器在加载图片前就预留盒子，消除 CLS（Core Web Vitals）。
@@ -897,14 +911,14 @@ function buildRenderer() {
         // 也支持 width=1200 height=800 的形式。提取后从可见 title / caption 中剥离。
         const dims = parseImageDimensions(title);
         const visibleTitle = dims.cleanTitle;
-        const safeTitle = visibleTitle ? ` title="${visibleTitle.replace(/"/g, '&quot;')}"` : '';
+        const safeTitle = visibleTitle ? ` title="${escapeRenderedText(visibleTitle)}"` : '';
         const caption = visibleTitle || (text || '').trim();
         const enableCaption = Boolean(activePostOptions && activePostOptions.enableImageCaptions);
 
         return `
     <figure class="post-image relative w-full">
         <img class="post-image-img post-image-placeholder" src="${fallbackSrc}" data-src="${safeHref}" alt="${safeAlt}"${safeTitle} loading="lazy" decoding="async" />
-        ${(enableCaption && caption) ? `<figcaption class="image-caption block text-center text-sm text-slate-500 dark:text-slate-400">${caption.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</figcaption>` : ''}
+        ${(enableCaption && caption) ? `<figcaption class="image-caption block text-center text-sm text-slate-500 dark:text-slate-400">${escapeRenderedText(caption)}</figcaption>` : ''}
     </figure>`;
     };
 

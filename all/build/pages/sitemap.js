@@ -71,7 +71,6 @@ function prepareFeedHtml(html, baseUrl) {
 function generateSitemap({ posts, siteConfig, outputDir }) {
     const baseUrl = seo.normalizeBaseUrl(siteConfig);
     if (!baseUrl) {
-        console.log('⚠️  site_url is not configured; skipping sitemap.xml');
         return;
     }
     console.log('🗺️ Generating sitemap.xml...');
@@ -148,7 +147,6 @@ function generateLlmsTxt({ posts, siteConfig, seoConfig = {}, outputDir }) {
     if (seoConfig.enable_llms_txt === false) return;
     const baseUrl = seo.normalizeBaseUrl(siteConfig);
     if (!baseUrl) {
-        console.log('⚠️  site_url is not configured; skipping llms.txt');
         return;
     }
 
@@ -177,7 +175,6 @@ function generateLlmsTxt({ posts, siteConfig, seoConfig = {}, outputDir }) {
 function generateFeed({ posts, siteConfig, seoConfig = {}, outputDir }) {
     const baseUrl = seo.normalizeBaseUrl(siteConfig);
     if (!baseUrl) {
-        console.log('⚠️  site_url is not configured; skipping feed.xml');
         return;
     }
 
@@ -217,7 +214,6 @@ function generateFeed({ posts, siteConfig, seoConfig = {}, outputDir }) {
 function generateOpenSearchXml({ siteConfig, seoConfig = {}, outputDir }) {
     const baseUrl = seo.normalizeBaseUrl(siteConfig);
     if (!baseUrl) {
-        console.log('⚠️  site_url is not configured; skipping opensearch.xml');
         return;
     }
 
