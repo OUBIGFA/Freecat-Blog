@@ -512,10 +512,9 @@ function stripHeadingMarkdown(rawText) {
 
 function extractHeadingsAndGenerateTOC(content) {
     const sanitized = content
-        .replace(/^([ \t]*)(`{3,}|~{3,})[^\n]*\n[\s\S]*?^\1\2[^\n]*$/gm, '')
-        .replace(/`[^`\n]*`/g, '');
+        .replace(/^([ \t]*)(`{3,}|~{3,})[^\n]*\n[\s\S]*?^\1\2[^\n]*$/gm, '');
 
-    const headingRegex = /^(#{1,6})\s+(.+)$/gm;
+    const headingRegex = /^(#{1,6})[ \t]+([^\r\n]+)$/gm;
     const headings = [];
     const usedHeadingIds = new Set();
     let match;
