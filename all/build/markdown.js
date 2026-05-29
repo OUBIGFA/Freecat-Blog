@@ -546,15 +546,15 @@ function extractHeadingsAndGenerateTOC(content) {
         if (!targetLevels.includes(h.level)) return;
         const isSecondLevel = h.level > minLevel;
         const paddingClass = isSecondLevel ? 'pl-8' : 'pl-4';
-        const pyClass = 'py-1';
+        const pyClass = 'py-0.5';
 
         let mtClass = '';
         if (!isSecondLevel) {
-            if (!firstL1) mtClass = ' mt-4';
+            if (!firstL1) mtClass = ' mt-2';
             firstL1 = false;
         }
 
-        tocHtml += `<a class="${paddingClass} ${pyClass}${mtClass} text-sm text-slate-600 dark:text-slate-400 hover:text-[#1e293b] dark:hover:text-slate-200 transition-colors flex" href="#${h.id}">${autoSpacing(h.text)}</a>\n`;
+        tocHtml += `<a class="${paddingClass} ${pyClass}${mtClass} text-sm leading-snug text-slate-600 dark:text-slate-400 hover:text-[#1e293b] dark:hover:text-slate-200 transition-colors flex" href="#${h.id}">${autoSpacing(h.text)}</a>\n`;
     });
 
     return { toc: tocHtml, headings, totalRanks };
