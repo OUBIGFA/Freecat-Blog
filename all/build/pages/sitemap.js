@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const seo = require('../seo.js');
+const { renderPostContent } = require('./post-content.js');
 
 // RSS / AI 检索文件的文章数上限。理由：
 //   - RSS 设计本质是"推送增量更新"，不是"历史归档"（归档由 sitemap.xml + /all.html 承担）
@@ -24,6 +25,47 @@ function encodePath(p) {
 
 function visiblePosts(posts) {
     return posts.filter(post => !post.noindex);
+}
+
+
+function feedUrl(baseUrl, value) {
+    const raw = String(value || '').trim();
+    if (!raw || raw.startsWith('#') || /^(?:data|blob|mailto|tel|sms):/i.test(raw)) return raw;
+    if (/^https?:\/\//i.test(raw)) return raw;
+    if (/^\/\//.test(raw)) return `https:${raw}`;
+
+    try {
+        return new URL(raw, `${baseUrl}/`).toString();
+    } catch (err) {
+        return raw;
+    }
+}
+
+function getHtmlAttr(tag, name) {
+    const match = new RegExp(`\\s${name}=(['\"])(.*?)\\1`, 'i').exec(tag);
+    return match ? match[2] : '';
+}
+
+function setHtmlAttr(tag, name, value) {
+    const safeValue = String(value || '').replace(/"/g, '&quot;');
+    const attrPattern = new RegExp(`\\s${name}=(['\"])(.*?)\\1`, 'i');
+    if (attrPattern.test(tag)) return tag.replace(attrPattern, ` ${name}="${safeValue}"`);
+    return tag.replace(/\s*\/?\s*>$/, ` ${name}="${safeValue}">`);
+}
+
+function prepareFeedHtml(html, baseUrl) {
+    let output = String(html || '').replace(/<img\b[^>]*>/gi, (tag) => {
+        const lazySrc = getHtmlAttr(tag, 'data-src');
+        let next = tag.replace(/\sdata-src=(['\"])(.*?)\1/gi, '');
+        if (lazySrc) next = setHtmlAttr(next, 'src', feedUrl(baseUrl, lazySrc));
+        return next;
+    });
+
+    output = output.replace(/\s(href|src|poster)=(['\"])(.*?)\2/gi, (match, attr, quote, value) => {
+        return ` ${attr}=${quote}${feedUrl(baseUrl, value)}${quote}`;
+    });
+
+    return output;
 }
 
 function generateSitemap({ posts, siteConfig, outputDir }) {
@@ -140,8 +182,6 @@ function generateFeed({ posts, siteConfig, seoConfig = {}, outputDir }) {
     }
 
     console.log('📡 Generating feed.xml...');
-    // 取前 FEED_MAX_ITEMS 篇（置顶在前、时间倒序）。文章 ≤ 上限时等同于全输出；
-    // 超过时新文章入榜会顶替最老的文章。旧文章仍可通过 sitemap.xml / /all.html 被发现。
     const indexedPosts = visiblePosts(posts).slice(0, FEED_MAX_ITEMS);
     const updated = indexedPosts[0] ? indexedPosts[0].modifiedDate.toISOString() : new Date().toISOString();
     const lines = [
@@ -157,6 +197,7 @@ function generateFeed({ posts, siteConfig, seoConfig = {}, outputDir }) {
 
     indexedPosts.forEach(post => {
         const url = baseUrl + encodePath(post.link);
+        const contentHtml = prepareFeedHtml(renderPostContent({ post }).html, baseUrl);
         lines.push('  <entry>');
         lines.push(`    <title>${xmlEscape(post.title)}</title>`);
         lines.push(`    <link href="${xmlEscape(url)}" />`);
@@ -164,6 +205,7 @@ function generateFeed({ posts, siteConfig, seoConfig = {}, outputDir }) {
         lines.push(`    <published>${xmlEscape(post.date.toISOString())}</published>`);
         lines.push(`    <updated>${xmlEscape(post.modifiedDate.toISOString())}</updated>`);
         lines.push(`    <summary>${xmlEscape(seo.articleSummary(post))}</summary>`);
+        lines.push(`    <content type="html">${xmlEscape(contentHtml)}</content>`);
         lines.push('  </entry>');
     });
 
@@ -172,11 +214,6 @@ function generateFeed({ posts, siteConfig, seoConfig = {}, outputDir }) {
     console.log('  Generated: feed.xml');
 }
 
-/**
- * 生成 OpenSearch 描述文件 (/opensearch.xml)。
- * 让浏览器（Chrome / Edge / Firefox）把站内搜索集成进地址栏。
- * 依赖 site_url —— 缺失时与 sitemap / feed 一致，静默跳过。
- */
 function generateOpenSearchXml({ siteConfig, seoConfig = {}, outputDir }) {
     const baseUrl = seo.normalizeBaseUrl(siteConfig);
     if (!baseUrl) {

@@ -3,7 +3,8 @@ const path = require('path');
 const dayjs = require('dayjs');
 const matter = require('gray-matter');
 const shared = require('../../src/assets/shared.js');
-const { autoSpacing, autoSpacingHtml, applyParagraphAlignment, parseMarkdown, extractHeadingsAndGenerateTOC, addHeadingIds, stripMarkdown } = require('../markdown.js');
+const { autoSpacing, stripMarkdown } = require('../markdown.js');
+const { renderPostContent } = require('./post-content.js');
 const seo = require('../seo.js');
 
 const ARTICLE_EXTENSIONS = new Set(['.md', '.markdown', '.txt']);
@@ -116,18 +117,11 @@ function loadPosts({ postsDir, gitDates, postDates, skipMissingGitDates = false 
  * 渲染单篇文章详情页 HTML。
  */
 function renderPostPage({ post, template, siteConfig, seoConfig }) {
-    const { toc, headings } = extractHeadingsAndGenerateTOC(post.content);
-    let contentHtml = parseMarkdown(post.content, { enableImageCaptions: post.enableImageCaptions });
-    const articleHeadings = headings.map(h => ({ ...h, renderedLevel: Math.min(h.level + 1, 6) }));
-    contentHtml = addHeadingIds(contentHtml, articleHeadings);
-
+    const { html: finalContentHtml, toc } = renderPostContent({ post });
     const safeTitle = shared.escapeHtml(post.title);
 
     const tags = Array.isArray(post.tag) ? post.tag : (post.tag ? [post.tag] : []);
     const tagsHtml = tags.map(t => shared.renderTagSpan(t)).join('\n');
-    let finalContentHtml = autoSpacingHtml(contentHtml);
-    finalContentHtml = applyParagraphAlignment(finalContentHtml);
-    finalContentHtml += seo.renderFaqHtml(post.faq || []);
 
     const canonical = seo.pageUrl(siteConfig, post.link);
     const rawCover = String(post.cover || '');
