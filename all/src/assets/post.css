@@ -2301,3 +2301,18 @@
 .dark .diagram-error p {
     color: #94a3b8 !important;
 }
+@media (min-width: 1280px) {
+    .freecat-post-toc-panel {
+        position: fixed;
+        top: 16.5rem;
+        left: calc(50% + 416px);
+        height: calc(100vh - 300px);
+        z-index: 20;
+    }
+}
+
+@media (min-width: 1760px) {
+    .freecat-post-toc-panel {
+        left: calc(50% + 416px);
+    }
+}
