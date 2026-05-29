@@ -2304,10 +2304,23 @@
 @media (min-width: 1280px) {
     .freecat-post-toc-panel {
         position: fixed;
-        top: 16.5rem;
+        top: 8.5625rem;
         left: calc(50% + 416px);
         height: calc(100vh - 300px);
         z-index: 20;
+        overflow-x: hidden;
+    }
+
+    #toc-container,
+    #toc-container nav,
+    #toc-container a {
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    #toc-container a {
+        overflow-wrap: anywhere;
+        word-break: break-word;
     }
 }
 

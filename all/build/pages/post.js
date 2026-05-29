@@ -25,7 +25,7 @@ function removeEmptyTocAside(html, toc) {
 
     return html.replace(
         /\s*<aside\b[^>]*\bgroup\/toc\b[\s\S]*?<\/aside>/,
-        '\n                        <div class="w-64 flex-shrink-0" aria-hidden="true"></div>'
+        '\n                        <div class="w-72 2xl:w-80 flex-shrink-0" aria-hidden="true"></div>'
     );
 }
 

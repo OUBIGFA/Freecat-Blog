@@ -469,6 +469,34 @@ function createUniqueHeadingId(rawId, usedIds, fallbackId) {
     return nextId;
 }
 
+function stripHeadingMarkdown(rawText) {
+    let text = String(rawText || '').trim();
+
+    text = text
+        .replace(/\s+#+\s*$/g, '')
+        .replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, '$2')
+        .replace(/\[\[([^\]]+)\]\]/g, '$1')
+        .replace(/\[\^.+?\]/g, '')
+        .replace(/!\[([^\]]*?)\]\([^)]*?\)/g, '$1')
+        .replace(/\[([^\]]*?)\]\([^)]*?\)/g, '$1')
+        .replace(/\[([^\]]*?)\]\[[^\]]*?\]/g, '$1')
+        .replace(/\[([^\]]*?)\]\s*\[\]/g, '$1')
+        .replace(/\[([^\]]*?)\]/g, '$1')
+        .replace(/`([^`]+?)`/g, '$1')
+        .replace(/\$([^$\n]+?)\$/g, '$1')
+        .replace(/==([^=]+)==/g, '$1')
+        .replace(/~~([^~]+)~~/g, '$1')
+        .replace(/(\*\*+|__+)(.*?)\1/g, '$2')
+        .replace(/(?<!\w)(\*|_)([^*_]+?)\1(?!\w)/g, '$2')
+        .replace(/<((?:https?:)?\/\/[^<>\s]+)>/gi, '$1')
+        .replace(/<[^>]+>/g, '')
+        .replace(/\\([\\`*{}\[\]()#+\-.!_|>~])/g, '$1')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+    return text;
+}
+
 function extractHeadingsAndGenerateTOC(content) {
     const sanitized = content
         .replace(/^([ \t]*)(`{3,}|~{3,})[^\n]*\n[\s\S]*?^\1\2[^\n]*$/gm, '')
@@ -481,7 +509,7 @@ function extractHeadingsAndGenerateTOC(content) {
 
     while ((match = headingRegex.exec(sanitized)) !== null) {
         const level = match[1].length;
-        const text = match[2].trim().replace(/\*\*/g, '');
+        const text = stripHeadingMarkdown(match[2]) || match[2].trim();
         const id = createUniqueHeadingId(slugify(text), usedHeadingIds, `heading-${headings.length}`);
         headings.push({ level, text, id });
     }
