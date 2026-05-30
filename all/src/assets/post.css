@@ -1477,6 +1477,8 @@
 .prose.prose .article-heading-depth-2,
 .prose.prose .article-heading-depth-3,
 .prose.prose .article-heading-depth-4,
+.prose.prose .article-heading-depth-5,
+.prose.prose .article-heading-depth-6,
 .prose.prose .code-block-container,
 .prose.prose figure.post-image,
 .prose.prose details,
@@ -1560,6 +1562,51 @@
 .prose.prose .article-heading-depth-3+.article-heading-depth-4,
 .prose.prose .article-heading-depth-3+.markdown-gap+.article-heading-depth-4 {
     margin-block-start: var(--article-space-heading-parent-child) !important;
+}
+
+.prose.prose .article-heading-depth-1+.article-heading-depth-1,
+.prose.prose .article-heading-depth-1+.markdown-gap+.article-heading-depth-1 {
+    margin-block-start: var(--article-space-heading-peer-1) !important;
+}
+
+.prose.prose :is(.article-heading-depth-2, .article-heading-depth-3, .article-heading-depth-4, .article-heading-depth-5, .article-heading-depth-6)+.article-heading-depth-1,
+.prose.prose :is(.article-heading-depth-2, .article-heading-depth-3, .article-heading-depth-4, .article-heading-depth-5, .article-heading-depth-6)+.markdown-gap+.article-heading-depth-1 {
+    margin-block-start: var(--article-space-heading-peer-1) !important;
+}
+
+.prose.prose .article-heading-depth-2+.article-heading-depth-2,
+.prose.prose .article-heading-depth-2+.markdown-gap+.article-heading-depth-2 {
+    margin-block-start: var(--article-space-heading-peer-2) !important;
+}
+
+.prose.prose :is(.article-heading-depth-3, .article-heading-depth-4, .article-heading-depth-5, .article-heading-depth-6)+.article-heading-depth-2,
+.prose.prose :is(.article-heading-depth-3, .article-heading-depth-4, .article-heading-depth-5, .article-heading-depth-6)+.markdown-gap+.article-heading-depth-2 {
+    margin-block-start: var(--article-space-heading-peer-2) !important;
+}
+
+.prose.prose .article-heading-depth-3+.article-heading-depth-3,
+.prose.prose .article-heading-depth-3+.markdown-gap+.article-heading-depth-3 {
+    margin-block-start: var(--article-space-heading-peer-3) !important;
+}
+
+.prose.prose :is(.article-heading-depth-4, .article-heading-depth-5, .article-heading-depth-6)+.article-heading-depth-3,
+.prose.prose :is(.article-heading-depth-4, .article-heading-depth-5, .article-heading-depth-6)+.markdown-gap+.article-heading-depth-3 {
+    margin-block-start: var(--article-space-heading-peer-3) !important;
+}
+
+.prose.prose .article-heading-depth-4+.article-heading-depth-4,
+.prose.prose .article-heading-depth-4+.markdown-gap+.article-heading-depth-4 {
+    margin-block-start: var(--article-space-heading-peer-4) !important;
+}
+
+.prose.prose :is(.article-heading-depth-5, .article-heading-depth-6)+.article-heading-depth-4,
+.prose.prose :is(.article-heading-depth-5, .article-heading-depth-6)+.markdown-gap+.article-heading-depth-4 {
+    margin-block-start: var(--article-space-heading-peer-4) !important;
+}
+
+.prose.prose .article-heading-depth-6+.article-heading-depth-5,
+.prose.prose .article-heading-depth-6+.markdown-gap+.article-heading-depth-5 {
+    margin-block-start: var(--article-space-heading-peer-5) !important;
 }
 
 .prose.prose :where(p, ul, ol, dl, blockquote, .article-heading, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+hr,
