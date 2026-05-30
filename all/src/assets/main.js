@@ -271,16 +271,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const headerHeight = Math.ceil(header.getBoundingClientRect().height);
         const extraGap = window.innerWidth < 768 ? 16 : 24;
         const topOffset = `${headerHeight + extraGap}px`;
-        document.documentElement.style.setProperty('--freecat-header-height', `${headerHeight}px`);
-        document.documentElement.style.setProperty('--freecat-header-safe-gap', `${extraGap}px`);
-        document.documentElement.style.setProperty('--freecat-page-top-offset', topOffset);
+        const rootStyle = document.documentElement.style;
+        const headerHeightValue = `${headerHeight}px`;
+        const extraGapValue = `${extraGap}px`;
+        if (rootStyle.getPropertyValue('--freecat-header-height') !== headerHeightValue) {
+            rootStyle.setProperty('--freecat-header-height', headerHeightValue);
+        }
+        if (rootStyle.getPropertyValue('--freecat-header-safe-gap') !== extraGapValue) {
+            rootStyle.setProperty('--freecat-header-safe-gap', extraGapValue);
+        }
+        if (rootStyle.getPropertyValue('--freecat-page-top-offset') !== topOffset) {
+            rootStyle.setProperty('--freecat-page-top-offset', topOffset);
+        }
         const targets = document.querySelectorAll('.layout-container.page-blur-target, main.page-blur-target');
         targets.forEach((el) => {
-            if (el.matches('.freecat-home-hero') || el.querySelector('.freecat-hero-bg, .freecat-home-hero')) {
-                el.style.marginTop = '0px';
-                return;
-            }
-            el.style.marginTop = topOffset;
+            if (el.style.marginTop) el.style.marginTop = '';
         });
         scheduleHomeHeroMeasure();
         scheduleHomeSidebarFooterAvoid();
