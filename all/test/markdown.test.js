@@ -10,6 +10,20 @@ test('callout titles are rendered as text', () => {
     assert.equal(html.includes('&lt;img src=x onerror=alert(1)&gt;'), true);
 });
 
+test('heading ranks follow the largest levels present in each article', () => {
+    const { headings } = extractHeadingsAndGenerateTOC([
+        '### Top visible level',
+        '##### Deep level',
+        '#### Second visible level'
+    ].join('\n'));
+
+    assert.deepEqual(headings.map(heading => ({ level: heading.level, rank: heading.rank })), [
+        { level: 3, rank: 1 },
+        { level: 5, rank: 3 },
+        { level: 4, rank: 2 }
+    ]);
+});
+
 test('image alt, title, and caption are rendered as text', () => {
     const html = parseMarkdown('![<img src=x>](/image/freecat.png "<b>caption</b>")', {
         enableImageCaptions: true

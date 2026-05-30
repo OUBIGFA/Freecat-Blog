@@ -322,6 +322,7 @@ body.search-active .freecat-floating-nav-panel {
    视口宽度变化导致 fixed header 内的导航按钮整体抖动 */
 html {
     scrollbar-gutter: stable;
+    overflow-anchor: none;
     color-scheme: light;
 }
 
@@ -603,8 +604,15 @@ body.search-active .page-blur-target::before {
 body.search-active {
     overflow: hidden !important;
 }
-header {
+header.fixed {
+    box-sizing: border-box;
+    min-height: var(--freecat-header-height);
+    height: var(--freecat-header-height);
     overflow: visible;
+}
+
+header.fixed .header-blur-target {
+    height: 100%;
 }
 
 .search-active #search-container {

@@ -40,21 +40,23 @@ function autoLineBreak(text) {
 }
 
 function generateThemeScript(siteConfig) {
-    const reloadScrollGuard = `try {
+    const initialScrollGuard = `try {
             var navEntries = performance && performance.getEntriesByType ? performance.getEntriesByType('navigation') : null;
-            var isReload = navEntries && navEntries[0] && navEntries[0].type === 'reload';
-            if (isReload && 'scrollRestoration' in history) {
+            var navType = navEntries && navEntries[0] && navEntries[0].type;
+            var hasAnchorTarget = window.location.hash && window.location.hash.length > 1;
+            var shouldResetInitialScroll = !hasAnchorTarget && (!navType || navType === 'navigate' || navType === 'reload');
+            if (shouldResetInitialScroll && 'scrollRestoration' in history) {
                 history.scrollRestoration = 'manual';
-                var resetReloadScroll = function () {
+                var resetInitialScroll = function () {
                     if (window.scrollY !== 0) window.scrollTo(0, 0);
                 };
-                resetReloadScroll();
-                requestAnimationFrame(resetReloadScroll);
-                setTimeout(resetReloadScroll, 0);
-                setTimeout(resetReloadScroll, 50);
-                window.addEventListener('DOMContentLoaded', resetReloadScroll, { once: true });
-                window.addEventListener('pageshow', resetReloadScroll, { once: true });
-                window.addEventListener('load', resetReloadScroll, { once: true });
+                resetInitialScroll();
+                requestAnimationFrame(resetInitialScroll);
+                setTimeout(resetInitialScroll, 0);
+                setTimeout(resetInitialScroll, 50);
+                window.addEventListener('DOMContentLoaded', resetInitialScroll, { once: true });
+                window.addEventListener('pageshow', resetInitialScroll, { once: true });
+                window.addEventListener('load', resetInitialScroll, { once: true });
             }
         } catch (e) {}`;
     let defaultTheme = 'system';
@@ -65,7 +67,7 @@ function generateThemeScript(siteConfig) {
 
     if (defaultTheme === 'dark') {
         return `(function () {
-            ${reloadScrollGuard}
+            ${initialScrollGuard}
             var saved = localStorage.getItem('theme');
             if (saved === 'light') {
                 // 用户选择了浅色模式
@@ -76,7 +78,7 @@ function generateThemeScript(siteConfig) {
     }
     if (defaultTheme === 'light') {
         return `(function () {
-            ${reloadScrollGuard}
+            ${initialScrollGuard}
             var saved = localStorage.getItem('theme');
             if (saved === 'dark') {
                 document.documentElement.classList.add('dark');
@@ -85,7 +87,7 @@ function generateThemeScript(siteConfig) {
     }
     // system 默认
     return `(function () {
-            ${reloadScrollGuard}
+            ${initialScrollGuard}
             var saved = localStorage.getItem('theme');
             var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             if (saved === 'dark' || (!saved && prefersDark)) {

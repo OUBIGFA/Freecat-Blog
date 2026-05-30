@@ -64,6 +64,21 @@ test('404 template includes the theme bootstrap only once', () => {
     assert.equal(count, 1);
 });
 
+test('theme bootstrap prevents initial restored scroll on normal entry and reload', () => {
+    const html = createTestEngine('https://example.com').loadTemplate('template_index.html');
+
+    assert.equal(html.includes("navType === 'navigate' || navType === 'reload'"), true);
+    assert.equal(html.includes("history.scrollRestoration = 'manual'"), true);
+    assert.equal(html.includes('window.scrollTo(0, 0)'), true);
+});
+
+test('theme bootstrap keeps hash targets eligible for native anchor scrolling', () => {
+    const html = createTestEngine('https://example.com').loadTemplate('template_index.html');
+
+    assert.equal(html.includes('window.location.hash'), true);
+    assert.equal(html.includes('!hasAnchorTarget'), true);
+});
+
 test('relative RSS social link is hidden when site_url is empty', () => {
     const html = createTestEngine('', {
         socialConfig: {
