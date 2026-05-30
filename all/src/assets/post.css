@@ -321,6 +321,22 @@
     object-fit: contain;
 }
 
+.prose figure.post-image .post-image-loader {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.prose figure.post-image .post-image-loaded+.post-image-loader,
+.prose figure.post-image .post-image-failed+.post-image-loader {
+    display: none;
+}
+
 .prose figure.external-embed {
     margin: 0 0 2rem 0 !important;
     display: block;

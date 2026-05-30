@@ -23,6 +23,13 @@ test('image alt, title, and caption are rendered as text', () => {
     assert.equal(html.includes('&lt;b&gt;caption&lt;/b&gt;'), true);
 });
 
+test('markdown images render the loading spinner element', () => {
+    const html = parseMarkdown('![Freecat](/image/freecat.png)');
+
+    assert.equal(html.includes('class="post-image-loader"'), true);
+    assert.equal(html.includes('<span class="loader"></span>'), true);
+});
+
 test('inline-code headings keep their own text in the table of contents', () => {
     const { headings, toc } = extractHeadingsAndGenerateTOC([
         '### `site_网站属性.md`',

@@ -917,6 +917,7 @@ function buildRenderer() {
         return `
     <figure class="post-image relative w-full">
         <img class="post-image-img post-image-placeholder" src="${fallbackSrc}" data-src="${safeHref}" alt="${safeAlt}"${safeTitle} loading="lazy" decoding="async" />
+        <div class="post-image-loader" aria-hidden="true"><span class="loader"></span></div>
         ${(enableCaption && caption) ? `<figcaption class="image-caption block text-center text-sm text-slate-500 dark:text-slate-400">${escapeRenderedText(caption)}</figcaption>` : ''}
     </figure>`;
     };
