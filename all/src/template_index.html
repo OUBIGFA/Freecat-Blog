@@ -220,15 +220,42 @@
         @media (max-width: 1023px) {
             :root {
                 --freecat-hero-avatar-size: clamp(180px, 36vw, 240px);
-                --freecat-hero-title-size: clamp(1.75rem, 6.6vw, 2.25rem);
+                --freecat-hero-title-size: clamp(1.5rem, 6vw, 2rem);
             }
 
             .freecat-home-sidebar {
-                padding: calc(var(--freecat-page-top-offset, 96px) + 16px) clamp(20px, 5vw, 36px) 36px;
+                box-sizing: border-box;
+                width: 100%;
+                padding: calc(var(--freecat-page-top-offset, 96px) + 12px) clamp(20px, 5vw, 36px) clamp(8px, 2vw, 14px);
+            }
+
+            .freecat-home-sidebar-hero,
+            .freecat-home-sidebar-hero-text {
+                min-width: 0;
+            }
+
+            .freecat-home-sidebar-hero-text {
+                max-width: min(100%, 19rem);
+                margin-inline: auto;
+            }
+
+            .freecat-home-sidebar-hero-text,
+            .freecat-home-sidebar-hero-text h1,
+            .freecat-home-sidebar-hero-text h2 {
+                text-align: center;
+            }
+
+            .freecat-home-sidebar-hero-text h1,
+            .freecat-home-sidebar-hero-text h2 {
+                max-width: 100%;
+                overflow-wrap: break-word;
+                word-break: normal;
+                text-wrap: balance;
+                white-space: normal;
             }
 
             .freecat-home-posts {
-                padding: 28px clamp(20px, 5vw, 40px) 48px;
+                padding: 0 clamp(20px, 5vw, 40px) 48px;
             }
 
             .freecat-home-sidebar-recent {
@@ -271,7 +298,7 @@
                             style='background-image: url("<!-- HERO_AVATAR -->");'></div>
                         <div class="freecat-home-sidebar-hero-text flex flex-col gap-3">
                             <h1
-                                class="animate-fade-in-up text-[#1e293b] dark:text-slate-200 text-[length:var(--freecat-hero-title-size)] font-black leading-[1.1] tracking-[-0.02em]">
+                                class="animate-fade-in-up text-[#1e293b] dark:text-slate-200 text-[length:var(--freecat-hero-title-size)] font-semibold leading-[1.1] tracking-normal">
                                 <!-- HERO_TITLE -->
                             </h1>
                             <h2
