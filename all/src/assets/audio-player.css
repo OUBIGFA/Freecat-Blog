@@ -441,19 +441,6 @@
     color: #f8fafc;
 }
 
-/* Loading State */
-.audio-player-loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    color: #64748b;
-}
-
-.dark .audio-player-loading {
-    color: #94a3b8;
-}
-
 /* Responsive Design */
 @media (max-width: 640px) {
     .audio-player-container {

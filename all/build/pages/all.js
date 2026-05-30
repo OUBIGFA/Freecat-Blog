@@ -6,7 +6,7 @@ const seo = require('../seo.js');
 /**
  * 生成 all.html（无分页，按已有顺序展示全部文章）。
  */
-function generate({ posts, template, siteConfig, seoConfig, outputDir, recentPostsSidebarHtml }) {
+function generate({ posts, template, siteConfig, seoConfig, outputDir }) {
     console.log('📋 Generating all articles page...');
     const html = posts.map(renderPostCardForList).join('');
     const title = `All Articles - ${siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog'}`;
@@ -20,8 +20,7 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir, recentPos
     });
     const out = template
         .replace('<!-- ALL_SEO_HEAD -->', () => seoHead)
-        .replace('<!-- ALL_POSTS_LIST_PLACEHOLDER -->', () => html)
-        .replace('<!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->', () => recentPostsSidebarHtml || '');
+        .replace('<!-- ALL_POSTS_LIST_PLACEHOLDER -->', () => html);
     fs.writeFileSync(path.join(outputDir, 'all.html'), out);
     console.log('  Generated: all.html');
 }

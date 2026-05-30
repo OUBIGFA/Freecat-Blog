@@ -106,8 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
     //     已迁移到 src/assets/transitions.css，由 head-base.html 静态加载。
     //     这里仅保留运行时工具函数。
     // ============================================================
-    function ensureAnimationStyles() { /* no-op：样式已外置 */ }
-
     function applyStaggeredAnimations(selector, delayStep = 120, options = {}) {
         const elements = document.querySelectorAll(selector);
         const replay = options.replay !== false;
@@ -130,12 +128,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (raw.endsWith('ms')) return parseFloat(raw);
         if (raw.endsWith('s')) return parseFloat(raw) * 1000;
         return fallback;
-    }
-
-    function readCssPx(variableName) {
-        const raw = getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
-        const n = parseFloat(raw);
-        return Number.isFinite(n) ? n : 0;
     }
 
     function initFloatingNavButtons() {
@@ -420,8 +412,6 @@ document.addEventListener('DOMContentLoaded', () => {
     observeHomeHeroContentChanges();
     scheduleHomeHeroMeasure();
     scheduleHomeSidebarFooterAvoid();
-    ensureAnimationStyles(); // Ensure global animation styles are present
-
     // Apply staggered animation to existing post cards on load
     if (document.getElementById('posts-list')) {
         applyStaggeredAnimations('.post-card', 120, { replay: false });

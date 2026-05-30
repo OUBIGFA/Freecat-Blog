@@ -1,7 +1,7 @@
 /* src/assets/transitions.css
  *
  * 站点级运动设计令牌 + 可复用 .t-* 类（参考 transitions.dev 设计语汇）。
- * 所有交互按钮统一通过 .t-btn / .t-btn-icon / .t-btn-primary 取得动效，
+ * 所有交互按钮统一通过 .t-btn / .t-btn-icon 取得动效，
  * 不再各自手写 transition / hover lift / shadow。
  *
  * 时长 / 缓动统一用 CSS 自定义属性表达，便于全局微调。
@@ -11,8 +11,6 @@
  *     与 template_post.html 引入，所有页面都能命中。
  *   - .t-btn        外形/填充按钮（Share / Go Back / View All / 分页器）
  *   - .t-btn-icon   圆形图标按钮（顶栏搜索 / 主题切换 / 浮动按钮 / 复制按钮）
- *   - .t-btn-primary 与 .t-btn 叠加：hover 时附加品牌色光晕
- *   - .is-disabled  与 disabled / aria-disabled="true" 等价：禁用 hover/active
  */
 
 :root {
@@ -69,17 +67,16 @@
     will-change: transform;
 }
 
-.t-btn:not(.is-disabled):not([disabled]):not([aria-disabled="true"]):hover {
+.t-btn:not([disabled]):not([aria-disabled="true"]):hover {
     transform: translateY(var(--t-btn-lift));
 }
 
-.t-btn:not(.is-disabled):not([disabled]):not([aria-disabled="true"]):active {
+.t-btn:not([disabled]):not([aria-disabled="true"]):active {
     transform: translateY(0) scale(var(--t-btn-press-scale));
     transition:
         transform var(--t-btn-press-dur) var(--t-btn-press-ease);
 }
 
-.t-btn.is-disabled,
 .t-btn[disabled],
 .t-btn[aria-disabled="true"] {
     opacity: 0.4;
@@ -87,18 +84,10 @@
     transform: none;
 }
 
-/* 内部图标的 hover 微动效（向左 / 向右 / 抬升等），由父 .group 控制 */
-.t-btn .t-btn-icon-rot,
-.t-btn-icon .t-btn-icon-rot {
-    transition: transform var(--t-btn-dur) var(--t-btn-ease);
-}
+/* 内部图标的 hover 微动效（向左 / 上下），由父 .group 控制 */
 .t-btn:hover .t-btn-arrow-prev,
 .t-btn-icon:hover .t-btn-arrow-prev {
     transform: translateX(-2px);
-}
-.t-btn:hover .t-btn-arrow-next,
-.t-btn-icon:hover .t-btn-arrow-next {
-    transform: translateX(2px);
 }
 .t-btn:hover .t-btn-arrow-up,
 .t-btn-icon:hover .t-btn-arrow-up {
@@ -124,7 +113,7 @@
     will-change: transform, color;
 }
 
-.t-btn-icon:not(.is-disabled):not([disabled]):not([aria-disabled="true"]):active {
+.t-btn-icon:not([disabled]):not([aria-disabled="true"]):active {
     transform: scale(var(--t-btn-icon-press-scale));
     transition:
         transform var(--t-btn-press-dur) var(--t-btn-press-ease);
@@ -191,31 +180,23 @@ body.search-active .freecat-floating-nav-panel {
 /* hover 颜色与箭头微动效 —— 用同一条 320ms ease-out 曲线，避免与显隐节奏打架 */
 .t-floating-nav .t-btn-arrow-up,
 .t-floating-nav .t-btn-arrow-down,
-.t-floating-nav .t-btn-arrow-prev,
-.t-floating-nav .t-btn-arrow-next {
+.t-floating-nav .t-btn-arrow-prev {
     transition: transform 320ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .t-floating-nav:hover .t-btn-arrow-up    { transform: translateY(-1.5px); }
 .t-floating-nav:hover .t-btn-arrow-down  { transform: translateY(1.5px); }
 .t-floating-nav:hover .t-btn-arrow-prev  { transform: translateX(-1.5px); }
-.t-floating-nav:hover .t-btn-arrow-next  { transform: translateX(1.5px); }
 
 @media (prefers-reduced-motion: reduce) {
     .t-floating-nav,
     .t-floating-nav .t-btn-arrow-up,
     .t-floating-nav .t-btn-arrow-down,
-    .t-floating-nav .t-btn-arrow-prev,
-    .t-floating-nav .t-btn-arrow-next {
+    .t-floating-nav .t-btn-arrow-prev {
         transition: none !important;
     }
     .t-floating-nav.is-hidden { transform: none; }
 }
-
-/* ============================================================
- * .t-btn-primary —— 视觉补充（仅作分类标记，目前与 .t-btn 行为一致）
- * 保留类名是为了未来可单独区分，无需立刻去除
- * ============================================================ */
 
 /* ============================================================
  * #share-btn —— 文章页 Share 按钮的状态切换
@@ -246,9 +227,7 @@ body.search-active .freecat-floating-nav-panel {
  * ============================================================ */
 @media (prefers-reduced-motion: reduce) {
     .t-btn,
-    .t-btn-icon,
-    .t-btn .t-btn-icon-rot,
-    .t-btn-icon .t-btn-icon-rot {
+    .t-btn-icon {
         transition: none !important;
     }
 
@@ -257,7 +236,6 @@ body.search-active .freecat-floating-nav-panel {
     .t-btn-icon:hover,
     .t-btn-icon:active,
     .t-btn:hover .t-btn-arrow-prev,
-    .t-btn:hover .t-btn-arrow-next,
     .t-btn:hover .t-btn-arrow-up,
     .t-btn:hover .t-btn-arrow-down {
         transform: none !important;

@@ -163,9 +163,7 @@ const tplAbout = engine.loadTemplate('template_index_About.html');
 const tplNotFound = engine.loadTemplate('template_index_404.html');
 
 // ===== 5.5 生成最近更新文章列表 HTML =====
-let recentPostsSidebarWrapperHtml = '';
 let recentPostsSidebarHomeWrapperHtml = '';
-let recentPostsSidebarAllWrapperHtml = '';
 let recentPostsSidebarInnerHtml = '';
 
 if (siteConfig.show_recent_posts === true) {
@@ -199,21 +197,10 @@ if (siteConfig.show_recent_posts === true) {
                             </ul>
                         </div>`;
 
-    recentPostsSidebarWrapperHtml = `
-                    <aside class="hidden lg:block sticky top-32 w-64 flex-shrink-0 self-start">
-                        ${recentPostsSidebarInnerHtml.trim()}
-                    </aside>`;
-
     // 首页 / 搜索页改版后：最近更新直接渲染到左侧栏底部容器内，
     // 不再需要额外的 absolute/sticky shell 包裹，直接复用 inner 结构。
     recentPostsSidebarHomeWrapperHtml = recentPostsSidebarInnerHtml.replace(' mt-8', '').trim();
 
-    recentPostsSidebarAllWrapperHtml = `
-                    <aside id="home-recent-posts-shell" class="freecat-home-recent-shell absolute top-0 w-64" style="left: calc(100% + 96px);">
-                        <div id="home-recent-posts-sidebar" class="freecat-home-recent-sidebar max-h-[calc(100vh-10rem)] overflow-y-auto pr-1 custom-scrollbar">
-                            ${recentPostsSidebarInnerHtml.replace(' mt-8', '').trim()}
-                        </div>
-                    </aside>`;
 }
 
 // ===== 1. 清理输出目录 + 搬运静态资源 =====
@@ -225,9 +212,9 @@ if (fs.existsSync(DIRS.assets)) copyDir(DIRS.assets, path.join(DIRS.output, 'ass
 if (fs.existsSync(DIRS.images)) copyDir(DIRS.images, path.join(DIRS.output, 'image'));
 
 // ===== 6. 生成各页面 =====
-postPage.generateAll({ posts: allPosts, template: tplPost, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarInnerHtml });
+postPage.generateAll({ posts: allPosts, template: tplPost, siteConfig, seoConfig, outputDir: DIRS.output });
 indexPage.generateAll({ posts: allPosts, template: tplIndex, postsPerPage: POSTS_PER_PAGE, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarHomeWrapperHtml });
-allPage.generate({ posts: allPosts, template: tplIndexAll, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarAllWrapperHtml });
+allPage.generate({ posts: allPosts, template: tplIndexAll, siteConfig, seoConfig, outputDir: DIRS.output });
 searchPage.generate({ posts: allPosts, template: tplSearch, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarHomeWrapperHtml });
 aboutPage.generate({ template: tplAbout, siteConfig, seoConfig, aboutConfig, outputDir: DIRS.output });
 notFoundPage.generateNotFoundPage({ template: tplNotFound, outputDir: DIRS.output });

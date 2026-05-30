@@ -1015,13 +1015,6 @@
         return target;
     }
 
-    function scrollToArticleBottom(behavior) {
-        window.scrollTo({
-            top: getArticleBottomScrollY(),
-            behavior: behavior || 'smooth'
-        });
-    }
-
     function toggleNavButtons() {
         // 始终显示浮动按钮，不再随滚动隐藏。
         [backToTopBtn, scrollToBottomBtn, floatingGoBackBtn].forEach(function (btn) {
