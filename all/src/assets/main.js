@@ -46,11 +46,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const html = document.documentElement;
 
     const imageFallback = '/image/404.png';
+    let deferredImageObserver = null;
 
     function loadDeferredImage(img) {
         const realSrc = img && img.dataset ? img.dataset.src : '';
         if (!realSrc || img.dataset.imageLoadStarted === 'true') return;
         img.dataset.imageLoadStarted = 'true';
+        img.dataset.imageObserved = 'false';
 
         const probe = new Image();
         probe.onload = () => {
@@ -67,8 +69,36 @@ document.addEventListener('DOMContentLoaded', () => {
         probe.src = realSrc;
     }
 
+    function getDeferredImageObserver() {
+        if (deferredImageObserver || !('IntersectionObserver' in window)) {
+            return deferredImageObserver;
+        }
+
+        deferredImageObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                deferredImageObserver.unobserve(entry.target);
+                loadDeferredImage(entry.target);
+            });
+        }, { rootMargin: '320px 0px' });
+
+        return deferredImageObserver;
+    }
+
+    function unobserveDeferredImages(root = document) {
+        if (!deferredImageObserver || !root) return;
+        const images = root.matches && root.matches('img[data-src]')
+            ? [root]
+            : Array.from(root.querySelectorAll ? root.querySelectorAll('img[data-src]') : []);
+        images.forEach((img) => {
+            deferredImageObserver.unobserve(img);
+            img.dataset.imageObserved = 'false';
+        });
+    }
+
     function initDeferredImages() {
-        const images = Array.from(document.querySelectorAll('img[data-src]'));
+        const images = Array.from(document.querySelectorAll('img[data-src]'))
+            .filter((img) => img.dataset.imageLoadStarted !== 'true' && img.dataset.imageObserved !== 'true');
         if (!images.length) return;
 
         if (!('IntersectionObserver' in window)) {
@@ -76,15 +106,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-                if (!entry.isIntersecting) return;
-                observer.unobserve(entry.target);
-                loadDeferredImage(entry.target);
-            });
-        }, { rootMargin: '320px 0px' });
-
-        images.forEach((img) => observer.observe(img));
+        const observer = getDeferredImageObserver();
+        images.forEach((img) => {
+            img.dataset.imageObserved = 'true';
+            observer.observe(img);
+        });
     }
 
     initDeferredImages();
@@ -557,6 +583,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const newPagination = doc.getElementById('pagination-buttons').innerHTML;
 
                 // 更新内容
+                unobserveDeferredImages(postsList);
                 postsList.innerHTML = newPosts;
                 paginationContainer.innerHTML = newPagination;
                 fitTagRows();
@@ -850,14 +877,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 实时搜索
         let searchTimeout;
+        let searchRequestSeq = 0;
         searchInput.addEventListener('input', () => {
             clearTimeout(searchTimeout);
+            const requestSeq = ++searchRequestSeq;
             searchTimeout = setTimeout(async () => {
                 const query = searchInput.value;
                 if (query.length >= 2) {
-                    const results = searchPosts(query, searchIndex || []);
+                    const posts = searchIndex || await loadSearchIndex();
+                    const searchIsStillOpen = searchContainer.dataset.open === 'true' || searchContainer.classList.contains('flex');
+                    if (requestSeq !== searchRequestSeq || searchInput.value !== query || !searchIsStillOpen) return;
+                    const results = searchPosts(query, posts);
                     displaySearchResults(results, query);
                 } else {
+                    searchRequestSeq += 1;
                     closeSearchResults();
                 }
             }, 200);
@@ -954,6 +987,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSearchOverlayOffset(overlay);
         overlay.dataset.open = 'true';
 
+        unobserveDeferredImages(overlay);
         if (results.length === 0) {
             overlay.innerHTML = `
                 <div class="max-w-[1200px] mx-auto px-6 sm:px-8 py-10 text-center">
@@ -1073,6 +1107,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (results.length === 0) {
+                    unobserveDeferredImages(searchResultsContainer);
                     searchResultsContainer.innerHTML = '';
                     if (noResultsDisplay) noResultsDisplay.classList.remove('hidden');
                 } else {
@@ -1109,6 +1144,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }) : '';
         }).join('');
 
+        unobserveDeferredImages(searchResultsContainer);
         searchResultsContainer.innerHTML = html;
         fitTagRows();
         initDeferredImages();

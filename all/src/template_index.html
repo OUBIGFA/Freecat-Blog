@@ -8,32 +8,6 @@
     <!-- HOME_JSONLD -->
 
     <style>
-        /* 首页专用：Hero 区入场动画 */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translate3d(0, 20px, 0);
-            }
-
-            to {
-                opacity: 1;
-                transform: translate3d(0, 0, 0);
-            }
-        }
-
-        .animate-fade-in-up {
-            animation: fadeInUp 1.0s cubic-bezier(0.23, 1, 0.32, 1) forwards;
-            opacity: 0;
-        }
-
-        .delay-150 {
-            animation-delay: 150ms;
-        }
-
-        .delay-300 {
-            animation-delay: 300ms;
-        }
-
         :root {
             /* 注：--freecat-header-height / --freecat-header-safe-gap / --freecat-page-top-offset
                已在 assets/transitions.css 中作为全站默认值定义，这里只补充首页专属变量。 */
