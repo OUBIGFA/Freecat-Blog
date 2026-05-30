@@ -515,7 +515,7 @@
     margin: 1.618em 0 !important;
     border-radius: 0 !important;
     color: #475569 !important;
-    font-size: calc(var(--article-body-size) * 0.9) !important;
+    font-size: calc(var(--article-body-size) * 0.85) !important;
 }
 
 .dark .prose blockquote {
@@ -538,6 +538,7 @@
     background-color: var(--callout-bg) !important;
     color: var(--callout-text) !important;
     box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04) !important;
+    font-size: calc(var(--article-body-size) * 0.85) !important;
 }
 
 .dark .prose .callout {
