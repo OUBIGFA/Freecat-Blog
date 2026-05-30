@@ -83,31 +83,6 @@
     }
 }
 
-/* Loader from Uiverse.io by Fernando-sv */
-.loader {
-    border: 4px solid rgba(0, 0, 0, .1);
-    border-left-color: transparent;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    animation: spin89345 1s linear infinite;
-}
-
-.dark .loader {
-    border-color: rgba(255, 255, 255, 0.6);
-    border-left-color: transparent;
-}
-
-@keyframes spin89345 {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
 /* 自定义滚动条样式 */
 .custom-scrollbar::-webkit-scrollbar {
     width: 4px;
@@ -140,6 +115,7 @@
     margin-top: 1.25rem !important;
     margin-bottom: 2rem !important;
     font-size: 2.3rem !important;
+    font-weight: 600 !important;
 }
 
 @media (min-width: 768px) {
@@ -326,17 +302,6 @@
     object-fit: contain;
 }
 
-.prose figure.post-image .post-image-loader {
-    position: absolute;
-    top: 0.75rem;
-    left: 0.75rem;
-    z-index: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
-}
-
 .prose figure.post-image .post-image-loaded+.post-image-loader,
 .prose figure.post-image .post-image-failed+.post-image-loader {
     display: none;
@@ -361,6 +326,10 @@
 
 .prose figure.external-embed.external-embed-loading .external-embed-placeholder {
     display: block;
+}
+
+.prose figure.external-embed:not(.external-embed-loading) .external-embed-loader {
+    display: none;
 }
 
 .prose figure.external-embed.external-embed-loading .external-embed-content {
@@ -1150,6 +1119,7 @@
 .prose .article-heading {
     color: #1e293b !important;
     letter-spacing: 0 !important;
+    font-weight: 600 !important;
     scroll-margin-top: 6rem;
     position: relative;
     padding-top: 0;
@@ -1163,37 +1133,31 @@
 .prose .article-heading-depth-1 {
     font-size: var(--article-heading-h1) !important;
     line-height: 1.16 !important;
-    font-weight: 600 !important;
 }
 
 .prose .article-heading-depth-2 {
     font-size: var(--article-heading-h2) !important;
     line-height: 1.22 !important;
-    font-weight: 600 !important;
 }
 
 .prose .article-heading-depth-3 {
     font-size: var(--article-heading-h3) !important;
     line-height: 1.3 !important;
-    font-weight: 600 !important;
 }
 
 .prose .article-heading-depth-4 {
     font-size: var(--article-heading-h4) !important;
     line-height: 1.34 !important;
-    font-weight: 600 !important;
 }
 
 .prose .article-heading-depth-5 {
     font-size: var(--article-heading-h5) !important;
     line-height: 1.38 !important;
-    font-weight: 600 !important;
 }
 
 .prose .article-heading-depth-6 {
     font-size: var(--article-heading-h6) !important;
     line-height: 1.42 !important;
-    font-weight: 600 !important;
 }
 
 .prose>.article-heading:first-child {

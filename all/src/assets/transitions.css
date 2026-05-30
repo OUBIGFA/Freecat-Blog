@@ -33,20 +33,59 @@
        --freecat-page-top-offset 是“header 高度 + 安全间距”的合成值，
        任何主内容容器的 margin-top / padding-top 都应优先使用它，
        避免出现"hardcode 40px / 60px 但 header 实际更高"导致的遮挡。 */
-    --freecat-header-height: 72px;
-    --freecat-header-safe-gap: clamp(20px, 3vh, 36px);
+    --freecat-header-height: 61px;
+    --freecat-header-safe-gap: 16px;
     --freecat-page-top-offset: calc(var(--freecat-header-height) + var(--freecat-header-safe-gap));
+}
+
+/* Shared placeholder loading spinner. */
+.loader {
+    border: 4px solid rgba(0, 0, 0, .1);
+    border-left-color: transparent;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    animation: spin89345 1s linear infinite;
+}
+
+.lazy-image-frame {
+    position: relative;
+}
+
+.placeholder-loader {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.lazy-image-frame>img:not([data-src])+.placeholder-loader {
+    display: none;
+}
+
+.dark .loader {
+    border-color: rgba(255, 255, 255, 0.6);
+    border-left-color: transparent;
+}
+
+@keyframes spin89345 {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 @media (min-width: 768px) {
     :root {
-        --freecat-header-height: 80px;
-    }
-}
-
-@media (max-width: 640px) {
-    :root {
-        --freecat-header-safe-gap: clamp(16px, 2.4vh, 24px);
+        --freecat-header-height: 73px;
+        --freecat-header-safe-gap: 24px;
     }
 }
 

@@ -26,7 +26,7 @@ test('image alt, title, and caption are rendered as text', () => {
 test('markdown images render the loading spinner element', () => {
     const html = parseMarkdown('![Freecat](/image/freecat.png)');
 
-    assert.equal(html.includes('class="post-image-loader"'), true);
+    assert.equal(html.includes('class="post-image-loader placeholder-loader"'), true);
     assert.equal(html.includes('<span class="loader"></span>'), true);
 });
 
@@ -36,6 +36,7 @@ test('markdown image syntax keeps non-image URLs in the external embed flow with
     assert.equal(html.includes('class="external-embed external-embed-twitter external-embed-loading"'), true);
     assert.equal(html.includes('src="/image/404.png"'), true);
     assert.equal(html.includes('class="external-embed-placeholder"'), true);
+    assert.equal(html.includes('class="external-embed-loader placeholder-loader"'), true);
     assert.equal(html.includes('class="external-embed-content"><blockquote class="twitter-tweet"'), true);
     assert.equal(html.includes('data-embed-url="https://x.com/i/status/1930080468529230100"'), true);
 });
@@ -46,6 +47,7 @@ test('markdown image syntax keeps unknown non-image URLs in the link flow with a
     assert.equal(html.includes('class="external-embed external-embed-link external-embed-loading"'), true);
     assert.equal(html.includes('src="/image/404.png"'), true);
     assert.equal(html.includes('class="external-embed-placeholder"'), true);
+    assert.equal(html.includes('class="external-embed-loader placeholder-loader"'), true);
     assert.equal(html.includes('class="external-embed-content"><a href="https://example.com/article"'), true);
 });
 

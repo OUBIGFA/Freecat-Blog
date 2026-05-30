@@ -64,15 +64,15 @@
             ? `<img src="/image/404.png"${cover ? ` data-src="${cover}"` : ''}
                     alt="Cover"
                     class="w-full h-full object-cover"${coverDimAttrs}
-                    loading="lazy" decoding="async" />`
+                    loading="lazy" decoding="async" />${cover ? '<div class="placeholder-loader" aria-hidden="true"><span class="loader"></span></div>' : ''}`
             : '';
         const mobileImageBlock = imageMarkup
-            ? `<div class="mt-8 h-[180px] shrink-0 rounded-2xl overflow-hidden sm:h-[200px]">
+            ? `<div class="lazy-image-frame mt-8 h-[180px] shrink-0 rounded-2xl overflow-hidden sm:h-[200px]">
                         ${imageMarkup}
                     </div>`
             : '';
         const desktopImageBlock = imageMarkup
-            ? `<div class="col-start-2 row-start-1 h-full rounded-2xl overflow-hidden">
+            ? `<div class="lazy-image-frame col-start-2 row-start-1 h-full rounded-2xl overflow-hidden">
                         ${imageMarkup}
                     </div>`
             : '';

@@ -422,11 +422,13 @@ function renderExternalEmbed(href, text) {
     const label = String(text || '').trim() || url;
     const safeLabel = escapeHtml(label);
     const placeholder = '<img class="external-embed-placeholder" src="/image/404.png" alt="" loading="lazy" decoding="async" aria-hidden="true" />';
+    const loader = '<div class="external-embed-loader placeholder-loader" aria-hidden="true"><span class="loader"></span></div>';
 
     if (embed) {
         return `
     <figure class="external-embed external-embed-${embed.provider} external-embed-loading" data-embed-provider="${embed.provider}" data-embed-url="${safeUrl}">
         ${placeholder}
+        ${loader}
         <div class="external-embed-content">${embed.html}</div>
     </figure>`;
     }
@@ -434,6 +436,7 @@ function renderExternalEmbed(href, text) {
     return `
     <figure class="external-embed external-embed-link external-embed-loading" data-embed-provider="link">
         ${placeholder}
+        ${loader}
         <div class="external-embed-content"><a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${safeLabel}</a></div>
     </figure>`;
 }
@@ -920,7 +923,7 @@ function buildRenderer() {
         return `
     <figure class="post-image relative w-full">
         <img class="post-image-img post-image-placeholder" src="${fallbackSrc}" data-src="${safeHref}" alt="${safeAlt}"${safeTitle} loading="lazy" decoding="async" />
-        <div class="post-image-loader" aria-hidden="true"><span class="loader"></span></div>
+        <div class="post-image-loader placeholder-loader" aria-hidden="true"><span class="loader"></span></div>
         ${(enableCaption && caption) ? `<figcaption class="image-caption block text-center text-sm text-slate-500 dark:text-slate-400">${escapeRenderedText(caption)}</figcaption>` : ''}
     </figure>`;
     };
