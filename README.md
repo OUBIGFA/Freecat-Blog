@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="all/image/freecat_web_icon.png" width="120" alt="Freecat Blog Preview">
+  <img src="all/image/freecat.png" width="120" alt="Freecat Blog Preview">
   <h1>Freecat Blog</h1>
   <p>本地写作、GitHub 备份、免费部署的个人博客模板</p>
   <p>简体中文 | <a href="README.en.md">English</a></p>

@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="all/image/freecat_web_icon.png" width="120" alt="Freecat Blog Preview">
+  <img src="all/image/freecat.png" width="120" alt="Freecat Blog Preview">
   <h1>Freecat Blog</h1>
   <p>Write locally, back up with GitHub, and deploy a personal blog for free</p>
   <p><a href="README.md">简体中文</a> | English</p>
