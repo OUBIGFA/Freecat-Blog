@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     const shared = window.FreecatShared;
     if (!shared) throw new Error('FreecatShared not loaded — ensure shared.js loads before main.js');
-    const { escapeHtml, processTitleHtml, renderTagSpan, copyText, hashTagColor } = shared;
+    const { escapeHtml, processTitleHtml, renderTagSpan, copyText } = shared;
 
     // ============================================================
     // [Feature] 代码块复制按钮（首页/全部/搜索页可能也有代码片段）
@@ -722,72 +722,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function getAllTags(posts) {
-        const tagsByKey = new Map();
-        let untaggedCount = 0;
-        posts.forEach(post => {
-            const labels = (post.tags || [])
-                .map(t => String(t || '').trim())
-                .filter(Boolean);
-            if (!labels.length) {
-                untaggedCount += 1;
-                return;
-            }
-            labels.forEach(label => {
-                const key = label.toLowerCase();
-                const current = tagsByKey.get(key);
-                if (current) {
-                    current.count += 1;
-                    return;
-                }
-                tagsByKey.set(key, { label, count: 1 });
-            });
-        });
-        const list = Array.from(tagsByKey.values()).sort((a, b) => {
-            if (b.count !== a.count) return b.count - a.count;
-            return a.label.localeCompare(b.label, undefined, { sensitivity: 'base' });
-        });
-        if (untaggedCount > 0) {
-            list.unshift({ label: '未打标签', count: untaggedCount, untagged: true });
-        }
-        return list;
-    }
-
+    // 顶栏「查看标签」菜单已在构建期预渲染进 header（点击即展开，零网络 / 零计算）。
+    // 标签聚合与菜单 HTML 统一走 shared，构建期与浏览器期同源，避免两端实现漂移。
     function renderTagMenu(tags) {
         if (!tagMenuItems) return;
-        tagMenuItems.innerHTML = '';
-        if (!tags.length) {
-            const empty = document.createElement('p');
-            empty.className = 'px-3 py-2 text-sm text-slate-500 dark:text-slate-400';
-            empty.textContent = 'No tags yet';
-            tagMenuItems.appendChild(empty);
-            return;
-        }
-
-        tags.forEach((tag, index) => {
-            const isUntagged = !!tag.untagged;
-            const colors = isUntagged
-                ? { bg: 'rgba(148, 163, 184, 0.18)', text: '#475569' }
-                : hashTagColor(tag.label);
-            const link = document.createElement('a');
-            link.href = isUntagged
-                ? '/search.html?tag=__untagged__'
-                : `/search.html?tag=${encodeURIComponent(tag.label)}`;
-            link.role = 'menuitem';
-            link.className = 'tag-menu-item flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-400 dark:text-slate-200 dark:hover:bg-slate-800';
-            link.style.setProperty('--tag-menu-index', index);
-            link.innerHTML = `
-                <span class="min-w-0 truncate">${escapeHtml(tag.label)}</span>
-                <span class="shrink-0 rounded-md px-2 py-0.5 text-[11px] font-semibold" style="background:${colors.bg};color:${colors.text};">${tag.count}</span>
-            `;
-            tagMenuItems.appendChild(link);
-        });
+        tagMenuItems.innerHTML = shared.renderTagMenuItemsHtml(tags);
     }
 
     async function buildTagMenu() {
         if (tagMenuBuilt) return;
+        // 预渲染已就位：菜单项已在 DOM 中，直接复用，无需任何请求或渲染。
+        if (tagMenuItems && tagMenuItems.querySelector('.tag-menu-item')) {
+            tagMenuBuilt = true;
+            return;
+        }
+        // 兜底：仅当预渲染缺失时才拉取索引补齐（此路径不阻塞菜单展开）。
         const posts = await loadSearchIndex();
-        renderTagMenu(getAllTags(posts));
+        renderTagMenu(shared.collectMenuTags(posts));
         tagMenuBuilt = true;
     }
 
@@ -807,7 +758,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (tagMenuToggle && tagMenu) {
-        tagMenuToggle.addEventListener('click', async (e) => {
+        tagMenuToggle.addEventListener('click', (e) => {
             e.stopPropagation();
             const willOpen = !tagMenu.classList.contains('is-open');
             if (!willOpen) {
@@ -815,8 +766,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             closeHeaderSearch(true);
-            await buildTagMenu();
-            setTagMenuOpen(true);
+            setTagMenuOpen(true);   // 立即展开：标签项已在 DOM 中（构建期预渲染）
+            buildTagMenu();         // 兜底补齐；预渲染就位时为同步空操作，不阻塞展开
         });
 
         tagMenu.addEventListener('click', (e) => {

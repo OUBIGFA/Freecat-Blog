@@ -205,7 +205,7 @@ function versionAssetUrls(html, assetVersion) {
     );
 }
 
-function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, socialConfig, assetVersion }) {
+function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, socialConfig, assetVersion, tagMenuItemsHtml = '' }) {
     const themeScript = generateThemeScript(siteConfig);
     const logoIcon = generateLogoIcon(siteConfig);
     const socialLinks = generateSocialLinks(socialConfig, siteConfig);
@@ -231,6 +231,7 @@ function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, s
         out = replacePlaceholder(out, /<!-- SITE_LOGO_ICON -->/g, logoIcon);
         out = replacePlaceholder(out, /<!-- THEME_SCRIPT -->/g, themeScript);
         out = replacePlaceholder(out, /<!-- SOCIAL_LINKS -->/g, socialLinks);
+        out = replacePlaceholder(out, /<!-- TAG_MENU_ITEMS -->/g, tagMenuItemsHtml);
         out = replacePlaceholder(out, /<!-- DISCOVERY_LINKS -->/g, discoveryLinks);
         out = replacePlaceholder(out, /<!-- SITE_LANGUAGE -->/g, escapeText(seoConfig.site_language || 'zh-CN'));
         out = replacePlaceholder(out, /<!-- SITE_URL -->/g, safeUrlField);

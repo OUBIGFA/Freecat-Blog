@@ -18,7 +18,8 @@ function createTestEngine(siteUrl, options = {}) {
         },
         seoConfig: { site_language: 'zh-CN' },
         socialConfig: options.socialConfig || {},
-        assetVersion: ''
+        assetVersion: '',
+        tagMenuItemsHtml: options.tagMenuItemsHtml || ''
     });
 }
 
@@ -98,3 +99,52 @@ test('external RSS social link is shown without site_url', () => {
 
     assert.equal(html.includes('https://feeds.example.com/freecat.xml'), true);
 });
+
+test('collectMenuTags counts tags, sorts by frequency then name, and tracks untagged', () => {
+    const posts = [
+        { tags: ['JS', 'CSS'] },
+        { tags: 'js' },          // 大小写归并 + 字符串形态
+        { tags: ['CSS'] },
+        { tags: [] },            // 未打标签
+        { tags: null }           // 未打标签
+    ];
+    const list = shared.collectMenuTags(posts);
+
+    // 未打标签固定置顶
+    assert.equal(list[0].untagged, true);
+    assert.equal(list[0].count, 2);
+    // js 出现 2 次（含字符串那篇），css 出现 2 次；同频按名称升序 → css 在 js 前
+    const tagged = list.filter(t => !t.untagged);
+    assert.deepEqual(tagged.map(t => t.label), ['CSS', 'JS']);
+    assert.equal(tagged[0].count, 2);
+    assert.equal(tagged[1].count, 2);
+});
+
+test('renderTagMenuItemsHtml escapes labels, encodes hrefs and renders counts', () => {
+    const html = shared.renderTagMenuItemsHtml(shared.collectMenuTags([
+        { tags: ['<b>x</b>'] }
+    ]));
+
+    assert.equal(html.includes('class="tag-menu-item'), true);
+    assert.equal(html.includes('--tag-menu-index:0;'), true);
+    assert.equal(html.includes('<b>x</b>'), false);              // 标签文本被转义
+    assert.equal(html.includes('&lt;b&gt;x&lt;/b&gt;'), true);
+    assert.equal(html.includes('tag=%3Cb%3Ex%3C%2Fb%3E'), true); // href 编码
+});
+
+test('renderTagMenuItemsHtml falls back to empty hint when no tags', () => {
+    assert.equal(shared.renderTagMenuItemsHtml([]).includes('No tags yet'), true);
+});
+
+test('engine pre-renders tag menu items into the header placeholder', () => {
+    const tagMenuItemsHtml = shared.renderTagMenuItemsHtml(shared.collectMenuTags([
+        { tags: ['Alpha'] }
+    ]));
+    const html = createTestEngine('https://example.com', { tagMenuItemsHtml })
+        .loadTemplate('template_index.html');
+
+    assert.equal(html.includes('<!-- TAG_MENU_ITEMS -->'), false); // 占位符已被替换
+    assert.equal(html.includes('class="tag-menu-item'), true);     // 标签项已预渲染进页面
+    assert.equal(html.includes('Loading tags...'), false);         // 不再有加载占位
+});
+

@@ -111,6 +111,74 @@
         );
     }
 
+    // 把任意形态的 tag 字段（数组 / 字符串 / 空）归一为去空白、去空项的字符串数组。
+    function normalizeTagList(tags) {
+        if (Array.isArray(tags)) {
+            return tags.map(function (t) { return String(t == null ? '' : t).trim(); })
+                .filter(Boolean);
+        }
+        if (tags == null || tags === '') return [];
+        const single = String(tags).trim();
+        return single ? [single] : [];
+    }
+
+    // 聚合标签菜单数据：统计每个标签出现次数 + 未打标签数量，按「次数降序 → 名称」排序。
+    // posts 每项读取 post.tags（搜索索引形态）；构建期可先映射成 { tags: post.tag }。
+    // 构建期与浏览器期共用，保证顶栏标签菜单两端数据完全一致。
+    function collectMenuTags(posts) {
+        const tagsByKey = new Map();
+        let untaggedCount = 0;
+        (posts || []).forEach(function (post) {
+            const labels = normalizeTagList(post && post.tags);
+            if (!labels.length) {
+                untaggedCount += 1;
+                return;
+            }
+            labels.forEach(function (label) {
+                const key = label.toLowerCase();
+                const current = tagsByKey.get(key);
+                if (current) {
+                    current.count += 1;
+                    return;
+                }
+                tagsByKey.set(key, { label: label, count: 1 });
+            });
+        });
+        const list = Array.from(tagsByKey.values()).sort(function (a, b) {
+            if (b.count !== a.count) return b.count - a.count;
+            return a.label.localeCompare(b.label, undefined, { sensitivity: 'base' });
+        });
+        if (untaggedCount > 0) {
+            list.unshift({ label: '未打标签', count: untaggedCount, untagged: true });
+        }
+        return list;
+    }
+
+    // 渲染标签菜单项 HTML 字符串。构建期注入顶栏（预渲染、点击即展开），
+    // 浏览器期仅在预渲染缺失时兜底使用，二者输出保持一致。
+    function renderTagMenuItemsHtml(tags) {
+        if (!tags || !tags.length) {
+            return '<p class="px-3 py-2 text-sm text-slate-500 dark:text-slate-400">No tags yet</p>';
+        }
+        return tags.map(function (tag, index) {
+            const isUntagged = !!tag.untagged;
+            const colors = isUntagged
+                ? { bg: 'rgba(148, 163, 184, 0.18)', text: '#475569' }
+                : hashTagColor(tag.label);
+            const href = isUntagged
+                ? '/search.html?tag=__untagged__'
+                : '/search.html?tag=' + encodeURIComponent(tag.label);
+            return (
+                '<a role="menuitem" href="' + href + '" ' +
+                'class="tag-menu-item flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-400 dark:text-slate-200 dark:hover:bg-slate-800" ' +
+                'style="--tag-menu-index:' + index + ';">' +
+                '<span class="min-w-0 truncate">' + escapeHtml(tag.label) + '</span>' +
+                '<span class="shrink-0 rounded-md px-2 py-0.5 text-[11px] font-semibold" style="background:' + colors.bg + ';color:' + colors.text + ';">' + tag.count + '</span>' +
+                '</a>'
+            );
+        }).join('');
+    }
+
     function copyText(text) {
         if (typeof navigator !== 'undefined' && navigator.clipboard && typeof window !== 'undefined' && window.isSecureContext) {
             return navigator.clipboard.writeText(text);
@@ -142,6 +210,8 @@
         encodeSitePath,
         processTitleHtml,
         renderTagSpan,
+        collectMenuTags,
+        renderTagMenuItemsHtml,
         IMG_FALLBACK_ATTR,
         copyText
     };

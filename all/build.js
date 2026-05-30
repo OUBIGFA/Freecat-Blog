@@ -24,6 +24,7 @@ const gitDatesModule = require('./build/git-dates.js');
 const { loadConfig } = require('./build/config.js');
 const { SOCIAL_DEFAULTS } = require('./build/social-defaults.js');
 const { createEngine } = require('./build/template-engine.js');
+const shared = require('./src/assets/shared.js');
 const { copyDir, ensureCleanDir } = require('./build/fs-utils.js');
 const { buildTailwindCss } = require('./build/tailwind.js');
 const { minifyDist } = require('./build/minify.js');
@@ -125,14 +126,33 @@ const aboutConfig = loadConfig(DIRS.control, 'about', 'about.md', {
     about_hero_avatar: '/image/freecat.png'
 });
 
-// ===== 4. 模板引擎 =====
+// ===== 4. 加载并排序文章 =====
+// 提前到模板引擎之前：顶栏「查看标签」菜单要在构建期预渲染进 header，
+// 因此必须先拿到全部文章，才能算出标签清单。
+console.log('📝 Processing posts...');
+let allPosts;
+try {
+    allPosts = postPage.loadPosts({ postsDir: DIRS.posts, gitDates, postDates, skipMissingGitDates: true });
+} catch (err) {
+    if (!skipBuildUntilGitDatesUpdate(err)) throw err;
+}
+
+// 顶栏「查看标签」菜单：构建期一次性算好并预渲染成静态 HTML，注入每个页面的 header。
+// 这样客户端首次点击只需切换一个 CSS 类即可展开（零网络、零计算、实时响应），
+// 不再首点拉取并解析整份 search-index.json。
+const tagMenuItemsHtml = shared.renderTagMenuItemsHtml(
+    shared.collectMenuTags((allPosts || []).map(post => ({ tags: post.tag })))
+);
+
+// ===== 5. 模板引擎 =====
 const engine = createEngine({
     templatesDir: DIRS.templates,
     partialsDir: DIRS.partials,
     siteConfig,
     seoConfig,
     socialConfig,
-    assetVersion: ASSET_VERSION
+    assetVersion: ASSET_VERSION,
+    tagMenuItemsHtml
 });
 
 const tplIndex = engine.loadTemplate('template_index.html');
@@ -141,15 +161,6 @@ const tplIndexAll = engine.loadTemplate('template_index_all.html');
 const tplSearch = engine.loadTemplate('template_index_search.html');
 const tplAbout = engine.loadTemplate('template_index_About.html');
 const tplNotFound = engine.loadTemplate('template_index_404.html');
-
-// ===== 5. 加载并排序文章 =====
-console.log('📝 Processing posts...');
-let allPosts;
-try {
-    allPosts = postPage.loadPosts({ postsDir: DIRS.posts, gitDates, postDates, skipMissingGitDates: true });
-} catch (err) {
-    if (!skipBuildUntilGitDatesUpdate(err)) throw err;
-}
 
 // ===== 5.5 生成最近更新文章列表 HTML =====
 let recentPostsSidebarWrapperHtml = '';
