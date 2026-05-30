@@ -388,6 +388,14 @@ html.theme-view-transitioning body *::after {
     animation-delay: 300ms;
 }
 
+.freecat-about-social > a {
+    animation: fadeInUp var(--post-card-enter-dur) var(--post-card-enter-ease) both;
+    animation-delay: calc(450ms + (var(--freecat-social-index, 0) * 70ms));
+    opacity: 0;
+    transform-origin: center top;
+    will-change: opacity, transform;
+}
+
 .post-card > div {
     transition:
         box-shadow var(--post-card-hover-dur) var(--post-card-enter-ease),
@@ -577,7 +585,8 @@ body.search-active .page-blur-target::before {
         transition: none !important;
     }
 
-    .animate-fade-in-up { animation: none !important; opacity: 1 !important; transform: none !important; }
+    .animate-fade-in-up,
+    .freecat-about-social > a { animation: none !important; opacity: 1 !important; transform: none !important; }
     .post-card > div {
         transition: none !important;
     }

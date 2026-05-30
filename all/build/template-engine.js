@@ -128,7 +128,7 @@ function generateSocialLinks(socialConfig, siteConfig) {
     const enabled = platforms.filter(platform => shouldRenderSocialPlatform(platform, siteConfig));
     if (enabled.length === 0) return '<!-- No social links enabled -->';
 
-    return enabled.map(platform => {
+    return enabled.map((platform, index) => {
         const capitalizedName = platform.name.charAt(0).toUpperCase() + platform.name.slice(1);
         const rawUrl = String(platform.url || '').trim();
         // 放行 http(s) / mailto / tel / 同站根相对路径（单 / 开头但非 //）；其它（含 javascript:）一律置为 #
@@ -147,7 +147,8 @@ function generateSocialLinks(socialConfig, siteConfig) {
                 href="${safeHref}"
                 aria-label="${safeAria}"
                 target="_blank"
-                rel="noopener noreferrer">
+                rel="noopener noreferrer"
+                style="--freecat-social-index:${index}">
                 ${iconHtml}
             </a>`;
     }).join('\n            ');
