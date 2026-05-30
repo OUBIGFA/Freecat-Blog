@@ -30,6 +30,15 @@ test('markdown images render the loading spinner element', () => {
     assert.equal(html.includes('<span class="loader"></span>'), true);
 });
 
+test('markdown image syntax keeps non-image URLs in the placeholder image flow', () => {
+    const html = parseMarkdown('![](https://x.com/i/status/1930080468529230100)');
+
+    assert.equal(html.includes('class="external-embed'), false);
+    assert.equal(html.includes('src="/image/404.png"'), true);
+    assert.equal(html.includes('data-src="https://x.com/i/status/1930080468529230100"'), true);
+    assert.equal(html.includes('class="post-image-loader"'), true);
+});
+
 test('inline-code headings keep their own text in the table of contents', () => {
     const { headings, toc } = extractHeadingsAndGenerateTOC([
         '### `site_网站属性.md`',

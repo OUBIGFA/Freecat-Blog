@@ -898,8 +898,6 @@ function buildRenderer() {
     };
 
     renderer.image = (href, title, text) => {
-        if (!isLikelyImageUrl(href)) return renderExternalEmbed(href, text);
-
         const fallbackSrc = '/image/404.png';
         const safeHref = escapeHtml(normalizeImageHref(href));
         const safeAlt = escapeRenderedText(text || '');
