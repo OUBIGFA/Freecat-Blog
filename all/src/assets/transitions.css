@@ -146,7 +146,7 @@
 @media (min-width: 1760px) {
     .freecat-floating-nav-panel {
         display: flex;
-        left: calc(50% + 780px + 3rem);
+        left: calc(50% + 780px + 6rem);
         right: auto;
     }
 }
@@ -209,6 +209,11 @@ body.search-active .freecat-floating-nav-panel {
 #share-btn .share-btn-label {
     transition: opacity var(--t-btn-dur) var(--t-btn-ease);
 }
+
+#share-btn:not([disabled]):not([aria-disabled="true"]):hover {
+    transform: none;
+}
+
 #share-btn .share-btn-icon-default {
     opacity: 1;
 }

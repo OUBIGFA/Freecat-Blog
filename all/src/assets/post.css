@@ -2354,7 +2354,8 @@
     .freecat-post-toc-panel {
         position: fixed;
         top: 8.5625rem;
-        left: calc(50% + 416px);
+        /* Article is 900px wide and centered on the viewport: 450px half-width + 48px visual gap. */
+        left: calc(50% + 498px);
         height: calc(100vh - 300px);
         z-index: 20;
         overflow-x: hidden;
@@ -2375,6 +2376,6 @@
 
 @media (min-width: 1760px) {
     .freecat-post-toc-panel {
-        left: calc(50% + 416px);
+        left: calc(50% + 498px);
     }
 }
