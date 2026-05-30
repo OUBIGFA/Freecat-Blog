@@ -30,13 +30,23 @@ test('markdown images render the loading spinner element', () => {
     assert.equal(html.includes('<span class="loader"></span>'), true);
 });
 
-test('markdown image syntax keeps non-image URLs in the placeholder image flow', () => {
+test('markdown image syntax keeps non-image URLs in the external embed flow with a placeholder', () => {
     const html = parseMarkdown('![](https://x.com/i/status/1930080468529230100)');
 
-    assert.equal(html.includes('class="external-embed'), false);
+    assert.equal(html.includes('class="external-embed external-embed-twitter external-embed-loading"'), true);
     assert.equal(html.includes('src="/image/404.png"'), true);
-    assert.equal(html.includes('data-src="https://x.com/i/status/1930080468529230100"'), true);
-    assert.equal(html.includes('class="post-image-loader"'), true);
+    assert.equal(html.includes('class="external-embed-placeholder"'), true);
+    assert.equal(html.includes('class="external-embed-content"><blockquote class="twitter-tweet"'), true);
+    assert.equal(html.includes('data-embed-url="https://x.com/i/status/1930080468529230100"'), true);
+});
+
+test('markdown image syntax keeps unknown non-image URLs in the link flow with a placeholder', () => {
+    const html = parseMarkdown('![Example](https://example.com/article)');
+
+    assert.equal(html.includes('class="external-embed external-embed-link external-embed-loading"'), true);
+    assert.equal(html.includes('src="/image/404.png"'), true);
+    assert.equal(html.includes('class="external-embed-placeholder"'), true);
+    assert.equal(html.includes('class="external-embed-content"><a href="https://example.com/article"'), true);
 });
 
 test('inline-code headings keep their own text in the table of contents', () => {

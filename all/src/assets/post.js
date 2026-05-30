@@ -1223,6 +1223,55 @@
         figure.className = 'external-embed external-embed-link';
         figure.setAttribute('data-embed-provider', 'link');
         figure.innerHTML = '<a href="' + safeUrl + '" target="_blank" rel="noopener noreferrer">' + safeUrl + '</a>';
+        markExternalEmbedReady(figure);
+    }
+
+    function markExternalEmbedReady(figure) {
+        if (!figure) return;
+        figure.classList.remove('external-embed-loading');
+        figure.classList.add('external-embed-ready');
+    }
+
+    function initExternalEmbedPlaceholders() {
+        document.querySelectorAll('figure.external-embed-loading').forEach(function (figure) {
+            var provider = figure.getAttribute('data-embed-provider');
+            if (provider === 'link') {
+                window.setTimeout(function () {
+                    markExternalEmbedReady(figure);
+                }, 120);
+                return;
+            }
+
+            if (provider !== 'twitter') {
+                var frame = figure.querySelector('iframe');
+                if (!frame) {
+                    markExternalEmbedReady(figure);
+                    return;
+                }
+                frame.addEventListener('load', function () {
+                    markExternalEmbedReady(figure);
+                }, { once: true });
+                window.setTimeout(function () {
+                    markExternalEmbedReady(figure);
+                }, 2200);
+                return;
+            }
+
+            var attempts = 0;
+            var timer = window.setInterval(function () {
+                attempts++;
+                if (!figure.classList.contains('external-embed-loading')) {
+                    window.clearInterval(timer);
+                    return;
+                }
+
+                var iframe = figure.querySelector('iframe');
+                if (iframe || attempts >= 80) {
+                    markExternalEmbedReady(figure);
+                    window.clearInterval(timer);
+                }
+            }, 100);
+        });
     }
 
     function isFailedTwitterEmbed(figure) {
@@ -1255,10 +1304,12 @@
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
             initHighlight();
+            initExternalEmbedPlaceholders();
             initTwitterEmbedFallback();
         });
     } else {
         initHighlight();
+        initExternalEmbedPlaceholders();
         initTwitterEmbedFallback();
     }
 })();

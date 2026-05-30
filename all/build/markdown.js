@@ -421,17 +421,20 @@ function renderExternalEmbed(href, text) {
     const safeUrl = escapeHtml(url);
     const label = String(text || '').trim() || url;
     const safeLabel = escapeHtml(label);
+    const placeholder = '<img class="external-embed-placeholder" src="/image/404.png" alt="" loading="lazy" decoding="async" aria-hidden="true" />';
 
     if (embed) {
         return `
-    <figure class="external-embed external-embed-${embed.provider}" data-embed-provider="${embed.provider}" data-embed-url="${safeUrl}">
-        ${embed.html}
+    <figure class="external-embed external-embed-${embed.provider} external-embed-loading" data-embed-provider="${embed.provider}" data-embed-url="${safeUrl}">
+        ${placeholder}
+        <div class="external-embed-content">${embed.html}</div>
     </figure>`;
     }
 
     return `
-    <figure class="external-embed external-embed-link" data-embed-provider="link">
-        <a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${safeLabel}</a>
+    <figure class="external-embed external-embed-link external-embed-loading" data-embed-provider="link">
+        ${placeholder}
+        <div class="external-embed-content"><a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${safeLabel}</a></div>
     </figure>`;
 }
 
@@ -898,6 +901,8 @@ function buildRenderer() {
     };
 
     renderer.image = (href, title, text) => {
+        if (!isLikelyImageUrl(href)) return renderExternalEmbed(href, text);
+
         const fallbackSrc = '/image/404.png';
         const safeHref = escapeHtml(normalizeImageHref(href));
         const safeAlt = escapeRenderedText(text || '');

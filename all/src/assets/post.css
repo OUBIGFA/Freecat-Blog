@@ -340,7 +340,30 @@
 .prose figure.external-embed {
     margin: 0 0 2rem 0 !important;
     display: block;
+    position: relative;
     width: 100%;
+}
+
+.prose figure.external-embed .external-embed-placeholder {
+    display: none;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 0.75rem;
+    background: #f8fafc;
+}
+
+.prose figure.external-embed.external-embed-loading .external-embed-placeholder {
+    display: block;
+}
+
+.prose figure.external-embed.external-embed-loading .external-embed-content {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
 }
 
 .prose figure.external-embed iframe.external-embed-frame {
