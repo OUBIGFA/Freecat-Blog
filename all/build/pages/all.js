@@ -8,7 +8,9 @@ const seo = require('../seo.js');
  */
 function generate({ posts, template, siteConfig, seoConfig, outputDir }) {
     console.log('📋 Generating all articles page...');
-    const html = posts.map(renderPostCardForList).join('');
+    const html = posts
+        .map((post, index) => renderPostCardForList(post, index, { animationDelayStep: 70 }))
+        .join('');
     const title = `All Articles - ${siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog'}`;
     const seoHead = seo.renderHeadTags({
         title,

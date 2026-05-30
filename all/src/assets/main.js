@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const elements = document.querySelectorAll(selector);
         const replay = options.replay !== false;
         elements.forEach((el, index) => {
-            const delay = `${Math.min(index, 10) * delayStep}ms`;
+            const delay = `${getStaggerDelayMs(index, delayStep)}ms`;
             if (!replay && el.classList.contains('animate-fade-in-up')) {
                 if (!el.style.animationDelay) el.style.animationDelay = delay;
                 return;
@@ -120,6 +120,10 @@ document.addEventListener('DOMContentLoaded', () => {
             void el.offsetWidth;
             el.classList.add('animate-fade-in-up');
         });
+    }
+
+    function getStaggerDelayMs(index, delayStep = 120) {
+        return Math.min(index, 10) * delayStep;
     }
 
     function getCssDurationMs(variableName, fallback) {
@@ -980,7 +984,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 coverWidth: post.coverWidth,
                 coverHeight: post.coverHeight,
                 pinned: post.pinned,
-                animationDelay: index * 120
+                animationDelay: getStaggerDelayMs(index)
             }) : '';
         }).join('');
 
@@ -997,8 +1001,6 @@ document.addEventListener('DOMContentLoaded', () => {
             </div >
             `;
         initDeferredImages();
-        // Animate search overlay results
-        setTimeout(() => applyStaggeredAnimations('#search-results-overlay .post-card'), 0);
     }
 
     function closeSearchResults(immediate = false) {
@@ -1076,8 +1078,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     if (noResultsDisplay) noResultsDisplay.classList.add('hidden');
                     renderSearchPageResults(results);
-                    // Animate search page results
-                    setTimeout(() => applyStaggeredAnimations('#search-results .post-card'), 0);
                 }
             });
         } else {
@@ -1105,7 +1105,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 coverWidth: post.coverWidth,
                 coverHeight: post.coverHeight,
                 pinned: post.pinned,
-                animationDelay: index * 120
+                animationDelay: getStaggerDelayMs(index)
             }) : '';
         }).join('');
 

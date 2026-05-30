@@ -286,15 +286,6 @@
 
             const cards = Array.from(list.querySelectorAll('.post-card')).map((card, index) => ({ card, index }));
             const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            const applyInitialAnimations = () => {
-                if (prefersReducedMotion()) return;
-                Array.from(list.querySelectorAll('.post-card')).forEach((card, index) => {
-                    card.classList.remove('animate-fade-in-up');
-                    card.style.animationDelay = `${Math.min(index, 10) * 70}ms`;
-                    void card.offsetWidth;
-                    card.classList.add('animate-fade-in-up');
-                });
-            };
 
             const animateReorder = (beforeRects) => {
                 if (prefersReducedMotion()) return;
@@ -337,8 +328,6 @@
                 updateSortSwitch.setAttribute('aria-checked', String(mode === 'modified'));
                 animateReorder(beforeRects);
             };
-
-            requestAnimationFrame(applyInitialAnimations);
 
             updateSortSwitch.addEventListener('click', () => {
                 const useModifiedSort = updateSortSwitch.getAttribute('aria-checked') !== 'true';

@@ -8,10 +8,15 @@ const seo = require('../seo.js');
 /**
  * 渲染分页首页（index.html + page/N/index.html）。
  */
-function renderPostCardForList(post, index = 0) {
+function getCardAnimationDelay(index, step = 120) {
+    return Math.min(index, 10) * step;
+}
+
+function renderPostCardForList(post, index = 0, options = {}) {
     const tags = Array.isArray(post.tag) ? post.tag : (post.tag ? [post.tag] : []);
     // 首页 / 全部页 使用带 dark hover 的 tag 风格（与原有视觉一致）
     const tagsHtml = tags.map(t => shared.renderTagSpan(t, { darkHover: true })).join('');
+    const animationDelayStep = Number(options.animationDelayStep) || 120;
 
     return postCardTemplate.renderPostCard({
         link: post.link,
@@ -29,7 +34,7 @@ function renderPostCardForList(post, index = 0) {
         coverWidth: post.coverWidth,
         coverHeight: post.coverHeight,
         pinned: post.pinned,
-        animationDelay: index * 120
+        animationDelay: getCardAnimationDelay(index, animationDelayStep)
     });
 }
 
