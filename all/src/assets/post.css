@@ -156,6 +156,7 @@
 
 /* 段落样式：段落之间使用黄金比例间距 */
 .prose {
+    --article-block-radius: 8px;
     font-size: 1.15rem !important;
 }
 
@@ -311,6 +312,7 @@
     /* 缁熶竴 */
     display: block;
     width: 100%;
+    border-radius: var(--article-block-radius);
 }
 
 .prose figure.post-image .post-image-placeholder {
@@ -441,7 +443,7 @@
 .prose img {
     width: 100% !important;
     height: auto;
-    border-radius: 0.75rem;
+    border-radius: var(--article-block-radius);
     margin-top: 0 !important;
     /* 间距已由容器处理，img 自身不需要 margin */
 }
@@ -1643,7 +1645,7 @@
     position: relative;
     overflow: hidden !important;
     border: 1px solid var(--code-border) !important;
-    border-radius: 8px !important;
+    border-radius: var(--article-block-radius) !important;
     background: var(--code-surface) !important;
     box-shadow: var(--code-shadow) !important;
     overflow-anchor: none;
