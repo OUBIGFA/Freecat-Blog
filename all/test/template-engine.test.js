@@ -120,6 +120,11 @@ test('collectMenuTags counts tags, sorts by frequency then name, and tracks unta
     assert.equal(tagged[1].count, 2);
 });
 
+test('normalizeTagKey keeps tag matching consistent across menu and search page', () => {
+    assert.equal(shared.normalizeTagKey('  JavaScript  '), 'javascript');
+    assert.equal(shared.normalizeTagKey(null), '');
+});
+
 test('renderTagMenuItemsHtml escapes labels, encodes hrefs and renders counts', () => {
     const html = shared.renderTagMenuItemsHtml(shared.collectMenuTags([
         { tags: ['<b>x</b>'] }

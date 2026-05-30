@@ -626,6 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tagMenuItems = tagMenu ? tagMenu.querySelector('[data-tag-menu-items]') : null;
 
     let searchIndex = null;
+    let tagIndex = null;
     let tagMenuBuilt = false;
     const dropdownCloseMs = getCssDurationMs('--dropdown-close-dur', 150);
     const panelCloseMs = getCssDurationMs('--panel-close-dur', 350);
@@ -643,6 +644,38 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Failed to load search index:', err);
             return [];
         }
+    }
+
+    async function loadTagIndex() {
+        if (tagIndex) return tagIndex;
+        try {
+            const response = await fetch('/tag-index.json');
+            tagIndex = await response.json();
+            return tagIndex;
+        } catch (err) {
+            console.error('Failed to load tag index:', err);
+            return null;
+        }
+    }
+
+    function getPostsByTag(tag, index) {
+        if (!index || !Array.isArray(index.posts)) return [];
+        const key = shared.normalizeTagKey(tag);
+        const postIndexes = key === '__untagged__'
+            ? (index.untagged || [])
+            : ((index.tags && index.tags[key] && index.tags[key].posts) || []);
+        const posts = postIndexes
+            .map(i => index.posts[i])
+            .filter(Boolean);
+        return sortPostsForListing(posts);
+    }
+
+    function sortPostsForListing(posts) {
+        return posts.slice().sort((a, b) => {
+            if (a.pinned && !b.pinned) return -1;
+            if (!a.pinned && b.pinned) return 1;
+            return new Date(b.date) - new Date(a.date);
+        });
     }
 
     // 搜索函数：支持精确匹配和模糊匹配
@@ -683,12 +716,8 @@ document.addEventListener('DOMContentLoaded', () => {
             );
         });
 
-        // 统一排序逻辑：按置顶、日期降序
-        return filtered.sort((a, b) => {
-            if (a.pinned && !b.pinned) return -1;
-            if (!a.pinned && b.pinned) return 1;
-            return new Date(b.date) - new Date(a.date);
-        }).slice(0, isTagSearch ? 100 : 20); // 标签搜索显示更多
+        const sorted = sortPostsForListing(filtered);
+        return isTagSearch ? sorted : sorted.slice(0, 20);
     }
 
     function closeHeaderSearch(immediate = false) {
@@ -1027,9 +1056,15 @@ document.addEventListener('DOMContentLoaded', () => {
             // 同步到搜索输入框 (仅对普通搜索同步)
             // if (searchInput && query) searchInput.value = query;
 
-            // 加载索引并搜索
-            loadSearchIndex().then(index => {
-                const results = searchPosts(searchTerm, index, isTagSearch);
+            const loadResults = isTagSearch
+                ? loadTagIndex().then(index => {
+                    const results = getPostsByTag(searchTerm, index);
+                    if (results.length || index) return results;
+                    return loadSearchIndex().then(searchIndex => searchPosts(searchTerm, searchIndex, true));
+                })
+                : loadSearchIndex().then(index => searchPosts(searchTerm, index, false));
+
+            loadResults.then(results => {
 
                 if (resultsCountDisplay) {
                     resultsCountDisplay.textContent = `(${results.length} results)`;
