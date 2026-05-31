@@ -68,7 +68,7 @@
                     loading="lazy" decoding="async" />${cover ? '<div class="placeholder-loader" aria-hidden="true"><span class="loader"></span></div>' : ''}`
             : '';
         const mobileImageBlock = imageMarkup
-            ? `<div class="lazy-image-frame mt-8 h-[180px] shrink-0 rounded-2xl overflow-hidden sm:h-[200px]">
+            ? `<div class="lazy-image-frame mt-8 h-[196px] shrink-0 rounded-2xl overflow-hidden sm:h-[216px]">
                         ${imageMarkup}
                     </div>`
             : '';
@@ -103,7 +103,7 @@
             : '';
         const mobileInlineTagsBlock = mobileTagsInline && tagsBlock ? tagsBlock : '';
         const mobileFooterTagsBlock = !mobileTagsInline && tagsBlock
-            ? `<div class="mt-4 shrink-0 border-t border-slate-200 dark:border-slate-700 pt-3">
+            ? `<div class="mt-3 shrink-0">
                         <div class="flex min-h-5 items-center">${tagsBlock}</div>
                     </div>`
             : '';

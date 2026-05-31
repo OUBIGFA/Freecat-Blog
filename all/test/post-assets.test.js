@@ -34,6 +34,24 @@ test('post card cover placeholders render the shared loading spinner', () => {
     assert.equal(html.includes('<span class="loader"></span>'), true);
 });
 
+test('mobile post cards remove the image-to-tags divider and extend the cover', () => {
+    const html = postCardTemplate.renderPostCard({
+        link: '/posts/example.html',
+        titleHtml: 'Example',
+        excerptHtml: 'Example excerpt',
+        cover: '/image/example.png',
+        date: '2026-05-30',
+        modifiedDate: '2026-05-31',
+        tagsHtml: '<span>Free</span>'
+    });
+
+    assert.match(html, /lazy-image-frame mt-8 h-\[196px\]/);
+    assert.doesNotMatch(html, /lazy-image-frame mt-8 h-\[180px\]/);
+    assert.match(html, /<div class="mt-3 shrink-0">\s*<div class="flex min-h-5 items-center">/);
+    assert.doesNotMatch(html, /<div class="mt-3 shrink-0 border-t/);
+    assert.doesNotMatch(html, /<div class="mt-4 shrink-0 border-t/);
+});
+
 test('all-page cards can opt out of order-based entrance delay', () => {
     const dateValue = {
         tz: () => ({ format: () => '2026-05-31' }),
