@@ -52,7 +52,7 @@ test('markdown horizontal rules render as thick article dividers', () => {
 });
 
 test('markdown horizontal rule spacing is centered and preserves blank-line gaps', () => {
-    assert.match(postCss, /--article-space-divider:\s*60px;/);
+    assert.match(postCss, /--article-space-divider:\s*80px;/);
     assert.doesNotMatch(postCss, /--article-space-divider-(?:before|after):/);
     assert.match(postCss, /\.prose>hr\s*\{[^}]*margin:\s*0\s*!important;/);
     assert.match(postCss, /\.prose \.markdown-gap\+hr\s*\{[\s\S]*margin-block-start:\s*var\(--article-space-divider\)\s*!important;/);
