@@ -35,9 +35,14 @@ async function buildTailwindCss({ contentGlobs, outputPath, minify = true }) {
                     'display': ['Inter', '-apple-system', 'BlinkMacSystemFont', "'Segoe UI'", 'Roboto', "'PingFang SC'", "'Hiragino Sans GB'", "'Microsoft YaHei'", "'微软雅黑'", 'sans-serif']
                 },
                 borderRadius: {
-                    'DEFAULT': '0.25rem',
-                    'lg': '0.5rem',
-                    'xl': '0.75rem',
+                    'none': '0px',
+                    'sm': '8px',
+                    'DEFAULT': '8px',
+                    'md': '8px',
+                    'lg': '8px',
+                    'xl': '8px',
+                    '2xl': '8px',
+                    '3xl': '8px',
                     'full': '9999px'
                 },
             },

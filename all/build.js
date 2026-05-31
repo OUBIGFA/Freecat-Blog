@@ -72,6 +72,12 @@ const postDates = gitDatesModule.loadSnapshot({
     label: 'post publish date',
     section: 'published'
 });
+const postIds = gitDatesModule.loadSnapshot({
+    snapshotPath: path.join(__dirname, 'git-dates.json'),
+    required: false,
+    label: 'post id',
+    section: 'post_ids'
+});
 
 // ===== 3. 加载配置（site / social / about）=====
 console.log('⚙️ Loading site configuration...');
@@ -132,7 +138,7 @@ const aboutConfig = loadConfig(DIRS.control, 'about', 'about.md', {
 console.log('📝 Processing posts...');
 let allPosts;
 try {
-    allPosts = postPage.loadPosts({ postsDir: DIRS.posts, gitDates, postDates, skipMissingGitDates: true });
+    allPosts = postPage.loadPosts({ postsDir: DIRS.posts, gitDates, postDates, postIds, skipMissingGitDates: true });
 } catch (err) {
     if (!skipBuildUntilGitDatesUpdate(err)) throw err;
 }

@@ -8,6 +8,7 @@ const { renderPostContent } = require('./post-content.js');
 const seo = require('../seo.js');
 
 const ARTICLE_EXTENSIONS = new Set(['.md', '.markdown', '.txt']);
+const MISSING_ARTICLE_SNAPSHOT_CODE = 'MISSING_GIT_DATE';
 
 function isArticleFile(file) {
     return ARTICLE_EXTENSIONS.has(path.extname(file).toLowerCase());
@@ -15,6 +16,23 @@ function isArticleFile(file) {
 
 function fileSlug(file) {
     return path.basename(file, path.extname(file));
+}
+
+function readPostId(postIds, file) {
+    const raw = postIds && typeof postIds.get === 'function' ? postIds.get(file) : '';
+    const postId = String(raw == null ? '' : raw).trim();
+
+    if (!postId) {
+        const err = new Error(`Missing post id for "${file}". The GitHub article snapshot workflow should add it to all/git-dates.json.`);
+        err.code = MISSING_ARTICLE_SNAPSHOT_CODE;
+        throw err;
+    }
+
+    if (!/^\d{16}$/.test(postId)) {
+        throw new Error(`Invalid post id for "${file}": "${postId}". Post ids must be 16 digits, for example 2026053115300001.`);
+    }
+
+    return postId;
 }
 
 function hasYamlFrontmatter(raw) {
@@ -34,9 +52,10 @@ function removeEmptyTocAside(html, toc) {
  * 读取 writing/ 目录下的所有 Markdown 文章并归一化为 post 对象数组。
  * 跳过 frontmatter 标记 show: false 的文件。已按"置顶在前 + 时间倒序"排序。
  */
-function loadPosts({ postsDir, gitDates, postDates, skipMissingGitDates = false }) {
+function loadPosts({ postsDir, gitDates, postDates, postIds, skipMissingGitDates = false }) {
     const postFiles = fs.readdirSync(postsDir).filter(isArticleFile);
     const posts = [];
+    const seenPostIds = new Map();
 
     postFiles.forEach(file => {
         const filePath = path.join(postsDir, file);
@@ -52,6 +71,13 @@ function loadPosts({ postsDir, gitDates, postDates, skipMissingGitDates = false 
             console.log(`  跳过文章: ${file}`);
             return;
         }
+
+        const postId = readPostId(postIds, file);
+        const existingFile = seenPostIds.get(postId);
+        if (existingFile) {
+            throw new Error(`Duplicate post id "${postId}" in "${existingFile}" and "${file}". Each article must have a unique post id.`);
+        }
+        seenPostIds.set(postId, file);
 
         const storedModifiedDate = gitDates && typeof gitDates.get === 'function' ? gitDates.get(file) : null;
         if (!storedModifiedDate) {
@@ -80,6 +106,7 @@ function loadPosts({ postsDir, gitDates, postDates, skipMissingGitDates = false 
         posts.push({
             title: autoSpacing(titleRaw),
             slug,
+            postId,
             date: publishDate,
             modifiedDate,
             excerpt: autoSpacing(excerptRaw),
@@ -92,7 +119,7 @@ function loadPosts({ postsDir, gitDates, postDates, skipMissingGitDates = false 
             coverWidth: parseInt(data.cover_width, 10) || 0,
             coverHeight: parseInt(data.cover_height, 10) || 0,
             tag: data.tag || data.tags || [],
-            link: `/posts/${slug}.html`,
+            link: `/posts/${postId}`,
             pinned: data.pinned === true,
             enableImageCaptions,
             author: data.author || '',
@@ -152,10 +179,10 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
         ? '<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>'
         : '';
     const audioCss = needsAudioPlayer
-        ? '<link rel="stylesheet" href="../assets/audio-player.css" />'
+        ? '<link rel="stylesheet" href="/assets/audio-player.css" />'
         : '';
     const audioJs = needsAudioPlayer
-        ? '<script src="../assets/audio-player.js"></script>'
+        ? '<script src="/assets/audio-player.js"></script>'
         : '';
     const embedJs = needsTwitterEmbed
         ? '<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>'
@@ -208,11 +235,15 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
 
 function generateAll({ posts, template, siteConfig, seoConfig, outputDir }) {
     console.log('📄 Generating post pages...');
+    fs.mkdirSync(path.join(outputDir, 'posts'), { recursive: true });
+
     posts.forEach(post => {
         const html = renderPostPage({ post, template, siteConfig, seoConfig });
-        const outFile = path.join(outputDir, 'posts', `${post.slug}.html`);
+        const postDir = path.join(outputDir, 'posts', post.postId);
+        fs.mkdirSync(postDir, { recursive: true });
+        const outFile = path.join(postDir, 'index.html');
         fs.writeFileSync(outFile, html);
-        console.log(`  Generated: posts/${post.slug}.html`);
+        console.log(`  Generated: posts/${post.postId}/index.html`);
     });
 }
 

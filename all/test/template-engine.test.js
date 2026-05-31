@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 
 const { createEngine } = require('../build/template-engine.js');
+const { normalizeNotFoundAssetUrls } = require('../build/pages/notfound.js');
 const shared = require('../src/assets/shared.js');
 
 function createTestEngine(siteUrl, options = {}) {
@@ -62,6 +63,16 @@ test('404 template includes the theme bootstrap only once', () => {
     const count = (html.match(/localStorage\.getItem\('theme'\)/g) || []).length;
 
     assert.equal(count, 1);
+});
+
+test('404 page uses root asset paths so nested missing URLs render correctly', () => {
+    const html = createTestEngine('https://example.com').loadTemplate('template_index_404.html');
+    const normalized = normalizeNotFoundAssetUrls(html);
+
+    assert.equal(normalized.includes('href="./assets/'), false);
+    assert.equal(normalized.includes('src="./assets/'), false);
+    assert.equal(normalized.includes('href="/assets/tailwind.css'), true);
+    assert.equal(normalized.includes('src="/assets/main.js'), true);
 });
 
 test('theme bootstrap prevents initial restored scroll on normal entry and reload', () => {

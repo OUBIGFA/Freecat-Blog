@@ -94,7 +94,7 @@
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
     background-color: #cbd5e1;
-    border-radius: 4px;
+    border-radius: 8px;
 }
 
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
@@ -220,7 +220,7 @@
 
 .prose .katex-display::-webkit-scrollbar-thumb {
     background-color: rgba(100, 116, 139, .35);
-    border-radius: 4px;
+    border-radius: 8px;
 }
 
 .dark .prose .katex-display::-webkit-scrollbar-thumb {
@@ -288,7 +288,7 @@
     /* 缁熶竴 */
     display: block;
     width: 100%;
-    border-radius: var(--article-block-radius);
+    border-radius: 8px;
 }
 
 .prose figure.post-image .post-image-placeholder {
@@ -320,7 +320,7 @@
     aspect-ratio: 16 / 9;
     object-fit: cover;
     object-position: center;
-    border-radius: 0.75rem;
+    border-radius: 8px;
     background: #f8fafc;
 }
 
@@ -346,7 +346,7 @@
     aspect-ratio: 16 / 9;
     height: auto;
     border: 0;
-    border-radius: 0.75rem;
+    border-radius: 8px;
     background: #f8fafc;
 }
 
@@ -356,7 +356,7 @@
 
 .prose figure.external-embed-link {
     border: 1px solid #d8e0eb;
-    border-radius: 0.75rem;
+    border-radius: 8px;
     padding: 1rem 1.1rem;
     background: #f8fafc;
 }
@@ -412,7 +412,7 @@
 .prose img {
     width: 100% !important;
     height: auto;
-    border-radius: var(--article-block-radius);
+    border-radius: 8px;
     margin-top: 0 !important;
     /* 间距已由容器处理，img 自身不需要 margin */
 }
@@ -469,7 +469,7 @@
     color: #475569 !important;
     padding: 0.14em 0.4em !important;
     border: 1px solid #e2e8f0 !important;
-    border-radius: 0.375rem !important;
+    border-radius: 8px !important;
     font-size: 0.9em !important;
     font-family: inherit !important;
     font-weight: 600 !important;
@@ -545,7 +545,7 @@
     --callout-text: #1e293b;
     margin: 1.618em 0 !important;
     padding: 1em 1.1em !important;
-    border-radius: 0.9rem !important;
+    border-radius: 8px !important;
     border: 1px solid var(--callout-border) !important;
     border-left: 3px solid var(--callout-accent) !important;
     background-color: var(--callout-bg) !important;
@@ -906,7 +906,7 @@
     background-color: #fef08a;
     color: #854d0e;
     padding: 0.1em 0.3em;
-    border-radius: 0.2em;
+    border-radius: 8px;
 }
 
 .dark .prose mark {
@@ -925,7 +925,7 @@
     background-color: #1e293b !important;
     /* Slate-800 */
     color: #b6c2cf !important;
-    border-radius: 6px;
+    border-radius: 8px;
     /* Smooth corners */
     border: 1px solid #1e293b;
     /* Slate-700 border for definition */
@@ -944,7 +944,7 @@
     /* Slate-300 */
     background-color: #f8fafc;
     /* Slate-50 */
-    border-radius: 0.5rem;
+    border-radius: 8px;
     padding: 0.5rem 1rem;
     margin: 1em 0;
 }
@@ -1011,7 +1011,7 @@
     background-color: #fef08a !important;
     color: #1e293b !important;
     padding: 0.1em 0.3em !important;
-    border-radius: 0.25rem !important;
+    border-radius: 8px !important;
 }
 
 .dark .prose mark {
@@ -1668,7 +1668,7 @@
     position: relative;
     overflow: hidden !important;
     border: 1px solid var(--code-border) !important;
-    border-radius: var(--article-block-radius) !important;
+    border-radius: 8px !important;
     background: var(--code-surface) !important;
     box-shadow: var(--code-shadow) !important;
     overflow-anchor: none;
@@ -1967,7 +1967,7 @@
     margin: 0 1px !important;
     color: #647083 !important;
     border: 0 !important;
-    border-radius: 7px !important;
+    border-radius: 8px !important;
     background: transparent !important;
     box-shadow: none !important;
     transition: color 0.14s ease !important;
@@ -2082,7 +2082,7 @@
     width: auto !important;
     padding: 1px 7px !important;
     background: var(--diagram-bg) !important;
-    border-radius: 4px !important;
+    border-radius: 8px !important;
     line-height: 1.35 !important;
 }
 
@@ -2176,7 +2176,7 @@
 .mermaid-block .labelBkg {
     background-color: #f8fafc !important;
     border: 0.7px solid #9aa8bc !important;
-    border-radius: 4px;
+    border-radius: 8px;
     color: #0f172a !important;
 }
 

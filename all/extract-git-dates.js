@@ -1,12 +1,98 @@
 const fs = require('fs');
 const path = require('path');
+const { execFileSync } = require('child_process');
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
 const { collectFromGit, collectPublishDates, loadSnapshot } = require('./build/git-dates.js');
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 console.log('Extracting article date snapshots...');
 
 const repoRoot = path.join(__dirname, '..');
 const postsDir = path.join(repoRoot, 'writing');
 const datesFile = path.join(__dirname, 'git-dates.json');
+
+function normalizePath(filePath) {
+    return String(filePath || '').replace(/\\/g, '/');
+}
+
+function validatePostId(file, value) {
+    const id = String(value == null ? '' : value).trim();
+    if (!/^\d{16}$/.test(id)) {
+        throw new Error(`Invalid post id for "${file}" in ${path.basename(datesFile)}: "${id}".`);
+    }
+    return id;
+}
+
+function historicalBasenames(file) {
+    const relativePath = normalizePath(path.relative(repoRoot, path.join(postsDir, file)));
+    let output = '';
+    try {
+        output = execFileSync('git', [
+            '-c',
+            'core.quotepath=false',
+            'log',
+            '--follow',
+            '--name-only',
+            '--pretty=format:',
+            '--',
+            relativePath
+        ], {
+            cwd: repoRoot,
+            encoding: 'utf-8',
+            stdio: ['ignore', 'pipe', 'ignore'],
+            maxBuffer: 8 * 1024 * 1024
+        });
+    } catch (err) {
+        return [file];
+    }
+
+    const names = output
+        .split(/\r?\n/)
+        .map(line => path.posix.basename(normalizePath(line.trim())))
+        .filter(Boolean);
+    return Array.from(new Set([file, ...names]));
+}
+
+function makePostIdFactory(existingIds) {
+    const used = new Set(Object.values(existingIds || {}).filter(Boolean));
+    const first = dayjs().tz('Asia/Shanghai');
+    let index = 0;
+
+    return function nextPostId() {
+        let id = '';
+        do {
+            const current = first.add(Math.floor(index / 99), 'second');
+            const suffix = String((index % 99) + 1).padStart(2, '0');
+            id = `${current.format('YYYYMMDDHHmmss')}${suffix}`;
+            index += 1;
+        } while (used.has(id));
+        used.add(id);
+        return id;
+    };
+}
+
+function collectPostIdSnapshots(files, existingIds) {
+    const nextPostId = makePostIdFactory(existingIds);
+    const ids = {};
+    const usedIds = new Map();
+
+    files.forEach(file => {
+        const history = historicalBasenames(file);
+        const idSource = history.find(name => existingIds[name]);
+        const id = idSource ? validatePostId(idSource, existingIds[idSource]) : nextPostId();
+        if (usedIds.has(id)) {
+            throw new Error(`Duplicate post id "${id}" for "${usedIds.get(id)}" and "${file}".`);
+        }
+        usedIds.set(id, file);
+        ids[file] = id;
+    });
+
+    return ids;
+}
 
 const dates = collectFromGit({ repoRoot, postsDir, fallbackMissingToFileStat: true });
 const sorted = Object.fromEntries(
@@ -24,10 +110,23 @@ const sortedPublishDates = Object.fromEntries(
     Object.entries(publishDates.raw).sort(([a], [b]) => a.localeCompare(b, 'zh-Hans-CN'))
 );
 
+const existingPostIds = loadSnapshot({
+    snapshotPath: datesFile,
+    required: false,
+    label: 'post id',
+    section: 'post_ids'
+}).raw;
+const postIdSnapshots = collectPostIdSnapshots(Object.keys(sorted), existingPostIds);
+const sortedPostIds = Object.fromEntries(
+    Object.entries(postIdSnapshots).sort(([a], [b]) => a.localeCompare(b, 'zh-Hans-CN'))
+);
+
 fs.writeFileSync(datesFile, `${JSON.stringify({
     modified: sorted,
-    published: sortedPublishDates
+    published: sortedPublishDates,
+    post_ids: sortedPostIds
 }, null, 2)}\n`, 'utf-8');
 
 console.log(`Saved ${Object.keys(sorted).length} article modified dates to ${path.basename(datesFile)}.`);
 console.log(`Saved ${Object.keys(sortedPublishDates).length} article publish dates to ${path.basename(datesFile)}.`);
+console.log(`Saved ${Object.keys(sortedPostIds).length} article post ids to ${path.basename(datesFile)}.`);

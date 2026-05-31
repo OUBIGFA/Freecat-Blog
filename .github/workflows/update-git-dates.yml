@@ -1,4 +1,4 @@
-name: Update article modified dates
+name: Update article snapshots
 
 on:
   push:
@@ -6,6 +6,9 @@ on:
       - main
     paths:
       - 'writing/**'
+      - 'all/extract-git-dates.js'
+      - 'all/build/git-dates.js'
+      - '.github/workflows/update-git-dates.yml'
   workflow_dispatch:
 
 permissions:
@@ -32,19 +35,19 @@ jobs:
         working-directory: all
         run: npm ci
 
-      - name: Generate article date snapshots
+      - name: Generate article snapshots
         working-directory: all
         run: npm run extract-dates
 
       - name: Commit updated snapshots
         run: |
           if git diff --quiet -- all/git-dates.json; then
-            echo "Article date snapshots are already up to date."
+            echo "Article snapshots are already up to date."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add all/git-dates.json
-          git commit -m "chore: update article date snapshots"
+          git commit -m "chore: update article snapshots"
           git push

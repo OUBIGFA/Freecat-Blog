@@ -20,6 +20,7 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir, recentPos
         return {
             title: post.title,
             slug: post.slug,
+            postId: post.postId,
             date: post.date.tz('Asia/Shanghai').format('YYYY-MM-DD'),
             excerpt: post.excerpt,
             preview: post.preview || post.excerpt,
