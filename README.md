@@ -1,15 +1,23 @@
-<div>![Freecat Blog Preview](all/image/freecat.png)   
+<div align="center">
+  <img src="all/image/freecat.png" alt="Freecat Blog Preview">
 
-# Freecat Blog
+  <h1>Freecat Blog</h1>
 
-本地写作、GitHub 备份、免费部署的个人博客模板
+  <p>本地写作、GitHub 备份、免费部署的个人博客模板</p>
 
-简体中文 | [English](README.en.md)
+  <p>简体中文 | <a href="README.en.md">English</a></p>
 
-     ![Platform](https://img.shields.io/badge/platform-Web-2563eb)     ![Node](https://img.shields.io/badge/Node-20-339933)     ![Deploy](https://img.shields.io/badge/deploy-Cloudflare%20%7C%20Vercel-f97316)     ![License](https://img.shields.io/badge/license-MIT-111827)   
+  <p>
+    <img src="https://img.shields.io/badge/platform-Web-2563eb" alt="Platform">
+    <img src="https://img.shields.io/badge/Node-20-339933" alt="Node">
+    <img src="https://img.shields.io/badge/deploy-Cloudflare%20%7C%20Vercel-f97316" alt="Deploy">
+    <img src="https://img.shields.io/badge/license-MIT-111827" alt="License">
+  </p>
 
-     [演示站点 01](https://freecat-blog.pages.dev) |     [演示站点 02](https://freecat-blog-op.pages.dev)   
-
+  <p>
+    <a href="https://freecat-blog.pages.dev">演示站点 01</a> |
+    <a href="https://freecat-blog-op.pages.dev">演示站点 02</a>
+  </p>
 </div>
 
 > **提示：** 如遇构建相关问题，只需前往主仓库复制最新的 [sync-upstream](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/sync-upstream.yml) 或 [update-git-dates.yml ](https://github.com/OUBIGFA/FreeBlog_BIGFA/blob/main/.github/workflows/update-git-dates.yml)工作流文件到你的仓库并手动运行一次。该工作流仅同步构建文件，不会覆盖你的自定义设置和 writing/ 写作文件夹。
@@ -425,4 +433,3 @@ Freecat Blog 会持续修 bug、加功能、优化样式。仓库自带一个 Gi
 ## 许可证
 
 本项目使用 MIT License。
-
