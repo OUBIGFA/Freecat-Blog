@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="all/image/freecat.png" alt="Freecat Blog Preview">
+  <img src="all/image/freecat.png" alt="Freecat Blog Preview" width="160" height="160">
 
   <h1>Freecat Blog</h1>
 
