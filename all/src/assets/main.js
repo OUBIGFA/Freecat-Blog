@@ -178,40 +178,13 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = '/';
         }
 
-        function getFloatingNavBoundaryRect() {
-            const selectors = [
-                'article',
-                '[data-floating-nav-container] .layout-content-container',
-                '#search-results .post-card > div',
-                '#search-results',
-                '#posts-list .post-card > div',
-                '#posts-list',
-                '[data-floating-nav-container]',
-                'main > div'
-            ];
-
-            for (const selector of selectors) {
-                const element = document.querySelector(selector);
-                if (!element) continue;
-                const rect = element.getBoundingClientRect();
-                if (rect.width > 0 && rect.height > 0) return rect;
-            }
-
-            return null;
-        }
-
         let floatingNavLayoutFrame = 0;
 
         function updateFloatingNavLayout() {
             floatingNavLayoutFrame = 0;
             if (!floatingNavPanel) return;
 
-            const panelRect = floatingNavPanel.getBoundingClientRect();
-            const boundaryRect = getFloatingNavBoundaryRect();
-            const shouldHide = window.innerWidth < 1024
-                || !boundaryRect
-                || panelRect.width <= 0
-                || panelRect.left <= boundaryRect.right;
+            const shouldHide = window.innerWidth < 1024;
 
             floatingNavPanel.classList.toggle('is-layout-hidden', shouldHide);
             floatingNavPanel.setAttribute('aria-hidden', shouldHide ? 'true' : 'false');
