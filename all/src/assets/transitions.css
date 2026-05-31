@@ -131,19 +131,23 @@
     background-color: transparent;
     border-color: rgba(148, 163, 184, 0.38);
     color: #64748b;
+    transition:
+        border-color 460ms cubic-bezier(0.4, 0, 0.2, 1) 110ms,
+        outline-color 460ms cubic-bezier(0.4, 0, 0.2, 1) 110ms;
     will-change: border-color;
 }
 
 .t-btn.t-btn-outline-subtle:not([disabled]):not([aria-disabled="true"]):hover {
-    border-color: rgba(100, 116, 139, 0.48);
+    border-color: rgba(100, 116, 139, 0.42);
     background-color: transparent;
     color: #64748b;
     transform: none;
 }
 
 .t-btn.t-btn-outline-subtle:not([disabled]):not([aria-disabled="true"]):active {
-    border-color: rgba(71, 85, 105, 0.54);
+    border-color: rgba(100, 116, 139, 0.46);
     transform: none;
+    transition-delay: 0ms;
 }
 
 .t-btn.t-btn-outline-subtle:focus-visible {
@@ -157,13 +161,13 @@
 }
 
 .dark .t-btn.t-btn-outline-subtle:not([disabled]):not([aria-disabled="true"]):hover {
-    border-color: rgba(148, 163, 184, 0.58);
+    border-color: rgba(148, 163, 184, 0.54);
     background-color: transparent;
     color: #cbd5e1;
 }
 
 .dark .t-btn.t-btn-outline-subtle:not([disabled]):not([aria-disabled="true"]):active {
-    border-color: rgba(203, 213, 225, 0.62);
+    border-color: rgba(148, 163, 184, 0.58);
 }
 
 .dark .t-btn.t-btn-outline-subtle:focus-visible {
