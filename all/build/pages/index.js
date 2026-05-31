@@ -36,7 +36,8 @@ function renderPostCardForList(post, index = 0, options = {}) {
         coverWidth: post.coverWidth,
         coverHeight: post.coverHeight,
         pinned: post.pinned,
-        animationDelay: getCardAnimationDelay(index, animationDelayStep)
+        animationDelay: getCardAnimationDelay(index, animationDelayStep),
+        mobileTagsInline: options.mobileTagsInline === true
     });
 }
 

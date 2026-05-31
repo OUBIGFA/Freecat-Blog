@@ -5,6 +5,8 @@ const assert = require('node:assert/strict');
 
 const postJs = fs.readFileSync(path.join(__dirname, '../src/assets/post.js'), 'utf-8');
 const postCss = fs.readFileSync(path.join(__dirname, '../src/assets/post.css'), 'utf-8');
+const mainJs = fs.readFileSync(path.join(__dirname, '../src/assets/main.js'), 'utf-8');
+const searchTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index_search.html'), 'utf-8');
 const transitionsCss = fs.readFileSync(path.join(__dirname, '../src/assets/transitions.css'), 'utf-8');
 const postCardTemplate = require('../src/assets/post-card-template.js');
 const { renderPostCardForList } = require('../build/pages/index.js');
@@ -46,6 +48,36 @@ test('all-page cards can opt out of order-based entrance delay', () => {
 
     assert.match(html, /animation-delay:\s*0ms/);
     assert.doesNotMatch(html, /animation-delay:\s*(?:560|960)ms/);
+});
+
+test('search page result count renders as the untagged-style numeric badge', () => {
+    assert.match(mainJs, /resultsCountDisplay\.textContent\s*=\s*String\(results\.length\);/);
+    assert.doesNotMatch(mainJs, /resultsCountDisplay\.textContent\s*=\s*`\(\$\{results\.length\} results\)`;/);
+    assert.match(searchTemplate, /id="results-count"[\s\S]*background:\s*rgba\(148,\s*163,\s*184,\s*0\.18\);\s*color:\s*#475569;/);
+});
+
+test('all-page cards can reuse the metadata row for mobile tags', () => {
+    const dateValue = {
+        tz: () => ({ format: () => '2026-05-30' }),
+        valueOf: () => 1780135781000
+    };
+    const modifiedDateValue = {
+        tz: () => ({ format: () => '2026-05-31' }),
+        valueOf: () => 1780222181000
+    };
+    const html = renderPostCardForList({
+        link: '/posts/example/',
+        title: 'Example',
+        excerpt: 'Example excerpt',
+        date: dateValue,
+        modifiedDate: modifiedDateValue,
+        tag: ['Free'],
+        cover: '/image/example.png'
+    }, 0, { mobileTagsInline: true });
+
+    assert.match(html, /post-card[^"]*\btags-inline-mobile\b/);
+    assert.equal(html.indexOf('<span>2026-05-31</span>') < html.indexOf('Free'), true);
+    assert.doesNotMatch(html, /<div class="mt-4 shrink-0 border-t/);
 });
 
 test('top two present article heading ranks render full-width divider rules', () => {

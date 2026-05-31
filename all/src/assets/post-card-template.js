@@ -44,6 +44,7 @@
         const sortDate = Number(post.sortDate) || 0;
         const sortModifiedDate = Number(post.sortModifiedDate) || sortDate;
         const tagsHtml = post.tagsHtml || '';
+        const mobileTagsInline = post.mobileTagsInline === true;
         const cover = escapeHtml(post.cover || '');
         const coverPlaceholder = post.coverPlaceholder === true;
         const imageSrc = cover || (coverPlaceholder ? '/image/404.png' : '');
@@ -100,9 +101,15 @@
                 ${tagsHtml}
                </div>`
             : '';
+        const mobileInlineTagsBlock = mobileTagsInline && tagsBlock ? tagsBlock : '';
+        const mobileFooterTagsBlock = !mobileTagsInline && tagsBlock
+            ? `<div class="mt-4 shrink-0 border-t border-slate-200 dark:border-slate-700 pt-3">
+                        <div class="flex min-h-5 items-center">${tagsBlock}</div>
+                    </div>`
+            : '';
 
         return `
-        <a href="${link}" class="post-card ${imageMarkup ? 'has-cover' : 'has-no-cover'} animate-fade-in-up block mb-8 md:mb-10 group cursor-pointer" style="animation-delay: ${animationDelay}ms" data-sort-date="${sortDate}" data-sort-modified="${sortModifiedDate}" data-sort-pinned="${pinned ? '1' : '0'}">
+        <a href="${link}" class="post-card ${imageMarkup ? 'has-cover' : 'has-no-cover'} ${mobileTagsInline ? 'tags-inline-mobile' : ''} animate-fade-in-up block mb-8 md:mb-10 group cursor-pointer" style="animation-delay: ${animationDelay}ms" data-sort-date="${sortDate}" data-sort-modified="${sortModifiedDate}" data-sort-pinned="${pinned ? '1' : '0'}">
             <div class="relative rounded-2xl bg-white dark:bg-card-dark px-9 pt-9 pb-4 shadow-sm group-hover:shadow-2xl group-hover:shadow-gray-400/20 dark:group-hover:shadow-black/40 lg:h-[390px] lg:px-16 lg:py-12">
                 ${pinnedBadge}
                 <div class="flex h-full min-w-0 flex-col lg:hidden">
@@ -114,15 +121,14 @@
                                 <span>${date}</span>
                             </div>
                             ${modifiedBlock}
+                            ${mobileInlineTagsBlock}
                         </div>
                     </div>
                     <div class="mt-7 shrink-0">
                         <p class="text-[#63718a] dark:text-gray-400 text-[14px] font-normal leading-7" style="${clampStyle(3)}">${excerptHtml}</p>
                     </div>
                     ${mobileImageBlock}
-                    <div class="mt-4 shrink-0 border-t border-slate-200 dark:border-slate-700 pt-3">
-                        <div class="flex min-h-5 items-center">${tagsBlock}</div>
-                    </div>
+                    ${mobileFooterTagsBlock}
                 </div>
                 <div class="hidden h-full min-w-0 ${imageMarkup ? 'grid-cols-[minmax(0,1fr)_minmax(360px,43%)]' : 'grid-cols-1'} grid-rows-[1fr_auto] gap-x-14 lg:grid">
                     <div class="row-start-1 flex min-h-0 flex-col">

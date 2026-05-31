@@ -1162,7 +1162,8 @@ document.addEventListener('DOMContentLoaded', () => {
             loadResults.then(results => {
 
                 if (resultsCountDisplay) {
-                    resultsCountDisplay.textContent = `(${results.length} results)`;
+                    resultsCountDisplay.textContent = String(results.length);
+                    resultsCountDisplay.setAttribute('aria-label', `${results.length} results`);
                 }
 
                 if (results.length === 0) {
