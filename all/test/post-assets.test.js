@@ -97,6 +97,10 @@ test('top two present article heading ranks render full-width divider rules', ()
     assert.match(postCss, /background:\s*var\(--article-heading-rule\);/);
 });
 
+test('article heading links inherit the heading color', () => {
+    assert.match(postCss, /\.prose \.article-heading a,\s*\.prose \.article-heading a:hover\s*\{[\s\S]*color:\s*inherit\s*!important;/);
+});
+
 test('markdown horizontal rules render as thick article dividers', () => {
     const hrBlocks = postCss.match(/(?:\.dark )?\.prose>hr\s*\{[^}]*\}/g) || [];
 

@@ -1131,6 +1131,11 @@
     color: #e2e8f0 !important;
 }
 
+.prose .article-heading a,
+.prose .article-heading a:hover {
+    color: inherit !important;
+}
+
 .prose .article-heading-depth-1 {
     font-size: var(--article-heading-h1) !important;
     line-height: 1.16 !important;
