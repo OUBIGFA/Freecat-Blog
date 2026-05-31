@@ -131,12 +131,19 @@
     background-color: transparent;
     border-color: rgba(148, 163, 184, 0.38);
     color: #64748b;
+    will-change: border-color;
 }
 
 .t-btn.t-btn-outline-subtle:not([disabled]):not([aria-disabled="true"]):hover {
-    background-color: rgba(148, 163, 184, 0.04);
     border-color: rgba(100, 116, 139, 0.48);
-    color: #475569;
+    background-color: transparent;
+    color: #64748b;
+    transform: none;
+}
+
+.t-btn.t-btn-outline-subtle:not([disabled]):not([aria-disabled="true"]):active {
+    border-color: rgba(71, 85, 105, 0.54);
+    transform: none;
 }
 
 .t-btn.t-btn-outline-subtle:focus-visible {
@@ -150,9 +157,13 @@
 }
 
 .dark .t-btn.t-btn-outline-subtle:not([disabled]):not([aria-disabled="true"]):hover {
-    background-color: rgba(148, 163, 184, 0.06);
     border-color: rgba(148, 163, 184, 0.58);
-    color: #e2e8f0;
+    background-color: transparent;
+    color: #cbd5e1;
+}
+
+.dark .t-btn.t-btn-outline-subtle:not([disabled]):not([aria-disabled="true"]):active {
+    border-color: rgba(203, 213, 225, 0.62);
 }
 
 .dark .t-btn.t-btn-outline-subtle:focus-visible {
