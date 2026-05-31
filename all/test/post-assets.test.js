@@ -134,12 +134,14 @@ test('markdown horizontal rule spacing is centered and preserves blank-line gaps
     assert.match(postCss, /--article-space-divider:\s*80px;/);
     assert.doesNotMatch(postCss, /--article-space-divider-(?:before|after):/);
     assert.match(postCss, /\.prose>hr\s*\{[^}]*margin:\s*0\s*!important;/);
+    assert.match(postCss, /\.prose>:not\(\.markdown-gap\)\+hr\s*,/);
     assert.match(postCss, /\.prose \.markdown-gap\+hr\s*\{[\s\S]*margin-block-start:\s*var\(--article-space-divider\)\s*!important;/);
-    assert.match(postCss, /\.prose hr\+\.markdown-gap\+:where\([^)]*\)\s*\{[\s\S]*margin-block-start:\s*var\(--article-space-divider\)\s*!important;/);
+    assert.match(postCss, /\.prose>hr\+:not\(\.markdown-gap\)\s*,/);
+    assert.match(postCss, /\.prose>hr\+\.markdown-gap\+:not\(\.markdown-gap\)\s*\{[\s\S]*margin-block-start:\s*var\(--article-space-divider\)\s*!important;/);
+    assert.match(postCss, /\.prose\.prose>:not\(\.markdown-gap\)\+hr\s*,/);
     assert.match(postCss, /\.prose\.prose \.markdown-gap\+hr\s*\{[\s\S]*margin-block-start:\s*var\(--article-space-divider\)\s*!important;/);
-    assert.match(postCss, /\.prose\.prose hr\+\.markdown-gap\+:where\([^)]*\)\s*\{[\s\S]*margin-block-start:\s*var\(--article-space-divider\)\s*!important;/);
-    assert.match(postCss, /\.prose hr\+:where\([^)]*\.article-heading[^)]*\)\s*,/);
-    assert.match(postCss, /\.prose\.prose hr\+:is\([^)]*\.article-heading[^)]*\)\s*,/);
+    assert.match(postCss, /\.prose\.prose>hr\+:not\(\.markdown-gap\)\s*,/);
+    assert.match(postCss, /\.prose\.prose>hr\+\.markdown-gap\+:not\(\.markdown-gap\)\s*\{[\s\S]*margin-block-start:\s*var\(--article-space-divider\)\s*!important;/);
     assert.doesNotMatch(postCss, /hr\+\.article-heading-depth-/);
     assert.doesNotMatch(postCss, /hr\+\.markdown-gap\+\.article-heading-depth-/);
 });

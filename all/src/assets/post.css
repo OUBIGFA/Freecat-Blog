@@ -1438,13 +1438,13 @@
     background: #475569 !important;
 }
 
-.prose :where(p, ul, ol, dl, blockquote, .article-heading, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+hr,
+.prose>:not(.markdown-gap)+hr,
 .prose .markdown-gap+hr {
     margin-block-start: var(--article-space-divider) !important;
 }
 
-.prose hr+:where(p, ul, ol, dl, blockquote, .article-heading, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
-.prose hr+.markdown-gap+:where(p, ul, ol, dl, blockquote, .article-heading, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player) {
+.prose>hr+:not(.markdown-gap),
+.prose>hr+.markdown-gap+:not(.markdown-gap) {
     margin-block-start: var(--article-space-divider) !important;
 }
 
@@ -1592,13 +1592,13 @@
     margin-block-start: var(--article-space-heading-peer-5) !important;
 }
 
-.prose.prose :where(p, ul, ol, dl, blockquote, .article-heading, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+hr,
+.prose.prose>:not(.markdown-gap)+hr,
 .prose.prose .markdown-gap+hr {
     margin-block-start: var(--article-space-divider) !important;
 }
 
-.prose.prose hr+:is(p, ul, ol, dl, blockquote, .article-heading, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player, hr),
-.prose.prose hr+.markdown-gap+:where(p, ul, ol, dl, blockquote, .article-heading, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player) {
+.prose.prose>hr+:not(.markdown-gap),
+.prose.prose>hr+.markdown-gap+:not(.markdown-gap) {
     margin-block-start: var(--article-space-divider) !important;
 }
 
