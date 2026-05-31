@@ -161,12 +161,96 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function initFloatingNavButtons() {
+        const floatingNavPanel = document.querySelector('.freecat-floating-nav-panel');
         const backToTopBtn = document.getElementById('back-to-top');
         const scrollToBottomBtn = document.getElementById('scroll-to-bottom');
         const floatingGoBackBtn = document.getElementById('floating-go-back');
         const goBackLinks = document.querySelectorAll('[data-go-back]');
+        const floatingNavContentSelectors = [
+            '[data-floating-nav-edge]',
+            '.freecat-post-toc-panel',
+            '.freecat-home-posts-inner',
+            '#posts-list',
+            '#search-results',
+            'article',
+            '.post-card',
+            '.prose',
+            '[data-floating-nav-container]',
+            'main > div'
+        ];
+        const floatingNavViewportInset = 24;
+        const floatingNavContentGap = 32;
+        const floatingNavMinViewport = 1024;
+        let floatingNavFrame = 0;
 
         if (!backToTopBtn && !scrollToBottomBtn && !floatingGoBackBtn && !goBackLinks.length) return;
+
+        function setFloatingNavPanelHidden(hidden) {
+            if (!floatingNavPanel) return;
+            floatingNavPanel.dataset.floatingNavReady = 'true';
+            floatingNavPanel.classList.toggle('is-hidden', hidden);
+        }
+
+        function rectIsVisible(rect) {
+            return rect.width > 1 && rect.height > 1
+                && rect.bottom > 0
+                && rect.top < window.innerHeight;
+        }
+
+        function getFloatingNavContentRightEdge(panelRect) {
+            const seen = new Set();
+            const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+            let rightEdge = 0;
+
+            floatingNavContentSelectors.forEach((selector) => {
+                document.querySelectorAll(selector).forEach((el) => {
+                    if (!el || seen.has(el) || (floatingNavPanel && floatingNavPanel.contains(el))) return;
+                    seen.add(el);
+
+                    const rect = el.getBoundingClientRect();
+                    if (!rectIsVisible(rect)) return;
+                    if (rect.bottom <= panelRect.top || rect.top >= panelRect.bottom) return;
+                    if (rect.width >= viewportWidth - floatingNavViewportInset * 2) return;
+
+                    rightEdge = Math.max(rightEdge, rect.right);
+                });
+            });
+
+            return rightEdge;
+        }
+
+        function getFloatingNavPreferredLeft(viewportWidth) {
+            const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+            return viewportWidth / 2 + 780 + rootFontSize * 6;
+        }
+
+        function updateFloatingNavPanelPosition() {
+            floatingNavFrame = 0;
+            if (!floatingNavPanel) return;
+
+            const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+            if (viewportWidth < floatingNavMinViewport) {
+                setFloatingNavPanelHidden(true);
+                return;
+            }
+
+            const panelRect = floatingNavPanel.getBoundingClientRect();
+            const panelWidth = panelRect.width || 48;
+            const maxLeft = viewportWidth - panelWidth - floatingNavViewportInset;
+            const contentRight = getFloatingNavContentRightEdge(panelRect);
+            const preferredLeft = getFloatingNavPreferredLeft(viewportWidth);
+            const nextLeft = Math.min(preferredLeft, maxLeft);
+            const hidden = nextLeft < floatingNavViewportInset
+                || (contentRight > 0 && nextLeft < contentRight + floatingNavContentGap);
+
+            floatingNavPanel.style.setProperty('--freecat-floating-nav-left', `${Math.round(nextLeft)}px`);
+            setFloatingNavPanelHidden(hidden);
+        }
+
+        function scheduleFloatingNavPanelPosition() {
+            if (!floatingNavPanel || floatingNavFrame) return;
+            floatingNavFrame = requestAnimationFrame(updateFloatingNavPanelPosition);
+        }
 
         function goBackOrHome() {
             if (window.history.length > 1) {
@@ -258,6 +342,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 goBackOrHome();
             });
         });
+
+        scheduleFloatingNavPanelPosition();
+        window.addEventListener('resize', scheduleFloatingNavPanelPosition);
+        window.addEventListener('scroll', scheduleFloatingNavPanelPosition, { passive: true });
+        window.addEventListener('load', scheduleFloatingNavPanelPosition);
+        window.addEventListener('pageshow', scheduleFloatingNavPanelPosition);
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(scheduleFloatingNavPanelPosition);
+        }
     }
 
     // ============================================================

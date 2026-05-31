@@ -225,20 +225,32 @@
     display: none;
     position: fixed;
     top: 8rem;
+    left: var(--freecat-floating-nav-left, calc(50% + 780px + 6rem));
+    right: auto;
     height: calc(100vh - 300px);
     flex-direction: column;
     align-items: center;
     /* 整组按钮垂直居中；返回上一页与上面两个按钮之间留约两个身位（96px）的间距 */
     justify-content: center;
     gap: 6rem;
+    opacity: 0;
+    transition: opacity 180ms ease-out;
+    will-change: left, opacity;
 }
 
-@media (min-width: 1760px) {
+@media (min-width: 1024px) {
     .freecat-floating-nav-panel {
         display: flex;
-        left: calc(50% + 780px + 6rem);
-        right: auto;
     }
+}
+
+.freecat-floating-nav-panel[data-floating-nav-ready="true"] {
+    opacity: 1;
+}
+
+.freecat-floating-nav-panel.is-hidden {
+    opacity: 0;
+    pointer-events: none;
 }
 
 /* 首页隐藏返回上一页按钮（保留占位，避免上面两个按钮的居中点偏移） */
