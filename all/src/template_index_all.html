@@ -285,36 +285,26 @@
             if (!list || !updateSortSwitch) return;
 
             const cards = Array.from(list.querySelectorAll('.post-card')).map((card, index) => ({ card, index }));
+            const getCardDelay = (index) => `${Math.min(index, 10) * 70}ms`;
             const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-            const animateReorder = (beforeRects) => {
+            const replayEntrance = (sortedCards) => {
+                sortedCards.forEach(({ card }, index) => {
+                    card.style.animationDelay = getCardDelay(index);
+                    if (!prefersReducedMotion()) {
+                        card.classList.remove('animate-fade-in-up');
+                    }
+                });
                 if (prefersReducedMotion()) return;
 
-                requestAnimationFrame(() => {
-                    cards.forEach(({ card }) => {
-                        const before = beforeRects.get(card);
-                        if (!before) return;
-                        const after = card.getBoundingClientRect();
-                        const dx = before.left - after.left;
-                        const dy = before.top - after.top;
-                        if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) return;
-
-                        card.animate([
-                            { transform: `translate3d(${dx}px, ${dy}px, 0)`, opacity: 0.92 },
-                            { transform: 'translate3d(0, 0, 0)', opacity: 1 }
-                        ], {
-                            duration: 520,
-                            easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
-                            fill: 'both'
-                        });
-                    });
+                void list.offsetWidth;
+                sortedCards.forEach(({ card }) => {
+                    card.classList.add('animate-fade-in-up');
                 });
             };
 
             const sortCards = (mode) => {
-                const beforeRects = new Map(cards.map(({ card }) => [card, card.getBoundingClientRect()]));
-
-                cards
+                const sortedCards = cards
                     .sort((a, b) => {
                         const pinnedDelta = mode === 'date'
                             ? Number(b.card.dataset.sortPinned || 0) - Number(a.card.dataset.sortPinned || 0)
@@ -322,11 +312,12 @@
                         const field = mode === 'modified' ? 'sortModified' : 'sortDate';
                         const delta = pinnedDelta || Number(b.card.dataset[field] || 0) - Number(a.card.dataset[field] || 0);
                         return delta || a.index - b.index;
-                    })
-                    .forEach(({ card }) => list.appendChild(card));
+                    });
+
+                sortedCards.forEach(({ card }) => list.appendChild(card));
 
                 updateSortSwitch.setAttribute('aria-checked', String(mode === 'modified'));
-                animateReorder(beforeRects);
+                replayEntrance(sortedCards);
             };
 
             updateSortSwitch.addEventListener('click', () => {

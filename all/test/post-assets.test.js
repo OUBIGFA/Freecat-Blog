@@ -7,6 +7,7 @@ const postJs = fs.readFileSync(path.join(__dirname, '../src/assets/post.js'), 'u
 const postCss = fs.readFileSync(path.join(__dirname, '../src/assets/post.css'), 'utf-8');
 const transitionsCss = fs.readFileSync(path.join(__dirname, '../src/assets/transitions.css'), 'utf-8');
 const postCardTemplate = require('../src/assets/post-card-template.js');
+const { renderPostCardForList } = require('../build/pages/index.js');
 
 test('external embeds keep placeholders until visible content or fallback link is ready', () => {
     assert.match(postJs, /function hasVisibleTwitterEmbed\(figure\)/);
@@ -28,6 +29,23 @@ test('post card cover placeholders render the shared loading spinner', () => {
     assert.equal(html.includes('data-src="/image/example.png"'), true);
     assert.equal(html.includes('class="placeholder-loader"'), true);
     assert.equal(html.includes('<span class="loader"></span>'), true);
+});
+
+test('all-page cards can opt out of order-based entrance delay', () => {
+    const dateValue = {
+        tz: () => ({ format: () => '2026-05-31' }),
+        valueOf: () => 1780222181000
+    };
+    const html = renderPostCardForList({
+        link: '/posts/example/',
+        title: 'Example',
+        excerpt: 'Example excerpt',
+        date: dateValue,
+        modifiedDate: dateValue
+    }, 8, { animationDelayStep: 0 });
+
+    assert.match(html, /animation-delay:\s*0ms/);
+    assert.doesNotMatch(html, /animation-delay:\s*(?:560|960)ms/);
 });
 
 test('top two present article heading ranks render full-width divider rules', () => {
