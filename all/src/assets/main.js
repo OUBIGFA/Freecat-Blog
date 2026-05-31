@@ -161,6 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function initFloatingNavButtons() {
+        const floatingNavPanel = document.querySelector('.freecat-floating-nav-panel');
         const backToTopBtn = document.getElementById('back-to-top');
         const scrollToBottomBtn = document.getElementById('scroll-to-bottom');
         const floatingGoBackBtn = document.getElementById('floating-go-back');
@@ -175,6 +176,49 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             window.location.href = '/';
+        }
+
+        function getFloatingNavBoundaryRect() {
+            const selectors = [
+                'article',
+                '[data-floating-nav-container] .layout-content-container',
+                '#posts-list .post-card > div',
+                '#posts-list',
+                '[data-floating-nav-container]',
+                'main > div'
+            ];
+
+            for (const selector of selectors) {
+                const element = document.querySelector(selector);
+                if (!element) continue;
+                const rect = element.getBoundingClientRect();
+                if (rect.width > 0 && rect.height > 0) return rect;
+            }
+
+            return null;
+        }
+
+        let floatingNavLayoutFrame = 0;
+
+        function updateFloatingNavLayout() {
+            floatingNavLayoutFrame = 0;
+            if (!floatingNavPanel) return;
+
+            const panelRect = floatingNavPanel.getBoundingClientRect();
+            const boundaryRect = getFloatingNavBoundaryRect();
+            const shouldHide = window.innerWidth < 1024
+                || !boundaryRect
+                || panelRect.width <= 0
+                || panelRect.left <= boundaryRect.right;
+
+            floatingNavPanel.classList.toggle('is-layout-hidden', shouldHide);
+            floatingNavPanel.setAttribute('aria-hidden', shouldHide ? 'true' : 'false');
+            if ('inert' in floatingNavPanel) floatingNavPanel.inert = shouldHide;
+        }
+
+        function scheduleFloatingNavLayout() {
+            if (floatingNavLayoutFrame) return;
+            floatingNavLayoutFrame = window.requestAnimationFrame(updateFloatingNavLayout);
         }
 
         function getContainerBottomScrollY() {
@@ -258,6 +302,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 goBackOrHome();
             });
         });
+
+        updateFloatingNavLayout();
+        window.addEventListener('resize', scheduleFloatingNavLayout);
+        window.addEventListener('load', scheduleFloatingNavLayout);
+        window.addEventListener('pageshow', scheduleFloatingNavLayout);
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(scheduleFloatingNavLayout);
+        }
     }
 
     // ============================================================
