@@ -15,13 +15,14 @@
 
 :root {
     /* ===== Button motion tokens ===== */
-    --t-btn-dur: 220ms;
-    --t-btn-press-dur: 90ms;
+    --t-btn-dur: 280ms;
+    --t-btn-hover-delay: 45ms;
+    --t-btn-press-dur: 110ms;
     --t-btn-ease: cubic-bezier(0.22, 1, 0.36, 1);
     --t-btn-press-ease: cubic-bezier(0.4, 0, 0.6, 1);
 
-    --t-btn-lift: -1.5px;
-    --t-btn-press-scale: 0.96;
+    --t-btn-lift: -0.75px;
+    --t-btn-press-scale: 0.98;
     --t-btn-icon-press-scale: 0.92;
 
     /* ===== Theme switch motion tokens ===== */
@@ -92,7 +93,7 @@
 /* ============================================================
  * .t-btn —— 外形/填充按钮统一动效
  * 适用：Share / Go Back / View All / 分页 Prev/Next / 分页页码
- * 行为：hover 抬升；active 下沉 + 缩放，press_dur 更短给更"实"的触感
+ * 行为：hover 轻微抬升并带短延迟；active 下沉 + 轻缩放，press_dur 更短给更"实"的触感
  *      （不使用 box-shadow，纯 transform + 颜色过渡）
  * ============================================================ */
 .t-btn {
@@ -103,17 +104,20 @@
         color var(--t-btn-dur) var(--t-btn-ease),
         opacity var(--t-btn-dur) var(--t-btn-ease),
         filter var(--t-btn-dur) var(--t-btn-ease);
+    transition-delay: 0ms;
     will-change: transform;
 }
 
 .t-btn:not([disabled]):not([aria-disabled="true"]):hover {
     transform: translateY(var(--t-btn-lift));
+    transition-delay: var(--t-btn-hover-delay);
 }
 
 .t-btn:not([disabled]):not([aria-disabled="true"]):active {
     transform: translateY(0) scale(var(--t-btn-press-scale));
     transition:
         transform var(--t-btn-press-dur) var(--t-btn-press-ease);
+    transition-delay: 0ms;
 }
 
 .t-btn[disabled],
@@ -121,6 +125,38 @@
     opacity: 0.4;
     pointer-events: none;
     transform: none;
+}
+
+.t-btn.t-btn-outline-subtle {
+    background-color: transparent;
+    border-color: rgba(148, 163, 184, 0.38);
+    color: #64748b;
+}
+
+.t-btn.t-btn-outline-subtle:not([disabled]):not([aria-disabled="true"]):hover {
+    background-color: rgba(148, 163, 184, 0.04);
+    border-color: rgba(100, 116, 139, 0.48);
+    color: #475569;
+}
+
+.t-btn.t-btn-outline-subtle:focus-visible {
+    outline: 2px solid rgba(148, 163, 184, 0.42);
+    outline-offset: 3px;
+}
+
+.dark .t-btn.t-btn-outline-subtle {
+    border-color: rgba(100, 116, 139, 0.48);
+    color: #cbd5e1;
+}
+
+.dark .t-btn.t-btn-outline-subtle:not([disabled]):not([aria-disabled="true"]):hover {
+    background-color: rgba(148, 163, 184, 0.06);
+    border-color: rgba(148, 163, 184, 0.58);
+    color: #e2e8f0;
+}
+
+.dark .t-btn.t-btn-outline-subtle:focus-visible {
+    outline-color: rgba(148, 163, 184, 0.46);
 }
 
 /* 内部图标的 hover 微动效（向左 / 上下），由父 .group 控制 */

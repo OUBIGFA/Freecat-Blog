@@ -1,21 +1,18 @@
-<div align="center">
-  <img src="all/image/freecat.png" width="120" alt="Freecat Blog Preview">
-  <h1>Freecat Blog</h1>
-  <p>本地写作、GitHub 备份、免费部署的个人博客模板</p>
-  <p>简体中文 | <a href="README.en.md">English</a></p>
-  <p>
-    <img alt="Platform" src="https://img.shields.io/badge/platform-Web-2563eb">
-    <img alt="Node" src="https://img.shields.io/badge/Node-20-339933">
-    <img alt="Deploy" src="https://img.shields.io/badge/deploy-Cloudflare%20%7C%20Vercel-f97316">
-    <img alt="License" src="https://img.shields.io/badge/license-MIT-111827">
-  </p>
-  <p>
-    <a href="https://freecat-blog.pages.dev">演示站点 01</a> |
-    <a href="https://freecat-blog-op.pages.dev">演示站点 02</a>
-  </p>
+<div>![Freecat Blog Preview](all/image/freecat.png)   
+
+# Freecat Blog
+
+本地写作、GitHub 备份、免费部署的个人博客模板
+
+简体中文 | [English](README.en.md)
+
+     ![Platform](https://img.shields.io/badge/platform-Web-2563eb)     ![Node](https://img.shields.io/badge/Node-20-339933)     ![Deploy](https://img.shields.io/badge/deploy-Cloudflare%20%7C%20Vercel-f97316)     ![License](https://img.shields.io/badge/license-MIT-111827)   
+
+     [演示站点 01](https://freecat-blog.pages.dev) |     [演示站点 02](https://freecat-blog-op.pages.dev)   
+
 </div>
 
-> **提示：** 如遇构建相关问题，只需前往主仓库复制最新的 [sync-upstream](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/sync-upstream.yml) 工作流文件到你的仓库并手动运行一次。该工作流仅同步构建文件，不会覆盖你的自定义设置和 writing/ 写作文件夹。
+> **提示：** 如遇构建相关问题，只需前往主仓库复制最新的 [sync-upstream](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/sync-upstream.yml) 或 [update-git-dates.yml ](https://github.com/OUBIGFA/FreeBlog_BIGFA/blob/main/.github/workflows/update-git-dates.yml)工作流文件到你的仓库并手动运行一次。该工作流仅同步构建文件，不会覆盖你的自定义设置和 writing/ 写作文件夹。
 
 ## 最短部署路径预览
 
@@ -90,7 +87,7 @@ Cloudflare Pages / Vercel 自动构建
 - 自动生成首页、文章页、归档页、搜索页、About 页
 - 文章支持标签、封面、摘要、置顶、显示/隐藏
 - 自动优化中英混排、数字单位间距、代码块、数学公式
-- 内置 SEO 和 AI 检索支持，可生成 Sitemap、RSS、llms.txt，并引导你提交到 Google 与 Bing。详情见 [`Control/SEO_搜索优化.md`](Control/SEO_搜索优化.md)
+- 内置 SEO 和 AI 检索支持，可生成 Sitemap、RSS、llms.txt，并引导你提交到 Google 与 Bing。详情见 `Control/SEO_搜索优化.md`
 - 文章里放音频直链就能自动生成播放器
 - 不写代码就能改网站名、头像、社交链接和主题
 
