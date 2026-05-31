@@ -24,7 +24,7 @@
 
 ## 最短部署路径预览
 
-1. 用 GitHub Importer 创建自己的私人博客仓库
+1. 用 [GitHub Importer](https://github.com/new/import) 导入并转换成私人博客仓库
 2. 去 Cloudflare Pages 或 Vercel 导入仓库构建
 3. 等部署完成，打开默认网址确认
 
@@ -32,8 +32,8 @@
 
 ## 最短使用路径预览
 
-1. 用 GitHub Desktop 拉到本地
-2. 本地打开项目，在`writing`文件夹中撰写或存入一篇文章
+1. 用 [GitHub Desktop](https://desktop.github.com/download) 拉到本地
+2. 本地打开项目，在`writing`文件夹中撰写或存入一篇文章（文章元数据非必需）
 3. 通过GitHub Desktop提交并同步到 GitHub
 4. 等待平台自动部署构建
 5. 完成
