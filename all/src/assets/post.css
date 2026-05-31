@@ -866,14 +866,15 @@
 }
 
 /* ===== 水平分割线 ===== */
-.prose hr {
+.prose>hr {
     border: none !important;
-    border-top: 2px solid #e2e8f0 !important;
+    height: 3px !important;
+    background: #e2e8f0 !important;
     margin: 2.618em 0 !important;
 }
 
-.dark .prose hr {
-    border-top-color: #475569 !important;
+.dark .prose>hr {
+    background: #475569 !important;
 }
 
 /* ===== 删除线 ===== */
@@ -1274,13 +1275,15 @@
     color: #e2e8f0 !important;
 }
 
-.prose hr {
+.prose>hr {
     margin: calc(var(--article-rhythm) * 1.8) 0 !important;
-    border-top: 1px solid #e2e8f0 !important;
+    border: 0 !important;
+    height: 3px !important;
+    background: #e2e8f0 !important;
 }
 
-.dark .prose hr {
-    border-top-color: #1e293b !important;
+.dark .prose>hr {
+    background: #475569 !important;
 }
 
 .prose table,
@@ -1449,13 +1452,13 @@
     margin-block-start: var(--article-space-heading-parent-child) !important;
 }
 
-.prose hr {
-    height: 1px !important;
+.prose>hr {
+    height: 3px !important;
     border: 0 !important;
     background: #d8e0eb !important;
 }
 
-.dark .prose hr {
+.dark .prose>hr {
     background: #475569 !important;
 }
 

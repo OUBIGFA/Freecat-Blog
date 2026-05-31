@@ -40,6 +40,17 @@ test('top two present article heading ranks render full-width divider rules', ()
     assert.match(postCss, /background:\s*var\(--article-heading-rule\);/);
 });
 
+test('markdown horizontal rules render as thick article dividers', () => {
+    const hrBlocks = postCss.match(/(?:\.dark )?\.prose>hr\s*\{[^}]*\}/g) || [];
+
+    assert.match(postCss, /\.prose>hr\s*\{[\s\S]*height:\s*3px\s*!important;/);
+    assert.match(postCss, /\.prose>hr\s*\{[\s\S]*background:\s*#e2e8f0\s*!important;/);
+    assert.match(postCss, /\.dark \.prose>hr\s*\{[\s\S]*background:\s*#475569\s*!important;/);
+    assert.doesNotMatch(postCss, /\.prose hr\s*\{[\s\S]*border-top:\s*2px solid/);
+    assert.doesNotMatch(postCss, /\.prose hr\s*\{[\s\S]*height:\s*1px\s*!important;/);
+    assert.equal(hrBlocks.some((block) => /border-radius:/.test(block)), false);
+});
+
 test('fixed header has a stable css height before runtime measurement', () => {
     assert.match(transitionsCss, /header\.fixed\s*\{[\s\S]*height:\s*var\(--freecat-header-height\);/);
     assert.match(transitionsCss, /header\.fixed\s+\.header-blur-target\s*\{[\s\S]*height:\s*100%;/);
