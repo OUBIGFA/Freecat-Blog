@@ -155,3 +155,12 @@ test('fixed header has a stable css height before runtime measurement', () => {
 test('root scroller disables browser scroll anchoring during async layout changes', () => {
     assert.match(transitionsCss, /html\s*\{[\s\S]*overflow-anchor:\s*none;/);
 });
+
+test('history navigation restores saved scroll positions after bfcache expires', () => {
+    assert.match(mainJs, /function initScrollPositionMemory\(\)/);
+    assert.match(mainJs, /sessionStorage\.setItem\(storageKey,\s*JSON\.stringify\(positions\)\)/);
+    assert.match(mainJs, /getNavigationType\(\)\s*===\s*'back_forward'/);
+    assert.match(mainJs, /window\.addEventListener\('pagehide',\s*saveScrollPosition\)/);
+    assert.match(mainJs, /if \(window\.location\.hash\) return;/);
+    assert.match(mainJs, /initScrollPositionMemory\(\);/);
+});

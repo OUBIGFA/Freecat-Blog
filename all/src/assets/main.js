@@ -160,6 +160,118 @@ document.addEventListener('DOMContentLoaded', () => {
         return fallback;
     }
 
+    function initScrollPositionMemory() {
+        const storageKey = 'freecat-scroll-positions-v1';
+        const maxEntries = 80;
+        const restoreTimeoutMs = 2500;
+        const restoreIntervalMs = 80;
+        let saveFrame = 0;
+        let restoreTimer = 0;
+
+        function getPageKey() {
+            return window.location.pathname + window.location.search;
+        }
+
+        function readPositions() {
+            try {
+                const raw = sessionStorage.getItem(storageKey);
+                const parsed = raw ? JSON.parse(raw) : {};
+                return parsed && typeof parsed === 'object' ? parsed : {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function writePositions(positions) {
+            try {
+                sessionStorage.setItem(storageKey, JSON.stringify(positions));
+            } catch (e) {}
+        }
+
+        function prunePositions(positions) {
+            const entries = Object.entries(positions)
+                .filter(([, value]) => value && typeof value === 'object')
+                .sort((a, b) => (b[1].time || 0) - (a[1].time || 0));
+            return Object.fromEntries(entries.slice(0, maxEntries));
+        }
+
+        function saveScrollPosition() {
+            saveFrame = 0;
+            const positions = readPositions();
+            positions[getPageKey()] = {
+                x: window.scrollX || window.pageXOffset || 0,
+                y: window.scrollY || window.pageYOffset || 0,
+                time: Date.now()
+            };
+            writePositions(prunePositions(positions));
+        }
+
+        function scheduleSaveScrollPosition() {
+            if (saveFrame) return;
+            saveFrame = window.requestAnimationFrame(saveScrollPosition);
+        }
+
+        function getNavigationType() {
+            const entries = performance && performance.getEntriesByType
+                ? performance.getEntriesByType('navigation')
+                : null;
+            return entries && entries[0] && entries[0].type;
+        }
+
+        function isHistoryRestore(event) {
+            if (event && event.persisted) return true;
+            return getNavigationType() === 'back_forward';
+        }
+
+        function restoreScrollPosition() {
+            const saved = readPositions()[getPageKey()];
+            if (!saved || typeof saved.y !== 'number') return;
+            if (window.location.hash) return;
+
+            const start = Date.now();
+            const targetX = typeof saved.x === 'number' ? saved.x : 0;
+            const targetY = Math.max(0, saved.y);
+
+            function clampTargetY() {
+                const scrollingElement = document.scrollingElement || document.documentElement;
+                const maxY = scrollingElement
+                    ? Math.max(0, scrollingElement.scrollHeight - window.innerHeight)
+                    : targetY;
+                return Math.min(targetY, maxY);
+            }
+
+            function attemptRestore() {
+                window.scrollTo(targetX, clampTargetY());
+                const currentY = window.scrollY || window.pageYOffset || 0;
+                const reachedTarget = Math.abs(currentY - targetY) <= 2;
+                const timedOut = Date.now() - start >= restoreTimeoutMs;
+                if (reachedTarget || timedOut) {
+                    restoreTimer = 0;
+                    return;
+                }
+                restoreTimer = window.setTimeout(attemptRestore, restoreIntervalMs);
+            }
+
+            if (restoreTimer) window.clearTimeout(restoreTimer);
+            requestAnimationFrame(attemptRestore);
+            window.addEventListener('load', attemptRestore, { once: true });
+            if (document.fonts && document.fonts.ready) document.fonts.ready.then(attemptRestore);
+        }
+
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+        if (isHistoryRestore()) restoreScrollPosition();
+
+        window.addEventListener('scroll', scheduleSaveScrollPosition, { passive: true });
+        window.addEventListener('pagehide', saveScrollPosition);
+        window.addEventListener('beforeunload', saveScrollPosition);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') saveScrollPosition();
+        });
+        window.addEventListener('pageshow', (event) => {
+            if (isHistoryRestore(event)) restoreScrollPosition();
+        });
+    }
+
     function initFloatingNavButtons() {
         const floatingNavPanel = document.querySelector('.freecat-floating-nav-panel');
         const backToTopBtn = document.getElementById('back-to-top');
@@ -468,6 +580,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 初始执行
     applyTheme();
+    initScrollPositionMemory();
     updateContentTopOffset();
     observeHeaderOffsetChanges();
     initFloatingNavButtons();
