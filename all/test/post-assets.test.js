@@ -44,11 +44,25 @@ test('markdown horizontal rules render as thick article dividers', () => {
     const hrBlocks = postCss.match(/(?:\.dark )?\.prose>hr\s*\{[^}]*\}/g) || [];
 
     assert.match(postCss, /\.prose>hr\s*\{[\s\S]*height:\s*3px\s*!important;/);
-    assert.match(postCss, /\.prose>hr\s*\{[\s\S]*background:\s*#e2e8f0\s*!important;/);
+    assert.match(postCss, /\.prose>hr\s*\{[\s\S]*background:\s*#d8e0eb\s*!important;/);
     assert.match(postCss, /\.dark \.prose>hr\s*\{[\s\S]*background:\s*#475569\s*!important;/);
     assert.doesNotMatch(postCss, /\.prose hr\s*\{[\s\S]*border-top:\s*2px solid/);
     assert.doesNotMatch(postCss, /\.prose hr\s*\{[\s\S]*height:\s*1px\s*!important;/);
     assert.equal(hrBlocks.some((block) => /border-radius:/.test(block)), false);
+});
+
+test('markdown horizontal rule spacing is centered and preserves blank-line gaps', () => {
+    assert.match(postCss, /--article-space-divider:\s*45px;/);
+    assert.doesNotMatch(postCss, /--article-space-divider-(?:before|after):/);
+    assert.match(postCss, /\.prose>hr\s*\{[^}]*margin:\s*0\s*!important;/);
+    assert.match(postCss, /\.prose \.markdown-gap\+hr\s*\{[\s\S]*margin-block-start:\s*var\(--article-space-divider\)\s*!important;/);
+    assert.match(postCss, /\.prose hr\+\.markdown-gap\+:where\([^)]*\)\s*\{[\s\S]*margin-block-start:\s*var\(--article-space-divider\)\s*!important;/);
+    assert.match(postCss, /\.prose\.prose \.markdown-gap\+hr\s*\{[\s\S]*margin-block-start:\s*var\(--article-space-divider\)\s*!important;/);
+    assert.match(postCss, /\.prose\.prose hr\+\.markdown-gap\+:where\([^)]*\)\s*\{[\s\S]*margin-block-start:\s*var\(--article-space-divider\)\s*!important;/);
+    assert.match(postCss, /\.prose hr\+:where\([^)]*\.article-heading[^)]*\)\s*,/);
+    assert.match(postCss, /\.prose\.prose hr\+:is\([^)]*\.article-heading[^)]*\)\s*,/);
+    assert.doesNotMatch(postCss, /hr\+\.article-heading-depth-/);
+    assert.doesNotMatch(postCss, /hr\+\.markdown-gap\+\.article-heading-depth-/);
 });
 
 test('fixed header has a stable css height before runtime measurement', () => {

@@ -44,6 +44,15 @@ test('markdown images render the loading spinner element', () => {
     assert.equal(html.includes('<span class="loader"></span>'), true);
 });
 
+test('markdown horizontal rules keep optional blank-line gap markers on both sides', () => {
+    const compactHtml = parseMarkdown('A\n\n---\n\nB');
+    const expandedHtml = parseMarkdown('A\n\n\n---\n\n\nB');
+
+    assert.match(compactHtml, /<p>A<\/p>\s*<hr>\s*<p>B<\/p>/);
+    assert.equal(compactHtml.includes('class="markdown-gap"'), false);
+    assert.match(expandedHtml, /<p>A<\/p>\s*<div class="markdown-gap"[^>]*data-md-gap-lines="2"[^>]*><\/div>\s*<hr>\s*<div class="markdown-gap"[^>]*data-md-gap-lines="2"[^>]*><\/div>\s*<p>B<\/p>/);
+});
+
 test('markdown image syntax keeps non-image URLs in the external embed flow with a placeholder', () => {
     const html = parseMarkdown('![](https://x.com/i/status/1930080468529230100)');
 
