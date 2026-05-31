@@ -126,7 +126,11 @@
         return String(tag == null ? '' : tag).trim().toLowerCase();
     }
 
-    // 聚合标签菜单数据：统计每个标签出现次数 + 未打标签数量，按「次数降序 → 名称」排序。
+    function getTagSortGroup(label) {
+        return /^[A-Za-z]/.test(String(label || '').trim()) ? 0 : 1;
+    }
+
+    // 聚合标签菜单数据：统计每个标签出现次数 + 未打标签数量，按「次数降序 → 英文优先 → 名称」排序。
     // posts 每项读取 post.tags（搜索索引形态）；构建期可先映射成 { tags: post.tag }。
     // 构建期与浏览器期共用，保证顶栏标签菜单两端数据完全一致。
     function collectMenuTags(posts) {
@@ -150,6 +154,8 @@
         });
         const list = Array.from(tagsByKey.values()).sort(function (a, b) {
             if (b.count !== a.count) return b.count - a.count;
+            const groupDiff = getTagSortGroup(a.label) - getTagSortGroup(b.label);
+            if (groupDiff !== 0) return groupDiff;
             return a.label.localeCompare(b.label, undefined, { sensitivity: 'base' });
         });
         if (untaggedCount > 0) {

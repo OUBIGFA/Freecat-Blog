@@ -146,6 +146,17 @@ test('collectMenuTags counts tags, sorts by frequency then name, and tracks unta
     assert.equal(tagged[1].count, 2);
 });
 
+test('collectMenuTags puts English labels before Chinese labels when counts match', () => {
+    const list = shared.collectMenuTags([
+        { tags: ['生活'] },
+        { tags: ['Alpha'] },
+        { tags: ['工具'] },
+        { tags: ['Beta'] }
+    ]);
+
+    assert.deepEqual(list.map(t => t.label), ['Alpha', 'Beta', '工具', '生活']);
+});
+
 test('normalizeTagKey keeps tag matching consistent across menu and search page', () => {
     assert.equal(shared.normalizeTagKey('  JavaScript  '), 'javascript');
     assert.equal(shared.normalizeTagKey(null), '');

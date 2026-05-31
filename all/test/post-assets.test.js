@@ -8,6 +8,7 @@ const postCss = fs.readFileSync(path.join(__dirname, '../src/assets/post.css'), 
 const mainJs = fs.readFileSync(path.join(__dirname, '../src/assets/main.js'), 'utf-8');
 const searchTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index_search.html'), 'utf-8');
 const transitionsCss = fs.readFileSync(path.join(__dirname, '../src/assets/transitions.css'), 'utf-8');
+const allTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index_all.html'), 'utf-8');
 const postCardTemplate = require('../src/assets/post-card-template.js');
 const { renderPostCardForList } = require('../build/pages/index.js');
 
@@ -78,6 +79,12 @@ test('all-page cards can reuse the metadata row for mobile tags', () => {
     assert.match(html, /post-card[^"]*\btags-inline-mobile\b/);
     assert.equal(html.indexOf('<span>2026-05-31</span>') < html.indexOf('Free'), true);
     assert.doesNotMatch(html, /<div class="mt-4 shrink-0 border-t/);
+});
+
+test('all-page inline mobile tags are not clipped by the metadata row', () => {
+    assert.match(allTemplate, /\.post-card\.tags-inline-mobile h3 \+ div\s*\{[\s\S]*overflow:\s*visible;/);
+    assert.match(allTemplate, /\.post-card\.tags-inline-mobile \.tags-fit\s*\{[\s\S]*overflow:\s*visible;/);
+    assert.match(allTemplate, /\.post-card\.tags-inline-mobile \.tags-fit\s*\{[\s\S]*transform-origin:\s*left center;/);
 });
 
 test('top two present article heading ranks render full-width divider rules', () => {
