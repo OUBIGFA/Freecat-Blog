@@ -1,0 +1,26 @@
+<!-- 左侧侧栏：fixed 撑满浏览器视口；
+                     最近更新跟随介绍靠上排列，并与侧栏一起固定。
+                     保留 avatar-trigger-area / hero-avatar / hero-section 三个 id，
+                     以维持 main.js 中头像光影动效与尺寸观察逻辑。 -->
+                <aside id="avatar-trigger-area" class="freecat-home-sidebar">
+                    <div id="hero-section" class="freecat-home-sidebar-top freecat-home-sidebar-hero @container">
+                        <div id="hero-avatar"
+                            class="freecat-hero-avatar animate-fade-in-up delay-300 w-[var(--freecat-hero-avatar-size)] bg-center bg-no-repeat bg-cover rounded-full"
+                            style='background-image: url("<!-- HERO_AVATAR -->");'></div>
+                        <div class="freecat-home-sidebar-hero-text flex flex-col gap-3">
+                            <h1
+                                class="animate-fade-in-up text-[#1e293b] dark:text-slate-200 text-[length:var(--freecat-hero-title-size)] font-semibold leading-[1.1] tracking-normal">
+                                <!-- HERO_TITLE -->
+                            </h1>
+                            <h2
+                                class="animate-fade-in-up delay-150 text-[#616f89] dark:text-gray-400 text-sm lg:text-[15px] font-normal leading-relaxed">
+                                <!-- HERO_SUBTITLE -->
+                            </h2>
+                        </div>
+                    </div>
+                    <div class="freecat-home-sidebar-bottom">
+                        <div class="freecat-home-sidebar-recent">
+                            <!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->
+                        </div>
+                    </div>
+                </aside>

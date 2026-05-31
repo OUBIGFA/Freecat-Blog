@@ -182,6 +182,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const selectors = [
                 'article',
                 '[data-floating-nav-container] .layout-content-container',
+                '#search-results .post-card > div',
+                '#search-results',
                 '#posts-list .post-card > div',
                 '#posts-list',
                 '[data-floating-nav-container]',
