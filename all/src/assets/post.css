@@ -2393,7 +2393,8 @@
     .freecat-post-toc-panel {
         --freecat-post-toc-top: 16rem;
         --freecat-post-toc-bottom-gap: 10.1875rem;
-        --freecat-post-toc-scroll-marker: rgba(148, 163, 184, 0.5);
+        --freecat-post-toc-scrollbar: rgba(148, 163, 184, 0.46);
+        --freecat-post-toc-scrollbar-hover: rgba(100, 116, 139, 0.5);
         position: fixed;
         top: var(--freecat-post-toc-top);
         /* Article is 900px wide and centered on the viewport: 450px half-width + 48px visual gap. */
@@ -2404,36 +2405,12 @@
     }
 
     .dark .freecat-post-toc-panel {
-        --freecat-post-toc-scroll-marker: rgba(100, 116, 139, 0.56);
+        --freecat-post-toc-scrollbar: rgba(100, 116, 139, 0.48);
+        --freecat-post-toc-scrollbar-hover: rgba(148, 163, 184, 0.4);
     }
 
     .freecat-post-toc-scroll-shell {
         position: relative;
-    }
-
-    .freecat-post-toc-scroll-shell::before,
-    .freecat-post-toc-scroll-shell::after {
-        content: "";
-        position: absolute;
-        right: 0.16rem;
-        z-index: 2;
-        width: 0;
-        height: 0;
-        pointer-events: none;
-    }
-
-    .freecat-post-toc-scroll-shell::before {
-        top: 0.1rem;
-        border-right: 0.1875rem solid transparent;
-        border-bottom: 0.25rem solid var(--freecat-post-toc-scroll-marker);
-        border-left: 0.1875rem solid transparent;
-    }
-
-    .freecat-post-toc-scroll-shell::after {
-        bottom: 0.1rem;
-        border-top: 0.25rem solid var(--freecat-post-toc-scroll-marker);
-        border-right: 0.1875rem solid transparent;
-        border-left: 0.1875rem solid transparent;
     }
 
     #toc-container,
@@ -2444,9 +2421,28 @@
     }
 
     #toc-container {
-        overflow-y: scroll;
+        overflow-y: scroll !important;
         scrollbar-gutter: stable;
         scrollbar-width: thin;
+        scrollbar-color: var(--freecat-post-toc-scrollbar) transparent;
+    }
+
+    #toc-container::-webkit-scrollbar {
+        width: 0.375rem;
+    }
+
+    #toc-container::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    #toc-container::-webkit-scrollbar-thumb {
+        min-height: 2rem;
+        border-radius: 999px;
+        background-color: var(--freecat-post-toc-scrollbar);
+    }
+
+    #toc-container::-webkit-scrollbar-thumb:hover {
+        background-color: var(--freecat-post-toc-scrollbar-hover);
     }
 
     #toc-container nav {
