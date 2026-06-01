@@ -2393,7 +2393,7 @@
     .freecat-post-toc-panel {
         --freecat-post-toc-top: 16rem;
         --freecat-post-toc-bottom-gap: 10.1875rem;
-        --freecat-post-toc-fade-surface: #f6f6f8;
+        --freecat-post-toc-scroll-marker: rgba(148, 163, 184, 0.5);
         position: fixed;
         top: var(--freecat-post-toc-top);
         /* Article is 900px wide and centered on the viewport: 450px half-width + 48px visual gap. */
@@ -2404,31 +2404,36 @@
     }
 
     .dark .freecat-post-toc-panel {
-        --freecat-post-toc-fade-surface: #101622;
+        --freecat-post-toc-scroll-marker: rgba(100, 116, 139, 0.56);
     }
 
     .freecat-post-toc-scroll-shell {
         position: relative;
     }
 
+    .freecat-post-toc-scroll-shell::before,
     .freecat-post-toc-scroll-shell::after {
         content: "";
         position: absolute;
-        right: 0.75rem;
-        left: 0;
+        right: 0.16rem;
         z-index: 2;
-        display: block;
-        height: 2.25rem;
+        width: 0;
+        height: 0;
         pointer-events: none;
     }
 
-    .freecat-post-toc-scroll-shell::after {
-        bottom: 0;
-        background: linear-gradient(to top, var(--freecat-post-toc-fade-surface), rgba(246, 246, 248, 0));
+    .freecat-post-toc-scroll-shell::before {
+        top: 0.1rem;
+        border-right: 0.1875rem solid transparent;
+        border-bottom: 0.25rem solid var(--freecat-post-toc-scroll-marker);
+        border-left: 0.1875rem solid transparent;
     }
 
-    .dark .freecat-post-toc-scroll-shell::after {
-        background: linear-gradient(to top, var(--freecat-post-toc-fade-surface), rgba(16, 22, 34, 0));
+    .freecat-post-toc-scroll-shell::after {
+        bottom: 0.1rem;
+        border-top: 0.25rem solid var(--freecat-post-toc-scroll-marker);
+        border-right: 0.1875rem solid transparent;
+        border-left: 0.1875rem solid transparent;
     }
 
     #toc-container,
