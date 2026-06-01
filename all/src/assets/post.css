@@ -841,16 +841,22 @@
 }
 
 .prose th {
+    border-bottom: 2px solid #c6cfdb !important;
     font-weight: 600 !important;
     color: #64748b !important;
 }
 
 .dark .prose th {
+    border-bottom-color: #64748b !important;
     color: #c3d0dc !important;
 }
 
 .prose tbody tr:last-child th,
 .prose tbody tr:last-child td {
+    border-bottom: 0 !important;
+}
+
+.prose table:has(tbody tr:only-child) thead th {
     border-bottom: 0 !important;
 }
 

@@ -161,17 +161,21 @@ test('markdown horizontal rule spacing is centered and preserves blank-line gaps
 });
 
 test('markdown tables use horizontal rules without vertical borders', () => {
+    const tableRule = postCss.match(/\.prose table\s*\{[\s\S]*?\}/)?.[0] || '';
     const cellRule = postCss.match(/\.prose th,\s*\.prose td\s*\{[\s\S]*?\}/)?.[0] || '';
+    const headerRule = postCss.match(/\.prose th\s*\{[\s\S]*?\}/)?.[0] || '';
 
     assert.match(postCss, /\.prose table\s*\{[\s\S]*background-color:\s*#f0f1f4\s*!important;/);
     assert.match(postCss, /\.prose table\s*\{[\s\S]*border-collapse:\s*separate\s*!important;/);
     assert.match(postCss, /\.prose table\s*\{[\s\S]*border-spacing:\s*1\.2em 0\s*!important;/);
     assert.match(postCss, /\.dark \.prose table\s*\{[\s\S]*background-color:\s*#151c2a\s*!important;/);
-    assert.doesNotMatch(postCss, /\.prose table\s*\{[\s\S]*border-bottom:\s*2px solid/);
+    assert.doesNotMatch(tableRule, /border-bottom:\s*2px solid/);
     assert.match(cellRule, /padding:\s*0\.75em 0\s*!important;/);
     assert.match(cellRule, /border:\s*0\s*!important;/);
     assert.match(cellRule, /border-bottom:\s*1px solid #d8dee8\s*!important;/);
+    assert.match(headerRule, /border-bottom:\s*2px solid #c6cfdb\s*!important;/);
     assert.match(postCss, /\.prose tbody tr:last-child th,\s*\.prose tbody tr:last-child td\s*\{[\s\S]*border-bottom:\s*0\s*!important;/);
+    assert.match(postCss, /\.prose table:has\(tbody tr:only-child\) thead th\s*\{[\s\S]*border-bottom:\s*0\s*!important;/);
     assert.doesNotMatch(cellRule, /border:\s*1px solid/);
 });
 
