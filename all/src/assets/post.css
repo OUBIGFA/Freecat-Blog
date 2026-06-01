@@ -2391,6 +2391,12 @@
         min-width: 0;
     }
 
+    #toc-container {
+        overflow-y: scroll;
+        scrollbar-gutter: stable;
+        scrollbar-width: thin;
+    }
+
     #toc-container a {
         overflow-wrap: anywhere;
         word-break: break-word;
