@@ -2375,11 +2375,13 @@
 }
 @media (min-width: 1280px) {
     .freecat-post-toc-panel {
+        --freecat-post-toc-top: 16rem;
+        --freecat-post-toc-bottom-gap: 10.1875rem;
         position: fixed;
-        top: 8.5625rem;
+        top: var(--freecat-post-toc-top);
         /* Article is 900px wide and centered on the viewport: 450px half-width + 48px visual gap. */
         left: calc(50% + 498px);
-        height: calc(100vh - 300px);
+        height: calc(100vh - var(--freecat-post-toc-top) - var(--freecat-post-toc-bottom-gap));
         z-index: 20;
         overflow-x: hidden;
     }

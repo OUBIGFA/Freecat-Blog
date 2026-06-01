@@ -164,9 +164,6 @@
         video.volume = 0.6;
         let lastVolume = 0.6;
 
-        video.addEventListener('seeking', () => { playBtn.style.opacity = '0.6'; });
-        video.addEventListener('seeked', () => { playBtn.style.opacity = '1'; });
-
         function togglePlay() {
             if (video.paused) video.play();
             else video.pause();

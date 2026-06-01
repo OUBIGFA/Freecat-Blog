@@ -195,26 +195,12 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
-}
-
-.audio-play-btn:hover {
-    border-color: rgba(15, 23, 42, 0.4);
-    background: rgba(15, 23, 42, 0.04);
-}
-
-.audio-play-btn:active {
-    background: rgba(15, 23, 42, 0.08);
+    transition: none;
 }
 
 .dark .audio-play-btn {
     border-color: rgba(255, 255, 255, 0.22);
     color: #e2e8f0;
-}
-
-.dark .audio-play-btn:hover {
-    border-color: rgba(255, 255, 255, 0.45);
-    background: rgba(255, 255, 255, 0.06);
 }
 
 .audio-play-icon {

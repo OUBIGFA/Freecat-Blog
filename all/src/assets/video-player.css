@@ -55,11 +55,7 @@
     height: 3.5rem;
     border-radius: 50%;
     background: rgba(15, 23, 42, 0.5);
-    transition: background-color 0.25s ease;
-}
-
-.video-player-overlay:hover .video-player-overlay-icon {
-    background: rgba(15, 23, 42, 0.62);
+    transition: none;
 }
 
 .video-player-container.is-playing .video-player-overlay {
@@ -271,26 +267,12 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
-}
-
-.video-play-btn:hover {
-    border-color: rgba(15, 23, 42, 0.4);
-    background: rgba(15, 23, 42, 0.04);
-}
-
-.video-play-btn:active {
-    background: rgba(15, 23, 42, 0.08);
+    transition: none;
 }
 
 .dark .video-play-btn {
     border-color: rgba(255, 255, 255, 0.22);
     color: #e2e8f0;
-}
-
-.dark .video-play-btn:hover {
-    border-color: rgba(255, 255, 255, 0.45);
-    background: rgba(255, 255, 255, 0.06);
 }
 
 .video-play-icon {

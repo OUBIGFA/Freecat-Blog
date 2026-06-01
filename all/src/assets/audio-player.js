@@ -125,17 +125,6 @@
         audio.volume = 0.6;
         let lastVolume = 0.6;
 
-        // Show loading state during seeking
-        audio.addEventListener('seeking', () => {
-            // Visual feedback: slightly dim the button during seeking
-            playBtn.style.opacity = '0.6';
-        });
-
-        audio.addEventListener('seeked', () => {
-            // Restore button opacity when seek completes
-            playBtn.style.opacity = '1';
-        });
-
         // Play/Pause functionality
         playBtn.addEventListener('click', () => {
             if (audio.paused) {

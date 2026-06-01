@@ -83,6 +83,18 @@ test('theme bootstrap prevents initial restored scroll on normal entry and reloa
     assert.equal(html.includes('window.scrollTo(0, 0)'), true);
 });
 
+test('theme bootstrap does not reset scroll after user starts scrolling', () => {
+    const html = createTestEngine('https://example.com').loadTemplate('template_post.html');
+
+    assert.equal(html.includes('var userScrollIntent = false'), true);
+    assert.equal(html.includes('var cancelInitialScrollReset = function ()'), true);
+    assert.equal(html.includes('if (userScrollIntent) return;'), true);
+    assert.equal(html.includes("window.addEventListener('wheel', cancelInitialScrollReset, { passive: true })"), true);
+    assert.equal(html.includes("window.addEventListener('touchstart', cancelInitialScrollReset, { passive: true })"), true);
+    assert.equal(html.includes("window.addEventListener('pointerdown', cancelInitialScrollReset, { passive: true })"), true);
+    assert.equal(html.includes("window.addEventListener('keydown', cancelInitialScrollReset)"), true);
+});
+
 test('theme bootstrap keeps hash targets eligible for native anchor scrolling', () => {
     const html = createTestEngine('https://example.com').loadTemplate('template_index.html');
 

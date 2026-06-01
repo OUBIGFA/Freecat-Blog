@@ -47,9 +47,22 @@ function generateThemeScript(siteConfig) {
             var shouldResetInitialScroll = !hasAnchorTarget && (!navType || navType === 'navigate' || navType === 'reload');
             if (shouldResetInitialScroll && 'scrollRestoration' in history) {
                 history.scrollRestoration = 'manual';
+                var userScrollIntent = false;
+                var cancelInitialScrollReset = function () {
+                    userScrollIntent = true;
+                    window.removeEventListener('wheel', cancelInitialScrollReset);
+                    window.removeEventListener('touchstart', cancelInitialScrollReset);
+                    window.removeEventListener('pointerdown', cancelInitialScrollReset);
+                    window.removeEventListener('keydown', cancelInitialScrollReset);
+                };
                 var resetInitialScroll = function () {
+                    if (userScrollIntent) return;
                     if (window.scrollY !== 0) window.scrollTo(0, 0);
                 };
+                window.addEventListener('wheel', cancelInitialScrollReset, { passive: true });
+                window.addEventListener('touchstart', cancelInitialScrollReset, { passive: true });
+                window.addEventListener('pointerdown', cancelInitialScrollReset, { passive: true });
+                window.addEventListener('keydown', cancelInitialScrollReset);
                 resetInitialScroll();
                 requestAnimationFrame(resetInitialScroll);
                 setTimeout(resetInitialScroll, 0);
