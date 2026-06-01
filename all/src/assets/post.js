@@ -1240,6 +1240,12 @@
         return rect.width > 0 && rect.height >= 120;
     }
 
+    function requestTwitterEmbedRender(figure) {
+        if (!figure || !window.twttr || !window.twttr.widgets || typeof window.twttr.widgets.load !== 'function') return false;
+        window.twttr.widgets.load(figure);
+        return true;
+    }
+
     function initExternalEmbedPlaceholders() {
         document.querySelectorAll('figure.external-embed-loading').forEach(function (figure) {
             var provider = figure.getAttribute('data-embed-provider');
@@ -1263,6 +1269,7 @@
             }
 
             var attempts = 0;
+            var requestedRender = requestTwitterEmbedRender(figure);
             var timer = window.setInterval(function () {
                 attempts++;
                 if (!figure.classList.contains('external-embed-loading')) {
@@ -1276,9 +1283,19 @@
                     return;
                 }
 
-                if (attempts >= 80) {
+                if (isFailedTwitterEmbed(figure)) {
                     replaceFailedTwitterEmbed(figure);
                     window.clearInterval(timer);
+                    return;
+                }
+
+                if (!requestedRender) {
+                    requestedRender = requestTwitterEmbedRender(figure);
+                }
+
+                if (attempts >= 80) {
+                    requestTwitterEmbedRender(figure);
+                    attempts = 0;
                 }
             }, 100);
         });

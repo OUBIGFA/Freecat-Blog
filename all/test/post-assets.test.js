@@ -15,7 +15,11 @@ const { renderPostCardForList } = require('../build/pages/index.js');
 test('external embeds keep placeholders until visible content or fallback link is ready', () => {
     assert.match(postJs, /function hasVisibleTwitterEmbed\(figure\)/);
     assert.match(postJs, /rect\.width > 0 && rect\.height >= 120/);
-    assert.match(postJs, /if \(attempts >= 80\) \{\s*replaceFailedTwitterEmbed\(figure\);/);
+    assert.match(postJs, /function requestTwitterEmbedRender\(figure\)/);
+    assert.match(postJs, /window\.twttr\.widgets\.load\(figure\);/);
+    assert.match(postJs, /if \(isFailedTwitterEmbed\(figure\)\) \{\s*replaceFailedTwitterEmbed\(figure\);/);
+    assert.match(postJs, /if \(attempts >= 80\) \{\s*requestTwitterEmbedRender\(figure\);\s*attempts = 0;/);
+    assert.doesNotMatch(postJs, /if \(attempts >= 80\) \{\s*replaceFailedTwitterEmbed\(figure\);/);
     assert.doesNotMatch(postJs, /if \(iframe \|\| attempts >= 80\) \{\s*markExternalEmbedReady\(figure\);/);
     assert.doesNotMatch(postJs, /window\.setTimeout\(function \(\) \{\s*markExternalEmbedReady\(figure\);\s*\}, 2200\);/);
 });
