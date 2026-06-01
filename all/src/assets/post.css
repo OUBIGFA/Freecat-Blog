@@ -856,6 +856,7 @@
     border-bottom: 0 !important;
 }
 
+.prose table:not(:has(tbody tr)) thead th,
 .prose table:has(tbody tr:only-child) thead th {
     border-bottom: 0 !important;
 }
@@ -1143,6 +1144,10 @@
     height: 1px;
     margin-top: 0.72rem;
     background: var(--article-heading-rule);
+}
+
+.prose .article-heading-rank-1::after {
+    height: 2px;
 }
 
 .dark .prose .article-heading {

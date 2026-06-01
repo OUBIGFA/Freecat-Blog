@@ -115,6 +115,11 @@ test('top two present article heading ranks render full-width divider rules', ()
     assert.match(postCss, /background:\s*var\(--article-heading-rule\);/);
 });
 
+test('largest present article heading divider is thicker than the second largest', () => {
+    assert.match(postCss, /\.prose \.article-heading-rank-1::after\s*\{[\s\S]*height:\s*2px;/);
+    assert.match(postCss, /\.prose \.article-heading-rank-1::after,\s*\.prose \.article-heading-rank-2::after\s*\{[\s\S]*height:\s*1px;/);
+});
+
 test('article heading links inherit the heading color', () => {
     assert.match(postCss, /\.prose \.article-heading a,\s*\.prose \.article-heading a:hover\s*\{[\s\S]*color:\s*inherit\s*!important;/);
 });
@@ -175,7 +180,7 @@ test('markdown tables use horizontal rules without vertical borders', () => {
     assert.match(cellRule, /border-bottom:\s*1px solid #d8dee8\s*!important;/);
     assert.match(headerRule, /border-bottom:\s*2px solid #c6cfdb\s*!important;/);
     assert.match(postCss, /\.prose tbody tr:last-child th,\s*\.prose tbody tr:last-child td\s*\{[\s\S]*border-bottom:\s*0\s*!important;/);
-    assert.match(postCss, /\.prose table:has\(tbody tr:only-child\) thead th\s*\{[\s\S]*border-bottom:\s*0\s*!important;/);
+    assert.match(postCss, /\.prose table:not\(:has\(tbody tr\)\) thead th,\s*\.prose table:has\(tbody tr:only-child\) thead th\s*\{[\s\S]*border-bottom:\s*0\s*!important;/);
     assert.doesNotMatch(cellRule, /border:\s*1px solid/);
 });
 
