@@ -805,10 +805,16 @@
 .prose table {
     width: 100% !important;
     display: table !important;
-    border-collapse: collapse !important;
+    border-collapse: separate !important;
+    border-spacing: 1.2em 0 !important;
+    background-color: #f0f1f4 !important;
     margin: 1.618em 0 !important;
     font-size: 0.9em !important;
     overflow-x: auto !important;
+}
+
+.dark .prose table {
+    background-color: #151c2a !important;
 }
 
 .prose thead {
@@ -821,25 +827,31 @@
 
 .prose th,
 .prose td {
-    padding: 0.75em 1em !important;
-    border: 1px solid #e2e8f0 !important;
+    padding: 0.75em 0 !important;
+    border: 0 !important;
+    border-bottom: 1px solid #d8dee8 !important;
     text-align: left;
     color: #1e293b !important;
 }
 
 .dark .prose th,
 .dark .prose td {
-    border-color: #475569 !important;
+    border-bottom-color: #475569 !important;
     color: #94a3b8 !important;
 }
 
 .prose th {
     font-weight: 600 !important;
-    color: #1e293b !important;
+    color: #64748b !important;
 }
 
 .dark .prose th {
-    color: #b6c2cf !important;
+    color: #c3d0dc !important;
+}
+
+.prose tbody tr:last-child th,
+.prose tbody tr:last-child td {
+    border-bottom: 0 !important;
 }
 
 .prose th[align="left"],
@@ -906,12 +918,12 @@
 /* Dark Mode Adaptation for Legacy HTML Blocks (tables & fonts) */
 /* Force transparent background for the outer table wrapper if any */
 .dark .prose table {
-    background-color: transparent !important;
+    background-color: #151c2a !important;
 }
 
 /* Override bgcolor cell colors to Slate-800 */
 .dark .prose td[bgcolor] {
-    background-color: #1e293b !important;
+    background-color: #151c2a !important;
     /* Slate-800 */
     color: #b6c2cf !important;
     border-radius: 8px;
