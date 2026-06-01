@@ -165,7 +165,7 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
     // 因此即便误判命中，副作用仅是多下载一份 JS+CSS（约 25KB），没有功能问题。
     const needsAudioPlayer = /🎵|<a [^>]*href="[^"]*\.(?:mp3|m4a|wav|ogg|aac|flac|opus)\b/i.test(finalContentHtml);
 
-    const needsVideoPlayer = /class="[^"]*\bvideo-player\b|<a [^>]*href="[^"]*\.(?:mp4|webm|ogv|mov|m4v|m3u8)(?:[?#]|\b)/i.test(finalContentHtml);
+    const needsVideoPlayer = /🎬|🎥|📹|class="[^"]*\bvideo-player\b|<a [^>]*href="[^"]*\.(?:mp4|webm|ogv|mov|m4v|m3u8)(?:[?#]|\b)/i.test(finalContentHtml);
 
     const chartJs = [
         needsMermaid ? '<script src="https://cdn.jsdelivr.net/npm/vditor@3.11.2/dist/js/mermaid/mermaid.min.js"></script>' : '',

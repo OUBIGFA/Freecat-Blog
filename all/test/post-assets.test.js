@@ -202,3 +202,43 @@ test('history navigation restores saved scroll positions after bfcache expires',
     assert.match(mainJs, /if \(window\.location\.hash\) return;/);
     assert.match(mainJs, /initScrollPositionMemory\(\);/);
 });
+
+test('post cards render the audio glyph for music-prefixed excerpts', () => {
+    const html = postCardTemplate.renderPostCard({
+        link: '/posts/example/',
+        titleHtml: 'Example',
+        excerptHtml: '🎶 这是一篇带音频的文章摘要',
+        date: '2026-05-30'
+    });
+
+    assert.equal(html.includes('class="post-card-media-icon'), true);
+    assert.equal(html.includes('M4 12H7C8.10457 12 9 12.8954 9 14V19'), true);
+    assert.equal(html.includes('🎶'), false);
+    assert.equal(html.includes('这是一篇带音频的文章摘要'), true);
+});
+
+test('post cards render the video glyph for film-prefixed excerpts', () => {
+    const html = postCardTemplate.renderPostCard({
+        link: '/posts/example/',
+        titleHtml: 'Example',
+        excerptHtml: '🎬 这是一篇带视频的文章摘要',
+        date: '2026-05-30'
+    });
+
+    assert.equal(html.includes('class="post-card-media-icon'), true);
+    assert.equal(html.includes('M12 22C6.47715 22 2 17.5228 2 12'), true);
+    assert.equal(html.includes('🎬'), false);
+    assert.equal(html.includes('这是一篇带视频的文章摘要'), true);
+});
+
+test('post cards without a media prefix render no media glyph', () => {
+    const html = postCardTemplate.renderPostCard({
+        link: '/posts/example/',
+        titleHtml: 'Example',
+        excerptHtml: '普通文章摘要，没有音视频',
+        date: '2026-05-30'
+    });
+
+    assert.equal(html.includes('post-card-media-icon'), false);
+    assert.equal(html.includes('普通文章摘要，没有音视频'), true);
+});

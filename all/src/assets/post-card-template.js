@@ -34,11 +34,28 @@
         .replace(/&#39;/g, "'")
         .trim();
 
+    // 文章卡片的媒体标记：构建期 stripMarkdown()（build/markdown.js）会给含
+    // 音频 / 视频的摘要文本加上 🎶 / 🎬 前缀。这里把该前缀从摘要里摘出来，改成
+    // 行内 SVG 图标渲染，避免媒体标记以 emoji 字形出现在正文文本中。
+    const MEDIA_ICON_SVG = {
+        audio: '<svg class="post-card-media-icon mr-1 inline-block h-[1em] w-[1em] align-[-0.125em]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 12H7C8.10457 12 9 12.8954 9 14V19C9 20.1046 8.10457 21 7 21H4C2.89543 21 2 20.1046 2 19V12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12V19C22 20.1046 21.1046 21 20 21H17C15.8954 21 15 20.1046 15 19V14C15 12.8954 15.8954 12 17 12H20C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12Z"></path></svg>',
+        video: '<svg class="post-card-media-icon mr-1 inline-block h-[1em] w-[1em] align-[-0.125em]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM10.6219 8.41459C10.5562 8.37078 10.479 8.34741 10.4 8.34741C10.1791 8.34741 10 8.52649 10 8.74741V15.2526C10 15.3316 10.0234 15.4088 10.0672 15.4745C10.1897 15.6583 10.4381 15.708 10.6219 15.5854L15.5008 12.3328C15.5447 12.3035 15.5824 12.2658 15.6117 12.2219C15.7343 12.0381 15.6846 11.7897 15.5008 11.6672L10.6219 8.41459Z"></path></svg>'
+    };
+
+    // 从摘要 HTML 开头解析媒体前缀，返回行内图标 HTML 与去掉前缀后的正文。
+    function splitMediaPrefix(html) {
+        const match = /^\s*(🎶|🎬)\s*/.exec(html);
+        if (!match) return { iconHtml: '', body: html };
+        const type = match[1] === '🎶' ? 'audio' : 'video';
+        return { iconHtml: MEDIA_ICON_SVG[type], body: html.slice(match[0].length) };
+    }
+
     function renderPostCard(post) {
         const encodeSitePath = (shared && shared.encodeSitePath) || function (url) { return url; };
         const link = escapeHtml(encodeSitePath(post.link || '#'));
         const titleHtml = post.titleHtml || '';
         const excerptHtml = post.excerptHtml || '';
+        const { iconHtml: mediaIconHtml, body: excerptBodyHtml } = splitMediaPrefix(excerptHtml);
         const date = escapeHtml(post.date || '');
         const modifiedDate = escapeHtml(post.modifiedDate || '');
         const sortDate = Number(post.sortDate) || 0;
@@ -125,7 +142,7 @@
                         </div>
                     </div>
                     <div class="mt-7 shrink-0">
-                        <p class="text-[#63718a] dark:text-gray-400 text-[14px] font-normal leading-7" style="${clampStyle(3)}">${excerptHtml}</p>
+                        <p class="text-[#63718a] dark:text-gray-400 text-[14px] font-normal leading-7" style="${clampStyle(3)}">${mediaIconHtml}${excerptBodyHtml}</p>
                     </div>
                     ${mobileImageBlock}
                     ${mobileFooterTagsBlock}
@@ -133,7 +150,7 @@
                 <div class="hidden h-full min-w-0 ${imageMarkup ? 'grid-cols-[minmax(0,1fr)_minmax(360px,43%)]' : 'grid-cols-1'} grid-rows-[1fr_auto] gap-x-14 lg:grid">
                     <div class="row-start-1 flex min-h-0 flex-col">
                         <h3 class="text-[#1e293b] dark:text-slate-200 text-[34px] font-black leading-tight" style="${clampStyle(2)}">${titleHtml}</h3>
-                        <p class="mt-8 text-[#63718a] dark:text-gray-400 text-[16px] font-normal leading-[1.78]" style="${clampStyle(desktopPreviewLines)}">${excerptHtml}</p>
+                        <p class="mt-8 text-[#63718a] dark:text-gray-400 text-[16px] font-normal leading-[1.78]" style="${clampStyle(desktopPreviewLines)}">${mediaIconHtml}${excerptBodyHtml}</p>
                     </div>
                     ${desktopImageBlock}
                     <div class="col-start-1 row-start-2 border-t border-slate-200 dark:border-slate-700 pt-3">

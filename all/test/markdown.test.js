@@ -53,6 +53,15 @@ test('markdown image syntax renders direct video URLs as video player placeholde
     assert.equal(html.includes('class="post-image-loader placeholder-loader"'), false);
 });
 
+test('video emoji forces image-link syntax to render as a video player', () => {
+    const html = parseMarkdown('![🎬 Demo](https://example.com/watch?id=1)');
+
+    assert.equal(html.includes('class="video-player video-player-loading"'), true);
+    assert.equal(html.includes('data-video-src="https://example.com/watch?id=1"'), true);
+    assert.equal(html.includes('data-video-title="Demo"'), true);
+    assert.equal(html.includes('🎬'), false);
+});
+
 test('multiline media image syntax picks the video URL for the video player', () => {
     const html = parseMarkdown([
         '![](https://example.com/cover.jpg',

@@ -189,6 +189,12 @@ test('post page loads video player assets only when video content is present', (
         siteConfig,
         seoConfig: {}
     });
+    const emojiVideoHtml = require('../build/pages/post.js').renderPostPage({
+        post: { ...postBase, content: '> [🎬 Demo](https://example.com/watch?id=1)' },
+        template: baseTemplate,
+        siteConfig,
+        seoConfig: {}
+    });
     const plainHtml = require('../build/pages/post.js').renderPostPage({
         post: { ...postBase, content: 'Plain body' },
         template: baseTemplate,
@@ -198,6 +204,8 @@ test('post page loads video player assets only when video content is present', (
 
     assert.match(videoHtml, /href="\/assets\/video-player\.css"/);
     assert.match(videoHtml, /src="\/assets\/video-player\.js"/);
+    assert.match(emojiVideoHtml, /href="\/assets\/video-player\.css"/);
+    assert.match(emojiVideoHtml, /src="\/assets\/video-player\.js"/);
     assert.doesNotMatch(plainHtml, /video-player\.css/);
     assert.doesNotMatch(plainHtml, /video-player\.js/);
 });

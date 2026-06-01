@@ -367,6 +367,7 @@ function normalizeEmbedUrl(href) {
 // 视频直链识别：mp4/webm/ogv/mov/m4v/m3u8。
 // 故意避开 .ogg（归音频），与音频后缀零冲突。带 base 解析以忽略 query/hash。
 const VIDEO_EXTENSION_RE = /\.(?:mp4|webm|ogv|mov|m4v|m3u8)(?:$|[?#])/i;
+const VIDEO_EMOJI_RE = /\u{1f3ac}|\u{1f3a5}|\u{1f4f9}/u;
 
 function normalizeMultilineVideoImages(content) {
     if (!content) return '';
@@ -377,7 +378,11 @@ function normalizeMultilineVideoImages(content) {
     });
 }
 
-function pickVideoUrl(href) {
+function hasVideoMarker(text) {
+    return VIDEO_EMOJI_RE.test(String(text || ''));
+}
+
+function pickVideoUrl(href, { force = false } = {}) {
     const raw = String(href || '').trim();
     if (!raw) return '';
     if (/^(?:data|blob):/i.test(raw) && VIDEO_EXTENSION_RE.test(raw)) return raw;
@@ -390,6 +395,7 @@ function pickVideoUrl(href) {
             if (VIDEO_EXTENSION_RE.test(candidate)) return candidate;
         }
     }
+    if (force) return candidates[0] || raw;
     return '';
 }
 
@@ -477,11 +483,11 @@ function renderExternalEmbed(href, text) {
 // 视频播放器占位：图片语法 ![标题](视频.mp4) 命中视频直链时产出。
 // 客户端 video-player.js 会读取 data-* 把它替换成自定义播放器；
 // 内部的 <a> 是无 JS 时的优雅降级（仍可点开直链）。
-function renderVideoEmbed(href, text) {
-    const src = pickVideoUrl(href);
+function renderVideoEmbed(href, text, { force = false } = {}) {
+    const src = pickVideoUrl(href, { force });
     if (!src) return '';
     const safeSrc = escapeHtml(src);
-    const safeTitle = escapeRenderedText(String(text || '').trim());
+    const safeTitle = escapeRenderedText(String(text || '').replace(/\u{1f3ac}|\u{1f3a5}|\u{1f4f9}/gu, '').trim());
     const fallbackLabel = safeTitle || safeSrc;
     return `
     <figure class="video-player video-player-loading" data-video-src="${safeSrc}" data-video-title="${safeTitle}">
@@ -961,7 +967,7 @@ function buildRenderer() {
     };
 
     renderer.image = (href, title, text) => {
-        if (isVideoUrl(href)) return renderVideoEmbed(href, text);
+        if (isVideoUrl(href) || hasVideoMarker(text)) return renderVideoEmbed(href, text, { force: hasVideoMarker(text) });
         if (!isLikelyImageUrl(href)) return renderExternalEmbed(href, text);
 
         const fallbackSrc = '/image/404.png';
@@ -1043,7 +1049,7 @@ function buildRenderer() {
     <div class="code-block-container group my-6 rounded-xl bg-[#f8fafc] dark:bg-transparent overflow-hidden border border-slate-200/50 dark:border-slate-700/50 code-fold">
         <div class="flex items-center justify-between px-5 py-2.5 bg-[#f1f5f9] dark:bg-[#0f172a] border-b border-slate-200/50 dark:border-slate-700/50">
             ${langLabel.replace('text-slate-500', 'text-slate-500 dark:text-slate-400')}
-            <label class="copy-btn-container">
+            <label class="t-btn-icon copy-btn-container">
                 <input type="checkbox" class="copy-checkbox">
                 <div class="clipboard">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M6.9998 6V3C6.9998 2.44772 7.44752 2 7.9998 2H19.9998C20.5521 2 20.9998 2.44772 20.9998 3V17C20.9998 17.5523 20.5521 18 19.9998 18H16.9998V20.9991C16.9998 21.5519 16.5499 22 15.993 22H4.00666C3.45059 22 3 21.5554 3 20.9991L3.0026 7.00087C3.0027 6.44811 3.45264 6 4.00942 6H6.9998ZM5.00242 8L5.00019 20H14.9998V8H5.00242ZM8.9998 6H16.9998V16H18.9998V4H8.9998V6Z"></path></svg>

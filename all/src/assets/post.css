@@ -1,4 +1,3 @@
-/* From Uiverse.io by catraco - Modified for compatibility */
 .copy-btn-container {
     --color: #7b8797;
     --size: 17px;
@@ -15,7 +14,11 @@
     opacity: 0.78;
     border-radius: 8px;
     border: 1px solid transparent;
-    transition: opacity 0.16s ease;
+    color: var(--color);
+    transition:
+        color var(--t-btn-dur, 280ms) var(--t-btn-ease, ease-out),
+        opacity var(--t-btn-dur, 280ms) var(--t-btn-ease, ease-out),
+        background-color var(--t-btn-dur, 280ms) var(--t-btn-ease, ease-out);
 }
 
 .dark .copy-btn-container {
@@ -36,25 +39,26 @@
 
 .copy-btn-container .clipboard {
     position: absolute;
-    animation: keyframes-fill .3s ease-out;
-    transition: fill 0.15s ease;
+    opacity: 1;
+    transition:
+        opacity 180ms ease-out,
+        color var(--t-btn-dur, 280ms) var(--t-btn-ease, ease-out);
 }
 
 .copy-btn-container .clipboard-check {
     position: absolute;
-    display: none;
-    animation: keyframes-fill .3s ease-out;
     fill: #2f9e6d;
-    opacity: 0.9;
+    opacity: 0;
+    transition: opacity 180ms ease-out;
 }
 
 /* ------ On check event ------ */
 .copy-btn-container input:checked~.clipboard {
-    display: none;
+    opacity: 0;
 }
 
 .copy-btn-container input:checked~.clipboard-check {
-    display: block;
+    opacity: 1;
 }
 
 /* ------ Hide the default checkbox ------ */
@@ -66,20 +70,11 @@
     width: 0;
 }
 
-/* ------ Animation ------ */
-@keyframes keyframes-fill {
-    0% {
-        transform: scale(0.8);
-        opacity: 0;
-    }
-
-    50% {
-        transform: scale(1.05);
-    }
-
-    100% {
-        transform: scale(1);
-        opacity: 1;
+@media (prefers-reduced-motion: reduce) {
+    .copy-btn-container,
+    .copy-btn-container .clipboard,
+    .copy-btn-container .clipboard-check {
+        transition: none !important;
     }
 }
 
