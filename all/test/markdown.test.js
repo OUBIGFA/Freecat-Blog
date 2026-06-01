@@ -74,11 +74,22 @@ test('multiline media image syntax picks the video URL for the video player', ()
     assert.equal(html.includes('https://example.com/cover.jpg'), false);
 });
 
-test('markdown image syntax keeps audio URLs out of the video player flow', () => {
+test('markdown image syntax renders direct audio URLs as audio player placeholders', () => {
     const html = parseMarkdown('![Audio](https://example.com/audio.ogg)');
 
     assert.equal(html.includes('class="video-player video-player-loading"'), false);
-    assert.equal(html.includes('class="external-embed external-embed-link external-embed-loading"'), true);
+    assert.equal(html.includes('class="audio-player audio-player-loading"'), true);
+    assert.equal(html.includes('data-audio-src="https://example.com/audio.ogg"'), true);
+    assert.equal(html.includes('data-audio-title="Audio"'), true);
+});
+
+test('audio emoji forces image-link syntax to render as an audio player', () => {
+    const html = parseMarkdown('![🎵 Audio](https://example.com/listen?id=1)');
+
+    assert.equal(html.includes('class="audio-player audio-player-loading"'), true);
+    assert.equal(html.includes('data-audio-src="https://example.com/listen?id=1"'), true);
+    assert.equal(html.includes('data-audio-title="Audio"'), true);
+    assert.equal(html.includes('🎵'), false);
 });
 
 test('markdown horizontal rules keep optional blank-line gap markers on both sides', () => {

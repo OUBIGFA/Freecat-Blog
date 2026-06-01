@@ -209,3 +209,35 @@ test('post page loads video player assets only when video content is present', (
     assert.doesNotMatch(plainHtml, /video-player\.css/);
     assert.doesNotMatch(plainHtml, /video-player\.js/);
 });
+
+test('post page loads audio player assets only for image-style audio content', () => {
+    const baseTemplate = '<!doctype html><html><head><!-- POST_SEO_HEAD --><!-- POST_JSONLD --><!-- POST_AUDIO_CSS --></head><body><!-- TITLE_PLACEHOLDER --><!-- TITLE_H1_PLACEHOLDER --><!-- TAGS_PLACEHOLDER --><!-- DATE_PLACEHOLDER --><!-- DATE_ISO_PLACEHOLDER --><!-- MODIFIED_PLACEHOLDER --><!-- CONTENT_PLACEHOLDER --><!-- TOC_PLACEHOLDER --><!-- POST_HIGHLIGHT_CSS --><!-- POST_KATEX_CSS --><!-- POST_HIGHLIGHT_JS --><!-- POST_CHART_JS --><!-- POST_AUDIO_JS --><!-- POST_VIDEO_CSS --><!-- POST_VIDEO_JS --></body></html>';
+    const siteConfig = { site_name: 'Example', site_title: 'Example', site_url: 'https://example.com' };
+    const postBase = {
+        title: 'Audio Post',
+        tag: [],
+        link: '/posts/audio',
+        cover: '',
+        date: dayjs.tz(PUBLISHED_AT),
+        modifiedDate: dayjs.tz(MODIFIED_AT),
+        postId: '2026053115300003'
+    };
+
+    const audioHtml = require('../build/pages/post.js').renderPostPage({
+        post: { ...postBase, content: '![Demo](https://example.com/audio.mp3)' },
+        template: baseTemplate,
+        siteConfig,
+        seoConfig: {}
+    });
+    const quoteAudioHtml = require('../build/pages/post.js').renderPostPage({
+        post: { ...postBase, content: '> [Demo](https://example.com/audio.mp3)' },
+        template: baseTemplate,
+        siteConfig,
+        seoConfig: {}
+    });
+
+    assert.match(audioHtml, /href="\/assets\/audio-player\.css"/);
+    assert.match(audioHtml, /src="\/assets\/audio-player\.js"/);
+    assert.doesNotMatch(quoteAudioHtml, /audio-player\.css/);
+    assert.doesNotMatch(quoteAudioHtml, /audio-player\.js/);
+});

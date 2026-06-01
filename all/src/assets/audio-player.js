@@ -15,34 +15,13 @@
     }
 
     function initAudioPlayers() {
-        // Find all blockquotes with audio links
-        const blockquotes = document.querySelectorAll('blockquote');
-
-        blockquotes.forEach(blockquote => {
-            const link = blockquote.querySelector('a');
-            if (!link) return;
-
-            const linkText = link.textContent.trim();
-            const linkUrl = link.href;
-
-            // Check if this is an audio link
-            if (isAudioLink(linkText, linkUrl)) {
-                // Replace blockquote with audio player
-                const audioPlayer = createAudioPlayer(linkText, linkUrl);
-                blockquote.parentNode.replaceChild(audioPlayer, blockquote);
-            }
+        document.querySelectorAll('figure.audio-player[data-audio-src]').forEach(figure => {
+            const audioUrl = figure.getAttribute('data-audio-src') || '';
+            if (!audioUrl) return;
+            const title = figure.getAttribute('data-audio-title') || '';
+            const audioPlayer = createAudioPlayer(title, audioUrl);
+            figure.parentNode.replaceChild(audioPlayer, figure);
         });
-    }
-
-    function isAudioLink(text, url) {
-        // Check if the link text contains the music emoji 🎵
-        if (text.includes('🎵')) {
-            return true;
-        }
-
-        // Audio file extensions - check URL for audio formats
-        const audioExtensions = ['.mp3', '.m4a', '.wav', '.ogg', '.aac', '.flac', '.opus'];
-        return audioExtensions.some(ext => url.toLowerCase().includes(ext));
     }
 
     function createAudioPlayer(title, audioUrl) {

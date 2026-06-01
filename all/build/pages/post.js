@@ -160,10 +160,7 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
     const needsMermaid = /data-diagram-type="mermaid"|class="(?:[^"]*\s)?mermaid-block(?:\s[^"]*)?"/i.test(finalContentHtml);
     const needsEcharts = /class="(?:[^"]*\s)?echarts-block(?:\s[^"]*)?"|data-chart-options=/i.test(finalContentHtml);
     const needsTwitterEmbed = /data-embed-provider="twitter"/i.test(finalContentHtml);
-    // 音频播放器：在 markdown 渲染结果里检测 🎵 标记或音频后缀链接。
-    // audio-player.js 自身还要求链接在 <blockquote> 中，没匹配上时只是 no-op；
-    // 因此即便误判命中，副作用仅是多下载一份 JS+CSS（约 25KB），没有功能问题。
-    const needsAudioPlayer = /🎵|<a [^>]*href="[^"]*\.(?:mp3|m4a|wav|ogg|aac|flac|opus)\b/i.test(finalContentHtml);
+    const needsAudioPlayer = /class="[^"]*\baudio-player\b/i.test(finalContentHtml);
 
     const needsVideoPlayer = /🎬|🎥|📹|class="[^"]*\bvideo-player\b|<a [^>]*href="[^"]*\.(?:mp4|webm|ogv|mov|m4v|m3u8)(?:[?#]|\b)/i.test(finalContentHtml);
 

@@ -83,17 +83,33 @@
     width: 4px;
 }
 
+.custom-scrollbar {
+    scrollbar-color: rgba(148, 163, 184, 0.42) transparent;
+}
+
 .custom-scrollbar::-webkit-scrollbar-track {
     background: transparent;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #cbd5e1;
+    background-color: rgba(148, 163, 184, 0.42);
     border-radius: 8px;
 }
 
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(100, 116, 139, 0.5);
+}
+
+.dark .custom-scrollbar {
+    scrollbar-color: rgba(100, 116, 139, 0.42) transparent;
+}
+
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #475569;
+    background-color: rgba(100, 116, 139, 0.42);
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(148, 163, 184, 0.38);
 }
 
 /* ===== 黄金比例阅读间距系统 =====

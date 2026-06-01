@@ -397,16 +397,16 @@ show: true
 
 ### 音频播放器
 
-在文章里用引用格式 + 音频直链，会自动出现播放器。
+在文章里用图片格式 + 音频直链，会自动出现音频播放器。
 
 ```md
->[这是示例音频](https://xxx.xxx/example.m4a)
+![这是示例音频](https://xxx.xxx/example.m4a)
 ```
 
 链接没有明显音频后缀的话，在标题里加个 `🎵` 强制识别。
 
 ```md
->[🎵这是示例音频](https://xxx.xxx/example)
+![🎵这是示例音频](https://xxx.xxx/example)
 ```
 
 支持的常见音频格式：`.mp3`、`.m4a`、`.wav`、`.ogg`、`.aac`、`.flac`、`.opus`。
@@ -449,7 +449,7 @@ show: true
 例如，工具生成的是音频直链，就这样写：
 
 ```md
->[🎵I Still Believe](https://工具生成的音频直链)
+![🎵I Still Believe](https://工具生成的音频直链)
 ```
 
 工具生成的是视频直链，就这样写：

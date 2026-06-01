@@ -368,6 +368,8 @@ function normalizeEmbedUrl(href) {
 // 故意避开 .ogg（归音频），与音频后缀零冲突。带 base 解析以忽略 query/hash。
 const VIDEO_EXTENSION_RE = /\.(?:mp4|webm|ogv|mov|m4v|m3u8)(?:$|[?#])/i;
 const VIDEO_EMOJI_RE = /\u{1f3ac}|\u{1f3a5}|\u{1f4f9}/u;
+const AUDIO_EXTENSION_RE = /\.(?:mp3|m4a|wav|ogg|aac|flac|opus)(?:$|[?#])/i;
+const AUDIO_EMOJI_RE = /\u{1f3b5}/u;
 
 function normalizeMultilineVideoImages(content) {
     if (!content) return '';
@@ -380,6 +382,31 @@ function normalizeMultilineVideoImages(content) {
 
 function hasVideoMarker(text) {
     return VIDEO_EMOJI_RE.test(String(text || ''));
+}
+
+function hasAudioMarker(text) {
+    return AUDIO_EMOJI_RE.test(String(text || ''));
+}
+
+function pickAudioUrl(href, { force = false } = {}) {
+    const raw = String(href || '').trim();
+    if (!raw) return '';
+    if (/^(?:data|blob):/i.test(raw) && AUDIO_EXTENSION_RE.test(raw)) return raw;
+    const candidates = raw.split(/[\s<>]+/).map(part => part.trim()).filter(Boolean);
+    for (const candidate of candidates) {
+        try {
+            const url = new URL(candidate, 'https://example.com');
+            if (AUDIO_EXTENSION_RE.test(url.pathname)) return candidate;
+        } catch (err) {
+            if (AUDIO_EXTENSION_RE.test(candidate)) return candidate;
+        }
+    }
+    if (force) return candidates[0] || raw;
+    return '';
+}
+
+function isAudioUrl(href) {
+    return Boolean(pickAudioUrl(href));
 }
 
 function pickVideoUrl(href, { force = false } = {}) {
@@ -492,6 +519,21 @@ function renderVideoEmbed(href, text, { force = false } = {}) {
     return `
     <figure class="video-player video-player-loading" data-video-src="${safeSrc}" data-video-title="${safeTitle}">
         <a class="video-player-fallback" href="${safeSrc}" target="_blank" rel="noopener noreferrer">${fallbackLabel}</a>
+    </figure>`;
+}
+
+// 音频播放器占位：和视频一致，图片语法 ![标题](音频.mp3) 命中音频直链时产出。
+// 客户端 audio-player.js 会读取 data-* 把它替换成自定义播放器；
+// 内部的 <a> 是无 JS 时的优雅降级（仍可点开直链）。
+function renderAudioEmbed(href, text, { force = false } = {}) {
+    const src = pickAudioUrl(href, { force });
+    if (!src) return '';
+    const safeSrc = escapeHtml(src);
+    const safeTitle = escapeRenderedText(String(text || '').replace(/\u{1f3b5}/gu, '').trim());
+    const fallbackLabel = safeTitle || safeSrc;
+    return `
+    <figure class="audio-player audio-player-loading" data-audio-src="${safeSrc}" data-audio-title="${safeTitle}">
+        <a class="audio-player-fallback" href="${safeSrc}" target="_blank" rel="noopener noreferrer">${fallbackLabel}</a>
     </figure>`;
 }
 
@@ -968,6 +1010,7 @@ function buildRenderer() {
 
     renderer.image = (href, title, text) => {
         if (isVideoUrl(href) || hasVideoMarker(text)) return renderVideoEmbed(href, text, { force: hasVideoMarker(text) });
+        if (isAudioUrl(href) || hasAudioMarker(text)) return renderAudioEmbed(href, text, { force: hasAudioMarker(text) });
         if (!isLikelyImageUrl(href)) return renderExternalEmbed(href, text);
 
         const fallbackSrc = '/image/404.png';
@@ -1002,6 +1045,9 @@ function buildRenderer() {
             return trimmed + '\n';
         }
         if (/^<figure\b[^>]*\bvideo-player\b[^>]*>[\s\S]*<\/figure>$/i.test(trimmed)) {
+            return trimmed + '\n';
+        }
+        if (/^<figure\b[^>]*\baudio-player\b[^>]*>[\s\S]*<\/figure>$/i.test(trimmed)) {
             return trimmed + '\n';
         }
         return paragraphRenderer.call(renderer, text);
