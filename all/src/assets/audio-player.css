@@ -117,7 +117,7 @@
 .audio-progress-container:hover .audio-progress-thumb,
 .audio-progress-container:focus-visible .audio-progress-thumb,
 .audio-progress-container.is-dragging .audio-progress-thumb {
-    opacity: 0.82;
+    opacity: 1;
 }
 
 .dark .audio-progress-thumb {

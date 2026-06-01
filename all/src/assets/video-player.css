@@ -184,7 +184,7 @@
 .video-progress-container:hover .video-progress-thumb,
 .video-progress-container:focus-visible .video-progress-thumb,
 .video-progress-container.is-dragging .video-progress-thumb {
-    opacity: 0.82;
+    opacity: 1;
 }
 
 .dark .video-progress-thumb {
