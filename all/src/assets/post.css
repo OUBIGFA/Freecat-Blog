@@ -1134,6 +1134,8 @@
 .prose .article-heading a,
 .prose .article-heading a:hover {
     color: inherit !important;
+    /* 标题内的链接不显示正文链接的下划线 */
+    text-decoration: none !important;
 }
 
 .prose .article-heading-depth-1 {
