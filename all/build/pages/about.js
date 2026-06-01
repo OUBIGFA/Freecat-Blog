@@ -37,7 +37,7 @@ function generate({ template, siteConfig, seoConfig, aboutConfig, outputDir }) {
         .replace(/<!-- ABOUT_HERO_SUBTITLE -->/g, () => autoLineBreak(shared.escapeHtml(autoSpacing(finalSubtitle))))
         .replace(/<!-- ABOUT_HERO_AVATAR -->/g, () => shared.escapeHtml(String(finalAvatar || '')));
 
-    fs.writeFileSync(path.join(outputDir, 'about.html'), html);
+    fs.writeFileSync(path.join(outputDir, 'about.html'), html, 'utf-8');
     console.log('  Generated: about.html');
 }
 

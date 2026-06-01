@@ -26,7 +26,7 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir }) {
     const out = template
         .replace('<!-- ALL_SEO_HEAD -->', () => seoHead)
         .replace('<!-- ALL_POSTS_LIST_PLACEHOLDER -->', () => html);
-    fs.writeFileSync(path.join(outputDir, 'all.html'), out);
+    fs.writeFileSync(path.join(outputDir, 'all.html'), out, 'utf-8');
     console.log('  Generated: all.html');
 }
 

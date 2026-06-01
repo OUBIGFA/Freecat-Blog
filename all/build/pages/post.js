@@ -252,7 +252,7 @@ function generateAll({ posts, template, siteConfig, seoConfig, outputDir }) {
         const postDir = path.join(outputDir, 'posts', post.postId);
         fs.mkdirSync(postDir, { recursive: true });
         const outFile = path.join(postDir, 'index.html');
-        fs.writeFileSync(outFile, html);
+        fs.writeFileSync(outFile, html, 'utf-8');
         console.log(`  Generated: posts/${post.postId}/index.html`);
     });
 }

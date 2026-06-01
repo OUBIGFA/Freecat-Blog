@@ -65,7 +65,7 @@ async function buildTailwindCss({ contentGlobs, outputPath, minify = true }) {
     if (minify) plugins.push(cssnano({ preset: 'default' }));
 
     const result = await postcss(plugins).process(inputCss, { from: undefined });
-    fs.writeFileSync(outputPath, result.css);
+    fs.writeFileSync(outputPath, result.css, 'utf-8');
     return { size: result.css.length };
 }
 

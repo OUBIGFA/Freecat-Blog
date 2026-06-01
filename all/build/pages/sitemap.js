@@ -113,7 +113,7 @@ function generateSitemap({ posts, siteConfig, outputDir }) {
     });
 
     lines.push('</urlset>');
-    fs.writeFileSync(path.join(outputDir, 'sitemap.xml'), lines.join('\n'));
+    fs.writeFileSync(path.join(outputDir, 'sitemap.xml'), lines.join('\n'), 'utf-8');
     console.log('  Generated: sitemap.xml');
 }
 
@@ -139,7 +139,7 @@ function generateRobotsTxt({ siteConfig, seoConfig = {}, outputDir }) {
     }
 
     if (baseUrl) robots += `\nSitemap: ${baseUrl}/sitemap.xml\n`;
-    fs.writeFileSync(path.join(outputDir, 'robots.txt'), robots);
+    fs.writeFileSync(path.join(outputDir, 'robots.txt'), robots, 'utf-8');
     console.log('  Generated: robots.txt');
 }
 
@@ -168,7 +168,7 @@ function generateLlmsTxt({ posts, siteConfig, seoConfig = {}, outputDir }) {
         lines.push(`- ${post.title}: ${baseUrl}${encodePath(post.link)} - ${seo.truncate(seo.articleSummary(post), 180)}`);
     });
 
-    fs.writeFileSync(path.join(outputDir, 'llms.txt'), lines.join('\n'));
+    fs.writeFileSync(path.join(outputDir, 'llms.txt'), lines.join('\n'), 'utf-8');
     console.log('  Generated: llms.txt');
 }
 
@@ -207,7 +207,7 @@ function generateFeed({ posts, siteConfig, seoConfig = {}, outputDir }) {
     });
 
     lines.push('</feed>');
-    fs.writeFileSync(path.join(outputDir, 'feed.xml'), lines.join('\n'));
+    fs.writeFileSync(path.join(outputDir, 'feed.xml'), lines.join('\n'), 'utf-8');
     console.log('  Generated: feed.xml');
 }
 
@@ -235,7 +235,7 @@ function generateOpenSearchXml({ siteConfig, seoConfig = {}, outputDir }) {
     lines.push(`  <Url type="text/html" method="get" template="${xmlEscape(baseUrl + '/search.html?q={searchTerms}')}" />`);
     lines.push(`  <Url type="application/opensearchdescription+xml" rel="self" template="${xmlEscape(baseUrl + '/opensearch.xml')}" />`);
     lines.push('</OpenSearchDescription>');
-    fs.writeFileSync(path.join(outputDir, 'opensearch.xml'), lines.join('\n'));
+    fs.writeFileSync(path.join(outputDir, 'opensearch.xml'), lines.join('\n'), 'utf-8');
     console.log('  Generated: opensearch.xml');
 }
 

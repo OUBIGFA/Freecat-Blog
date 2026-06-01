@@ -18,7 +18,7 @@ function normalizeNotFoundAssetUrls(html) {
 
 function generateNotFoundPage({ template, outputDir }) {
     console.log('🚫 Generating 404.html...');
-    fs.writeFileSync(path.join(outputDir, '404.html'), normalizeNotFoundAssetUrls(template));
+    fs.writeFileSync(path.join(outputDir, '404.html'), normalizeNotFoundAssetUrls(template), 'utf-8');
     console.log('  Generated: 404.html');
 }
 

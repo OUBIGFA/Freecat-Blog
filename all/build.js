@@ -210,7 +210,7 @@ if (siteConfig.show_recent_posts === true) {
 }
 
 // ===== 1. 清理输出目录 + 搬运静态资源 =====
-ensureCleanDir(DIRS.output);
+ensureCleanDir(DIRS.output, { within: __dirname, allowedName: 'dist' });
 fs.mkdirSync(path.join(DIRS.output, 'posts'));
 
 console.log('📦 Moving assets and configs...');

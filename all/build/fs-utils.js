@@ -14,7 +14,30 @@ function copyDir(src, dest, options = {}) {
     }
 }
 
-function ensureCleanDir(dir) {
+function assertSafeCleanDirTarget(dir, options = {}) {
+    const resolved = path.resolve(dir);
+    const allowedName = options.allowedName || 'dist';
+
+    if (path.basename(resolved) !== allowedName) {
+        throw new Error(`Refusing to clean unexpected directory: ${resolved}`);
+    }
+
+    if (options.within) {
+        const root = path.resolve(options.within);
+        const relative = path.relative(root, resolved);
+        if (relative.startsWith('..') || path.isAbsolute(relative)) {
+            throw new Error(`Refusing to clean directory outside ${root}: ${resolved}`);
+        }
+    }
+
+    if (resolved === path.parse(resolved).root) {
+        throw new Error(`Refusing to clean filesystem root: ${resolved}`);
+    }
+}
+
+function ensureCleanDir(dir, options = {}) {
+    assertSafeCleanDirTarget(dir, options);
+
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
         return;
@@ -26,4 +49,4 @@ function ensureCleanDir(dir) {
     }
 }
 
-module.exports = { copyDir, ensureCleanDir };
+module.exports = { copyDir, ensureCleanDir, assertSafeCleanDirTarget };

@@ -85,7 +85,7 @@ function generateAll({ posts, template, postsPerPage, siteConfig, seoConfig, out
             .replace('<!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->', () => recentPostsSidebarHtml || '');
 
         if (page === 1) {
-            fs.writeFileSync(path.join(outputDir, 'index.html'), outputHtml);
+            fs.writeFileSync(path.join(outputDir, 'index.html'), outputHtml, 'utf-8');
         } else {
             const pageDir = path.join(outputDir, 'page', String(page));
             if (!fs.existsSync(pageDir)) fs.mkdirSync(pageDir, { recursive: true });
@@ -96,7 +96,7 @@ function generateAll({ posts, template, postsPerPage, siteConfig, seoConfig, out
             // 直接刷新该 URL 时 CSS/JS 全部 404，首屏崩溃；
             // 这里把这些相对引用矫正成 ../../assets/...，让刷新也能正常加载。
             const adjustedHtml = outputHtml.replace(/(['"])\.\/assets\//g, '$1../../assets/');
-            fs.writeFileSync(path.join(pageDir, 'index.html'), adjustedHtml);
+            fs.writeFileSync(path.join(pageDir, 'index.html'), adjustedHtml, 'utf-8');
         }
     }
 }

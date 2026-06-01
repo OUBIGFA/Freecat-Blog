@@ -67,12 +67,14 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir, recentPos
     // 不保留缩进，节省体积
     fs.writeFileSync(
         path.join(outputDir, 'search-index.json'),
-        JSON.stringify(searchIndex)
+        JSON.stringify(searchIndex),
+        'utf-8'
     );
     console.log('  Generated: search-index.json');
     fs.writeFileSync(
         path.join(outputDir, 'tag-index.json'),
-        JSON.stringify(tagIndex)
+        JSON.stringify(tagIndex),
+        'utf-8'
     );
     console.log('  Generated: tag-index.json');
 
@@ -89,7 +91,7 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir, recentPos
     });
     fs.writeFileSync(path.join(outputDir, 'search.html'), template
         .replace('<!-- SEARCH_SEO_HEAD -->', () => seoHead)
-        .replace('<!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->', () => recentPostsSidebarHtml || ''));
+        .replace('<!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->', () => recentPostsSidebarHtml || ''), 'utf-8');
     console.log('  Generated: search.html');
 }
 

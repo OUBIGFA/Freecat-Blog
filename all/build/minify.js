@@ -42,7 +42,7 @@ async function minifyDist(distDir) {
         htmlBytesBefore += Buffer.byteLength(src);
         try {
             const out = await htmlMinify(src, HTML_OPTIONS);
-            fs.writeFileSync(f, out);
+            fs.writeFileSync(f, out, 'utf-8');
             htmlBytesAfter += Buffer.byteLength(out);
             htmlCount++;
         } catch (err) {
@@ -65,7 +65,7 @@ async function minifyDist(distDir) {
                 format: { comments: false }
             });
             const out = result.code || src;
-            fs.writeFileSync(f, out);
+            fs.writeFileSync(f, out, 'utf-8');
             jsBytesAfter += Buffer.byteLength(out);
             jsCount++;
         } catch (err) {
