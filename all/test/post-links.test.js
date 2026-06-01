@@ -158,7 +158,7 @@ test('generateAll writes only the fixed post id page', (t) => {
 
     generateAll({
         posts: [post],
-        template: '<!doctype html><html><head><!-- POST_SEO_HEAD --><!-- POST_JSONLD --></head><body><!-- TITLE_PLACEHOLDER --><!-- TITLE_H1_PLACEHOLDER --><!-- TAGS_PLACEHOLDER --><!-- DATE_PLACEHOLDER --><!-- DATE_ISO_PLACEHOLDER --><!-- MODIFIED_PLACEHOLDER --><!-- CONTENT_PLACEHOLDER --><!-- TOC_PLACEHOLDER --><!-- POST_HIGHLIGHT_CSS --><!-- POST_KATEX_CSS --><!-- POST_HIGHLIGHT_JS --><!-- POST_CHART_JS --><!-- POST_AUDIO_CSS --><!-- POST_AUDIO_JS --></body></html>',
+        template: '<!doctype html><html><head><!-- POST_SEO_HEAD --><!-- POST_JSONLD --></head><body><!-- TITLE_PLACEHOLDER --><!-- TITLE_H1_PLACEHOLDER --><!-- TAGS_PLACEHOLDER --><!-- DATE_PLACEHOLDER --><!-- DATE_ISO_PLACEHOLDER --><!-- MODIFIED_PLACEHOLDER --><!-- CONTENT_PLACEHOLDER --><!-- TOC_PLACEHOLDER --><!-- POST_HIGHLIGHT_CSS --><!-- POST_KATEX_CSS --><!-- POST_HIGHLIGHT_JS --><!-- POST_CHART_JS --><!-- POST_AUDIO_CSS --><!-- POST_AUDIO_JS --><!-- POST_VIDEO_CSS --><!-- POST_VIDEO_JS --></body></html>',
         siteConfig: { site_name: 'Example', site_title: 'Example', site_url: 'https://example.com' },
         seoConfig: {},
         outputDir: 'dist'
@@ -168,4 +168,36 @@ test('generateAll writes only the fixed post id page', (t) => {
 
     assert.equal(writes.has(fixedPath), true);
     assert.equal(writes.size, 1);
+});
+
+test('post page loads video player assets only when video content is present', () => {
+    const baseTemplate = '<!doctype html><html><head><!-- POST_SEO_HEAD --><!-- POST_JSONLD --><!-- POST_VIDEO_CSS --></head><body><!-- TITLE_PLACEHOLDER --><!-- TITLE_H1_PLACEHOLDER --><!-- TAGS_PLACEHOLDER --><!-- DATE_PLACEHOLDER --><!-- DATE_ISO_PLACEHOLDER --><!-- MODIFIED_PLACEHOLDER --><!-- CONTENT_PLACEHOLDER --><!-- TOC_PLACEHOLDER --><!-- POST_HIGHLIGHT_CSS --><!-- POST_KATEX_CSS --><!-- POST_HIGHLIGHT_JS --><!-- POST_CHART_JS --><!-- POST_AUDIO_CSS --><!-- POST_AUDIO_JS --><!-- POST_VIDEO_JS --></body></html>';
+    const siteConfig = { site_name: 'Example', site_title: 'Example', site_url: 'https://example.com' };
+    const postBase = {
+        title: 'Video Post',
+        tag: [],
+        link: '/posts/video',
+        cover: '',
+        date: dayjs.tz(PUBLISHED_AT),
+        modifiedDate: dayjs.tz(MODIFIED_AT),
+        postId: '2026053115300002'
+    };
+
+    const videoHtml = require('../build/pages/post.js').renderPostPage({
+        post: { ...postBase, content: '![Demo](https://example.com/video.mp4)' },
+        template: baseTemplate,
+        siteConfig,
+        seoConfig: {}
+    });
+    const plainHtml = require('../build/pages/post.js').renderPostPage({
+        post: { ...postBase, content: 'Plain body' },
+        template: baseTemplate,
+        siteConfig,
+        seoConfig: {}
+    });
+
+    assert.match(videoHtml, /href="\/assets\/video-player\.css"/);
+    assert.match(videoHtml, /src="\/assets\/video-player\.js"/);
+    assert.doesNotMatch(plainHtml, /video-player\.css/);
+    assert.doesNotMatch(plainHtml, /video-player\.js/);
 });

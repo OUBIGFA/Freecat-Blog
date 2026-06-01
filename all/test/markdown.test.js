@@ -44,6 +44,34 @@ test('markdown images render the loading spinner element', () => {
     assert.equal(html.includes('<span class="loader"></span>'), true);
 });
 
+test('markdown image syntax renders direct video URLs as video player placeholders', () => {
+    const html = parseMarkdown('![Demo](https://example.com/video.mp4?download=1)');
+
+    assert.equal(html.includes('class="video-player video-player-loading"'), true);
+    assert.equal(html.includes('data-video-src="https://example.com/video.mp4?download=1"'), true);
+    assert.equal(html.includes('data-video-title="Demo"'), true);
+    assert.equal(html.includes('class="post-image-loader placeholder-loader"'), false);
+});
+
+test('multiline media image syntax picks the video URL for the video player', () => {
+    const html = parseMarkdown([
+        '![](https://example.com/cover.jpg',
+        'https://example.com/playlist/master.m3u8',
+        'https://example.com/video.mp4)'
+    ].join('\n'));
+
+    assert.equal(html.includes('class="video-player video-player-loading"'), true);
+    assert.equal(html.includes('data-video-src="https://example.com/playlist/master.m3u8"'), true);
+    assert.equal(html.includes('https://example.com/cover.jpg'), false);
+});
+
+test('markdown image syntax keeps audio URLs out of the video player flow', () => {
+    const html = parseMarkdown('![Audio](https://example.com/audio.ogg)');
+
+    assert.equal(html.includes('class="video-player video-player-loading"'), false);
+    assert.equal(html.includes('class="external-embed external-embed-link external-embed-loading"'), true);
+});
+
 test('markdown horizontal rules keep optional blank-line gap markers on both sides', () => {
     const compactHtml = parseMarkdown('A\n\n---\n\nB');
     const expandedHtml = parseMarkdown('A\n\n\n---\n\n\nB');

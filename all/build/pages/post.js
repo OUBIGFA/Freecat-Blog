@@ -165,6 +165,8 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
     // 因此即便误判命中，副作用仅是多下载一份 JS+CSS（约 25KB），没有功能问题。
     const needsAudioPlayer = /🎵|<a [^>]*href="[^"]*\.(?:mp3|m4a|wav|ogg|aac|flac|opus)\b/i.test(finalContentHtml);
 
+    const needsVideoPlayer = /class="[^"]*\bvideo-player\b|<a [^>]*href="[^"]*\.(?:mp4|webm|ogv|mov|m4v|m3u8)(?:[?#]|\b)/i.test(finalContentHtml);
+
     const chartJs = [
         needsMermaid ? '<script src="https://cdn.jsdelivr.net/npm/vditor@3.11.2/dist/js/mermaid/mermaid.min.js"></script>' : '',
         needsEcharts ? '<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>' : ''
@@ -183,6 +185,12 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
         : '';
     const audioJs = needsAudioPlayer
         ? '<script src="/assets/audio-player.js"></script>'
+        : '';
+    const videoCss = needsVideoPlayer
+        ? '<link rel="stylesheet" href="/assets/video-player.css" />'
+        : '';
+    const videoJs = needsVideoPlayer
+        ? '<script src="/assets/video-player.js"></script>'
         : '';
     const embedJs = needsTwitterEmbed
         ? '<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>'
@@ -228,6 +236,8 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
         .replace('<!-- POST_CHART_JS -->', () => [chartJs, embedJs].filter(Boolean).join('\n    '))
         .replace('<!-- POST_AUDIO_CSS -->', () => audioCss)
         .replace('<!-- POST_AUDIO_JS -->', () => audioJs)
+        .replace('<!-- POST_VIDEO_CSS -->', () => videoCss)
+        .replace('<!-- POST_VIDEO_JS -->', () => videoJs)
         .replace('<!-- POST_JSONLD -->', () => jsonLd);
 
     return removeEmptyTocAside(html, toc);

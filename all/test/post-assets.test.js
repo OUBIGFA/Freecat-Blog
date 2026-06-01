@@ -123,7 +123,7 @@ test('article heading links drop the body link underline', () => {
     assert.match(postCss, /\.prose \.article-heading a,\s*\.prose \.article-heading a:hover\s*\{[\s\S]*text-decoration:\s*none\s*!important;/);
 });
 
-test('article heading links are prefixed with a currentColor globe icon', () => {
+test('article heading links are prefixed with a currentColor link icon', () => {
     const beforeBlock = postCss.match(/\.prose \.article-heading a::before\s*\{[\s\S]*?\}/);
     assert.ok(beforeBlock, 'expected a .prose .article-heading a::before rule');
     const rule = beforeBlock[0];

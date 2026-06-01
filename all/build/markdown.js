@@ -364,6 +364,39 @@ function normalizeEmbedUrl(href) {
     return raw.startsWith('//') ? `https:${raw}` : raw;
 }
 
+// 视频直链识别：mp4/webm/ogv/mov/m4v/m3u8。
+// 故意避开 .ogg（归音频），与音频后缀零冲突。带 base 解析以忽略 query/hash。
+const VIDEO_EXTENSION_RE = /\.(?:mp4|webm|ogv|mov|m4v|m3u8)(?:$|[?#])/i;
+
+function normalizeMultilineVideoImages(content) {
+    if (!content) return '';
+    return String(content).replace(/!\[([^\]]*)\]\(([\s\S]*?)\)/g, (match, alt, target) => {
+        const videoUrl = pickVideoUrl(target);
+        if (!videoUrl || !/\r?\n/.test(target)) return match;
+        return `![${alt}](${videoUrl})`;
+    });
+}
+
+function pickVideoUrl(href) {
+    const raw = String(href || '').trim();
+    if (!raw) return '';
+    if (/^(?:data|blob):/i.test(raw) && VIDEO_EXTENSION_RE.test(raw)) return raw;
+    const candidates = raw.split(/[\s<>]+/).map(part => part.trim()).filter(Boolean);
+    for (const candidate of candidates) {
+        try {
+            const url = new URL(candidate, 'https://example.com');
+            if (VIDEO_EXTENSION_RE.test(url.pathname)) return candidate;
+        } catch (err) {
+            if (VIDEO_EXTENSION_RE.test(candidate)) return candidate;
+        }
+    }
+    return '';
+}
+
+function isVideoUrl(href) {
+    return Boolean(pickVideoUrl(href));
+}
+
 function getExternalEmbed(url) {
     let parsed;
     try {
@@ -438,6 +471,21 @@ function renderExternalEmbed(href, text) {
         ${placeholder}
         ${loader}
         <div class="external-embed-content"><a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${safeLabel}</a></div>
+    </figure>`;
+}
+
+// 视频播放器占位：图片语法 ![标题](视频.mp4) 命中视频直链时产出。
+// 客户端 video-player.js 会读取 data-* 把它替换成自定义播放器；
+// 内部的 <a> 是无 JS 时的优雅降级（仍可点开直链）。
+function renderVideoEmbed(href, text) {
+    const src = pickVideoUrl(href);
+    if (!src) return '';
+    const safeSrc = escapeHtml(src);
+    const safeTitle = escapeRenderedText(String(text || '').trim());
+    const fallbackLabel = safeTitle || safeSrc;
+    return `
+    <figure class="video-player video-player-loading" data-video-src="${safeSrc}" data-video-title="${safeTitle}">
+        <a class="video-player-fallback" href="${safeSrc}" target="_blank" rel="noopener noreferrer">${fallbackLabel}</a>
     </figure>`;
 }
 
@@ -584,15 +632,23 @@ function stripMarkdown(text) {
 
     let clean = text.replace(/^>\s*\[![^\]]+\](?:\r?\n>[^\r?\n]*)*\r?\n?/gm, '');
 
-    const allLinksRegex = /\[([^\]]*?)\]\s*\([^\)]+?\)/gi;
+    // 同时吃掉可选的前导 `!`，这样图片语法 ![](视频.mp4) 被剥离后不会残留 `!`。
+    const allLinksRegex = /!?\[([^\]]*?)\]\s*\([^\)]+?\)/gi;
     let hasAudio = false;
+    let hasVideo = false;
     const audioExtensions = ['.mp3', '.m4a', '.wav', '.ogg', '.aac', '.flac', '.opus'];
+    const videoExtensions = ['.mp4', '.webm', '.ogv', '.mov', '.m4v', '.m3u8'];
 
     clean = clean.replace(allLinksRegex, (match, label) => {
         const urlLower = match.toLowerCase();
         const hasAudioExt = audioExtensions.some(ext => urlLower.includes(ext));
         if (label.includes('🎵') || hasAudioExt) {
             hasAudio = true;
+            return '';
+        }
+        const hasVideoExt = videoExtensions.some(ext => urlLower.includes(ext));
+        if (/🎬|🎥|📹/.test(label) || hasVideoExt) {
+            hasVideo = true;
             return '';
         }
         return match;
@@ -622,6 +678,7 @@ function stripMarkdown(text) {
         .trim();
 
     if (hasAudio) clean = '🎶 ' + clean;
+    else if (hasVideo) clean = '🎬 ' + clean;
     return clean;
 }
 
@@ -904,6 +961,7 @@ function buildRenderer() {
     };
 
     renderer.image = (href, title, text) => {
+        if (isVideoUrl(href)) return renderVideoEmbed(href, text);
         if (!isLikelyImageUrl(href)) return renderExternalEmbed(href, text);
 
         const fallbackSrc = '/image/404.png';
@@ -935,6 +993,9 @@ function buildRenderer() {
             return trimmed + '\n';
         }
         if (/^<figure\b[^>]*\bexternal-embed\b[^>]*>[\s\S]*<\/figure>$/i.test(trimmed)) {
+            return trimmed + '\n';
+        }
+        if (/^<figure\b[^>]*\bvideo-player\b[^>]*>[\s\S]*<\/figure>$/i.test(trimmed)) {
             return trimmed + '\n';
         }
         return paragraphRenderer.call(renderer, text);
@@ -1039,7 +1100,8 @@ function setup() {
 // 真要并行的话，需要把 ctx 塞进 marked 扩展的 tokenizer/renderer 闭包参数里。
 function parseMarkdown(content, { includeFootnotesSection = true, enableImageCaptions = false } = {}) {
     setup();
-    const prepared = prepareMarkdownSpacing(preserveMarkdownGaps(content || ''));
+    const normalizedContent = normalizeMultilineVideoImages(content || '');
+    const prepared = prepareMarkdownSpacing(preserveMarkdownGaps(normalizedContent));
     const { markdown, defs } = extractFootnoteDefinitions(prepared);
     const previousContext = activeFootnoteContext;
     const previousPostOptions = activePostOptions;
