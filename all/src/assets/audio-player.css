@@ -1,24 +1,14 @@
-/* Audio Player Container */
+/* Audio Player Container — 去填充卡片，仅留极淡描边，安静融入正文 */
 .audio-player-container {
     margin: 1.618em 0;
-    padding: 1.5rem;
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
+    padding: 1.25rem;
+    background: transparent;
+    border: 1px solid rgba(15, 23, 42, 0.08);
     border-radius: 8px;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 .dark .audio-player-container {
-    background: #0f172a;
-    border-color: #1e293b;
-}
-
-.audio-player-container:hover {
-    border-color: #cbd5e1;
-}
-
-.dark .audio-player-container:hover {
-    border-color: #475569;
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Audio Title */
@@ -117,28 +107,25 @@
     background: #cbd5e1;
 }
 
-/* Progress Bar Thumb */
+/* Progress Bar Thumb — 默认隐藏，hover / 聚焦 / 拖动时才显现，去阴影去缩放 */
 .audio-progress-thumb {
     position: absolute;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 0.875rem;
-    height: 0.875rem;
+    width: 0.75rem;
+    height: 0.75rem;
     background: white;
     border: 2px solid #475569;
     border-radius: 50%;
-    opacity: 0.86;
-    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.18);
-    transition: transform 180ms ease, opacity 180ms ease, box-shadow 180ms ease;
-    will-change: transform;
+    opacity: 0;
+    transition: opacity 160ms ease;
+    pointer-events: none;
 }
 
 .audio-progress-container:hover .audio-progress-thumb,
 .audio-progress-container:focus-visible .audio-progress-thumb,
 .audio-progress-container.is-dragging .audio-progress-thumb {
-    transform: translate(-50%, -50%) scale(1.18);
     opacity: 1;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.22);
 }
 
 .dark .audio-progress-thumb {
@@ -152,10 +139,10 @@
     bottom: calc(100% + 0.5rem);
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(15, 23, 42, 0.92);
     color: white;
     padding: 0.25rem 0.5rem;
-    border-radius: 8px;
+    border-radius: 4px;
     font-size: 0.75rem;
     font-weight: 500;
     white-space: nowrap;
@@ -182,7 +169,7 @@
     left: 50%;
     transform: translateX(-50%);
     border: 4px solid transparent;
-    border-top-color: rgba(0, 0, 0, 0.85);
+    border-top-color: rgba(15, 23, 42, 0.92);
 }
 
 .dark .audio-progress-tooltip::after {
@@ -204,27 +191,38 @@
     gap: 0.75rem;
 }
 
-/* Play/Pause Button */
+/* Play/Pause Button — 描边线性，不再使用深色实心圆 */
 .audio-play-btn {
     width: 40px;
     height: 40px;
-    border: none;
+    border: 1px solid rgba(15, 23, 42, 0.18);
     border-radius: 50%;
-    background: #1e293b;
-    color: white;
+    background: transparent;
+    color: #1e293b;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .audio-play-btn:hover {
-    background: #1e293b;
+    border-color: rgba(15, 23, 42, 0.4);
+    background: rgba(15, 23, 42, 0.04);
 }
 
 .audio-play-btn:active {
-    background: #0f172a;
+    background: rgba(15, 23, 42, 0.08);
+}
+
+.dark .audio-play-btn {
+    border-color: rgba(255, 255, 255, 0.22);
+    color: #e2e8f0;
+}
+
+.dark .audio-play-btn:hover {
+    border-color: rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.06);
 }
 
 .audio-play-icon {
@@ -267,7 +265,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: color 0.2s ease, transform 0.2s ease;
+    transition: color 0.2s ease;
 }
 
 .dark .audio-volume-btn {
@@ -276,7 +274,10 @@
 
 .audio-volume-btn:hover {
     color: #1e293b;
-    transform: scale(1.1);
+}
+
+.dark .audio-volume-btn:hover {
+    color: #e2e8f0;
 }
 
 .audio-volume-slider-wrapper {
@@ -330,7 +331,7 @@
 }
 
 .audio-volume-slider::-webkit-slider-thumb:hover {
-    transform: scale(1.25);
+    background: #1e293b;
 }
 
 /* Speed Control */
@@ -339,32 +340,31 @@
 }
 
 .audio-speed-btn {
-    padding: 0.4rem 0.75rem;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    background: white;
-    color: #475569;
+    padding: 0.3rem 0.4rem;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: #64748b;
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
-    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    transition: color 0.2s ease, background-color 0.2s ease;
     white-space: nowrap;
+    font-variant-numeric: tabular-nums;
 }
 
 .dark .audio-speed-btn {
-    background: #1e293b;
-    border-color: #475569;
-    color: #cbd5e1;
+    color: #94a3b8;
 }
 
 .audio-speed-btn:hover {
-    border-color: #1e293b;
     color: #1e293b;
+    background: rgba(15, 23, 42, 0.04);
 }
 
 .dark .audio-speed-btn:hover {
-    border-color: #cbd5e1;
-    color: #cbd5e1;
+    color: #e2e8f0;
+    background: rgba(255, 255, 255, 0.06);
 }
 
 /* Speed Dropdown */
@@ -374,7 +374,7 @@
     right: 0;
     background: white;
     border: 1px solid #cbd5e1;
-    border-radius: 8px;
+    border-radius: 6px;
     overflow: hidden;
     opacity: 0;
     pointer-events: none;
