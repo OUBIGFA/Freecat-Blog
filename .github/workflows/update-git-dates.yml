@@ -14,6 +14,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: article-snapshots-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   update-git-dates:
     runs-on: ubuntu-latest
@@ -35,6 +39,9 @@ jobs:
         working-directory: all
         run: npm ci
 
+      - name: Sync latest snapshots
+        run: git pull --rebase origin main
+
       - name: Generate article snapshots
         working-directory: all
         run: npm run extract-dates
@@ -50,4 +57,10 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add all/git-dates.json
           git commit -m "chore: update article snapshots"
+          git pull --rebase origin main
+          (cd all && npm run extract-dates)
+          if ! git diff --quiet -- all/git-dates.json; then
+            git add all/git-dates.json
+            git commit --amend --no-edit
+          fi
           git push

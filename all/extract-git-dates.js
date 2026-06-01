@@ -75,20 +75,51 @@ function makePostIdFactory(existingIds) {
     };
 }
 
+function nextSequentialPostId(id) {
+    const timestamp = id.slice(0, 14);
+    const suffix = Number(id.slice(14));
+    if (suffix < 99) {
+        return `${timestamp}${String(suffix + 1).padStart(2, '0')}`;
+    }
+
+    const parsed = dayjs(
+        `${timestamp.slice(0, 4)}-${timestamp.slice(4, 6)}-${timestamp.slice(6, 8)}` +
+        `T${timestamp.slice(8, 10)}:${timestamp.slice(10, 12)}:${timestamp.slice(12, 14)}`
+    );
+    return `${parsed.add(1, 'second').format('YYYYMMDDHHmmss')}01`;
+}
+
+function claimPostId(id, file, usedIds, reservedIds) {
+    let candidate = id;
+    while (usedIds.has(candidate) || (candidate !== id && reservedIds.has(candidate))) {
+        const existingFile = usedIds.get(candidate);
+        if (existingFile) {
+            console.warn(`Duplicate post id "${candidate}" for "${existingFile}" and "${file}". Reassigning "${file}" to the next available id.`);
+        }
+        candidate = nextSequentialPostId(candidate);
+    }
+    usedIds.set(candidate, file);
+    return candidate;
+}
+
 function collectPostIdSnapshots(files, existingIds) {
     const nextPostId = makePostIdFactory(existingIds);
     const ids = {};
     const usedIds = new Map();
-
-    files.forEach(file => {
+    const planned = files.map(file => {
         const history = historicalBasenames(file);
         const idSource = history.find(name => existingIds[name]);
         const id = idSource ? validatePostId(idSource, existingIds[idSource]) : nextPostId();
-        if (usedIds.has(id)) {
-            throw new Error(`Duplicate post id "${id}" for "${usedIds.get(id)}" and "${file}".`);
-        }
-        usedIds.set(id, file);
-        ids[file] = id;
+        return { file, id };
+    });
+    const reservedIds = new Set(
+        planned
+            .filter(item => item.id)
+            .map(item => item.id)
+    );
+
+    planned.forEach(({ file, id }) => {
+        ids[file] = claimPostId(id, file, usedIds, reservedIds);
     });
 
     return ids;
