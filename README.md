@@ -82,6 +82,7 @@ Cloudflare Pages / Vercel 自动构建
 ![01](all/image/Tutorial/00a.png)
 ![02](all/image/Tutorial/00b.png)
 ![03](all/image/Tutorial/00c.png)
+![04](all/image/Tutorial/00d.png)
 
 适合这样几类人：
 
