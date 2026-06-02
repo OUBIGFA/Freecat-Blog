@@ -1147,18 +1147,14 @@
     border-top: 0 !important;
 }
 
-.prose .article-heading-rank-1::after,
+.prose:not(:has(.article-heading-rank-2)) .article-heading-rank-1::after,
 .prose .article-heading-rank-2::after {
     content: "";
     display: block;
     width: 100%;
-    height: 1px;
+    height: 2px;
     margin-top: 0.72rem;
     background: var(--article-heading-rule);
-}
-
-.prose .article-heading-rank-1::after {
-    height: 2px;
 }
 
 .dark .prose .article-heading {

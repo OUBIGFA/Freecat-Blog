@@ -109,19 +109,20 @@ test('all-page inline mobile tags are not clipped by the metadata row', () => {
     assert.match(allTemplate, /\.post-card\.tags-inline-mobile \.tags-fit\s*\{[\s\S]*transform-origin:\s*left center;/);
 });
 
-test('top two present article heading ranks render full-width divider rules', () => {
-    assert.match(postCss, /\.prose \.article-heading-rank-1::after,\s*\.prose \.article-heading-rank-2::after\s*\{/);
+test('second-largest article heading rank renders the divider rule when multiple ranks exist', () => {
+    assert.match(postCss, /\.prose:not\(:has\(\.article-heading-rank-2\)\) \.article-heading-rank-1::after,\s*\.prose \.article-heading-rank-2::after\s*\{/);
     assert.doesNotMatch(postCss, /\.prose \.article-heading::after\s*\{/);
     assert.doesNotMatch(postCss, /\.prose \.article-heading-depth-1::after/);
     assert.doesNotMatch(postCss, /\.prose \.article-heading-depth-2::after/);
     assert.match(postCss, /width:\s*100%;/);
-    assert.match(postCss, /height:\s*1px;/);
+    assert.match(postCss, /height:\s*2px;/);
     assert.match(postCss, /background:\s*var\(--article-heading-rule\);/);
 });
 
-test('largest present article heading divider is thicker than the second largest', () => {
-    assert.match(postCss, /\.prose \.article-heading-rank-1::after\s*\{[\s\S]*height:\s*2px;/);
-    assert.match(postCss, /\.prose \.article-heading-rank-1::after,\s*\.prose \.article-heading-rank-2::after\s*\{[\s\S]*height:\s*1px;/);
+test('single-rank articles keep a thick divider on their only heading level', () => {
+    assert.match(postCss, /\.prose:not\(:has\(\.article-heading-rank-2\)\) \.article-heading-rank-1::after,\s*\.prose \.article-heading-rank-2::after\s*\{[\s\S]*height:\s*2px;/);
+    assert.doesNotMatch(postCss, /\.prose \.article-heading-rank-1::after\s*\{[\s\S]*height:\s*2px;/);
+    assert.doesNotMatch(postCss, /\.prose \.article-heading-rank-1::after,\s*\.prose \.article-heading-rank-2::after\s*\{[\s\S]*height:\s*1px;/);
 });
 
 test('article heading links inherit the heading color', () => {
