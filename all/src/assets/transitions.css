@@ -380,6 +380,7 @@ body.search-active .freecat-floating-nav-panel {
     --post-card-enter-dur: 680ms;
     --post-card-enter-ease: cubic-bezier(0.16, 1, 0.3, 1);
     --post-card-hover-dur: 260ms;
+    --post-card-shadow-reset-dur: 760ms;
 }
 
 /* 始终预留垂直滚动条宽度，避免 body.overflow:hidden 切换时
@@ -461,6 +462,13 @@ html.theme-view-transitioning body *::after {
 }
 
 .post-card > div {
+    transition:
+        box-shadow var(--post-card-shadow-reset-dur) var(--post-card-enter-ease),
+        border-color var(--post-card-hover-dur) var(--post-card-enter-ease);
+}
+
+.post-card:hover > div,
+.post-card:focus-visible > div {
     transition:
         box-shadow var(--post-card-hover-dur) var(--post-card-enter-ease),
         border-color var(--post-card-hover-dur) var(--post-card-enter-ease);

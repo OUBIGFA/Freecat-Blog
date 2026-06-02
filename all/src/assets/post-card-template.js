@@ -127,7 +127,7 @@
 
         return `
         <a href="${link}" class="post-card ${imageMarkup ? 'has-cover' : 'has-no-cover'} ${mobileTagsInline ? 'tags-inline-mobile' : ''} animate-fade-in-up block mb-8 md:mb-10 group cursor-pointer" style="animation-delay: ${animationDelay}ms" data-sort-date="${sortDate}" data-sort-modified="${sortModifiedDate}" data-sort-pinned="${pinned ? '1' : '0'}">
-            <div class="relative rounded-2xl bg-white dark:bg-card-dark px-9 pt-9 pb-4 shadow-sm group-hover:shadow-2xl group-hover:shadow-gray-400/20 dark:group-hover:shadow-black/40 lg:h-[390px] lg:px-16 lg:py-12">
+            <div class="relative rounded-2xl bg-white dark:bg-card-dark px-9 pt-9 pb-4 shadow-none group-hover:shadow-2xl group-hover:shadow-gray-400/20 dark:group-hover:shadow-black/40 lg:h-[390px] lg:px-16 lg:py-12">
                 ${pinnedBadge}
                 <div class="flex h-full min-w-0 flex-col lg:hidden">
                     <div class="shrink-0">
