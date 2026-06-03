@@ -1088,13 +1088,13 @@ function buildRenderer() {
 
         const langClass = language ? `language-${language}` : '';
         const langLabel = language
-            ? `<span class="text-xs font-mono text-slate-500 uppercase tracking-wider">${language}</span>`
-            : '<span class="text-lg font-mono text-slate-300 dark:text-slate-600 tracking-[2px]">•••</span>';
+            ? `<span class="code-language-label">${escapeHtml(language)}</span>`
+            : '<span class="code-language-label">code</span>';
 
         return `
-    <div class="code-block-container group my-6 rounded-xl bg-[#f8fafc] dark:bg-transparent overflow-hidden border border-slate-200/50 dark:border-slate-700/50 code-fold">
-        <div class="flex items-center justify-between px-5 py-2.5 bg-[#f1f5f9] dark:bg-[#0f172a] border-b border-slate-200/50 dark:border-slate-700/50">
-            ${langLabel.replace('text-slate-500', 'text-slate-500 dark:text-slate-400')}
+    <div class="code-block-container group code-fold">
+        <div class="flex items-center justify-between">
+            ${langLabel}
             <label class="t-btn-icon copy-btn-container">
                 <input type="checkbox" class="copy-checkbox">
                 <div class="clipboard">
@@ -1106,8 +1106,8 @@ function buildRenderer() {
             </label>
         </div>
         <div class="code-wrapper relative">
-            <div class="code-content px-8 py-7 bg-[#f8fafc] dark:bg-transparent overflow-x-auto transition-all duration-300 ease-in-out">
-                <pre class="!m-0 !p-0 !bg-transparent"><code class="${langClass} text-sm leading-relaxed text-[#1e293b] dark:text-slate-300 font-medium">${escapedCode}</code></pre>
+            <div class="code-content">
+                <pre><code class="${langClass}">${escapedCode}</code></pre>
             </div>
             <div class="code-fold-controls hidden absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-[#f8fafc] via-[#f8fafc] via-40% dark:from-background-dark dark:via-background-dark dark:via-40% to-transparent items-end justify-center pb-2 z-10 transition-opacity duration-300">
                 <button class="code-nav-btn code-nav-top" type="button" data-code-nav="top" aria-label="Scroll to code block top">

@@ -20,6 +20,27 @@
   </p>
 </div>
 
+## Why Choose Freecat Blog
+
+**Beginner-Friendly**
+
+- Article metadata (title, date, tags, etc.) is all optional
+- Supports `.md`, `.txt`, and other formats
+- No need to worry about formatting—plain text works perfectly
+
+**Powerful Features**
+
+- Articles can be pinned or hidden freely
+- Support for custom tags
+- Markdown supports math formulas, diagrams, flowcharts, sequence diagrams, Gantt charts, and more
+- Supports audio and video playback
+- Supports embedded external websites
+
+**Automatic Formatting**
+
+- Automatic optimization for mixed Chinese/English text spacing
+- Focus on writing content, and the system handles the rest
+
 > **Tip:** If you run into build issues, simply go to the main repository, copy the latest [sync-upstream](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/sync-upstream.yml) or [update-git-dates.yml ](https://github.com/OUBIGFA/FreeBlog_BIGFA/blob/main/.github/workflows/update-git-dates.yml)workflow file to your repo, and run it manually. It only syncs build files and will not overwrite your custom settings or writing/ folder.
 
 ## Shortest Deployment Path

@@ -20,7 +20,28 @@
   </p>
 </div>
 
-> **提示：** 如遇构建相关问题，只需前往主仓库复制最新的 [sync-upstream](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/sync-upstream.yml) 或 [update-git-dates.yml ](https://github.com/OUBIGFA/FreeBlog_BIGFA/blob/main/.github/workflows/update-git-dates.yml)工作流文件到你的仓库并手动运行一次。该工作流仅同步构建文件，不会覆盖你的自定义设置和 writing/ 写作文件夹。
+## 为什么选择 Freecat Blog
+
+**对新手友好**
+
+- 文章元数据（标题、日期、标签等）全部非必需
+- 支持 `.md`、`.txt` 等多种格式
+- 不需要考虑排版，纯文字也可以
+
+**功能强大**
+
+- 博文可自由置顶、隐藏
+- 支持自定义一个或多个标签
+- Markdown 支持渲染数学公式、图表、流程图、序列图、甘特图等
+- 支持音频、视频播放
+- 支持常规网站的外部嵌入展示
+
+**排版自动优化**
+
+- 自动优化中英混排间距
+- 专注内容写作，系统自动处理格式
+
+> **提示：** 如遇构建相关问题，只需前往主仓库复制最新的 [sync-upstream](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/sync-upstream.yml) 或 [update-git-dates.yml](https://github.com/OUBIGFA/FreeBlog_BIGFA/blob/main/.github/workflows/update-git-dates.yml) 工作流文件到你的仓库并手动运行一次。该工作流仅同步构建文件，不会覆盖你的自定义设置和 writing/ 写作文件夹。
 
 ## 最短部署路径预览
 
@@ -28,38 +49,49 @@
 2. 去 Cloudflare Pages 或 Vercel 导入仓库构建
 3. 等部署完成，打开默认网址确认
 
----
+***
 
 ## 最短使用路径预览
 
 1. 用 [GitHub Desktop](https://desktop.github.com/download) 拉到本地
-2. 本地打开项目，在`writing`文件夹中撰写或存入一篇文章（文章元数据非必需）
+2. 本地打开项目，在`writing`文件夹中撰写或存入一篇文章
 3. 通过GitHub Desktop提交并同步到 GitHub
 4. 等待平台自动部署构建
 5. 完成
 
----
+***
 
 ## 就三件事
 
-- 内容在本地，不锁死在任何平台。
-- GitHub 负责备份，顺便通知部署平台更新。
-- 部署平台只管生成网站，不是你的写作后台。
+* 内容在本地，不锁死在任何平台。
+
+* GitHub 负责备份，顺便通知部署平台更新。
+
+* 部署平台只管生成网站，不是你的写作后台。
 
 ## 目录
 
-- [一、Freecat Blog 是什么](#%E4%B8%80freecat-blog-%E6%98%AF%E4%BB%80%E4%B9%88)
-- [二、你只需要记住三个文件夹](#%E4%BA%8C%E4%BD%A0%E5%8F%AA%E9%9C%80%E8%A6%81%E8%AE%B0%E4%BD%8F%E4%B8%89%E4%B8%AA%E6%96%87%E4%BB%B6%E5%A4%B9)
-- [三、准备工作](#%E4%B8%89%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C)
-- [四、快速部署](#%E5%9B%9B%E5%BF%AB%E9%80%9F%E9%83%A8%E7%BD%B2)
-- [五、写文章和改网站](#%E4%BA%94%E5%86%99%E6%96%87%E7%AB%A0%E5%92%8C%E6%94%B9%E7%BD%91%E7%AB%99)
-- [六、日常更新流程](#%E5%85%AD%E6%97%A5%E5%B8%B8%E6%9B%B4%E6%96%B0%E6%B5%81%E7%A8%8B)
-- [七、进阶功能](#%E4%B8%83%E8%BF%9B%E9%98%B6%E5%8A%9F%E8%83%BD)
-- [八、模板更新同步](#%E5%85%AB%E6%A8%A1%E6%9D%BF%E6%9B%B4%E6%96%B0%E5%90%8C%E6%AD%A5)
-- [九、常见问题](#%E4%B9%9D%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98)
-- [许可证](#%E8%AE%B8%E5%8F%AF%E8%AF%81)
+* [一、Freecat Blog 是什么](#%E4%B8%80freecat-blog-%E6%98%AF%E4%BB%80%E4%B9%88)
 
----
+* [二、你只需要记住三个文件夹](#%E4%BA%8C%E4%BD%A0%E5%8F%AA%E9%9C%80%E8%A6%81%E8%AE%B0%E4%BD%8F%E4%B8%89%E4%B8%AA%E6%96%87%E4%BB%B6%E5%A4%B9)
+
+* [三、准备工作](#%E4%B8%89%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C)
+
+* [四、快速部署](#%E5%9B%9B%E5%BF%AB%E9%80%9F%E9%83%A8%E7%BD%B2)
+
+* [五、写文章和改网站](#%E4%BA%94%E5%86%99%E6%96%87%E7%AB%A0%E5%92%8C%E6%94%B9%E7%BD%91%E7%AB%99)
+
+* [六、日常更新流程](#%E5%85%AD%E6%97%A5%E5%B8%B8%E6%9B%B4%E6%96%B0%E6%B5%81%E7%A8%8B)
+
+* [七、进阶功能](#%E4%B8%83%E8%BF%9B%E9%98%B6%E5%8A%9F%E8%83%BD)
+
+* [八、模板更新同步](#%E5%85%AB%E6%A8%A1%E6%9D%BF%E6%9B%B4%E6%96%B0%E5%90%8C%E6%AD%A5)
+
+* [九、常见问题](#%E4%B9%9D%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98)
+
+* [许可证](#%E8%AE%B8%E5%8F%AF%E8%AF%81)
+
+***
 
 ## 一、Freecat Blog 是什么
 
@@ -80,55 +112,66 @@ Cloudflare Pages / Vercel 自动构建
 文章和配置同时存在本地和 GitHub 上，Cloudflare Pages / Vercel 只负责生成网页并发布，所以以后换平台也不会丢内容。
 
 ![01](all/image/Tutorial/00a.png)
+
 ![02](all/image/Tutorial/00b.png)
+
 ![03](all/image/Tutorial/00c.png)
+
 ![04](all/image/Tutorial/00d.png)
 
 适合这样几类人：
 
-- 想拥有个人博客，但不想买服务器、不想维护后台
-- 想用 Markdown、Obsidian、VS Code 等工具写文章
-- 想把文章文件掌握在自己手里
-- 想免费部署，未来还能切换平台
+* 想拥有个人博客，但不想买服务器、不想维护后台
+
+* 想用 Markdown、Obsidian、VS Code 等工具写文章
+
+* 想把文章文件掌握在自己手里
+
+* 想免费部署，未来还能切换平台
 
 你会拿到这些功能：
 
-- 自动生成首页、文章页、归档页、搜索页、About 页
-- 文章支持标签、封面、摘要、置顶、显示/隐藏
-- 自动优化中英混排、数字单位间距、代码块、数学公式
-- 内置 SEO 和 AI 检索支持，可生成 Sitemap、RSS、llms.txt，并引导你提交到 Google 与 Bing。详情见 `Control/SEO_搜索优化.md`
-- 文章里放音频直链就能自动生成播放器
-- 不写代码就能改网站名、头像、社交链接和主题
+* 自动生成首页、文章页、归档页、搜索页、About 页
 
----
+* 文章支持标签、封面、摘要、置顶、显示/隐藏
+
+* 自动优化中英混排、数字单位间距、代码块、数学公式
+
+* 内置 SEO 和 AI 检索支持，可生成 Sitemap、RSS、llms.txt，并引导你提交到 Google 与 Bing。详情见 `Control/SEO_搜索优化.md`
+
+* 文章里放音频直链就能自动生成播放器
+
+* 不写代码就能改网站名、头像、社交链接和主题
+
+***
 
 ## 二、你只需要记住三个文件夹
 
-| 文件夹 | 是否经常改 | 作用 |
-| --- | --- | --- |
-| `writing/` | 要 | 放博客文章。一篇 Markdown 文件就是一篇文章 |
-| `Control/` | 要 | 改网站名称、头像、首页介绍、社交链接、About 页面 |
-| `all/` | 不需要 | 部署平台从这里构建网站 |
+| 文件夹        | 是否经常改 | 作用                          |
+| ---------- | ----- | --------------------------- |
+| `writing/` | 要     | 放博客文章。一篇 Markdown 文件就是一篇文章  |
+| `Control/` | 要     | 改网站名称、头像、首页介绍、社交链接、About 页面 |
+| `all/`     | 不需要   | 部署平台从这里构建网站                 |
 
 记住这一句就够。
 
 **写文章去** `writing/`，改网站信息去 `Control/`，部署时根目录填 `all`。
 
----
+***
 
 ## 三、准备工作
 
-| 工具 / 账号 | 是否必需 | 用途 | 地址 |
-| --- | --- | --- | --- |
-| GitHub 账号 | 必需 | 保存博客仓库 | <https://github.com/signup> |
-| GitHub Desktop | 必需 | 把本地改动同步到 GitHub | <https://desktop.github.com/download> |
-| Markdown 编辑器 | 必需 | 写文章和改配置，推荐 Obsidian | <https://obsidian.md/zh> |
-| Cloudflare 账号 | 推荐 | 免费部署博客网站 | <https://dash.cloudflare.com/sign-up> |
-| Vercel 账号 | 可选 | 另一种免费部署方式 | <https://vercel.com/signup> |
+| 工具 / 账号        | 是否必需 | 用途                  | 地址                                    |
+| -------------- | ---- | ------------------- | ------------------------------------- |
+| GitHub 账号      | 必需   | 保存博客仓库              | <https://github.com/signup>           |
+| GitHub Desktop | 必需   | 把本地改动同步到 GitHub     | <https://desktop.github.com/download> |
+| Markdown 编辑器   | 必需   | 写文章和改配置，推荐 Obsidian | <https://obsidian.md/zh>              |
+| Cloudflare 账号  | 推荐   | 免费部署博客网站            | <https://dash.cloudflare.com/sign-up> |
+| Vercel 账号      | 可选   | 另一种免费部署方式           | <https://vercel.com/signup>           |
 
 Cloudflare Pages 和 Vercel 二选一就行。完全新手先用 Cloudflare Pages。
 
----
+***
 
 ## 四、快速部署
 
@@ -143,12 +186,12 @@ Cloudflare Pages 和 Vercel 二选一就行。完全新手先用 Cloudflare Page
 2. 打开 <https://github.com/new/import>。
 3. 按下表填写各项。
 
-| 字段 | 填写值 |
-| --- | --- |
+| 字段                                | 填写值                                       |
+| --------------------------------- | ----------------------------------------- |
 | `Your old repository's clone URL` | `https://github.com/OUBIGFA/Freecat-Blog` |
-| `Owner` | 你的 GitHub 账号 |
-| `Repository name` | 自己起一个仓库名，例如 `my-freecat-blog` |
-| `Privacy` | 选 `Private` |
+| `Owner`                           | 你的 GitHub 账号                              |
+| `Repository name`                 | 自己起一个仓库名，例如 `my-freecat-blog`             |
+| `Privacy`                         | 选 `Private`                               |
 
 1. 点 `Begin import`，等导入完成。
 2. 打开 GitHub Desktop，点 `File` → `Clone repository`。
@@ -181,13 +224,13 @@ Cloudflare Pages 是推荐方案，构建参数要填对。
 
 1. 按下表填写构建参数。
 
-| Cloudflare 中文界面 | Cloudflare English UI | 填写值 |
-| --- | --- | --- |
-| 框架预设 | Framework preset | `None` / `无` / 不选预设 |
-| 根目录（高级） | Root directory (advanced) > Path | `all` |
-| 构建命令 | Build command | `npm run build` |
-| 构建输出目录 | Build output directory | `dist` |
-| 环境变量（建议填写） | Environment variables | `NODE_VERSION` = `20` |
+| Cloudflare 中文界面 | Cloudflare English UI            | 填写值                   |
+| --------------- | -------------------------------- | --------------------- |
+| 框架预设            | Framework preset                 | `None` / `无` / 不选预设   |
+| 根目录（高级）         | Root directory (advanced) > Path | `all`                 |
+| 构建命令            | Build command                    | `npm run build`       |
+| 构建输出目录          | Build output directory           | `dist`                |
+| 环境变量（建议填写）      | Environment variables            | `NODE_VERSION` = `20` |
 
 ![Cloudflare step 5](all/image/Tutorial/05.png)
 
@@ -200,8 +243,9 @@ Cloudflare Pages 是推荐方案，构建参数要填对。
 
 想用自己的域名，在 Cloudflare Pages 项目里绑定自定义域名就行。
 
-- 免费域名教程：[免费域名申请指南](https://blog.freeorg.dpdns.org/posts/%E5%85%8D%E8%B4%B9%E5%9F%9F%E5%90%8D%E7%94%B3%E8%AF%B7%E6%8C%87%E5%8D%97.html)
-- DNSHE 自动续期项目：<https://github.com/OUBIGFA/dnshe-auto-renew>
+* 免费域名教程：[免费域名申请指南](https://blog.freeorg.dpdns.org/posts/%E5%85%8D%E8%B4%B9%E5%9F%9F%E5%90%8D%E7%94%B3%E8%AF%B7%E6%8C%87%E5%8D%97.html)
+
+* DNSHE 自动续期项目：<https://github.com/OUBIGFA/dnshe-auto-renew>
 
 ### 备选：部署到 Vercel
 
@@ -212,19 +256,19 @@ Cloudflare Pages 是推荐方案，构建参数要填对。
 3. 连接 GitHub，选你的博客仓库。
 4. 按下表填写。
 
-| 字段 | 填写值 |
-| --- | --- |
+| 字段               | 填写值             |
+| ---------------- | --------------- |
 | Framework Preset | 保持默认，或选择静态/其他类型 |
-| Root Directory | `all` |
-| Build Command | `npm run build` |
-| Output Directory | `dist` |
-| Node Version | `20` |
+| Root Directory   | `all`           |
+| Build Command    | `npm run build` |
+| Output Directory | `dist`          |
+| Node Version     | `20`            |
 
 1. 点 `Deploy`。
 
 绑定自定义域名时，进项目设置里的 `Domains`，按提示改解析即可。
 
----
+***
 
 ## 五、写文章和改网站
 
@@ -254,36 +298,39 @@ show: true
 
 常用字段：
 
-| 字段 | 作用 | 例子 |
-| --- | --- | --- |
-| `title` | 文章标题，留空则用文件名 | `我的第一篇文章` |
-| `date` | 发布日期 | `2026-01-01` |
-| `tag` | 文章标签，可以写多个 | `- 随笔` |
-| `cover` | 封面图片链接，留空则没有封面 | `https://...` |
-| `show_image_captions` | 是否显示图片说明文字 | `true` / `false` |
-| `description` | 文章摘要，留空会自动截取 | `一段简短介绍` |
-| `pinned` | 是否置顶 | `true` / `false` |
-| `show` | 是否在网站上展示 | `true` / `false` |
+| 字段                    | 作用             | 例子               |
+| --------------------- | -------------- | ---------------- |
+| `title`               | 文章标题，留空则用文件名   | `我的第一篇文章`        |
+| `date`                | 发布日期           | `2026-01-01`     |
+| `tag`                 | 文章标签，可以写多个     | `- 随笔`           |
+| `cover`               | 封面图片链接，留空则没有封面 | `https://...`    |
+| `show_image_captions` | 是否显示图片说明文字     | `true` / `false` |
+| `description`         | 文章摘要，留空会自动截取   | `一段简短介绍`         |
+| `pinned`              | 是否置顶           | `true` / `false` |
+| `show`                | 是否在网站上展示       | `true` / `false` |
 
 ### 改网站：使用 `Control/`
 
 `Control/` 是网站控制台。想把模板改成自己的博客，主要改这里。
 
-| 文件 | 负责什么 |
-| --- | --- |
-| `site_网站属性.md` | 网站标题、站点名、首页介绍、头像、主题 |
-| `SEO_搜索优化.md` | 正式域名、SEO 摘要、作者信息、AI 爬虫和 llms.txt |
-| `social_社交媒体.md` | 社交媒体图标、主页链接、联系方式、推广链接 |
-| `about_关于页面.md` | About 页面的标题、介绍和头像 |
+| 文件               | 负责什么                             |
+| ---------------- | -------------------------------- |
+| `site_网站属性.md`   | 网站标题、站点名、首页介绍、头像、主题              |
+| `SEO_搜索优化.md`    | 正式域名、SEO 摘要、作者信息、AI 爬虫和 llms.txt |
+| `social_社交媒体.md` | 社交媒体图标、主页链接、联系方式、推广链接            |
+| `about_关于页面.md`  | About 页面的标题、介绍和头像                |
 
 编辑时记住四点：
 
-- 冒号后面留一个空格，比如 `site_name: FreeCat`
-- 不想填的字段可以留空，但别删整行
-- `_01`、`_02` 这类下划线开头的行是说明文字，别改字段名
-- 改完必须用 GitHub Desktop 提交并同步，线上网站才会更新
+* 冒号后面留一个空格，比如 `site_name: FreeCat`
 
----
+* 不想填的字段可以留空，但别删整行
+
+* `_01`、`_02` 这类下划线开头的行是说明文字，别改字段名
+
+* 改完必须用 GitHub Desktop 提交并同步，线上网站才会更新
+
+***
 
 ## 六、日常更新流程
 
@@ -301,7 +348,7 @@ show: true
 
 同步成功后，Cloudflare Pages 或 Vercel 会自动重新构建。等 1-3 分钟刷新网站，就能看到新内容。
 
----
+***
 
 ### 文章内音频、视频播放器
 
@@ -316,13 +363,13 @@ show: true
 在文章里用引用格式 + 音频直链，会自动生成播放器。
 
 ```md
-> [这是示例音频](https://example.com/audio.m4a)
+> 这是示例音频
 ```
 
 链接没有明显音频后缀的话，在标题里加音乐符号强制识别。
 
 ```md
-> [🎵这是示例音频](https://example.com/audio)
+> 🎵这是示例音频
 ```
 
 支持格式：`.mp3`、`.m4a`、`.wav`、`.ogg`、`.aac`、`.flac`、`.opus`。
@@ -332,14 +379,16 @@ show: true
 在文章里用图片格式 + 视频直链，会自动生成视频播放器。
 
 ```md
-![这是示例视频](https://example.com/video.mp4)
 ```
+
+![这是示例视频](https://example.com/video.mp4)
 
 链接没有明显视频后缀的话，在标题里加电影符号强制识别。
 
 ```md
-![🎬这是示例视频](https://example.com/video)
 ```
+
+![🎬这是示例视频](https://example.com/video)
 
 支持格式：`.mp4`、`.webm`、`.mov`、`.m4v`、`.ogv`、`.m3u8`。
 
@@ -349,9 +398,11 @@ show: true
 
 推荐工具：
 
-- [网盘直链获取工具](https://link.gimhoy.com/)
-- [网盘分享链接转直链工具](https://lz.qaiu.top/)
-- [小飞机云盘](https://www.feijipan.com)
+* [网盘直链获取工具](https://link.gimhoy.com/)
+
+* [网盘分享链接转直链工具](https://lz.qaiu.top/)
+
+* [小飞机云盘](https://www.feijipan.com)
 
 最简单的操作流程：
 
@@ -365,20 +416,21 @@ show: true
 例如，工具生成的是音频直链，就这样写：
 
 ```md
-> [🎵I Still Believe](https://工具生成的音频直链)
+> 🎵I Still Believe
 ```
 
 工具生成的是视频直链，就这样写：
 
 ```md
-![🎬中餐是不是健康饮食？](https://工具生成的视频直链)
 ```
+
+![🎬中餐是不是健康饮食？](https://工具生成的视频直链)
 
 判断链接能不能用，有一个很直白的方法：把链接复制到浏览器地址栏里打开。如果浏览器直接播放、直接下载，或者页面只显示这个文件本身，一般就可以用。如果打开后还是网盘页面、登录页面、提取码页面、广告页，通常就不能直接当播放器链接用，需要重新转换。
 
 注意：网盘直链可能会失效。如果以后文章里的播放器突然不能播放，先重新打开原分享链接检查文件是否还在，再用直链工具重新生成一次链接。
 
----
+***
 
 ## 七、进阶功能
 
@@ -388,9 +440,11 @@ show: true
 
 几个好处：
 
-- 文章都在本地，方便管理
-- 可以用上 Obsidian 的双链、标签、搜索
-- 写完后用 GitHub Desktop 同步，网站自动发布
+* 文章都在本地，方便管理
+
+* 可以用上 Obsidian 的双链、标签、搜索
+
+* 写完后用 GitHub Desktop 同步，网站自动发布
 
 ### 本地预览和构建
 
@@ -427,7 +481,7 @@ Freecat-Blog/
 └── README.en.md
 ```
 
----
+***
 
 ## 八、模板更新同步
 
@@ -439,9 +493,11 @@ Freecat Blog 会持续修 bug、加功能、优化样式。仓库自带一个 Gi
 
 同步范围：
 
-- 会同步：`all/`、`README.md`、`README.en.md`
-- 会保留：`all/git-dates.json`
-- 不会动：`Control/`、`writing/`、`.github/`、`.gitignore`
+* 会同步：`all/`、`README.md`、`README.en.md`
+
+* 会保留：`all/git-dates.json`
+
+* 不会动：`Control/`、`writing/`、`.github/`、`.gitignore`
 
 也就是说，你写的文章和网站配置不会被模板更新覆盖。
 
@@ -454,11 +510,13 @@ Freecat Blog 会持续修 bug、加功能、优化样式。仓库自带一个 Gi
 
 几个细节：
 
-- 上游模板没变化时，工作流会跳过提交，不会产生空提交。
-- 如果 `Actions` 页面提示 workflows 被禁用，或者这是 fork/import 后第一次打开 `Actions`，请先按提示启用。启用后可以手动点一次 `Run workflow` 测试。
-- 改过 `all/` 里的模板、样式或构建脚本的话，自动同步可能覆盖这些改动。新手通常别动 `all/`。
+* 上游模板没变化时，工作流会跳过提交，不会产生空提交。
 
----
+* 如果 `Actions` 页面提示 workflows 被禁用，或者这是 fork/import 后第一次打开 `Actions`，请先按提示启用。启用后可以手动点一次 `Run workflow` 测试。
+
+* 改过 `all/` 里的模板、样式或构建脚本的话，自动同步可能覆盖这些改动。新手通常别动 `all/`。
+
+***
 
 ## 九、常见问题
 
@@ -490,7 +548,7 @@ Freecat Blog 会持续修 bug、加功能、优化样式。仓库自带一个 Gi
 
 可以。示例都在 `writing/` 里，删掉后提交同步就行。
 
----
+***
 
 ## 许可证
 
