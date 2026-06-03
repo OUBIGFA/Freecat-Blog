@@ -15,7 +15,26 @@ const cssnano = require('cssnano');
  *   - 默认 minify。开发模式可关闭。
  */
 async function buildTailwindCss({ contentGlobs, outputPath, minify = true }) {
-    const inputCss = `@tailwind base;\n@tailwind components;\n@tailwind utilities;\n`;
+    const siteFontFamily = ['"Freecat Google Sans"', '"Freecat Noto Sans SC"', 'Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', '"微软雅黑"', 'sans-serif'];
+    const inputCss = `@font-face {
+  font-family: "Freecat Google Sans";
+  src: url("/assets/fonts/freecat-google-sans-regular-subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0100-024F, U+2000-206F, U+20A0-20CF, U+2122, U+2190-21FF;
+}
+
+@font-face {
+  font-family: "Freecat Noto Sans SC";
+  src: url("/assets/fonts/freecat-noto-sans-sc-regular-subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+3000-303F, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+FF00-FFEF;
+}
+
+@tailwind base;\n@tailwind components;\n@tailwind utilities;\n`;
 
     const config = {
         darkMode: 'class',
@@ -32,7 +51,7 @@ async function buildTailwindCss({ contentGlobs, outputPath, minify = true }) {
                     'card-dark': '#1A2332',
                 },
                 fontFamily: {
-                    'display': ['Inter', '-apple-system', 'BlinkMacSystemFont', "'Segoe UI'", 'Roboto', "'PingFang SC'", "'Hiragino Sans GB'", "'Microsoft YaHei'", "'微软雅黑'", 'sans-serif']
+                    'display': siteFontFamily
                 },
                 borderRadius: {
                     'none': '0px',

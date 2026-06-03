@@ -144,6 +144,7 @@
 /* 娈佃惤鏍峰紡锛氭钀戒箣闂翠娇鐢ㄩ粍閲戞瘮渚嬮棿璺?*/
 .prose {
     --article-block-radius: 8px;
+    font-family: inherit;
     font-size: 1.15rem !important;
 }
 
