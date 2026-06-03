@@ -13,10 +13,14 @@ site_author_sameas:
 _06: 作者社交主页列表（YAML 数组），用于 Schema.org Person.sameAs，帮助 Google 识别作者身份。示例见下方注释。
 site_default_image: /image/freecat.png
 _07: 默认分享图片；页面或文章没有封面图时使用。
+google_html_marker:
+_08: Google Search Console 的 HTML 标记；直接粘贴 Google 提供的整段 <meta name="google-site-verification" ... />，可留空。
+bing_html_marker:
+_09: Bing 站长平台的 Meta 标签；直接粘贴 Bing 提供的整段 <meta name="msvalidate.01" ... />，可留空。
 allow_ai_crawlers: false
-_08: 是否在 robots.txt 中允许 Google、OpenAI、Claude、Perplexity 等搜索和 AI 爬虫抓取。
+_10: 是否在 robots.txt 中允许 Google、OpenAI、Claude、Perplexity 等搜索和 AI 爬虫抓取。
 enable_llms_txt: true
-_09: 是否生成 /llms.txt，方便 AI 搜索和检索系统理解网站内容。
+_11: 是否生成 /llms.txt，方便 AI 搜索和检索系统理解网站内容。
 ---
 
 <!--

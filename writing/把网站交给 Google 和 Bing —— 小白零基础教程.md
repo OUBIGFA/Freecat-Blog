@@ -24,26 +24,27 @@ _08: 🔹 显示文章：是否在全站展示此文章
 
 > 准备工作：先确认你的网站能在浏览器里正常打开。例如把 `https://freecat-blog.pages.dev` 粘贴到浏览器地址栏，能看到你的博客首页，就可以开始了。
 
----
+***
 
 ## 一、Google Search Console（让 Google 找到你）
 
 ### 第 1 步：打开官方网址，登录账号
 
-1. 打开浏览器，访问：`https://search.google.com/search-console/`
+1. 打开浏览器，访问 <https://search.google.com/search-console>
 
-2. 页面会跳到登录界面，用你的 **Google 账号**（也就是 Gmail 邮箱）登录。
+   页面会跳到登录界面，用你的 **Google 账号**（也就是 Gmail 邮箱）登录。
 
-   - 如果没有 Google 账号，点登录框下面的"创建账号"先注册一个。
+   * 如果没有 Google 账号，点登录框下面的"创建账号"先注册一个或查看[Gmail 注册指南](https://blog.freeorg.dpdns.org/posts/2026053112195516#gmail-%E6%B3%A8%E5%86%8C%E6%8C%87%E5%8D%97)。
 
-3. 登录成功后，会看到一个写着"欢迎使用 Search Console"的页面，中间有一个"开始"按钮，点它。
+2. 登录成功后，会看到一个写着"欢迎使用 Search Console"的页面，中间有一个"开始"按钮，点它。
 
 ### 第 2 步：添加你的网站
 
 1. 进入主界面后，会出现"选择资源类型"的弹窗，里面有两个方框：
 
-   - **左边**：网域（Domain）
-   - **右边**：网址前缀（URL prefix）
+   * **左边**：网域（Domain）
+
+   * **右边**：网址前缀（URL prefix）
 
 2. **请选右边的"网址前缀"**（小白用这个最简单，不用碰 DNS 设置）。
 
@@ -53,7 +54,7 @@ _08: 🔹 显示文章：是否在全站展示此文章
    https://freecat-blog.pages.dev
    ```
 
-4. 点下方蓝色的"继续"按钮。
+4. 点下方的"继续"按钮。
 
 ### 第 3 步：验证你是网站的主人
 
@@ -76,17 +77,13 @@ Google 会让你证明这个网站是你的。会弹出几种"验证方法"，**
 打开本项目里的这个文件：
 
 ```
-
-all/src/partials/head-base.html
-
+Control/SEO_搜索优化.md
 ```
 
-在文件里找到 `<meta charset="utf-8" />` 这一行（大概在文件的中上部），在它的**正下方另起一行**，把你刚才复制的那段代码粘贴进去。粘贴完应该长这样（中间的 content 内容是你自己复制的，不是示例）：
+在文件里找到 `google_html_marker:` 这一行，把你刚才复制的整段 HTML 标记粘贴到冒号后面。粘贴完应该长这样（中间的 content 内容是你自己复制的，不是示例）：
 
-```html
-<meta charset="utf-8" />
-<meta name="google-site-verification" content="abc123XXXXXXXXXXXXXXXXXXXXXXXXXXX" />
-<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+```yaml
+google_html_marker: <meta name="google-site-verification" content="abc123XXXXXXXXXXXXXXXXXXXXXXXXXXX" />
 ```
 
 保存文件。
@@ -123,7 +120,7 @@ all/src/partials/head-base.html
 
 4. 状态显示"成功"就完成了。Google 会在接下来几天到几周内陆续把你的文章收录进搜索结果。
 
----
+***
 
 ## 二、Bing 站长平台（让必应、ChatGPT 等找到你）
 
@@ -131,15 +128,17 @@ all/src/partials/head-base.html
 
 ### 第 1 步：打开官方网址，登录账号
 
-1. 浏览器打开：`https://www.bing.com/webmasters/`
+1. 浏览器打开：<https://www.bing.com/webmasters>
 
 2. 点页面上的"**立即开始**"（Get started）按钮。
 
 3. 登录方式可以从这三个里选一个，都行：
 
-   - **Microsoft 账号**（微软账号，没有可以注册一个）
-   - **Google 账号**
-   - **Facebook 账号**
+   * **Microsoft 账号**（微软账号，没有可以注册一个）
+
+   * **Google 账号**
+
+   * **Facebook 账号**
 
    建议用 **Google 账号** 登录，因为下一步可以直接把 Google Search Console 里的信息一键导入。
 
@@ -193,21 +192,16 @@ all/src/partials/head-base.html
 
 ### 第 4 步：把验证代码贴到网站里（手动添加才需要）
 
-和 Google 教程的第 4 步一模一样，打开：
+打开本项目里的这个文件：
 
 ```
-
-all/src/partials/head-base.html
-
+Control/SEO_搜索优化.md
 ```
 
-在 `<meta charset="utf-8" />` 这一行**正下方**新起一行，粘贴你刚刚复制的那段。粘贴完大概长这样（如果你之前 Google 那段也加了，就两段都留着）：
+在文件里找到 `bing_html_marker:` 这一行，把你刚刚复制的整段 Meta 标签粘贴到冒号后面。粘贴完大概长这样：
 
-```html
-<meta charset="utf-8" />
-<meta name="google-site-verification" content="abc123XXXXXXXXXXXXXXXXXXXXXXXXXXX" />
-<meta name="msvalidate.01" content="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" />
-<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+```yaml
+bing_html_marker: <meta name="msvalidate.01" content="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" />
 ```
 
 保存 → 提交 → 推送 → 等 Cloudflare Pages 部署完（1～2 分钟）。
@@ -232,41 +226,44 @@ all/src/partials/head-base.html
 
 5. 看到列表里出现这一条、状态是"成功"，就大功告成。
 
----
+***
 
 ## 三、验收清单
 
 完成上面两份教程后，你的网站应该达到下面这个状态。逐项对照检查一下：
 
-- [ ] 浏览器打开 `https://freecat-blog.pages.dev` 能正常访问
-- [ ] 网页源代码里能搜到 `google-site-verification`（代表 Google 验证已上线）
-- [ ] 网页源代码里能搜到 `msvalidate.01`（如果走的是 Bing 手动添加；用导入方式则不会有）
-- [ ] Google Search Console 显示"已验证所有权"
-- [ ] Google Search Console 的站点地图列表里有 `sitemap.xml`，状态"成功"
-- [ ] Bing 站长平台首页能看到 `https://freecat-blog.pages.dev`
-- [ ] Bing 站长平台的站点地图列表里有 `https://freecat-blog.pages.dev/sitemap.xml`，状态"成功"
+* [ ] 浏览器打开 `https://freecat-blog.pages.dev` 能正常访问
+* [ ] 网页源代码里能搜到 `google-site-verification`（代表 Google 验证已上线）
+* [ ] 网页源代码里能搜到 `msvalidate.01`（如果走的是 Bing 手动添加；用导入方式则不会有）
+* [ ] Google Search Console 显示"已验证所有权"
+* [ ] Google Search Console 的站点地图列表里有 `sitemap.xml`，状态"成功"
+* [ ] Bing 站长平台首页能看到 `https://freecat-blog.pages.dev`
+* [ ] Bing 站长平台的站点地图列表里有 `https://freecat-blog.pages.dev/sitemap.xml`，状态"成功"
 
 全部打勾，就说明你的网站已经正式被两大搜索引擎收录追踪。接下来正常写博客就行，新文章一般几天到几周内就会出现在搜索结果里。
 
----
+***
 
 ## 四、常见问题
 
 **问：验证一直失败怎么办？**
 
-- 先确认 Cloudflare Pages 已经构建完成（去 Cloudflare 后台看"Deployments"是不是显示绿色"Success"）。
-- 在浏览器里打开你的网站，按 `Ctrl + Shift + R` 强制刷新，再按 `Ctrl + U` 查看源代码，搜索 `google-site-verification` 或 `msvalidate.01`，确认那段代码真的出现在页面里。
-- 出现了再回平台点验证，一般就能过。
+* 先确认 Cloudflare Pages 已经构建完成（去 Cloudflare 后台看"Deployments"是不是显示绿色"Success"）。
+
+* 在浏览器里打开你的网站，按 `Ctrl + Shift + R` 强制刷新，再按 `Ctrl + U` 查看源代码，搜索 `google-site-verification` 或 `msvalidate.01`，确认那段代码真的出现在页面里。
+
+* 出现了再回平台点验证，一般就能过。
 
 **问：网址前缀和网域有什么区别？我该选哪个？**
 
-- "网址前缀"只需要把验证代码贴进网页里，小白选这个。
-- "网域"需要去你买域名的地方修改 DNS 解析记录，门槛高。除非你想一次性验证整个域名（包括所有子域名），否则不需要碰它。
+* "网址前缀"只需要把验证代码贴进网页里，小白选这个。
+
+* "网域"需要去你买域名的地方修改 DNS 解析记录，门槛高。除非你想一次性验证整个域名（包括所有子域名），否则不需要碰它。
 
 **问：Sitemap 提交后多久能看到文章被收录？**
 
-- Google 一般几天到 2 周，Bing 一般 1～4 周。新站需要耐心，期间不用反复重新提交。
+* Google 一般几天到 2 周，Bing 一般 1～4 周。新站需要耐心，期间不用反复重新提交。
 
 **问：要不要把这两段 meta 代码删掉？**
 
-- **不要删**。删掉之后两个平台会判定你"失去所有权"，可能把你的网站从后台移除。这两段代码永久留在 `head-base.html` 里就好，对网站没有任何副作用。
+* **不要删**。删掉之后两个平台会判定你"失去所有权"，可能把你的网站从后台移除。Google 那段永久留在 `Control/SEO_搜索优化.md` 的 `google_html_marker` 里；如果你手动添加了 Bing，那段永久留在同一个文件的 `bing_html_marker` 里。它们对网站没有任何副作用。

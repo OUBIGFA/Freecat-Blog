@@ -120,6 +120,8 @@ const seoConfig = loadConfig(DIRS.control, 'SEO', 'SEO_搜索优化.md', {
     site_author_url: '',
     site_author_sameas: [],
     site_default_image: '',
+    google_html_marker: '',
+    bing_html_marker: '',
     allow_ai_crawlers: true,
     enable_llms_txt: true
 });

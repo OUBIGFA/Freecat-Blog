@@ -177,6 +177,39 @@ function generateDiscoveryLinks(siteConfig) {
     ].join('\n');
 }
 
+function parseAttributes(rawAttributes) {
+    const attrs = {};
+    const attrRe = /([^\s"'<>/=]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'<>]+))/g;
+    let match;
+    while ((match = attrRe.exec(rawAttributes))) {
+        attrs[match[1].toLowerCase()] = match[2] ?? match[3] ?? match[4] ?? '';
+    }
+    return attrs;
+}
+
+function generateHtmlMarker(rawValue, expectedName) {
+    const raw = String(rawValue || '').trim();
+    if (!raw) return '';
+
+    const metaMatch = raw.match(/^<meta\s+([^>]*?)\/?>$/i);
+    if (!metaMatch) return '';
+
+    const attrs = parseAttributes(metaMatch[1]);
+    if (String(attrs.name || '').toLowerCase() !== expectedName.toLowerCase()) return '';
+
+    const content = String(attrs.content || '').trim();
+    if (!content) return '';
+
+    return `<meta name="${shared.escapeHtml(expectedName)}" content="${shared.escapeHtml(content)}" />`;
+}
+
+function generateSearchEngineHtmlMarkers(seoConfig) {
+    return [
+        generateHtmlMarker(seoConfig.google_html_marker, 'google-site-verification'),
+        generateHtmlMarker(seoConfig.bing_html_marker, 'msvalidate.01')
+    ].filter(Boolean).join('\n');
+}
+
 function injectPartials(html, partialsCache, partialsDir) {
     // 反复替换直到没有 INCLUDE 占位（支持 partial 内嵌套 INCLUDE）
     const placeholderRe = /<!--\s*INCLUDE:([a-zA-Z0-9_\-]+)\s*-->/g;
@@ -246,6 +279,7 @@ function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, s
     const logoIcon = generateLogoIcon(siteConfig);
     const socialLinks = generateSocialLinks(socialConfig, siteConfig);
     const discoveryLinks = generateDiscoveryLinks(siteConfig);
+    const searchEngineHtmlMarkers = generateSearchEngineHtmlMarkers(seoConfig);
     const partialsCache = loadPartialsCache(partialsDir);
 
     function applySiteConfig(template) {
@@ -269,6 +303,7 @@ function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, s
         out = replacePlaceholder(out, /<!-- SOCIAL_LINKS -->/g, socialLinks);
         out = replacePlaceholder(out, /<!-- TAG_MENU_ITEMS -->/g, tagMenuItemsHtml);
         out = replacePlaceholder(out, /<!-- DISCOVERY_LINKS -->/g, discoveryLinks);
+        out = replacePlaceholder(out, /<!-- SEARCH_ENGINE_HTML_MARKERS -->/g, searchEngineHtmlMarkers);
         out = replacePlaceholder(out, /<!-- SITE_LANGUAGE -->/g, escapeText(seoConfig.site_language || 'zh-CN'));
         out = replacePlaceholder(out, /<!-- SITE_URL -->/g, safeUrlField);
         return out;
