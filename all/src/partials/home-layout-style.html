@@ -223,6 +223,14 @@
                 padding: 0 clamp(20px, 5vw, 40px) 48px;
             }
 
+            body:not([data-page="home"]) .freecat-home-sidebar {
+                display: none;
+            }
+
+            body:not([data-page="home"]) .freecat-home-posts {
+                padding-top: calc(var(--freecat-page-top-offset, 96px) + 12px);
+            }
+
             .freecat-home-sidebar-recent {
                 display: none;
             }
