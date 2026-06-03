@@ -6,6 +6,7 @@ const assert = require('node:assert/strict');
 const postJs = fs.readFileSync(path.join(__dirname, '../src/assets/post.js'), 'utf-8');
 const postCss = fs.readFileSync(path.join(__dirname, '../src/assets/post.css'), 'utf-8');
 const mainJs = fs.readFileSync(path.join(__dirname, '../src/assets/main.js'), 'utf-8');
+const postTemplate = fs.readFileSync(path.join(__dirname, '../src/template_post.html'), 'utf-8');
 const searchTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index_search.html'), 'utf-8');
 const transitionsCss = fs.readFileSync(path.join(__dirname, '../src/assets/transitions.css'), 'utf-8');
 const allTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index_all.html'), 'utf-8');
@@ -150,6 +151,22 @@ test('article heading links are prefixed with a currentColor link icon', () => {
     assert.match(rule, /background-color:\s*currentColor;/);
     assert.match(rule, /mask:\s*url\("data:image\/svg\+xml,/);
     assert.match(rule, /content:\s*""/);
+});
+
+test('article Chinese font uses the full local Noto Sans SC file', () => {
+    const notoFace = [...postCss.matchAll(/@font-face\s*\{[\s\S]*?\}/g)]
+        .map(match => match[0])
+        .find(block => block.includes('font-family: "Freecat Noto Sans SC"')) || '';
+
+    assert.match(notoFace, /freecat-noto-sans-sc-regular\.woff2/);
+    assert.doesNotMatch(notoFace, /subset/);
+    assert.doesNotMatch(notoFace, /unicode-range/);
+    assert.match(postTemplate, /freecat-noto-sans-sc-regular\.woff2/);
+    assert.doesNotMatch(postTemplate, /freecat-noto-sans-sc-regular-subset\.woff2/);
+    assert.equal(
+        fs.existsSync(path.join(__dirname, '../src/assets/fonts/freecat-noto-sans-sc-regular.woff2')),
+        true
+    );
 });
 
 test('markdown horizontal rules render as thick article dividers', () => {
