@@ -30,6 +30,7 @@ GitHub地址：<https://github.com/OUBIGFA/Freecat-Blog>
 - 支持 `.md`、`.txt` 等多种格式
 - 不需要考虑排版，纯文字也可以
 
+
 **功能强大**
 
 - 博文可自由置顶、隐藏
@@ -39,10 +40,12 @@ GitHub地址：<https://github.com/OUBIGFA/Freecat-Blog>
 - 支持常规网站的外部嵌入展示
 - 超长代码块自动折叠，内置回到顶部/底部和展开/折叠的跟随控制器
 
+
 **排版自动优化**
 
 - 自动优化中英混排间距
 - 专注内容写作，系统自动处理格式
+
 
 > **提示：** 如遇构建相关问题，只需前往主仓库复制最新的 [sync-upstream](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/sync-upstream.yml) 或 [update-git-dates.yml](https://github.com/OUBIGFA/FreeBlog_BIGFA/blob/main/.github/workflows/update-git-dates.yml "update-git-dates.yml") 工作流文件到你的仓库并手动运行一次。该工作流仅同步构建文件，不会覆盖你的自定义设置和 writing/ 写作文件夹。
 
