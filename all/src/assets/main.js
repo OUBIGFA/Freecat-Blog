@@ -1174,7 +1174,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         Results for "${escapeHtml(query)}"
                         <span class="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">(${results.length} found)</span>
                     </h2>
-                    <a href="/search.html?q=${encodeURIComponent(query)}" class="text-sm text-primary hover:underline">View all -></a>
+                    <a href="/search.html?q=${encodeURIComponent(query)}" class="text-sm text-primary hover:underline">View all</a>
                 </div>
                 ${resultsHtml}
             </div >

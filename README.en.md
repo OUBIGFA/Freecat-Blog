@@ -35,6 +35,7 @@
 - Markdown supports math formulas, diagrams, flowcharts, sequence diagrams, Gantt charts, and more
 - Supports audio and video playback
 - Supports embedded external websites
+- Long code blocks auto-collapse with built-in top/bottom navigation and expand/collapse controls
 
 **Automatic Formatting**
 
