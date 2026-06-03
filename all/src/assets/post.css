@@ -144,12 +144,12 @@
 /* 娈佃惤鏍峰紡锛氭钀戒箣闂翠娇鐢ㄩ粍閲戞瘮渚嬮棿璺?*/
 .prose {
     --article-block-radius: 8px;
-    font-size: 1.15rem !important;
+    font-size: 1.0625rem !important;
 }
 
 @media (min-width: 768px) {
     .prose {
-        font-size: 1.25rem !important;
+        font-size: 1.1875rem !important;
     }
 }
 
@@ -1077,7 +1077,7 @@
 
 /* ===== Article Reading Hierarchy Override ===== */
 .prose {
-    --article-body-size: 1.15rem;
+    --article-body-size: 1.0625rem;
     --article-line-height: 1.86;
     --article-rhythm: calc(var(--article-body-size) * var(--article-line-height));
     --article-heading-rule: #d8e0eb;
@@ -1097,7 +1097,7 @@
 
 @media (min-width: 768px) {
     .prose {
-        --article-body-size: 1.25rem;
+        --article-body-size: 1.1875rem;
         --article-line-height: 1.9;
     }
 }

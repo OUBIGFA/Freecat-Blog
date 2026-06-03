@@ -9,6 +9,8 @@ const mainJs = fs.readFileSync(path.join(__dirname, '../src/assets/main.js'), 'u
 const searchTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index_search.html'), 'utf-8');
 const transitionsCss = fs.readFileSync(path.join(__dirname, '../src/assets/transitions.css'), 'utf-8');
 const allTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index_all.html'), 'utf-8');
+const videoPlayerJs = fs.readFileSync(path.join(__dirname, '../src/assets/video-player.js'), 'utf-8');
+const videoPlayerCss = fs.readFileSync(path.join(__dirname, '../src/assets/video-player.css'), 'utf-8');
 const postCardTemplate = require('../src/assets/post-card-template.js');
 const { renderPostCardForList } = require('../build/pages/index.js');
 
@@ -36,6 +38,13 @@ test('post card cover placeholders render the shared loading spinner', () => {
     assert.equal(html.includes('data-src="/image/example.png"'), true);
     assert.equal(html.includes('class="placeholder-loader"'), true);
     assert.equal(html.includes('<span class="loader"></span>'), true);
+});
+
+test('article video players default to 16:9 before metadata and then use real video ratio', () => {
+    assert.match(videoPlayerCss, /\.video-player-stage\s*\{[\s\S]*aspect-ratio:\s*var\(--video-aspect-ratio,\s*16\s*\/\s*9\);/);
+    assert.match(videoPlayerCss, /\.video-player-video\s*\{[\s\S]*height:\s*100%;[\s\S]*object-fit:\s*contain;/);
+    assert.match(videoPlayerJs, /function updateVideoAspectRatio\(\)\s*\{[\s\S]*video\.videoWidth[\s\S]*video\.videoHeight[\s\S]*stage\.style\.setProperty\('--video-aspect-ratio',\s*`\$\{width\} \/ \$\{height\}`\);[\s\S]*\}/);
+    assert.match(videoPlayerJs, /video\.addEventListener\('loadedmetadata',\s*\(\)\s*=>\s*\{\s*updateVideoAspectRatio\(\);/);
 });
 
 test('mobile post cards remove the image-to-tags divider and extend the cover', () => {

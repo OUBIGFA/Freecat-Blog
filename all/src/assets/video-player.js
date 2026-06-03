@@ -201,8 +201,17 @@
             progressContainer.setAttribute('aria-valuetext', `${formattedTime} / ${formatTime(duration)}`);
         }
 
+        function updateVideoAspectRatio() {
+            const width = video.videoWidth;
+            const height = video.videoHeight;
+            if (width > 0 && height > 0) {
+                stage.style.setProperty('--video-aspect-ratio', `${width} / ${height}`);
+            }
+        }
+
         video.addEventListener('timeupdate', () => setProgressUi(video.currentTime));
         video.addEventListener('loadedmetadata', () => {
+            updateVideoAspectRatio();
             durationEl.textContent = formatTime(video.duration);
             setProgressUi(video.currentTime);
         });

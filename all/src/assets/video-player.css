@@ -15,6 +15,7 @@
 .video-player-stage {
     position: relative;
     width: 100%;
+    aspect-ratio: var(--video-aspect-ratio, 16 / 9);
     margin-bottom: 1rem;
     border-radius: 6px;
     overflow: hidden;
@@ -25,8 +26,8 @@
 .video-player-video {
     display: block;
     width: 100%;
-    height: auto;
-    max-height: 70vh;
+    height: 100%;
+    object-fit: contain;
     background: #000;
 }
 
