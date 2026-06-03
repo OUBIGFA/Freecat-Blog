@@ -24,7 +24,7 @@
 
 **Beginner-Friendly**
 
-- Article metadata (title, date, tags, etc.) is all optional
+- No metadata needed at all—just write your content
 - Supports `.md`, `.txt`, and other formats
 - No need to worry about formatting—plain text works perfectly
 

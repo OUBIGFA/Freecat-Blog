@@ -214,7 +214,7 @@
 
 .prose .katex-display {
     color: #1e293b !important;
-    overflow-x: auto;
+    overflow-x: hidden;
     overflow-y: hidden;
     padding: 0.2rem 0;
     margin: 2rem 0 !important;
@@ -239,7 +239,9 @@
 }
 
 .prose .katex-display>.katex {
-    white-space: nowrap;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 /* 纭繚绗竴涓爣棰樻病鏈夐《閮ㄩ棿璺?*/
@@ -499,12 +501,14 @@
     padding: 0 !important;
     margin: 0 !important;
     border-radius: 0 !important;
-    overflow-x: auto !important;
+    overflow-x: hidden !important;
+    font-family: inherit !important;
     font-size: 0.875rem !important;
     line-height: 1.7 !important;
-    white-space: pre !important;
+    white-space: pre-wrap !important;
     /* 鏍稿績锛氭敮鎸佽嚜鍔ㄦ崲琛?*/
-    word-break: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
     /* 閰嶅悎鎹㈣ */
 }
 
@@ -520,8 +524,10 @@
     border: none !important;
     /* 鏍稿績锛氱Щ闄や唬鐮佸潡鍐呭鐨勮竟妗?*/
     font-size: inherit !important;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
-    white-space: pre !important;
+    font-family: inherit !important;
+    white-space: pre-wrap !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
     /* 鏍稿績锛氭敮鎸佽嚜鍔ㄦ崲琛?*/
 }
 
@@ -821,7 +827,7 @@
     background-color: #f0f1f4 !important;
     margin: 1.618em 0 !important;
     font-size: 0.9em !important;
-    overflow-x: auto !important;
+    overflow-x: hidden !important;
 }
 
 .dark .prose table {
@@ -1711,7 +1717,7 @@
 .prose .code-language-label,
 .prose .code-block-container > .flex:first-child > span:first-child {
     color: var(--code-muted) !important;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+    font-family: inherit !important;
     font-size: 0.68rem !important;
     line-height: 1 !important;
     font-weight: 500 !important;
@@ -1731,7 +1737,7 @@
     scrollbar-width: thin;
     transition: max-height 220ms ease-out !important;
     box-sizing: border-box;
-    overflow-x: auto !important;
+    overflow-x: hidden !important;
     overflow-anchor: none;
 }
 
@@ -1753,7 +1759,8 @@
 
 .prose .expanded-code .code-content {
     padding-bottom: 5.2rem !important;
-    overflow: visible !important;
+    overflow-x: hidden !important;
+    overflow-y: visible !important;
     scrollbar-width: none;
 }
 
@@ -1789,11 +1796,13 @@
 
 .prose .code-content pre {
     color: var(--code-text) !important;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
-    width: max-content;
-    min-width: 100%;
-    white-space: pre !important;
-    word-break: normal !important;
+    font-family: inherit !important;
+    width: auto;
+    min-width: 0;
+    max-width: 100%;
+    white-space: pre-wrap !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
 }
 
 .prose .code-content pre code {
@@ -1802,8 +1811,9 @@
     font-size: 0.9rem !important;
     line-height: 1.72 !important;
     font-weight: 400 !important;
-    white-space: pre !important;
-    word-break: normal !important;
+    white-space: pre-wrap !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
     tab-size: 4;
 }
 
