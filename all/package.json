@@ -2,6 +2,7 @@
   "name": "free-blog",
   "version": "1.0.0",
   "scripts": {
+    "fonts:subset": "python tools/generate-noto-subset.py",
     "extract-dates": "node extract-git-dates.js",
     "build": "node build.js",
     "build:with-dates": "node extract-git-dates.js && node build.js",

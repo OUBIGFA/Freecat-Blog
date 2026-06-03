@@ -26,6 +26,7 @@ const { SOCIAL_DEFAULTS } = require('./build/social-defaults.js');
 const { createEngine } = require('./build/template-engine.js');
 const shared = require('./src/assets/shared.js');
 const { copyDir, ensureCleanDir } = require('./build/fs-utils.js');
+const { buildArticleFontSubset } = require('./build/fonts.js');
 const { buildTailwindCss } = require('./build/tailwind.js');
 const { minifyDist } = require('./build/minify.js');
 const postPage = require('./build/pages/post.js');
@@ -211,13 +212,9 @@ if (siteConfig.show_recent_posts === true) {
 
 }
 
-// ===== 1. 清理输出目录 + 搬运静态资源 =====
+// ===== 1. 清理输出目录 =====
 ensureCleanDir(DIRS.output, { within: __dirname, allowedName: 'dist' });
 fs.mkdirSync(path.join(DIRS.output, 'posts'));
-
-console.log('📦 Moving assets and configs...');
-if (fs.existsSync(DIRS.assets)) copyDir(DIRS.assets, path.join(DIRS.output, 'assets'));
-if (fs.existsSync(DIRS.images)) copyDir(DIRS.images, path.join(DIRS.output, 'image'));
 
 // ===== 6. 生成各页面 =====
 postPage.generateAll({ posts: allPosts, template: tplPost, siteConfig, seoConfig, outputDir: DIRS.output });
@@ -231,6 +228,14 @@ generateRobotsTxt({ siteConfig, seoConfig, outputDir: DIRS.output });
 generateLlmsTxt({ posts: allPosts, siteConfig, seoConfig, outputDir: DIRS.output });
 generateFeed({ posts: allPosts, siteConfig, seoConfig, outputDir: DIRS.output });
 generateOpenSearchXml({ siteConfig, seoConfig, outputDir: DIRS.output });
+
+// ===== 6.5 基于生成后的文章页刷新中文字体子集，再搬运静态资源 =====
+console.log('🔤 Generating article font subset...');
+buildArticleFontSubset({ rootDir: __dirname });
+
+console.log('📦 Moving assets and configs...');
+if (fs.existsSync(DIRS.assets)) copyDir(DIRS.assets, path.join(DIRS.output, 'assets'));
+if (fs.existsSync(DIRS.images)) copyDir(DIRS.images, path.join(DIRS.output, 'image'));
 
 // ===== 7. 复制部署平台配置 (_headers / vercel.json) =====
 const deployConfigs = ['_headers', 'vercel.json'];

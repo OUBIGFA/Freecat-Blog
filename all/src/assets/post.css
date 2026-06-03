@@ -152,10 +152,10 @@
 
 @font-face {
     font-family: "Freecat Noto Sans SC";
-    src: url("/assets/fonts/freecat-noto-sans-sc-regular.woff2") format("woff2");
+    src: url("/assets/fonts/freecat-noto-sans-sc-regular-subset.woff2") format("woff2");
     font-weight: 400;
     font-style: normal;
-    font-display: block;
+    font-display: swap;
 }
 
 article {

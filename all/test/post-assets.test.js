@@ -153,20 +153,20 @@ test('article heading links are prefixed with a currentColor link icon', () => {
     assert.match(rule, /content:\s*""/);
 });
 
-test('article Chinese font uses the full local Noto Sans SC file', () => {
+test('article Chinese font uses the generated Noto Sans SC subset', () => {
     const notoFace = [...postCss.matchAll(/@font-face\s*\{[\s\S]*?\}/g)]
         .map(match => match[0])
         .find(block => block.includes('font-family: "Freecat Noto Sans SC"')) || '';
+    const subsetFont = path.join(__dirname, '../src/assets/fonts/freecat-noto-sans-sc-regular-subset.woff2');
+    const fullAssetFont = path.join(__dirname, '../src/assets/fonts/freecat-noto-sans-sc-regular.woff2');
 
-    assert.match(notoFace, /freecat-noto-sans-sc-regular\.woff2/);
-    assert.doesNotMatch(notoFace, /subset/);
+    assert.match(notoFace, /freecat-noto-sans-sc-regular-subset\.woff2/);
     assert.doesNotMatch(notoFace, /unicode-range/);
-    assert.match(postTemplate, /freecat-noto-sans-sc-regular\.woff2/);
-    assert.doesNotMatch(postTemplate, /freecat-noto-sans-sc-regular-subset\.woff2/);
-    assert.equal(
-        fs.existsSync(path.join(__dirname, '../src/assets/fonts/freecat-noto-sans-sc-regular.woff2')),
-        true
-    );
+    assert.match(notoFace, /font-display:\s*swap/);
+    assert.match(postTemplate, /freecat-noto-sans-sc-regular-subset\.woff2/);
+    assert.equal(fs.existsSync(subsetFont), true);
+    assert.equal(fs.existsSync(fullAssetFont), false);
+    assert.ok(fs.statSync(subsetFont).size < 1024 * 1024);
 });
 
 test('markdown horizontal rules render as thick article dividers', () => {
