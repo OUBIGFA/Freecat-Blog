@@ -17,6 +17,8 @@ const allTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index_
 const aboutTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index_About.html'), 'utf-8');
 const notFoundTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index_404.html'), 'utf-8');
 const buildJs = fs.readFileSync(path.join(__dirname, '../build.js'), 'utf-8');
+const paginationJs = fs.readFileSync(path.join(__dirname, '../build/pagination.js'), 'utf-8');
+const seoJs = fs.readFileSync(path.join(__dirname, '../build/seo.js'), 'utf-8');
 const tailwindBuild = fs.readFileSync(path.join(__dirname, '../build/tailwind.js'), 'utf-8');
 const notoSubsetScript = fs.readFileSync(path.join(__dirname, '../tools/generate-noto-subset.py'), 'utf-8');
 const videoPlayerJs = fs.readFileSync(path.join(__dirname, '../src/assets/video-player.js'), 'utf-8');
@@ -24,6 +26,7 @@ const videoPlayerCss = fs.readFileSync(path.join(__dirname, '../src/assets/video
 const shared = require('../src/assets/shared.js');
 const postCardTemplate = require('../src/assets/post-card-template.js');
 const { renderPostCardForList } = require('../build/pages/index.js');
+const { generatePaginationHtml } = require('../build/pagination.js');
 
 function preloadFontHrefs(source) {
     return [...source.matchAll(/<link\s+rel="preload"\s+href="([^"]+)"\s+as="font"\s+type="font\/woff2"\s+crossorigin\s*\/?>/g)]
@@ -147,7 +150,12 @@ test('sidebar and about text use build-time Figtree and Noto Sans SC font classe
     assert.doesNotMatch(aboutTemplate, /freecat-about-description[^"]*\bfont-normal\b/);
 
     assert.match(buildJs, /class="freecat-sidebar-recent-link\b/);
+    assert.match(buildJs, /DEFAULT_RECENT_POSTS_LIMIT\s*=\s*8;/);
+    assert.match(buildJs, /class="freecat-sidebar-recent-link[^"]*\btext-sm\b/);
+    assert.doesNotMatch(buildJs, /class="freecat-sidebar-recent-link[^"]*\btext-\[13px\]\b/);
     assert.match(buildJs, /class="freecat-sidebar-recent-heading\b[\s\S]*>\s*Update\s*</);
+    assert.match(buildJs, /class="freecat-sidebar-recent-heading[^"]*\btext-sm\b[\s\S]*>\s*Update\s*</);
+    assert.doesNotMatch(buildJs, /class="freecat-sidebar-recent-heading[^"]*\btext-\[13px\]\b/);
     assert.doesNotMatch(buildJs, />\s*最近更新\s*</);
 });
 
@@ -166,6 +174,35 @@ test('article table of contents uses requested Chinese and Latin font assets', (
     assert.doesNotMatch(postTemplate, /class="text-sm font-bold tracking-wider[^"]*">\s*目录\s*</);
     assert.match(postCss, /\.freecat-post-toc-title\s*\{[\s\S]*font-family:\s*"Freecat Tag Noto Sans SC",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*500;/);
     assert.match(postCss, /#toc-container a\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
+});
+
+test('pagination text uses requested regular and active font weights', () => {
+    const html = generatePaginationHtml(1, 2);
+
+    assert.match(headBase, /\.freecat-pagination-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
+    assert.match(headBase, /\.freecat-pagination-strong\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*800;/);
+    assert.match(paginationJs, /aria-label="Pagination" class="freecat-pagination-text\b/);
+    assert.match(html, /<nav aria-label="Pagination" class="freecat-pagination-text\b/);
+    assert.match(html, /aria-current="page" class="[^"]*\bfreecat-pagination-strong\b[^"]*\bfont-extrabold\b/);
+    assert.doesNotMatch(html, /aria-current="page" class="[^"]*\bfont-semibold\b/);
+    assert.match(html, /<input[^>]+class="freecat-pagination-text\b/);
+    assert.match(html, />\s*跳至\s*<\/span>/);
+    assert.match(html, />Prev<\/span>/);
+    assert.match(html, />Next<\/span>/);
+});
+
+test('site text does not request unsupported bold weight', () => {
+    const sources = [
+        postCss,
+        mainJs,
+        searchTemplate,
+        notFoundTemplate,
+        seoJs,
+        paginationJs
+    ].join('\n');
+
+    assert.doesNotMatch(sources, /\bfont-bold\b/);
+    assert.doesNotMatch(sources, /font-weight:\s*700\b/);
 });
 
 test('only pages that render post cards preload post-card font assets', () => {

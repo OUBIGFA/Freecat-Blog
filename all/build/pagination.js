@@ -55,7 +55,7 @@ function generatePaginationHtml(currentPage, totalPages) {
     };
 
     // -------- 构建 HTML --------
-    let html = `<nav aria-label="Pagination" class="flex items-center gap-4 md:gap-7 mt-12 mb-20 text-sm select-none">`;
+    let html = `<nav aria-label="Pagination" class="freecat-pagination-text flex items-center gap-4 md:gap-7 mt-12 mb-20 text-sm select-none">`;
 
     // 导航组
     html += `<div class="flex items-center gap-0.5">`;
@@ -69,7 +69,7 @@ function generatePaginationHtml(currentPage, totalPages) {
             const isActive = p === currentPage;
             if (isActive) {
                 // 当前页：加粗 + 1.5px 短下划线（用 inline span，避免 CSS 改造）
-                html += `<a href="${link}" aria-current="page" class="${baseLink} relative font-semibold text-gray-900 dark:text-white tabular-nums">${p}<span class="absolute left-2 right-2 bottom-1 h-[1.5px] bg-current rounded-sm" aria-hidden="true"></span></a>`;
+                html += `<a href="${link}" aria-current="page" class="${baseLink} freecat-pagination-strong relative font-extrabold text-gray-900 dark:text-white tabular-nums">${p}<span class="absolute left-2 right-2 bottom-1 h-[1.5px] bg-current rounded-sm" aria-hidden="true"></span></a>`;
             } else {
                 html += `<a href="${link}" class="${baseLink} ${muted} tabular-nums">${p}</a>`;
             }
@@ -87,7 +87,7 @@ function generatePaginationHtml(currentPage, totalPages) {
         <div class="hidden md:flex items-baseline gap-2 text-xs text-gray-400 dark:text-gray-500 tracking-wide">
             <span>跳至</span>
             <input type="number" min="1" max="${totalPages}" placeholder="${currentPage}"
-                class="w-11 h-6 px-1.5 bg-transparent text-[13px] text-gray-900 dark:text-white text-center tabular-nums border-0 border-b border-gray-200 dark:border-gray-700 focus:outline-none focus:border-gray-900 dark:focus:border-white transition-colors duration-150 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                class="freecat-pagination-text w-11 h-6 px-1.5 bg-transparent text-[13px] text-gray-900 dark:text-white text-center tabular-nums border-0 border-b border-gray-200 dark:border-gray-700 focus:outline-none focus:border-gray-900 dark:focus:border-white transition-colors duration-150 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 aria-label="Jump to page"
                 onfocus="this.placeholder=''" onblur="this.placeholder='${currentPage}'">
             <span>/ ${totalPages}</span>

@@ -724,7 +724,7 @@ article {
     display: flex !important;
     align-items: center !important;
     gap: 0.5rem !important;
-    font-weight: 700 !important;
+    font-weight: 800 !important;
     font-size: 0.95em !important;
     letter-spacing: 0.02em !important;
     color: var(--callout-title) !important;
@@ -1104,7 +1104,7 @@ article {
 
 .prose summary {
     cursor: pointer;
-    font-weight: 700;
+    font-weight: 800;
     color: #1e293b !important;
     /* Slate-800 */
 }

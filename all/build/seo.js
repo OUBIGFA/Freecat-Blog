@@ -225,7 +225,7 @@ function renderFaqHtml(faqItems) {
     if (!faqItems.length) return '';
     const itemsHtml = faqItems.map(item => `
         <details class="faq-item rounded-lg border border-slate-200 dark:border-slate-700 px-5 py-4">
-            <summary class="cursor-pointer text-base font-bold text-[#1e293b] dark:text-slate-200">${escapeAttr(item.question)}</summary>
+            <summary class="cursor-pointer text-base font-extrabold text-[#1e293b] dark:text-slate-200">${escapeAttr(item.question)}</summary>
             <p class="mt-3 text-base leading-8 text-slate-600 dark:text-slate-300">${escapeAttr(item.answer)}</p>
         </details>`).join('\n');
     return `

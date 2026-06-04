@@ -1170,7 +1170,7 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay.innerHTML = `
             <div class="max-w-[1200px] mx-auto px-5 sm:px-6 md:px-8 pt-2 pb-10 md:pt-4 md:pb-12">
                 <div class="hidden md:flex md:flex-row md:items-center md:justify-between gap-2 mb-12">
-                    <h2 class="text-lg md:text-xl font-bold text-[#1e293b] dark:text-slate-200 flex items-center">
+                    <h2 class="text-lg md:text-xl font-extrabold text-[#1e293b] dark:text-slate-200 flex items-center">
                         Results for "${escapeHtml(query)}"
                         <span class="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">(${results.length} found)</span>
                     </h2>
