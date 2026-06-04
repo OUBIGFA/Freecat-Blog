@@ -227,6 +227,12 @@ article {
     font-synthesis-weight: none;
 }
 
+.freecat-published-date-text {
+    font-family: "Freecat Figtree", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-weight: 600;
+    font-synthesis-weight: none;
+}
+
 .freecat-tag-text {
     font-family: "Freecat Tag Figtree", "Freecat Tag Noto Sans SC", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", sans-serif;
     font-weight: 500;

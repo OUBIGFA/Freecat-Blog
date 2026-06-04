@@ -86,6 +86,7 @@ test('post card text uses build-time Figtree and Noto Sans SC font assets', () =
     assert.match(headBase, /\.post-card-excerpt\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"/);
     assert.match(headBase, /\.post-card-excerpt\s*\{[\s\S]*font-weight:\s*400;/);
     assert.match(headBase, /\.freecat-date-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"/);
+    assert.match(headBase, /\.freecat-published-date-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*600;/);
     assert.match(headBase, /\.freecat-tag-text\s*\{[\s\S]*font-family:\s*"Freecat Tag Figtree",\s*"Freecat Tag Noto Sans SC"[\s\S]*font-weight:\s*500;/);
     assert.match(headBase, /\.freecat-nav-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*600;/);
     assert.match(headBase, /\.freecat-go-back-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*800;/);
@@ -94,6 +95,7 @@ test('post card text uses build-time Figtree and Noto Sans SC font assets', () =
     assert.match(headBase, /\.freecat-brand-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*800;/);
     assert.match(headBase, /\.freecat-footer-copyright\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
     assert.match(postCss, /\.freecat-date-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"/);
+    assert.match(postCss, /\.freecat-published-date-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*600;/);
     assert.match(postCss, /\.freecat-tag-text\s*\{[\s\S]*font-family:\s*"Freecat Tag Figtree",\s*"Freecat Tag Noto Sans SC"[\s\S]*font-weight:\s*500;/);
     assert.match(postCss, /\.freecat-nav-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*600;/);
     assert.match(postCss, /\.freecat-go-back-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*800;/);
@@ -103,17 +105,18 @@ test('post card text uses build-time Figtree and Noto Sans SC font assets', () =
     assert.match(notoSubsetScript, /ROOT \/ "dist"/);
     assert.doesNotMatch(notoSubsetScript, /ROOT \/ "dist" \/ "posts"/);
     assert.match(notoSubsetScript, /FIGTREE_FONT_WEIGHTS/);
+    assert.doesNotMatch(notoSubsetScript, /PUBLISHED_DATE_CODEPOINTS/);
 
     assert.equal((html.match(/class="post-card-excerpt\b/g) || []).length, 2);
     assert.equal((html.match(/class="post-card-title\b/g) || []).length, 2);
     assert.match(html, /<h3 class="post-card-title[^"]*\bfont-black\b/);
-    assert.match(html, /class="freecat-date-text">2026-05-30<\/span>/);
+    assert.match(html, /class="freecat-published-date-text">2026-05-30<\/span>/);
     assert.match(html, /class="freecat-date-text">2026-05-31<\/span>/);
     assert.match(html, /\bfreecat-tag-text\b/);
     assert.doesNotMatch(html, /\bfont-black\b[^"]*"[^>]*>中文Tag/);
     assert.match(html, /\bfreecat-tag-text\b[^"]*\bfont-medium\b/);
     assert.doesNotMatch(html, /<h3 class="[^"]*\bpost-card-excerpt\b/);
-    assert.match(postTemplate, /<time class="freecat-date-text"/);
+    assert.match(postTemplate, /<time class="freecat-published-date-text"/);
     assert.match(postTemplate, /最后编辑:\s*<span class="freecat-date-text">/);
     assert.match(header, /<input[^>]+id="search-input"[^>]+class="freecat-search-input\b/);
     assert.match(tailwindBuild, /'display':\s*\["'Freecat Figtree'",\s*"'Freecat Noto Sans SC'"/);
