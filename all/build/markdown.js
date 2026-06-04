@@ -370,6 +370,9 @@ const VIDEO_EXTENSION_RE = /\.(?:mp4|webm|ogv|mov|m4v|m3u8)(?:$|[?#])/i;
 const VIDEO_EMOJI_RE = /\u{1f3ac}|\u{1f3a5}|\u{1f4f9}/u;
 const AUDIO_EXTENSION_RE = /\.(?:mp3|m4a|wav|ogg|aac|flac|opus)(?:$|[?#])/i;
 const AUDIO_EMOJI_RE = /\u{1f3b5}/u;
+const AUDIO_PLAY_ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1.5rem" height="1.5rem"><path d="M9 8.48216V15.518L15.0307 12.0001L9 8.48216ZM7.75194 5.43872L18.2596 11.5682C18.4981 11.7073 18.5787 12.0135 18.4396 12.252C18.3961 12.3265 18.3341 12.3885 18.2596 12.432L7.75194 18.5615C7.51341 18.7006 7.20725 18.62 7.06811 18.3815C7.0235 18.305 7 18.2181 7 18.1296V5.87061C7 5.59446 7.22386 5.37061 7.5 5.37061C7.58853 5.37061 7.67547 5.39411 7.75194 5.43872Z"></path></svg>';
+const AUDIO_VOLUME_ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1.25rem" height="1.25rem"><path d="M6.60282 10.0001L10 7.22056V16.7796L6.60282 14.0001H3V10.0001H6.60282ZM2 16.0001H5.88889L11.1834 20.3319C11.2727 20.405 11.3846 20.4449 11.5 20.4449C11.7761 20.4449 12 20.2211 12 19.9449V4.05519C12 3.93977 11.9601 3.8279 11.887 3.73857C11.7121 3.52485 11.3971 3.49335 11.1834 3.66821L5.88889 8.00007H2C1.44772 8.00007 1 8.44778 1 9.00007V15.0001C1 15.5524 1.44772 16.0001 2 16.0001ZM23 12C23 15.292 21.5539 18.2463 19.2622 20.2622L17.8445 18.8444C19.7758 17.1937 21 14.7398 21 12C21 9.26016 19.7758 6.80629 17.8445 5.15557L19.2622 3.73779C21.5539 5.75368 23 8.70795 23 12ZM18 12C18 10.0883 17.106 8.38548 15.7133 7.28673L14.2842 8.71584C15.3213 9.43855 16 10.64 16 12C16 13.36 15.3213 14.5614 14.2842 15.2841L15.7133 16.7132C17.106 15.6145 18 13.9116 18 12Z"></path></svg>';
+const AUDIO_TITLE_ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1.25rem" height="1.25rem"><path d="M11 21V19.9291C7.60771 19.4439 5 16.5265 5 13V8C5 4.13401 8.13401 1 12 1C15.866 1 19 4.13401 19 8V13C19 16.5265 16.3923 19.4439 13 19.9291V21H17V23H7V21H11ZM12 9C11.4477 9 11 8.55228 11 8C11 7.44772 11.4477 7 12 7C12.5523 7 13 7.44772 13 8C13 8.55228 12.5523 9 12 9ZM12 11C13.6569 11 15 9.65685 15 8C15 6.34315 13.6569 5 12 5C10.3431 5 9 6.34315 9 8C9 9.65685 10.3431 11 12 11Z"></path></svg>';
 
 function normalizeMultilineVideoImages(content) {
     if (!content) return '';
@@ -530,11 +533,71 @@ function renderAudioEmbed(href, text, { force = false } = {}) {
     if (!src) return '';
     const safeSrc = escapeHtml(src);
     const safeTitle = escapeRenderedText(String(text || '').replace(/\u{1f3b5}/gu, '').trim());
-    const fallbackLabel = safeTitle || safeSrc;
     return `
-    <figure class="audio-player audio-player-loading" data-audio-src="${safeSrc}" data-audio-title="${safeTitle}">
-        <a class="audio-player-fallback" href="${safeSrc}" target="_blank" rel="noopener noreferrer">${fallbackLabel}</a>
+    <figure class="audio-player audio-player-container audio-player-loading" data-audio-src="${safeSrc}" data-audio-title="${safeTitle}">
+        <div class="audio-player-title">
+            <div class="audio-player-title-left">
+                <span class="audio-player-icon flex items-center justify-center">${AUDIO_TITLE_ICON}</span>
+                <span>${safeTitle}</span>
+            </div>
+            <span class="audio-time">
+                <span class="audio-current-time">0:00</span>
+                <span> / </span>
+                <span class="audio-duration">0:00</span>
+            </span>
+        </div>
+        <div class="audio-progress-container" role="slider" tabindex="0" aria-label="Audio progress"
+            aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" aria-valuetext="0:00">
+            <div class="audio-progress-bar"></div>
+            <div class="audio-progress-thumb"></div>
+            <div class="audio-progress-tooltip">0:00</div>
+        </div>
+        <div class="audio-controls">
+            <div class="audio-controls-left">
+                <button class="audio-play-btn" aria-label="Play/Pause">
+                    <span class="audio-play-icon flex items-center justify-center">${AUDIO_PLAY_ICON}</span>
+                </button>
+                <div class="audio-volume-control">
+                    <button class="audio-volume-btn" aria-label="Volume control">
+                        ${AUDIO_VOLUME_ICON}
+                    </button>
+                    <div class="audio-volume-slider-wrapper">
+                        <input type="range" class="audio-volume-slider" min="0" max="1" step="0.01" value="0.6">
+                    </div>
+                </div>
+            </div>
+            <div class="audio-controls-right">
+                <div class="audio-speed-control">
+                    <button class="audio-speed-btn" aria-label="Playback speed">1.0x</button>
+                    <div class="audio-speed-dropdown t-dropdown" data-origin="bottom-right">
+                        <div class="audio-speed-option" data-speed="0.5">0.5x</div>
+                        <div class="audio-speed-option" data-speed="0.75">0.75x</div>
+                        <div class="audio-speed-option active" data-speed="1">1.0x</div>
+                        <div class="audio-speed-option" data-speed="1.25">1.25x</div>
+                        <div class="audio-speed-option" data-speed="1.5">1.5x</div>
+                        <div class="audio-speed-option" data-speed="1.75">1.75x</div>
+                        <div class="audio-speed-option" data-speed="2">2.0x</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <audio preload="auto">
+            <source src="${safeSrc}" type="${getAudioType(src)}">
+            Your browser does not support the audio element.
+        </audio>
     </figure>`;
+}
+
+function getAudioType(url) {
+    const urlLower = String(url || '').toLowerCase();
+    if (urlLower.includes('.mp3')) return 'audio/mpeg';
+    if (urlLower.includes('.m4a')) return 'audio/mp4';
+    if (urlLower.includes('.wav')) return 'audio/wav';
+    if (urlLower.includes('.ogg')) return 'audio/ogg';
+    if (urlLower.includes('.aac')) return 'audio/aac';
+    if (urlLower.includes('.flac')) return 'audio/flac';
+    if (urlLower.includes('.opus')) return 'audio/opus';
+    return 'audio/mpeg';
 }
 
 // 解析图片 markdown title 中的尺寸标记。

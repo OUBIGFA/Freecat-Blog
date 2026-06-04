@@ -458,7 +458,23 @@ html.theme-view-transitioning body *::after {
     animation-delay: calc(450ms + (var(--freecat-social-index, 0) * 70ms));
     opacity: 0;
     transform-origin: center top;
+    transition:
+        color 260ms cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 260ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
     will-change: opacity, transform;
+}
+
+.freecat-about-social > a:hover,
+.freecat-about-social > a:focus-visible {
+    color: #64748b;
+    opacity: 0.9;
+    transform: translateY(-1px) scale(1.03);
+}
+
+.dark .freecat-about-social > a:hover,
+.dark .freecat-about-social > a:focus-visible {
+    color: #94a3b8;
 }
 
 .post-card > div {

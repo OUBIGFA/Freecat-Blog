@@ -1900,18 +1900,24 @@ article {
 }
 
 .prose .code-content {
+    --code-fold-duration: 420ms;
+    --code-fold-ease: cubic-bezier(0.22, 1, 0.36, 1);
     position: relative;
     padding: 1.35rem 1.55rem !important;
     background: var(--code-surface) !important;
     scrollbar-color: #c5cfdb transparent;
     scrollbar-width: thin;
-    transition: max-height 220ms ease-out !important;
+    transition:
+        max-height var(--code-fold-duration) var(--code-fold-ease),
+        padding-bottom 300ms var(--code-fold-ease),
+        scrollbar-color 220ms ease-out !important;
     box-sizing: border-box;
     overflow-x: hidden !important;
     overflow-anchor: none;
+    will-change: max-height;
 }
 
-.prose .collapsed-code .code-content::after {
+.prose .code-content::after {
     content: "";
     position: absolute;
     right: 0;
@@ -1920,10 +1926,16 @@ article {
     display: block;
     height: 5.25rem;
     background: linear-gradient(to bottom, rgba(247, 249, 252, 0), var(--code-surface) 86%);
+    opacity: 0;
     pointer-events: none;
+    transition: opacity 260ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.dark .prose .collapsed-code .code-content::after {
+.prose .collapsed-code .code-content::after {
+    opacity: 1;
+}
+
+.dark .prose .code-content::after {
     background: linear-gradient(to bottom, rgba(15, 23, 36, 0), var(--code-surface) 86%);
 }
 
@@ -1935,6 +1947,10 @@ article {
 }
 
 .prose .code-expanding .code-content {
+    overflow: hidden !important;
+}
+
+.prose .code-collapsing .code-content {
     overflow: hidden !important;
 }
 
@@ -2019,9 +2035,9 @@ article {
     align-items: center !important;
     justify-content: center !important;
     transition:
-        opacity 0.14s ease,
-        background-color 0.14s ease,
-        border-color 0.14s ease;
+        opacity 180ms ease-out,
+        background-color 180ms ease-out,
+        border-color 180ms ease-out;
     transform: translate3d(-50%, 0, 0);
     will-change: transform;
     z-index: 60 !important;
@@ -2063,26 +2079,26 @@ article {
     backdrop-filter: none;
     transform: none !important;
     transition:
-        background-color 0.14s ease,
-        border-color 0.14s ease;
+        background-color 180ms ease-out,
+        border-color 180ms ease-out;
     z-index: 1 !important;
 }
 
 .prose .code-fold-controls.code-controls-opening {
     transition:
-        opacity 0.14s ease,
-        top 300ms cubic-bezier(0.2, 0, 0, 1),
-        left 300ms cubic-bezier(0.2, 0, 0, 1),
-        transform 300ms cubic-bezier(0.2, 0, 0, 1),
-        background-color 0.14s ease,
-        border-color 0.14s ease;
+        opacity 180ms ease-out,
+        top 420ms cubic-bezier(0.22, 1, 0.36, 1),
+        left 420ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+        background-color 180ms ease-out,
+        border-color 180ms ease-out;
 }
 
 .prose .code-fold-controls:not(.code-controls-opening) {
     transition:
-        opacity 0.14s ease,
-        background-color 0.14s ease,
-        border-color 0.14s ease;
+        opacity 180ms ease-out,
+        background-color 180ms ease-out,
+        border-color 180ms ease-out;
 }
 
 .dark .prose .collapsed-code .code-fold-controls {
@@ -2194,6 +2210,18 @@ article {
 .prose .fold-toggle-btn span {
     color: currentColor !important;
     font-size: 0.98rem !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .prose .code-content,
+    .prose .code-content::after,
+    .prose .code-fold-controls,
+    .prose .code-fold-controls.code-controls-opening,
+    .prose .code-fold-controls:not(.code-controls-opening),
+    .prose .code-nav-btn,
+    .prose .fold-toggle-btn {
+        transition: none !important;
+    }
 }
 
 .diagram-block {

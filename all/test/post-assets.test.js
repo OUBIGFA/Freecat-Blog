@@ -179,13 +179,17 @@ test('article table of contents uses requested Chinese and Latin font assets', (
 test('pagination text uses requested regular and active font weights', () => {
     const html = generatePaginationHtml(1, 2);
 
-    assert.match(headBase, /\.freecat-pagination-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
-    assert.match(headBase, /\.freecat-pagination-strong\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*800;/);
+    assert.match(headBase, /\.freecat-pagination-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;[\s\S]*font-variant-numeric:\s*normal;[\s\S]*font-feature-settings:\s*normal;/);
+    assert.match(headBase, /\.freecat-pagination-strong\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*800;[\s\S]*font-variant-numeric:\s*normal;[\s\S]*font-feature-settings:\s*normal;/);
     assert.match(paginationJs, /aria-label="Pagination" class="freecat-pagination-text\b/);
     assert.match(html, /<nav aria-label="Pagination" class="freecat-pagination-text\b/);
     assert.match(html, /aria-current="page" class="[^"]*\bfreecat-pagination-strong\b[^"]*\bfont-extrabold\b/);
     assert.doesNotMatch(html, /aria-current="page" class="[^"]*\bfont-semibold\b/);
     assert.match(html, /<input[^>]+class="freecat-pagination-text\b/);
+    assert.match(html, /<input[^>]+\bborder-b\b/);
+    assert.match(html, /<input[^>]+\bfocus:border-transparent\b/);
+    assert.match(html, /<input[^>]+\bfocus:ring-slate-300\/60\b/);
+    assert.doesNotMatch(html, /\btabular-nums\b/);
     assert.match(html, />\s*跳至\s*<\/span>/);
     assert.match(html, />Prev<\/span>/);
     assert.match(html, />Next<\/span>/);
@@ -544,6 +548,29 @@ test('fixed header has a stable css height before runtime measurement', () => {
 
 test('root scroller disables browser scroll anchoring during async layout changes', () => {
     assert.match(transitionsCss, /html\s*\{[\s\S]*overflow-anchor:\s*none;/);
+});
+
+test('code folding uses a smooth height transition with fading mask cleanup', () => {
+    const codeContentRule = postCss.match(/\.prose \.code-content\s*\{[\s\S]*?\n\}/)?.[0] || '';
+    const codeMaskRule = postCss.match(/\.prose \.code-content::after\s*\{[\s\S]*?\n\}/)?.[0] || '';
+    const collapsedMaskRule = postCss.match(/\.prose \.collapsed-code \.code-content::after\s*\{[\s\S]*?\n\}/)?.[0] || '';
+    const openingControlsRule = postCss.match(/\.prose \.code-fold-controls\.code-controls-opening\s*\{[\s\S]*?\n\}/)?.[0] || '';
+    const reducedMotionRule = postCss.match(/@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\.prose \.fold-toggle-btn[\s\S]*?\n\}/)?.[0] || '';
+
+    assert.match(postJs, /var CODE_FOLD_TRANSITION_MS = 420;/);
+    assert.match(postJs, /setTimeout\(finish, CODE_FOLD_TRANSITION_MS \+ 80\);/);
+    assert.match(postJs, /function settleCollapsedCodeHeight\(content, container\)/);
+    assert.match(postJs, /foldContainer\.classList\.add\('code-collapsing'\)/);
+    assert.match(postJs, /container\.classList\.remove\('code-collapsing'\)/);
+    assert.match(codeContentRule, /--code-fold-duration:\s*420ms;/);
+    assert.match(codeContentRule, /--code-fold-ease:\s*cubic-bezier\(0\.22,\s*1,\s*0\.36,\s*1\);/);
+    assert.match(codeContentRule, /max-height var\(--code-fold-duration\) var\(--code-fold-ease\)/);
+    assert.match(codeContentRule, /padding-bottom 300ms var\(--code-fold-ease\)/);
+    assert.match(codeMaskRule, /opacity:\s*0;/);
+    assert.match(codeMaskRule, /transition:\s*opacity 260ms cubic-bezier\(0\.22,\s*1,\s*0\.36,\s*1\);/);
+    assert.match(collapsedMaskRule, /opacity:\s*1;/);
+    assert.match(openingControlsRule, /top 420ms cubic-bezier\(0\.22,\s*1,\s*0\.36,\s*1\)/);
+    assert.match(reducedMotionRule, /transition:\s*none !important;/);
 });
 
 test('history navigation restores saved scroll positions after bfcache expires', () => {

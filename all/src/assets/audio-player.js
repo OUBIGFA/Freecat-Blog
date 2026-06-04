@@ -19,6 +19,10 @@
             const audioUrl = figure.getAttribute('data-audio-src') || '';
             if (!audioUrl) return;
             const title = figure.getAttribute('data-audio-title') || '';
+            if (figure.classList.contains('audio-player-container')) {
+                hydrateAudioPlayer(figure);
+                return;
+            }
             const audioPlayer = createAudioPlayer(title, audioUrl);
             figure.parentNode.replaceChild(audioPlayer, figure);
         });
@@ -29,8 +33,12 @@
         const cleanTitle = title.replace(/🎵/g, '').trim();
         const container = document.createElement('div');
         container.className = 'audio-player-container';
+        container.innerHTML = renderAudioPlayerMarkup(cleanTitle, audioUrl);
+        return hydrateAudioPlayer(container);
+    }
 
-        container.innerHTML = `
+    function renderAudioPlayerMarkup(cleanTitle, audioUrl) {
+        return `
             <div class="audio-player-title">
                 <div class="audio-player-title-left">
                     <span class="audio-player-icon flex items-center justify-center">${TITLE_ICON}</span>
@@ -82,7 +90,11 @@
                 Your browser does not support the audio element.
             </audio>
         `;
+    }
 
+    function hydrateAudioPlayer(container) {
+        if (container.dataset.audioHydrated === 'true') return container;
+        container.dataset.audioHydrated = 'true';
         // Get elements
         const audio = container.querySelector('audio');
         const playBtn = container.querySelector('.audio-play-btn');

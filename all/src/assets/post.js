@@ -17,6 +17,7 @@
     if (!shared) throw new Error('FreecatShared not loaded — ensure shared.js loads before post.js');
     var copyToClipboard = shared.copyText;
     var CODE_COLLAPSED_HEIGHT = 400;
+    var CODE_FOLD_TRANSITION_MS = 420;
 
     function resetCodeControlsPosition(controls) {
         if (!controls) return;
@@ -179,7 +180,24 @@
         };
 
         content.addEventListener('transitionend', finish);
-        setTimeout(finish, 420);
+        setTimeout(finish, CODE_FOLD_TRANSITION_MS + 80);
+    }
+
+    function settleCollapsedCodeHeight(content, container) {
+        var done = false;
+        var finish = function (event) {
+            if (event && event.target !== content) return;
+            if (event && event.propertyName !== 'max-height') return;
+            if (done) return;
+            done = true;
+            content.removeEventListener('transitionend', finish);
+            if (container.classList.contains('collapsed-code')) {
+                container.classList.remove('code-collapsing');
+            }
+        };
+
+        content.addEventListener('transitionend', finish);
+        setTimeout(finish, CODE_FOLD_TRANSITION_MS + 80);
     }
 
     // 复制按钮 + 折叠按钮统一委托
@@ -292,11 +310,12 @@
                     if (!foldContainer.classList.contains('expanded-code') || !controls) return;
                     controls.classList.remove('code-controls-opening');
                     applyCodeControlsPosition(foldContainer);
-                }, 320);
+                }, CODE_FOLD_TRANSITION_MS);
                 settleExpandedCodeHeight(wrapper, foldContainer);
             } else {
                 wrapper.style.maxHeight = wrapper.scrollHeight + 'px';
                 wrapper.offsetHeight; // force reflow
+                foldContainer.classList.add('code-collapsing');
                 foldContainer.classList.add('collapsed-code');
                 foldContainer.classList.remove('expanded-code');
                 foldContainer.classList.remove('code-expanding');
@@ -307,6 +326,7 @@
 
                 if (expandIcon) expandIcon.classList.remove('hidden');
                 if (collapseIcon) collapseIcon.classList.add('hidden');
+                settleCollapsedCodeHeight(wrapper, foldContainer);
 
                 var rect = foldContainer.getBoundingClientRect();
                 if (rect.top < 0) {
