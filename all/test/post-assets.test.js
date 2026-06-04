@@ -562,6 +562,12 @@ test('code folding uses a smooth height transition with fading mask cleanup', ()
     assert.match(postJs, /function settleCollapsedCodeHeight\(content, container\)/);
     assert.match(postJs, /foldContainer\.classList\.add\('code-collapsing'\)/);
     assert.match(postJs, /container\.classList\.remove\('code-collapsing'\)/);
+    assert.match(postJs, /var content = block\.querySelector\('\.code-content'\);/);
+    assert.match(postJs, /var contentRect = content \? content\.getBoundingClientRect\(\) : wrapperRect;/);
+    assert.match(postJs, /\? contentRect\.top \+ finalContentHeight\s*:\s*contentRect\.bottom;/);
+    assert.match(postJs, /if \(mode === 'pinned-bottom'\) \{\s*top = Math\.max\(minTop, maxBottom - controlsHeight\);/);
+    assert.doesNotMatch(postJs, /if \(openingTarget\.mode === 'pinned-bottom'\) \{[\s\S]*?controls\.classList\.add\('code-controls-pinned-bottom'\);[\s\S]*?controls\.style\.removeProperty\('--code-controls-top'\);[\s\S]*?\} else \{/);
+    assert.match(postJs, /controls\.classList\.remove\('code-controls-pinned-bottom'\);[\s\S]*controls\.classList\.add\('code-controls-opening'\);/);
     assert.match(codeContentRule, /--code-fold-duration:\s*420ms;/);
     assert.match(codeContentRule, /--code-fold-ease:\s*cubic-bezier\(0\.22,\s*1,\s*0\.36,\s*1\);/);
     assert.match(codeContentRule, /max-height var\(--code-fold-duration\) var\(--code-fold-ease\)/);

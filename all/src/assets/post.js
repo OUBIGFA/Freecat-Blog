@@ -48,13 +48,15 @@
         var codeWrapper = block.querySelector('.code-wrapper');
         if (!controls || !codeWrapper) return null;
 
+        var content = block.querySelector('.code-content');
         var wrapperRect = codeWrapper.getBoundingClientRect();
+        var contentRect = content ? content.getBoundingClientRect() : wrapperRect;
         var viewportHeight = window.innerHeight || document.documentElement.clientHeight;
         var viewportWidth = window.innerWidth || document.documentElement.clientWidth;
         var controlsHeight = controls.offsetHeight || 34;
         var wrapperBottom = typeof finalContentHeight === 'number'
-            ? wrapperRect.top + finalContentHeight
-            : wrapperRect.bottom;
+            ? contentRect.top + finalContentHeight
+            : contentRect.bottom;
 
         var preferredTop = viewportHeight - controlsHeight - 16;
         var preferredBottom = viewportHeight - 16;
@@ -70,6 +72,9 @@
             mode = wrapperBottom > viewportHeight + releaseGap ? 'viewport' : 'pinned-bottom';
         } else if (preferredBottom > maxBottom) {
             mode = 'pinned-bottom';
+        }
+        if (mode === 'pinned-bottom') {
+            top = Math.max(minTop, maxBottom - controlsHeight);
         }
 
         return {
@@ -281,18 +286,10 @@
                         controls.style.width = 'max-content';
                         controls.style.maxWidth = openingTarget.maxWidth + 'px';
                         controls.style.setProperty('--code-controls-left', openingTarget.left + 'px');
-                        if (openingTarget.mode === 'pinned-bottom') {
-                            controls.classList.remove('code-controls-opening');
-                            controls.classList.remove('code-controls-viewport-bottom');
-                            controls.classList.remove('code-controls-outside');
-                            controls.classList.add('code-controls-pinned-bottom');
-                            controls.style.removeProperty('--code-controls-top');
-                        } else {
-                            controls.classList.remove('code-controls-pinned-bottom');
-                            controls.classList.remove('code-controls-viewport-bottom');
-                            controls.classList.remove('code-controls-outside');
-                            controls.classList.add('code-controls-opening');
-                        }
+                        controls.classList.remove('code-controls-pinned-bottom');
+                        controls.classList.remove('code-controls-viewport-bottom');
+                        controls.classList.remove('code-controls-outside');
+                        controls.classList.add('code-controls-opening');
                     }
                 }
 
@@ -301,7 +298,7 @@
 
                 window.requestAnimationFrame(function () {
                     wrapper.style.maxHeight = targetHeight + 'px';
-                    if (controls && openingTarget && openingTarget.mode !== 'pinned-bottom') {
+                    if (controls && openingTarget) {
                         controls.style.setProperty('--code-controls-top', openingTarget.top + 'px');
                         controls.style.setProperty('--code-controls-left', openingTarget.left + 'px');
                     }
