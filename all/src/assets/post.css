@@ -1909,7 +1909,6 @@ article {
     scrollbar-width: thin;
     transition:
         max-height var(--code-fold-duration) var(--code-fold-ease),
-        padding-bottom 300ms var(--code-fold-ease),
         scrollbar-color 220ms ease-out !important;
     box-sizing: border-box;
     overflow-x: hidden !important;

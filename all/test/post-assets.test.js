@@ -571,7 +571,7 @@ test('code folding uses a smooth height transition with fading mask cleanup', ()
     assert.match(codeContentRule, /--code-fold-duration:\s*420ms;/);
     assert.match(codeContentRule, /--code-fold-ease:\s*cubic-bezier\(0\.22,\s*1,\s*0\.36,\s*1\);/);
     assert.match(codeContentRule, /max-height var\(--code-fold-duration\) var\(--code-fold-ease\)/);
-    assert.match(codeContentRule, /padding-bottom 300ms var\(--code-fold-ease\)/);
+    assert.doesNotMatch(codeContentRule, /padding-bottom\s+\d+ms/);
     assert.match(codeMaskRule, /opacity:\s*0;/);
     assert.match(codeMaskRule, /transition:\s*opacity 260ms cubic-bezier\(0\.22,\s*1,\s*0\.36,\s*1\);/);
     assert.match(collapsedMaskRule, /opacity:\s*1;/);
