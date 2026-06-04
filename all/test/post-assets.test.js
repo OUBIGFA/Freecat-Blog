@@ -10,12 +10,14 @@ const postTemplate = fs.readFileSync(path.join(__dirname, '../src/template_post.
 const indexTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index.html'), 'utf-8');
 const searchTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index_search.html'), 'utf-8');
 const headBase = fs.readFileSync(path.join(__dirname, '../src/partials/head-base.html'), 'utf-8');
+const header = fs.readFileSync(path.join(__dirname, '../src/partials/header.html'), 'utf-8');
 const homeSidebar = fs.readFileSync(path.join(__dirname, '../src/partials/home-sidebar.html'), 'utf-8');
 const transitionsCss = fs.readFileSync(path.join(__dirname, '../src/assets/transitions.css'), 'utf-8');
 const allTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index_all.html'), 'utf-8');
 const aboutTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index_About.html'), 'utf-8');
 const notFoundTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index_404.html'), 'utf-8');
 const buildJs = fs.readFileSync(path.join(__dirname, '../build.js'), 'utf-8');
+const tailwindBuild = fs.readFileSync(path.join(__dirname, '../build/tailwind.js'), 'utf-8');
 const notoSubsetScript = fs.readFileSync(path.join(__dirname, '../tools/generate-noto-subset.py'), 'utf-8');
 const videoPlayerJs = fs.readFileSync(path.join(__dirname, '../src/assets/video-player.js'), 'utf-8');
 const videoPlayerCss = fs.readFileSync(path.join(__dirname, '../src/assets/video-player.css'), 'utf-8');
@@ -77,6 +79,7 @@ test('post card text uses build-time Figtree and Noto Sans SC font assets', () =
     assert.match(headBase, /freecat-noto-sans-sc-regular-subset\.woff2/);
     assert.match(headBase, /font-family:\s*"Freecat Tag Noto Sans SC"/);
     assert.match(headBase, /freecat-noto-sans-sc-medium-subset\.woff2/);
+    assert.match(headBase, /freecat-noto-sans-sc-semi-bold-subset\.woff2/);
     assert.match(headBase, /font-family:\s*"Freecat Post Card Noto Sans SC"/);
     assert.match(headBase, /freecat-noto-sans-sc-extra-bold-subset\.woff2/);
     assert.match(headBase, /\.post-card-title\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Post Card Noto Sans SC"/);
@@ -85,11 +88,16 @@ test('post card text uses build-time Figtree and Noto Sans SC font assets', () =
     assert.match(headBase, /\.freecat-date-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"/);
     assert.match(headBase, /\.freecat-tag-text\s*\{[\s\S]*font-family:\s*"Freecat Tag Figtree",\s*"Freecat Tag Noto Sans SC"[\s\S]*font-weight:\s*500;/);
     assert.match(headBase, /\.freecat-nav-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*600;/);
+    assert.match(headBase, /\.freecat-go-back-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*800;/);
+    assert.match(headBase, /\.freecat-search-input\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
+    assert.match(headBase, /\.freecat-update-sort-label\s*\{[\s\S]*font-family:\s*"Freecat Tag Noto Sans SC",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*500;/);
     assert.match(headBase, /\.freecat-brand-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*800;/);
     assert.match(headBase, /\.freecat-footer-copyright\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
     assert.match(postCss, /\.freecat-date-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"/);
     assert.match(postCss, /\.freecat-tag-text\s*\{[\s\S]*font-family:\s*"Freecat Tag Figtree",\s*"Freecat Tag Noto Sans SC"[\s\S]*font-weight:\s*500;/);
     assert.match(postCss, /\.freecat-nav-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*600;/);
+    assert.match(postCss, /\.freecat-go-back-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*800;/);
+    assert.match(postCss, /\.freecat-search-input\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
     assert.match(postCss, /\.freecat-brand-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*800;/);
     assert.match(postCss, /\.freecat-footer-copyright\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
     assert.match(notoSubsetScript, /ROOT \/ "dist"/);
@@ -107,6 +115,10 @@ test('post card text uses build-time Figtree and Noto Sans SC font assets', () =
     assert.doesNotMatch(html, /<h3 class="[^"]*\bpost-card-excerpt\b/);
     assert.match(postTemplate, /<time class="freecat-date-text"/);
     assert.match(postTemplate, /最后编辑:\s*<span class="freecat-date-text">/);
+    assert.match(header, /<input[^>]+id="search-input"[^>]+class="freecat-search-input\b/);
+    assert.match(tailwindBuild, /'display':\s*\["'Freecat Figtree'",\s*"'Freecat Noto Sans SC'"/);
+    assert.doesNotMatch(headBase, /font-display:\s*swap;/);
+    assert.doesNotMatch(postCss, /font-display:\s*swap;/);
 });
 
 test('tag text preserves authored English casing', () => {
@@ -119,7 +131,7 @@ test('tag text preserves authored English casing', () => {
 test('sidebar and about text use build-time Figtree and Noto Sans SC font classes', () => {
     assert.match(headBase, /\.freecat-sidebar-slogan,\s*\.freecat-about-title\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*800;/);
     assert.match(headBase, /\.freecat-sidebar-description,\s*\.freecat-sidebar-recent-link,\s*\.freecat-about-description\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
-    assert.match(headBase, /\.freecat-sidebar-recent-heading\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*600;/);
+    assert.match(headBase, /\.freecat-sidebar-recent-heading\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*800;/);
 
     assert.match(homeSidebar, /class="freecat-sidebar-slogan\b/);
     assert.doesNotMatch(homeSidebar, /freecat-sidebar-slogan[^"]*\bfont-semibold\b/);
@@ -136,6 +148,23 @@ test('sidebar and about text use build-time Figtree and Noto Sans SC font classe
     assert.doesNotMatch(buildJs, />\s*最近更新\s*</);
 });
 
+test('go back and update sort labels use requested font assets', () => {
+    for (const template of [postTemplate, searchTemplate, allTemplate]) {
+        assert.match(template, /class="freecat-go-back-text text-sm">Go Back<\/span>/);
+        assert.doesNotMatch(template, /<span class="text-sm font-bold">Go Back<\/span>/);
+    }
+
+    assert.match(allTemplate, /class="freecat-update-sort-label">按更新排序<\/span>/);
+    assert.doesNotMatch(allTemplate, /<span>按更新排序<\/span>/);
+});
+
+test('article table of contents uses requested Chinese and Latin font assets', () => {
+    assert.match(postTemplate, /class="freecat-post-toc-title\b[\s\S]*>\s*目录\s*</);
+    assert.doesNotMatch(postTemplate, /class="text-sm font-bold tracking-wider[^"]*">\s*目录\s*</);
+    assert.match(postCss, /\.freecat-post-toc-title\s*\{[\s\S]*font-family:\s*"Freecat Tag Noto Sans SC",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*500;/);
+    assert.match(postCss, /#toc-container a\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
+});
+
 test('only pages that render post cards preload post-card font assets', () => {
     assert.match(allTemplate, /\.freecat-all-page #posts-list \.post-card h3\s*\{[\s\S]*font-weight:\s*900\s*!important;/);
 
@@ -145,6 +174,7 @@ test('only pages that render post cards preload post-card font assets', () => {
         './assets/fonts/freecat-figtree-extra-bold-subset.woff2',
         './assets/fonts/freecat-noto-sans-sc-regular-subset.woff2',
         './assets/fonts/freecat-noto-sans-sc-medium-subset.woff2',
+        './assets/fonts/freecat-noto-sans-sc-semi-bold-subset.woff2',
         './assets/fonts/freecat-noto-sans-sc-extra-bold-subset.woff2'
     ];
 
@@ -156,7 +186,6 @@ test('only pages that render post cards preload post-card font assets', () => {
         assert.equal(hrefs.includes('./assets/fonts/freecat-google-sans-regular-subset.woff2'), false);
         assert.equal(hrefs.some(href => href.includes('freecat-dm-sans')), false);
         assert.equal(hrefs.some(href => href.includes('freecat-figtree-medium')), false);
-        assert.equal(hrefs.includes('./assets/fonts/freecat-noto-sans-sc-semi-bold-subset.woff2'), false);
     }
 
     assert.deepEqual(preloadFontHrefs(aboutTemplate), []);
@@ -326,7 +355,7 @@ test('article Chinese font uses generated Noto Sans SC subsets for available wei
 
         assert.match(face, new RegExp(`font-weight:\\s*${weight}`));
         assert.doesNotMatch(face, /unicode-range/);
-        assert.match(face, /font-display:\s*swap/);
+        assert.match(face, /font-display:\s*block/);
         assert.equal(fs.existsSync(subsetFont), true);
         assert.equal(fs.existsSync(fullAssetFont), false);
         assert.ok(fs.statSync(subsetFont).size < 1024 * 1024);

@@ -32,7 +32,7 @@ async function buildTailwindCss({ contentGlobs, outputPath, minify = true }) {
                     'card-dark': '#1A2332',
                 },
                 fontFamily: {
-                    'display': ['Inter', '-apple-system', 'BlinkMacSystemFont', "'Segoe UI'", 'Roboto', "'PingFang SC'", "'Hiragino Sans GB'", "'Microsoft YaHei'", "'微软雅黑'", 'sans-serif']
+                    'display': ["'Freecat Figtree'", "'Freecat Noto Sans SC'", 'Inter', '-apple-system', 'BlinkMacSystemFont', "'Segoe UI'", 'Roboto', "'PingFang SC'", "'Hiragino Sans GB'", "'Microsoft YaHei'", "'微软雅黑'", 'sans-serif']
                 },
                 borderRadius: {
                     'none': '0px',
