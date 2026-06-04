@@ -239,6 +239,106 @@ function prepareMarkdownSpacing(content) {
     });
 }
 
+function splitMarkdownTableRow(line) {
+    let value = String(line || '').replace(/^\s*\|/, '').replace(/\|\s*$/, '');
+    const cells = [];
+    let current = '';
+    let escaped = false;
+
+    for (const ch of value) {
+        if (escaped) {
+            current += ch;
+            escaped = false;
+            continue;
+        }
+        if (ch === '\\') {
+            current += ch;
+            escaped = true;
+            continue;
+        }
+        if (ch === '|') {
+            cells.push(current);
+            current = '';
+            continue;
+        }
+        current += ch;
+    }
+    cells.push(current);
+    return cells;
+}
+
+function isMarkdownTableDelimiterRow(line) {
+    const cells = splitMarkdownTableRow(line);
+    return cells.length > 1 && cells.every(cell => /^:?-+:?$/.test(cell.trim()));
+}
+
+function markdownCellDisplayWidth(value) {
+    return Array.from(String(value || '').replace(/\\\|/g, '|')).reduce((width, ch) => {
+        return width + (/[\u3400-\u9fff\uf900-\ufaff]/.test(ch) ? 2 : 1);
+    }, 0);
+}
+
+function collectMarkdownTableColumnWidths(content) {
+    const lines = String(content || '').split(/\r?\n/);
+    const tables = [];
+    let inFence = false;
+    let fenceMarker = '';
+
+    for (let i = 0; i < lines.length - 1; i++) {
+        const marker = getFenceMarker(lines[i]);
+        if (marker) {
+            if (!inFence) {
+                inFence = true;
+                fenceMarker = marker;
+            } else if (closesFence(marker, fenceMarker)) {
+                inFence = false;
+                fenceMarker = '';
+            }
+            continue;
+        }
+        if (inFence) continue;
+
+        if (!lines[i].includes('|') || !isMarkdownTableDelimiterRow(lines[i + 1])) continue;
+
+        const tableLines = [lines[i], lines[i + 1]];
+        let j = i + 2;
+        while (j < lines.length && lines[j].trim() && lines[j].includes('|')) {
+            tableLines.push(lines[j]);
+            j++;
+        }
+
+        const columnCount = splitMarkdownTableRow(lines[i + 1]).length;
+        const widths = Array(columnCount).fill(1);
+        for (const tableLine of tableLines) {
+            const cells = splitMarkdownTableRow(tableLine);
+            for (let column = 0; column < columnCount; column++) {
+                widths[column] = Math.max(widths[column], markdownCellDisplayWidth(cells[column] || ''));
+            }
+        }
+
+        const total = widths.reduce((sum, width) => sum + width, 0);
+        if (total > 0) {
+            tables.push(widths.map(width => `${(width / total * 100).toFixed(3)}%`));
+        }
+        i = j - 1;
+    }
+
+    return tables;
+}
+
+function renderMarkdownTableColgroup(widths) {
+    return `<colgroup>${widths.map(width => `<col style="width:${width}">`).join('')}</colgroup>`;
+}
+
+function applyMarkdownTableColumnWidths(html, tableColumnWidths) {
+    let index = 0;
+    return String(html || '').replace(/<table([^>]*)>/g, (match, attrs) => {
+        const widths = tableColumnWidths[index++];
+        if (!widths || !widths.length) return match;
+        return `<table${attrs} data-md-table-widths="${widths.join(',')}">${renderMarkdownTableColgroup(widths)}`;
+    });
+}
+
 function detectTextType(text) {
     if (!text) return 'mixed';
     const cleanText = String(text).replace(/<[^>]+>/g, '').replace(/&[a-z0-9]+;/gi, '').trim();
@@ -1238,13 +1338,14 @@ function setup() {
 function parseMarkdown(content, { includeFootnotesSection = true, enableImageCaptions = false } = {}) {
     setup();
     const normalizedContent = normalizeMultilineVideoImages(content || '');
+    const tableColumnWidths = collectMarkdownTableColumnWidths(normalizedContent);
     const prepared = prepareMarkdownSpacing(preserveMarkdownGaps(normalizedContent));
     const { markdown, defs } = extractFootnoteDefinitions(prepared);
     const previousContext = activeFootnoteContext;
     const previousPostOptions = activePostOptions;
     activePostOptions = { enableImageCaptions };
     activeFootnoteContext = createFootnoteContext(defs);
-    const html = marked.parse(markdown);
+    const html = applyMarkdownTableColumnWidths(marked.parse(markdown), tableColumnWidths);
     const footnotesHtml = includeFootnotesSection ? renderFootnotesSection() : '';
     activeFootnoteContext = previousContext;
     activePostOptions = previousPostOptions;

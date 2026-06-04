@@ -1178,81 +1178,17 @@
         });
     }
 
-    function getTableCellWeight(cell) {
-        var text = (cell.textContent || '').replace(/\s+/g, ' ').trim();
-        var cjkCount = (text.match(/[\u3400-\u9fff\uf900-\ufaff]/g) || []).length;
-        var otherCount = Math.max(0, text.length - cjkCount);
-        var mediaWeight = cell.querySelector('img, video, iframe, figure') ? 24 : 0;
-        var codeWeight = cell.querySelector('code, pre') ? 8 : 0;
-        return Math.max(4, cjkCount * 2 + otherCount + mediaWeight + codeWeight);
-    }
-
-    function getTableColumnCount(table) {
-        var rows = Array.prototype.slice.call(table.rows || []);
-        return rows.reduce(function (max, row) {
-            var count = Array.prototype.slice.call(row.cells || []).reduce(function (sum, cell) {
-                return sum + Math.max(1, cell.colSpan || 1);
-            }, 0);
-            return Math.max(max, count);
-        }, 0);
-    }
-
-    function applyArticleTableColumnWidths(table) {
-        var columnCount = getTableColumnCount(table);
-        if (columnCount < 2) return;
-
-        var weights = Array(columnCount).fill(4);
-        Array.prototype.slice.call(table.rows || []).forEach(function (row) {
-            var columnIndex = 0;
-            Array.prototype.slice.call(row.cells || []).forEach(function (cell) {
-                var span = Math.max(1, Math.min(columnCount - columnIndex, cell.colSpan || 1));
-                var weight = getTableCellWeight(cell) / span;
-                for (var i = 0; i < span; i++) {
-                    weights[columnIndex + i] = Math.max(weights[columnIndex + i], weight);
-                }
-                columnIndex += span;
-            });
-        });
-
-        var balancedWeights = weights.map(function (weight) {
-            return Math.sqrt(weight);
-        });
-        var total = balancedWeights.reduce(function (sum, weight) {
-            return sum + weight;
-        }, 0);
-        if (!total) return;
-
-        var colgroup = table.querySelector(':scope > colgroup');
-        if (!colgroup) {
-            colgroup = document.createElement('colgroup');
-            table.insertBefore(colgroup, table.firstChild);
-        }
-        colgroup.innerHTML = '';
-
-        balancedWeights.forEach(function (weight) {
-            var col = document.createElement('col');
-            col.style.width = (weight / total * 100).toFixed(3) + '%';
-            colgroup.appendChild(col);
-        });
-    }
-
-    function initArticleTables() {
-        document.querySelectorAll('.prose table').forEach(applyArticleTableColumnWidths);
-    }
-
     function initHighlight() {
         if (window.hljs) window.hljs.highlightAll();
     }
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
-            initArticleTables();
             initHighlight();
             initExternalEmbedPlaceholders();
             initTwitterEmbedFallback();
         });
     } else {
-        initArticleTables();
         initHighlight();
         initExternalEmbedPlaceholders();
         initTwitterEmbedFallback();

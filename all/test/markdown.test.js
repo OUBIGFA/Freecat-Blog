@@ -103,6 +103,17 @@ test('markdown horizontal rules keep optional blank-line gap markers on both sid
     assert.match(expandedHtml, /<p>A<\/p>\s*<div class="markdown-gap"[^>]*data-md-gap-lines="2"[^>]*><\/div>\s*<hr>\s*<div class="markdown-gap"[^>]*data-md-gap-lines="2"[^>]*><\/div>\s*<p>B<\/p>/);
 });
 
+test('markdown tables preserve source column proportions as col widths', () => {
+    const html = parseMarkdown([
+        '| A  | B          | C |',
+        '| -- | ---------- | - |',
+        '| x  | y          | z |'
+    ].join('\n'));
+
+    assert.match(html, /<table data-md-table-widths="21\.053%,63\.158%,15\.789%">/);
+    assert.match(html, /<colgroup><col style="width:21\.053%"><col style="width:63\.158%"><col style="width:15\.789%"><\/colgroup>/);
+});
+
 test('mermaid code blocks render as diagram containers with detected kinds', () => {
     const sequenceHtml = parseMarkdown([
         '```mermaid',
