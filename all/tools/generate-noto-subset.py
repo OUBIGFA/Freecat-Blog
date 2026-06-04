@@ -13,7 +13,7 @@ NOTO_FONT_WEIGHTS = [
 ]
 FIGTREE_FONT_WEIGHTS = [
     ("regular", 400, ROOT / "fonts" / "freecat-figtree-regular.ttf"),
-    ("medium", 500, ROOT / "fonts" / "freecat-figtree-medium.ttf"),
+    ("semi-bold", 600, ROOT / "fonts" / "freecat-figtree-semi-bold.ttf"),
     ("extra-bold", 800, ROOT / "fonts" / "freecat-figtree-extra-bold.ttf"),
 ]
 OUTPUT_DIR = ROOT / "src" / "assets" / "fonts"

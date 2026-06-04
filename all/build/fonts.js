@@ -45,7 +45,7 @@ function useExistingSubsetIfAvailable(rootDir, output) {
         ].map(weight => path.join(rootDir, 'src', 'assets', 'fonts', `freecat-noto-sans-sc-${weight}-subset.woff2`)),
         ...[
             'regular',
-            'medium',
+            'semi-bold',
             'extra-bold'
         ].map(weight => path.join(rootDir, 'src', 'assets', 'fonts', `freecat-figtree-${weight}-subset.woff2`))
     ];

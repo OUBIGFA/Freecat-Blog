@@ -190,7 +190,7 @@ if (siteConfig.show_recent_posts === true) {
         const delay = HEADING_DELAY + (i + 1) * ITEM_DELAY_STEP;
         return `
                             <li class="py-3 animate-fade-in-up" style="animation-delay: ${delay}ms">
-                                <a href="${safeLink}" class="block text-[13px] font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors duration-150 line-clamp-2">
+                                <a href="${safeLink}" class="freecat-sidebar-recent-link block text-[13px] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors duration-150 line-clamp-2">
                                     ${safeTitle}
                                 </a>
                             </li>`;
@@ -198,8 +198,8 @@ if (siteConfig.show_recent_posts === true) {
 
     recentPostsSidebarInnerHtml = `
                         <div class="flex flex-col flex-shrink-0 mt-8">
-                            <h3 class="text-[13px] font-semibold tracking-wider text-slate-600 dark:text-slate-300 mb-4 animate-fade-in-up" style="animation-delay: ${HEADING_DELAY}ms">
-                                最近更新
+                            <h3 class="freecat-sidebar-recent-heading text-[13px] tracking-wider text-slate-600 dark:text-slate-300 mb-4 animate-fade-in-up" style="animation-delay: ${HEADING_DELAY}ms">
+                                Update
                             </h3>
                             <ul class="flex flex-col divide-y divide-slate-200 dark:divide-slate-700">
                                 ${itemsHtml.trim()}
