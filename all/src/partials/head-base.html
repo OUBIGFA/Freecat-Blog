@@ -20,7 +20,60 @@
 <!-- 主题色：随系统浅/深色模式切换，影响移动端浏览器地址栏与 PWA 启动画面 -->
 <meta name="theme-color" content="#f6f6f8" media="(prefers-color-scheme: light)" />
 <meta name="theme-color" content="#101622" media="(prefers-color-scheme: dark)" />
+<link rel="preload" href="./assets/fonts/freecat-figtree-medium-subset.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="./assets/fonts/freecat-noto-sans-sc-medium-subset.woff2" as="font" type="font/woff2" crossorigin />
 <style>
+    @font-face {
+        font-family: "Freecat Figtree";
+        src: url("./assets/fonts/freecat-figtree-regular-subset.woff2") format("woff2");
+        font-weight: 400;
+        font-style: normal;
+        font-display: block;
+        unicode-range: U+0000-00FF, U+0100-024F, U+2000-206F, U+20A0-20CF, U+2122, U+2190-21FF;
+    }
+
+    @font-face {
+        font-family: "Freecat Figtree";
+        src: url("./assets/fonts/freecat-figtree-medium-subset.woff2") format("woff2");
+        font-weight: 500;
+        font-style: normal;
+        font-display: block;
+        unicode-range: U+0000-00FF, U+0100-024F, U+2000-206F, U+20A0-20CF, U+2122, U+2190-21FF;
+    }
+
+    @font-face {
+        font-family: "Freecat Figtree";
+        src: url("./assets/fonts/freecat-figtree-extra-bold-subset.woff2") format("woff2");
+        font-weight: 800 1000;
+        font-style: normal;
+        font-display: block;
+        unicode-range: U+0000-00FF, U+0100-024F, U+2000-206F, U+20A0-20CF, U+2122, U+2190-21FF;
+    }
+
+    @font-face {
+        font-family: "Freecat Noto Sans SC";
+        src: url("./assets/fonts/freecat-noto-sans-sc-regular-subset.woff2") format("woff2");
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+
+    @font-face {
+        font-family: "Freecat Tag Noto Sans SC";
+        src: url("./assets/fonts/freecat-noto-sans-sc-medium-subset.woff2") format("woff2");
+        font-weight: 500;
+        font-style: normal;
+        font-display: swap;
+    }
+
+    @font-face {
+        font-family: "Freecat Post Card Noto Sans SC";
+        src: url("./assets/fonts/freecat-noto-sans-sc-extra-bold-subset.woff2") format("woff2");
+        font-weight: 800 1000;
+        font-style: normal;
+        font-display: swap;
+    }
+
     html,
     body {
         margin: 0;
@@ -31,6 +84,28 @@
     html.dark,
     html.dark body {
         background: #101622;
+    }
+
+    .post-card-excerpt {
+        font-family: "Freecat Figtree", "Freecat Noto Sans SC", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", sans-serif;
+        font-weight: 400;
+        font-synthesis-weight: none;
+    }
+
+    .post-card-title {
+        font-family: "Freecat Figtree", "Freecat Post Card Noto Sans SC", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", sans-serif;
+    }
+
+    .freecat-date-text {
+        font-family: "Freecat Figtree", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-weight: 400;
+        font-synthesis-weight: none;
+    }
+
+    .freecat-tag-text {
+        font-family: "Freecat Figtree", "Freecat Tag Noto Sans SC", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", sans-serif;
+        font-weight: 500;
+        font-synthesis-weight: none;
     }
 </style>
 <!-- 网站图标 -->

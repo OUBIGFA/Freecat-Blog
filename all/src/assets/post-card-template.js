@@ -104,13 +104,13 @@
         const modifiedBlock = modifiedDate
             ? `<div class="flex items-center gap-1.5 text-primary/60 dark:text-gray-500 font-medium">
                 <svg class="text-sm md:text-base" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M6.93912 14.0328C6.7072 14.6563 6.51032 15.2331 6.33421 15.8155C7.29345 15.1189 8.43544 14.6767 9.75193 14.5121C12.2652 14.198 14.4976 12.5385 15.6279 10.4537L14.1721 8.99888L15.5848 7.58417C15.9185 7.25004 16.2521 6.91614 16.5858 6.58248C17.0151 6.15312 17.5 5.35849 18.0129 4.2149C12.4197 5.08182 8.99484 8.50647 6.93912 14.0328ZM17 8.99739L18 9.99669C17 12.9967 14 15.9967 10 16.4967C7.33146 16.8303 5.66421 18.6636 4.99824 21.9967H3C4 15.9967 6 1.99669 21 1.99669C20.0009 4.99402 19.0018 6.99313 18.0027 7.99402C17.6662 8.33049 17.3331 8.66382 17 8.99739Z"></path></svg>
-                <span>${modifiedDate}</span>
+                <span class="freecat-date-text">${modifiedDate}</span>
                </div>`
             : '';
 
         const desktopDateBlock = `<div class="flex items-center gap-1.5 text-[#657188] dark:text-gray-400 font-semibold">
             <svg class="text-base" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M7 3V1H9V3H15V1H17V3H21C21.5523 3 22 3.44772 22 4V9H20V5H17V7H15V5H9V7H7V5H4V19H10V21H3C2.44772 21 2 20.5523 2 20V4C2 3.44772 2.44772 3 3 3H7ZM17 12C14.7909 12 13 13.7909 13 16C13 18.2091 14.7909 20 17 20C19.2091 20 21 18.2091 21 16C21 13.7909 19.2091 12 17 12ZM11 16C11 12.6863 13.6863 10 17 10C20.3137 10 23 12.6863 23 16C23 19.3137 20.3137 22 17 22C13.6863 22 11 19.3137 11 16ZM16 13V16.4142L18.2929 18.7071L19.7071 17.2929L18 15.5858V13H16Z"></path></svg>
-            <span>${date}</span>
+            <span class="freecat-date-text">${date}</span>
         </div>`;
 
         const tagsBlock = tagsHtml
@@ -131,26 +131,26 @@
                 ${pinnedBadge}
                 <div class="flex h-full min-w-0 flex-col lg:hidden">
                     <div class="shrink-0">
-                        <h3 class="text-[#1e293b] dark:text-slate-200 text-[24px] font-black leading-tight" style="${clampStyle(2)}">${titleHtml}</h3>
+                        <h3 class="post-card-title text-[#1e293b] dark:text-slate-200 text-[24px] font-black leading-tight" style="${clampStyle(2)}">${titleHtml}</h3>
                         <div class="mt-3 flex flex-wrap items-center gap-4 text-[#657188] dark:text-gray-400 text-xs font-semibold">
                             <div class="flex items-center gap-2">
                                 <svg class="text-base" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M7 3V1H9V3H15V1H17V3H21C21.5523 3 22 3.44772 22 4V9H20V5H17V7H15V5H9V7H7V5H4V19H10V21H3C2.44772 21 2 20.5523 2 20V4C2 3.44772 2.44772 3 3 3H7ZM17 12C14.7909 12 13 13.7909 13 16C13 18.2091 14.7909 20 17 20C19.2091 20 21 18.2091 21 16C21 13.7909 19.2091 12 17 12ZM11 16C11 12.6863 13.6863 10 17 10C20.3137 10 23 12.6863 23 16C23 19.3137 20.3137 22 17 22C13.6863 22 11 19.3137 11 16ZM16 13V16.4142L18.2929 18.7071L19.7071 17.2929L18 15.5858V13H16Z"></path></svg>
-                                <span>${date}</span>
+                                <span class="freecat-date-text">${date}</span>
                             </div>
                             ${modifiedBlock}
                             ${mobileInlineTagsBlock}
                         </div>
                     </div>
                     <div class="mt-7 shrink-0">
-                        <p class="text-[#63718a] dark:text-gray-400 text-[14px] font-normal leading-7" style="${clampStyle(3)}">${mediaIconHtml}${excerptBodyHtml}</p>
+                        <p class="post-card-excerpt text-[#63718a] dark:text-gray-400 text-[14px] font-normal leading-7" style="${clampStyle(3)}">${mediaIconHtml}${excerptBodyHtml}</p>
                     </div>
                     ${mobileImageBlock}
                     ${mobileFooterTagsBlock}
                 </div>
                 <div class="hidden h-full min-w-0 ${imageMarkup ? 'grid-cols-[minmax(0,1fr)_minmax(360px,43%)]' : 'grid-cols-1'} grid-rows-[1fr_auto] gap-x-14 lg:grid">
                     <div class="row-start-1 flex min-h-0 flex-col">
-                        <h3 class="text-[#1e293b] dark:text-slate-200 text-[34px] font-black leading-tight" style="${clampStyle(2)}">${titleHtml}</h3>
-                        <p class="mt-8 text-[#63718a] dark:text-gray-400 text-[16px] font-normal leading-[1.78]" style="${clampStyle(desktopPreviewLines)}">${mediaIconHtml}${excerptBodyHtml}</p>
+                        <h3 class="post-card-title text-[#1e293b] dark:text-slate-200 text-[34px] font-black leading-tight" style="${clampStyle(2)}">${titleHtml}</h3>
+                        <p class="post-card-excerpt mt-8 text-[#63718a] dark:text-gray-400 text-[16px] font-normal leading-[1.78]" style="${clampStyle(desktopPreviewLines)}">${mediaIconHtml}${excerptBodyHtml}</p>
                     </div>
                     ${desktopImageBlock}
                     <div class="col-start-1 row-start-2 border-t border-slate-200 dark:border-slate-700 pt-3">

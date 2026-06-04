@@ -142,9 +142,18 @@
 }
 
 @font-face {
-    font-family: "Freecat Google Sans";
-    src: url("/assets/fonts/freecat-google-sans-regular-subset.woff2") format("woff2");
+    font-family: "Freecat Figtree";
+    src: url("/assets/fonts/freecat-figtree-regular-subset.woff2") format("woff2");
     font-weight: 400;
+    font-style: normal;
+    font-display: block;
+    unicode-range: U+0000-00FF, U+0100-024F, U+2000-206F, U+20A0-20CF, U+2122, U+2190-21FF;
+}
+
+@font-face {
+    font-family: "Freecat Figtree";
+    src: url("/assets/fonts/freecat-figtree-medium-subset.woff2") format("woff2");
+    font-weight: 500;
     font-style: normal;
     font-display: block;
     unicode-range: U+0000-00FF, U+0100-024F, U+2000-206F, U+20A0-20CF, U+2122, U+2190-21FF;
@@ -222,8 +231,28 @@
     font-display: swap;
 }
 
+@font-face {
+    font-family: "Freecat Tag Noto Sans SC";
+    src: url("/assets/fonts/freecat-noto-sans-sc-medium-subset.woff2") format("woff2");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
 article {
-    font-family: "Freecat Google Sans", "Freecat Noto Sans SC", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", sans-serif;
+    font-family: "Freecat Figtree", "Freecat Noto Sans SC", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", sans-serif;
+}
+
+.freecat-date-text {
+    font-family: "Freecat Figtree", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-weight: 400;
+    font-synthesis-weight: none;
+}
+
+.freecat-tag-text {
+    font-family: "Freecat Figtree", "Freecat Tag Noto Sans SC", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", sans-serif;
+    font-weight: 500;
+    font-synthesis-weight: none;
 }
 
 /* 娈佃惤鏍峰紡锛氭钀戒箣闂翠娇鐢ㄩ粍閲戞瘮渚嬮棿璺?*/
@@ -995,20 +1024,6 @@ article {
     color: #94a3b8 !important;
 }
 
-/* ===== 閸旂姷鐭栭崪灞炬灘娴?===== */
-.prose strong {
-    font-weight: 700 !important;
-    color: #1e293b !important;
-}
-
-/* Dark Mode for Strong/Bold */
-.dark .prose strong,
-.dark .prose b {
-    color: #b6c2cf !important;
-}
-
-
-
 .prose em {
     font-style: italic !important;
 }
@@ -1311,7 +1326,7 @@ article {
 
 /* When multiple heading levels exist, the top-level heading gets a heavier weight */
 .prose:has(.article-heading-rank-2) .article-heading-rank-1 {
-    font-weight: 700 !important;
+    font-weight: 800 !important;
 }
 
 .prose ul,

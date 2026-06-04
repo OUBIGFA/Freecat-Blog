@@ -37,16 +37,23 @@ function installFontTools(rootDir) {
 
 function useExistingSubsetIfAvailable(rootDir, output) {
     const expectedSubsets = [
-        'thin',
-        'extra-light',
-        'light',
-        'regular',
-        'medium',
-        'semi-bold',
-        'bold',
-        'extra-bold',
-        'black'
-    ].map(weight => path.join(rootDir, 'src', 'assets', 'fonts', `freecat-noto-sans-sc-${weight}-subset.woff2`));
+        ...[
+            'thin',
+            'extra-light',
+            'light',
+            'regular',
+            'medium',
+            'semi-bold',
+            'bold',
+            'extra-bold',
+            'black'
+        ].map(weight => path.join(rootDir, 'src', 'assets', 'fonts', `freecat-noto-sans-sc-${weight}-subset.woff2`)),
+        ...[
+            'regular',
+            'medium',
+            'extra-bold'
+        ].map(weight => path.join(rootDir, 'src', 'assets', 'fonts', `freecat-figtree-${weight}-subset.woff2`))
+    ];
 
     if (!expectedSubsets.every(file => fs.existsSync(file))) return false;
 

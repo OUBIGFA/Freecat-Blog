@@ -103,7 +103,7 @@
         // 这样 main.js 中 updateTagColors 才能在切换主题时找到这些标签。
         const tagSpanClass = options.withDataAttrs ? 'tag-span ' : '';
         return (
-            '<span class="' + tagSpanClass + 'relative z-10 inline-flex items-center px-2.5 py-0.5 rounded-[4px] text-[10px] font-black uppercase tracking-wider cursor-pointer hover:brightness-95' + extraClass + ' transition-[filter] duration-200 ease-out whitespace-nowrap" ' +
+            '<span class="' + tagSpanClass + 'freecat-tag-text relative z-10 inline-flex items-center px-2.5 py-0.5 rounded-[4px] text-[10px] font-medium uppercase tracking-wider cursor-pointer hover:brightness-95' + extraClass + ' transition-[filter] duration-200 ease-out whitespace-nowrap" ' +
             'style="background: ' + colors.bg + '; color: ' + colors.text + ';"' + dataAttrs + ' ' +
             "onclick=\"event.preventDefault(); event.stopPropagation(); window.location.href='/search.html?tag=" + encodedForClick + "';\">" +
             visibleText +
@@ -182,7 +182,7 @@
                 '<a role="menuitem" href="' + href + '" ' +
                 'class="tag-menu-item flex items-center justify-between gap-3 rounded-[4px] px-3 py-2 text-sm font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-400 dark:text-slate-200 dark:hover:bg-slate-800" ' +
                 'style="--tag-menu-index:' + index + ';">' +
-                '<span class="min-w-0 truncate">' + escapeHtml(tag.label) + '</span>' +
+                '<span class="freecat-tag-text min-w-0 truncate">' + escapeHtml(tag.label) + '</span>' +
                 '<span class="shrink-0 rounded-[4px] px-2 py-0.5 text-[11px] font-semibold" style="background:' + colors.bg + ';color:' + colors.text + ';">' + tag.count + '</span>' +
                 '</a>'
             );

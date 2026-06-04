@@ -488,7 +488,7 @@
         var root = document.documentElement;
         var isDark = !!(root && root.classList && root.classList.contains && root.classList.contains('dark'));
         return {
-            fontFamily: '"Freecat Google Sans", "Freecat Noto Sans SC", Inter, ui-sans-serif, system-ui, sans-serif',
+            fontFamily: '"Freecat Figtree", "Freecat Noto Sans SC", Inter, ui-sans-serif, system-ui, sans-serif',
             fontSize: '14px',
             background: 'transparent',
             primaryColor: 'transparent',
