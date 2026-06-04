@@ -523,6 +523,17 @@ test('mermaid diagrams use the official renderer and broad diagram styling', () 
     assert.match(postCss, /\.mermaid-block\[data-mermaid-kind="timeline"\]/);
 });
 
+test('markdown diagram blocks center rendered chart content', () => {
+    const diagramBlockRule = postCss.match(/\.prose \.diagram-block\s*\{[\s\S]*?\}/)?.[0] || '';
+    const diagramContentRule = postCss.match(/\.prose \.diagram-block > \.mermaid,[\s\S]*?\.prose \.diagram-block \.echarts-canvas\s*\{[\s\S]*?\}/)?.[0] || '';
+    const diagramSvgRule = postCss.match(/\.prose \.diagram-block svg\s*\{[\s\S]*?\}/)?.[0] || '';
+
+    assert.match(diagramBlockRule, /justify-content:\s*center;/);
+    assert.match(diagramContentRule, /margin-inline:\s*auto\s*!important;/);
+    assert.match(diagramSvgRule, /display:\s*block;/);
+    assert.match(postCss, /\.prose\.prose [\s\S]*?\.diagram-block,[\s\S]*?\.katex-display/);
+});
+
 test('mermaid light theme avoids heavy sequence and gantt blocks', () => {
     const sequenceNumberBgRule = postCss.match(/\.mermaid-block \.freecat-mermaid-sequence-number-bg\s*\{[\s\S]*?\}/)?.[0] || '';
     const sequenceNumberRule = postCss.match(/\.mermaid-block \.freecat-mermaid-sequence-number\s*\{[\s\S]*?\}/)?.[0] || '';
