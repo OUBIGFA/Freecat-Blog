@@ -456,9 +456,10 @@ show: true
 ```bash
 cd all
 npm install
-npm run build
+npm run preview
 ```
 
+这个命令会先完整构建，再用固定地址打开本地预览：`http://127.0.0.1:4173/`。
 构建产物在 `all/dist/`，不用手动改，也不用提交到 GitHub。
 
 ### 项目结构

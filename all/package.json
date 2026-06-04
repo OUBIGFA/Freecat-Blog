@@ -6,6 +6,7 @@
     "extract-dates": "node extract-git-dates.js",
     "build": "node build.js",
     "build:with-dates": "node extract-git-dates.js && node build.js",
+    "preview": "node preview.js",
     "dev": "node dev.js",
     "test": "node --test"
   },

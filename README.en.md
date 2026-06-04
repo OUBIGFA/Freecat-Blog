@@ -423,9 +423,10 @@ To preview on your computer, install [Node.js 20+](https://nodejs.org/) first, t
 ```bash
 cd all
 npm install
-npm run build
+npm run preview
 ```
 
+This command runs a full build first, then starts the local preview at the fixed URL: `http://127.0.0.1:4173/`.
 The output is in `all/dist/`. Do not edit it manually and do not commit it to GitHub.
 
 ### Project Structure
