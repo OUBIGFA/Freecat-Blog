@@ -100,6 +100,13 @@ test('post card text uses build-time Figtree and Noto Sans SC font assets', () =
     assert.match(postTemplate, /最后编辑:\s*<span class="freecat-date-text">/);
 });
 
+test('tag text preserves authored English casing', () => {
+    const html = shared.renderTagSpan('iOS Dev');
+
+    assert.match(html, />iOS Dev<\/span>/);
+    assert.doesNotMatch(html, /\buppercase\b/);
+});
+
 test('only pages that render post cards preload post-card font assets', () => {
     assert.match(allTemplate, /\.freecat-all-page #posts-list \.post-card h3\s*\{[\s\S]*font-weight:\s*900\s*!important;/);
 
@@ -275,16 +282,12 @@ test('article Chinese font uses generated Noto Sans SC subsets for available wei
         .map(match => match[0])
         .filter(block => block.includes('font-family: "Freecat Noto Sans SC"'));
     const weights = [
-        ['thin', '1 149'],
-        ['extra-light', '150 249'],
-        ['light', '250 349'],
         ['regular', '350 449'],
         ['medium', '450 549'],
         ['semi-bold', '550 649'],
-        ['bold', '650 749'],
-        ['extra-bold', '750 849'],
-        ['black', '850 1000']
+        ['extra-bold', '750 849']
     ];
+    const unusedWeights = ['thin', 'extra-light', 'light', 'bold', 'black'];
 
     assert.equal(notoFaces.length, weights.length);
     for (const [name, weight] of weights) {
@@ -298,6 +301,10 @@ test('article Chinese font uses generated Noto Sans SC subsets for available wei
         assert.equal(fs.existsSync(subsetFont), true);
         assert.equal(fs.existsSync(fullAssetFont), false);
         assert.ok(fs.statSync(subsetFont).size < 1024 * 1024);
+    }
+    for (const name of unusedWeights) {
+        assert.equal(notoFaces.some(block => block.includes(`freecat-noto-sans-sc-${name}-subset.woff2`)), false);
+        assert.equal(fs.existsSync(path.join(__dirname, `../src/assets/fonts/freecat-noto-sans-sc-${name}-subset.woff2`)), false);
     }
 
     assert.deepEqual(preloadFontHrefs(postTemplate), [

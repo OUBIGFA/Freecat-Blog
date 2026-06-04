@@ -103,7 +103,7 @@
         // 这样 main.js 中 updateTagColors 才能在切换主题时找到这些标签。
         const tagSpanClass = options.withDataAttrs ? 'tag-span ' : '';
         return (
-            '<span class="' + tagSpanClass + 'freecat-tag-text relative z-10 inline-flex items-center px-2.5 py-0.5 rounded-[4px] text-[10px] font-medium uppercase tracking-wider cursor-pointer hover:brightness-95' + extraClass + ' transition-[filter] duration-200 ease-out whitespace-nowrap" ' +
+            '<span class="' + tagSpanClass + 'freecat-tag-text relative z-10 inline-flex items-center px-2.5 py-0.5 rounded-[4px] text-[10px] font-medium tracking-wider cursor-pointer hover:brightness-95' + extraClass + ' transition-[filter] duration-200 ease-out whitespace-nowrap" ' +
             'style="background: ' + colors.bg + '; color: ' + colors.text + ';"' + dataAttrs + ' ' +
             "onclick=\"event.preventDefault(); event.stopPropagation(); window.location.href='/search.html?tag=" + encodedForClick + "';\">" +
             visibleText +

@@ -161,30 +161,6 @@
 
 @font-face {
     font-family: "Freecat Noto Sans SC";
-    src: url("/assets/fonts/freecat-noto-sans-sc-thin-subset.woff2") format("woff2");
-    font-weight: 1 149;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Freecat Noto Sans SC";
-    src: url("/assets/fonts/freecat-noto-sans-sc-extra-light-subset.woff2") format("woff2");
-    font-weight: 150 249;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Freecat Noto Sans SC";
-    src: url("/assets/fonts/freecat-noto-sans-sc-light-subset.woff2") format("woff2");
-    font-weight: 250 349;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Freecat Noto Sans SC";
     src: url("/assets/fonts/freecat-noto-sans-sc-regular-subset.woff2") format("woff2");
     font-weight: 350 449;
     font-style: normal;
@@ -209,24 +185,8 @@
 
 @font-face {
     font-family: "Freecat Noto Sans SC";
-    src: url("/assets/fonts/freecat-noto-sans-sc-bold-subset.woff2") format("woff2");
-    font-weight: 650 749;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Freecat Noto Sans SC";
     src: url("/assets/fonts/freecat-noto-sans-sc-extra-bold-subset.woff2") format("woff2");
     font-weight: 750 849;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "Freecat Noto Sans SC";
-    src: url("/assets/fonts/freecat-noto-sans-sc-black-subset.woff2") format("woff2");
-    font-weight: 850 1000;
     font-style: normal;
     font-display: swap;
 }

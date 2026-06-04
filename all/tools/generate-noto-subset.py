@@ -6,15 +6,10 @@ from fontTools.ttLib import TTFont
 ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = ROOT.parent
 NOTO_FONT_WEIGHTS = [
-    ("thin", 100, ROOT / "fonts" / "freecat-noto-sans-sc-thin.ttf"),
-    ("extra-light", 200, ROOT / "fonts" / "freecat-noto-sans-sc-extra-light.ttf"),
-    ("light", 300, ROOT / "fonts" / "freecat-noto-sans-sc-light.ttf"),
     ("regular", 400, ROOT / "fonts" / "freecat-noto-sans-sc-regular.woff2"),
     ("medium", 500, ROOT / "fonts" / "freecat-noto-sans-sc-medium.ttf"),
     ("semi-bold", 600, ROOT / "fonts" / "freecat-noto-sans-sc-semi-bold.ttf"),
-    ("bold", 700, ROOT / "fonts" / "freecat-noto-sans-sc-bold.ttf"),
     ("extra-bold", 800, ROOT / "fonts" / "freecat-noto-sans-sc-extra-bold.ttf"),
-    ("black", 900, ROOT / "fonts" / "freecat-noto-sans-sc-black.ttf"),
 ]
 FIGTREE_FONT_WEIGHTS = [
     ("regular", 400, ROOT / "fonts" / "freecat-figtree-regular.ttf"),
