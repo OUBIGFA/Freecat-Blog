@@ -439,17 +439,17 @@ show: true
 
 在文章里用图片格式 + 音频直链，会自动出现音频播放器。
 
-```md
+```
+![这是示例音频|112](https://xxx.xxx/example.m4a)
 ```
 
-![这是示例音频](https://xxx.xxx/example.m4a)
 
 链接没有明显音频后缀的话，在标题里加个 `🎵` 强制识别。
 
-```md
+```
+![🎵这是示例音频|129](https://xxx.xxx/example)
 ```
 
-![🎵这是示例音频](https://xxx.xxx/example)
 
 支持的常见音频格式：`.mp3`、`.m4a`、`.wav`、`.ogg`、`.aac`、`.flac`、`.opus`。
 
@@ -457,17 +457,16 @@ show: true
 
 在文章里用图片格式 + 视频直链，会自动出现视频播放器。
 
-```md
+```
+![这是示例视频|112](https://xxx.xxx/example.mp4)
 ```
 
-![这是示例视频](https://xxx.xxx/example.mp4)
 
 链接没有明显视频后缀的话，在标题里加个 `🎬` 强制识别。
 
-```md
 ```
-
 ![🎬这是示例视频](https://xxx.xxx/example)
+```
 
 支持的常见视频格式：`.mp4`、`.webm`、`.mov`、`.m4v`、`.ogv`、`.m3u8`。
 

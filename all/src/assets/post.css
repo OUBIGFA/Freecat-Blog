@@ -401,6 +401,9 @@ article {
     /* 涓伆鑹?*/
     text-decoration: underline !important;
     text-underline-offset: 4px !important;
+    white-space: nowrap !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
     transition: opacity 0.2s ease !important;
 }
 
@@ -594,7 +597,8 @@ article {
     margin-right: auto !important;
     display: table !important;
     width: 100% !important;
-    /* 寮哄埗閾烘弧鍏ㄥ */
+    max-width: 100% !important;
+    table-layout: fixed !important;
     border: none !important;
     /* 绉婚櫎澶栬竟妗?*/
     background-color: transparent !important;
@@ -963,7 +967,9 @@ article {
 /* ===== 琛ㄦ牸鏍峰紡 ===== */
 .prose table {
     width: 100% !important;
+    max-width: 100% !important;
     display: table !important;
+    table-layout: fixed !important;
     border-collapse: separate !important;
     border-spacing: 1.2em 0 !important;
     background-color: #f0f1f4 !important;
@@ -986,11 +992,19 @@ article {
 
 .prose th,
 .prose td {
+    width: auto !important;
     padding: 0.75em 0 !important;
     border: 0 !important;
     border-bottom: 1px solid #d8dee8 !important;
     text-align: left;
     color: #1e293b !important;
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+.prose table a {
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
 }
 
 .dark .prose th,
