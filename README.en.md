@@ -337,14 +337,14 @@ A direct file link usually opens or downloads the audio or video file immediatel
 
 Use blockquote syntax with a direct audio link:
 
-```md
->[Demo audio](https://example.com/audio.m4a)
+```
+![I Still Believe](https://xxxx.mp3)
 ```
 
 If the link has no obvious audio extension, add the music symbol in the title:
 
-```md
->[🎵Demo audio](https://example.com/audio)
+```
+![🎵I Still Believe](https://xxxx)
 ```
 
 Supported formats: `.mp3`, `.m4a`, `.wav`, `.ogg`, `.aac`, `.flac`, `.opus`.
@@ -353,13 +353,13 @@ Supported formats: `.mp3`, `.m4a`, `.wav`, `.ogg`, `.aac`, `.flac`, `.opus`.
 
 Use image syntax with a direct video link:
 
-```md
+```
 ![Demo video](https://example.com/video.mp4)
 ```
 
 If the link has no obvious video extension, add the movie symbol in the title:
 
-```md
+```
 ![🎬Demo video](https://example.com/video)
 ```
 
@@ -386,13 +386,13 @@ The simple workflow:
 
 If the tool gives you an audio direct link, write it like this:
 
-```md
+```
 >[🎵I Still Believe](https://direct-audio-link-from-the-tool)
 ```
 
 If the tool gives you a video direct link, write it like this:
 
-```md
+```
 ![🎬Is Chinese food healthy?](https://direct-video-link-from-the-tool)
 ```
 
