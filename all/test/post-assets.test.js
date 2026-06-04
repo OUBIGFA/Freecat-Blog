@@ -153,20 +153,55 @@ test('article heading links are prefixed with a currentColor link icon', () => {
     assert.match(rule, /content:\s*""/);
 });
 
-test('article Chinese font uses the generated Noto Sans SC subset', () => {
-    const notoFace = [...postCss.matchAll(/@font-face\s*\{[\s\S]*?\}/g)]
+test('article Chinese font uses generated Noto Sans SC subsets for available weights', () => {
+    const notoFaces = [...postCss.matchAll(/@font-face\s*\{[\s\S]*?\}/g)]
         .map(match => match[0])
-        .find(block => block.includes('font-family: "Freecat Noto Sans SC"')) || '';
-    const subsetFont = path.join(__dirname, '../src/assets/fonts/freecat-noto-sans-sc-regular-subset.woff2');
-    const fullAssetFont = path.join(__dirname, '../src/assets/fonts/freecat-noto-sans-sc-regular.woff2');
+        .filter(block => block.includes('font-family: "Freecat Noto Sans SC"'));
+    const weights = [
+        ['thin', '1 149'],
+        ['extra-light', '150 249'],
+        ['light', '250 349'],
+        ['regular', '350 449'],
+        ['medium', '450 549'],
+        ['semi-bold', '550 649'],
+        ['bold', '650 749'],
+        ['extra-bold', '750 849'],
+        ['black', '850 1000']
+    ];
 
-    assert.match(notoFace, /freecat-noto-sans-sc-regular-subset\.woff2/);
-    assert.doesNotMatch(notoFace, /unicode-range/);
-    assert.match(notoFace, /font-display:\s*swap/);
+    assert.equal(notoFaces.length, weights.length);
+    for (const [name, weight] of weights) {
+        const face = notoFaces.find(block => block.includes(`freecat-noto-sans-sc-${name}-subset.woff2`)) || '';
+        const subsetFont = path.join(__dirname, `../src/assets/fonts/freecat-noto-sans-sc-${name}-subset.woff2`);
+        const fullAssetFont = path.join(__dirname, `../src/assets/fonts/freecat-noto-sans-sc-${name}.woff2`);
+
+        assert.match(face, new RegExp(`font-weight:\\s*${weight}`));
+        assert.doesNotMatch(face, /unicode-range/);
+        assert.match(face, /font-display:\s*swap/);
+        assert.equal(fs.existsSync(subsetFont), true);
+        assert.equal(fs.existsSync(fullAssetFont), false);
+        assert.ok(fs.statSync(subsetFont).size < 1024 * 1024);
+    }
     assert.match(postTemplate, /freecat-noto-sans-sc-regular-subset\.woff2/);
-    assert.equal(fs.existsSync(subsetFont), true);
-    assert.equal(fs.existsSync(fullAssetFont), false);
-    assert.ok(fs.statSync(subsetFont).size < 1024 * 1024);
+});
+
+test('article Chinese font weight ranges cover title and bold text rules', () => {
+    assert.match(postCss, /\.post-title\s*\{[\s\S]*font-weight:\s*600\s*!important;/);
+    assert.match(postCss, /\.prose strong,\s*\.prose b\s*\{[\s\S]*font-weight:\s*760\s*!important;/);
+    assert.match(postCss, /\.prose li>strong:first-child\s*\{[\s\S]*font-weight:\s*800\s*!important;/);
+
+    const notoFaces = [...postCss.matchAll(/@font-face\s*\{[\s\S]*?\}/g)]
+        .map(match => match[0])
+        .filter(block => block.includes('font-family: "Freecat Noto Sans SC"'));
+
+    assert.equal(
+        notoFaces.some(block => block.includes('freecat-noto-sans-sc-semi-bold-subset.woff2') && /font-weight:\s*550 649/.test(block)),
+        true
+    );
+    assert.equal(
+        notoFaces.some(block => block.includes('freecat-noto-sans-sc-extra-bold-subset.woff2') && /font-weight:\s*750 849/.test(block)),
+        true
+    );
 });
 
 test('markdown horizontal rules render as thick article dividers', () => {
@@ -213,6 +248,55 @@ test('markdown tables use horizontal rules without vertical borders', () => {
     assert.match(postCss, /\.prose tbody tr:last-child th,\s*\.prose tbody tr:last-child td\s*\{[\s\S]*border-bottom:\s*0\s*!important;/);
     assert.match(postCss, /\.prose table:not\(:has\(tbody tr\)\) thead th,\s*\.prose table:has\(tbody tr:only-child\) thead th\s*\{[\s\S]*border-bottom:\s*0\s*!important;/);
     assert.doesNotMatch(cellRule, /border:\s*1px solid/);
+});
+
+test('nested article blockquotes stay quiet and aligned', () => {
+    const finalQuoteRule = postCss.match(/\.prose\.prose blockquote\s*\{[\s\S]*?\}/)?.[0] || '';
+    const nestedQuoteRule = postCss.match(/\.prose\.prose blockquote blockquote\s*\{[\s\S]*?\}/)?.[0] || '';
+    const thirdLevelQuoteRule = postCss.match(/\.prose\.prose blockquote blockquote blockquote\s*\{[\s\S]*?\}/)?.[0] || '';
+
+    assert.match(finalQuoteRule, /border-left:\s*2px solid #cbd5e1\s*!important;/);
+    assert.match(finalQuoteRule, /background:\s*transparent\s*!important;/);
+    assert.match(nestedQuoteRule, /margin-left:\s*0\.7em\s*!important;/);
+    assert.match(nestedQuoteRule, /border-left-width:\s*1px\s*!important;/);
+    assert.match(nestedQuoteRule, /background:\s*transparent\s*!important;/);
+    assert.match(thirdLevelQuoteRule, /margin-left:\s*0\.65em\s*!important;/);
+    assert.match(thirdLevelQuoteRule, /background:\s*transparent\s*!important;/);
+    assert.doesNotMatch(nestedQuoteRule, /background(?:-color)?:\s*#(?:f1f5f9|e2e8f0|0f172a|0b1220)/);
+});
+
+test('mermaid diagrams use the official renderer and broad diagram styling', () => {
+    const postPageJs = fs.readFileSync(path.join(__dirname, '../build/pages/post.js'), 'utf-8');
+
+    assert.match(postPageJs, /cdn\.jsdelivr\.net\/npm\/mermaid@11\.15\.0\/dist\/mermaid\.min\.js/);
+    assert.doesNotMatch(postPageJs, /vditor@/);
+    assert.match(postJs, /window\.mermaid\.run\(\{ nodes: mermaidBlocks \}\)/);
+    assert.doesNotMatch(postJs, /function renderGanttBlock/);
+    assert.doesNotMatch(postJs, /function buildGanttSvg/);
+    assert.doesNotMatch(postCss, /\.freecat-gantt/);
+    assert.match(postJs, /\^classDiagram\(\?:-v2\)\?\\b/);
+    assert.match(postJs, /\^stateDiagram\(\?:-v2\)\?\\b/);
+    assert.match(postJs, /\^erDiagram\\b/);
+    assert.match(postJs, /\^mindmap\\b/);
+    assert.match(postCss, /\.mermaid-block\[data-mermaid-kind="class"\]/);
+    assert.match(postCss, /\.mermaid-block\[data-mermaid-kind="timeline"\]/);
+});
+
+test('mermaid light theme avoids heavy sequence and gantt blocks', () => {
+    const sequenceNumberBgRule = postCss.match(/\.mermaid-block \.freecat-mermaid-sequence-number-bg\s*\{[\s\S]*?\}/)?.[0] || '';
+    const sequenceNumberRule = postCss.match(/\.mermaid-block \.freecat-mermaid-sequence-number\s*\{[\s\S]*?\}/)?.[0] || '';
+
+    assert.match(postJs, /taskBkgColor:\s*isDark \? '#4b5563' : '#dce6f2'/);
+    assert.match(postJs, /taskTextColor:\s*isDark \? '#ffffff' : '#233044'/);
+    assert.match(postJs, /rect\.setAttribute\('class', 'freecat-mermaid-sequence-number-bg'\)/);
+    assert.match(sequenceNumberBgRule, /fill:\s*#334155\s*!important;/);
+    assert.match(sequenceNumberBgRule, /stroke:\s*none\s*!important;/);
+    assert.match(sequenceNumberBgRule, /stroke-width:\s*0\s*!important;/);
+    assert.match(sequenceNumberRule, /fill:\s*#ffffff\s*!important;/);
+    assert.match(sequenceNumberRule, /stroke:\s*none\s*!important;/);
+    assert.match(sequenceNumberRule, /stroke-width:\s*0\s*!important;/);
+    assert.match(postCss, /\.mermaid-block\[data-mermaid-kind="gantt"\] \.task\s*\{[\s\S]*fill:\s*#dce6f2\s*!important;[\s\S]*stroke:\s*#9aa8bc\s*!important;/);
+    assert.match(postCss, /\.mermaid-block\[data-mermaid-kind="gantt"\] \.taskText,[\s\S]*\.taskTextOutsideRight,[\s\S]*\.taskTextOutsideLeft\s*\{[\s\S]*fill:\s*#233044\s*!important;/);
 });
 
 test('fixed header has a stable css height before runtime measurement', () => {

@@ -1057,6 +1057,27 @@ function buildRenderer() {
         return String(language || '').trim().split(/\s+/)[0].toLowerCase();
     }
 
+    function getMermaidDiagramKind(source) {
+        const firstLine = String(source || '').split(/\r?\n/).map(line => line.trim()).filter(Boolean)[0] || '';
+        if (/^sequenceDiagram\b/i.test(firstLine)) return 'sequence';
+        if (/^gantt\b/i.test(firstLine)) return 'gantt';
+        if (/^(?:graph|flowchart)\b/i.test(firstLine)) return 'flowchart';
+        if (/^classDiagram(?:-v2)?\b/i.test(firstLine)) return 'class';
+        if (/^stateDiagram(?:-v2)?\b/i.test(firstLine)) return 'state';
+        if (/^erDiagram\b/i.test(firstLine)) return 'er';
+        if (/^journey\b/i.test(firstLine)) return 'journey';
+        if (/^pie\b/i.test(firstLine)) return 'pie';
+        if (/^gitGraph\b/i.test(firstLine)) return 'git';
+        if (/^mindmap\b/i.test(firstLine)) return 'mindmap';
+        if (/^timeline\b/i.test(firstLine)) return 'timeline';
+        if (/^quadrantChart\b/i.test(firstLine)) return 'quadrant';
+        if (/^xychart-beta\b/i.test(firstLine)) return 'xychart';
+        if (/^block-beta\b/i.test(firstLine)) return 'block';
+        if (/^packet-beta\b/i.test(firstLine)) return 'packet';
+        if (/^architecture-beta\b/i.test(firstLine)) return 'architecture';
+        return 'diagram';
+    }
+
     function base64EncodeUtf8(value) {
         return Buffer.from(String(value || ''), 'utf8').toString('base64');
     }
@@ -1066,9 +1087,10 @@ function buildRenderer() {
         const escapedCode = escapeHtml(code);
 
         if (normalizedLanguage === 'mermaid') {
+            const kind = getMermaidDiagramKind(code);
             return `
-    <div class="diagram-block mermaid-block my-6" data-diagram-type="mermaid">
-        <div class="mermaid" data-mermaid-source="${base64EncodeUtf8(code)}">${escapedCode}</div>
+    <div class="diagram-block mermaid-block my-6" data-diagram-type="mermaid" data-mermaid-kind="${kind}">
+        <div class="mermaid" data-mermaid-source="${base64EncodeUtf8(code)}" role="img" aria-label="Mermaid ${kind} diagram">${escapedCode}</div>
     </div>`;
         }
 

@@ -101,6 +101,35 @@ test('markdown horizontal rules keep optional blank-line gap markers on both sid
     assert.match(expandedHtml, /<p>A<\/p>\s*<div class="markdown-gap"[^>]*data-md-gap-lines="2"[^>]*><\/div>\s*<hr>\s*<div class="markdown-gap"[^>]*data-md-gap-lines="2"[^>]*><\/div>\s*<p>B<\/p>/);
 });
 
+test('mermaid code blocks render as diagram containers with detected kinds', () => {
+    const sequenceHtml = parseMarkdown([
+        '```mermaid',
+        'sequenceDiagram',
+        '    Alice->>Bob: Hello',
+        '```'
+    ].join('\n'));
+    const ganttHtml = parseMarkdown([
+        '```mermaid',
+        'gantt',
+        '    title Release',
+        '    Build :2026-06-01, 2d',
+        '```'
+    ].join('\n'));
+    const classHtml = parseMarkdown([
+        '```mermaid',
+        'classDiagram',
+        '    Animal <|-- Cat',
+        '```'
+    ].join('\n'));
+
+    assert.match(sequenceHtml, /class="diagram-block mermaid-block my-6"/);
+    assert.match(sequenceHtml, /data-mermaid-kind="sequence"/);
+    assert.match(sequenceHtml, /data-mermaid-source="/);
+    assert.doesNotMatch(sequenceHtml, /<pre><code/);
+    assert.match(ganttHtml, /data-mermaid-kind="gantt"/);
+    assert.match(classHtml, /data-mermaid-kind="class"/);
+});
+
 test('markdown image syntax keeps non-image URLs in the external embed flow with a placeholder', () => {
     const html = parseMarkdown('![](https://x.com/i/status/1930080468529230100)');
 

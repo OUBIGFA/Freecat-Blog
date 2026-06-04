@@ -36,8 +36,19 @@ function installFontTools(rootDir) {
 }
 
 function useExistingSubsetIfAvailable(rootDir, output) {
-    const existingSubset = path.join(rootDir, 'src', 'assets', 'fonts', 'freecat-noto-sans-sc-regular-subset.woff2');
-    if (!fs.existsSync(existingSubset)) return false;
+    const expectedSubsets = [
+        'thin',
+        'extra-light',
+        'light',
+        'regular',
+        'medium',
+        'semi-bold',
+        'bold',
+        'extra-bold',
+        'black'
+    ].map(weight => path.join(rootDir, 'src', 'assets', 'fonts', `freecat-noto-sans-sc-${weight}-subset.woff2`));
+
+    if (!expectedSubsets.every(file => fs.existsSync(file))) return false;
 
     console.warn('⚠️ Could not refresh the article Chinese font subset. Using the existing generated subset instead.');
     if (output) console.warn(output);

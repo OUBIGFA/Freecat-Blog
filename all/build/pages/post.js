@@ -165,7 +165,7 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
     const needsVideoPlayer = /🎬|🎥|📹|class="[^"]*\bvideo-player\b|<a [^>]*href="[^"]*\.(?:mp4|webm|ogv|mov|m4v|m3u8)(?:[?#]|\b)/i.test(finalContentHtml);
 
     const chartJs = [
-        needsMermaid ? '<script src="https://cdn.jsdelivr.net/npm/vditor@3.11.2/dist/js/mermaid/mermaid.min.js"></script>' : '',
+        needsMermaid ? '<script src="https://cdn.jsdelivr.net/npm/mermaid@11.15.0/dist/mermaid.min.js"></script>' : '',
         needsEcharts ? '<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>' : ''
     ].filter(Boolean).join('\n    ');
     const highlightCss = needsHighlight

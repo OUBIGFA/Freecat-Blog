@@ -382,10 +382,6 @@
                 var kind = getMermaidDiagramKind(source);
                 var container = block.closest('.diagram-block');
                 if (container) container.setAttribute('data-mermaid-kind', kind);
-                if (kind === 'gantt') {
-                    renderGanttBlock(block, source);
-                    return;
-                }
             }
             mermaidBlocks.push(block);
         });
@@ -431,7 +427,7 @@
                     leftPadding: 96,
                     gridLineStartPadding: 24,
                     fontSize: 12,
-                    barHeight: 16,
+                    barHeight: 18,
                     barGap: 6
                 }
             });
@@ -465,179 +461,6 @@
         }
     }
 
-    function renderGanttBlock(block, source) {
-        var container = block.closest('.diagram-block');
-        var width = container ? Math.max(560, container.clientWidth - 32) : 720;
-        block.innerHTML = buildGanttSvg(source, width);
-    }
-
-    function buildGanttSvg(source, width) {
-        var parsed = parseGanttSource(source);
-        if (!parsed.tasks.length) return '<svg width="100%" viewBox="0 0 720 180" role="img"></svg>';
-
-        var minTime = Math.min.apply(null, parsed.tasks.map(function (task) { return task.start; }));
-        var maxTime = Math.max.apply(null, parsed.tasks.map(function (task) { return task.end; }));
-        var dayMs = 24 * 60 * 60 * 1000;
-        if (maxTime <= minTime) maxTime = minTime + dayMs;
-
-        var left = 132;
-        var right = 32;
-        var top = 72;
-        var rowHeight = 32;
-        var axisY = top + parsed.tasks.length * rowHeight + 16;
-        var height = axisY + 42;
-        var chartWidth = Math.max(360, width - left - right);
-        var total = maxTime - minTime;
-
-        function x(time) {
-            return left + ((time - minTime) / total) * chartWidth;
-        }
-
-        function esc(value) {
-            return String(value == null ? '' : value)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;');
-        }
-
-        var parts = [
-            '<svg class="freecat-gantt" width="100%" viewBox="0 0 ' + width + ' ' + height + '" role="img" aria-label="' + esc(parsed.title || 'Gantt chart') + '">',
-            '<text class="freecat-gantt-title" x="' + (width / 2) + '" y="28" text-anchor="middle">' + esc(parsed.title || '') + '</text>'
-        ];
-
-        var sections = {};
-        parsed.tasks.forEach(function (task, index) {
-            if (!sections[task.section]) sections[task.section] = { first: index, last: index };
-            sections[task.section].last = index;
-        });
-
-        Object.keys(sections).forEach(function (name, idx) {
-            var section = sections[name];
-            var y = top + section.first * rowHeight - 12;
-            var h = (section.last - section.first + 1) * rowHeight;
-            if (idx % 2 === 0) parts.push('<rect class="freecat-gantt-section-bg" x="0" y="' + y + '" width="' + width + '" height="' + h + '"></rect>');
-            parts.push('<text class="freecat-gantt-section-label" x="16" y="' + (y + h / 2 + 4) + '">' + esc(name) + '</text>');
-        });
-
-        var tickStart = startOfWeek(minTime);
-        for (var tick = tickStart; tick <= maxTime + dayMs; tick += 7 * dayMs) {
-            var tx = x(tick);
-            if (tx < left - 1 || tx > left + chartWidth + 1) continue;
-            parts.push('<line class="freecat-gantt-grid" x1="' + tx + '" y1="48" x2="' + tx + '" y2="' + axisY + '"></line>');
-            parts.push('<text class="freecat-gantt-tick" x="' + tx + '" y="' + (axisY + 22) + '" text-anchor="middle">' + formatMonthDay(tick) + '</text>');
-        }
-
-        parsed.tasks.forEach(function (task, index) {
-            var y = top + index * rowHeight;
-            var taskX = x(task.start);
-            var rawTaskW = Math.max(8, x(task.end) - taskX);
-            var labelWidth = estimateTextWidth(task.name, 12);
-            var taskW = Math.max(rawTaskW, labelWidth + 18);
-            if (taskX + taskW > left + chartWidth) taskX = Math.max(left, left + chartWidth - taskW);
-            parts.push('<rect class="freecat-gantt-task" x="' + taskX + '" y="' + (y - 10) + '" width="' + taskW + '" height="18" rx="4"></rect>');
-            parts.push('<text class="freecat-gantt-task-text inside" x="' + (taskX + taskW / 2) + '" y="' + (y + 4) + '" text-anchor="middle">' + esc(task.name) + '</text>');
-        });
-
-        parts.push('<line class="freecat-gantt-axis" x1="' + left + '" y1="' + axisY + '" x2="' + (left + chartWidth) + '" y2="' + axisY + '"></line>');
-        parts.push('</svg>');
-        return parts.join('');
-    }
-
-    function parseGanttSource(source) {
-        var lines = String(source || '').split(/\r?\n/);
-        var tasks = [];
-        var ids = {};
-        var section = '';
-        var title = '';
-        var cursor = Date.UTC(2019, 0, 1);
-        var dayMs = 24 * 60 * 60 * 1000;
-
-        lines.forEach(function (line) {
-            var trimmed = line.trim();
-            if (!trimmed || /^gantt\b/i.test(trimmed)) return;
-            var titleMatch = /^title\s+(.+)$/i.exec(trimmed);
-            if (titleMatch) {
-                title = titleMatch[1].trim();
-                return;
-            }
-            var sectionMatch = /^section\s+(.+)$/i.exec(trimmed);
-            if (sectionMatch) {
-                section = sectionMatch[1].trim();
-                return;
-            }
-            var parts = trimmed.split(':');
-            if (parts.length < 2) return;
-            var name = parts.shift().trim();
-            var fields = parts.join(':').split(',').map(function (part) { return part.trim(); }).filter(Boolean);
-            var id = '';
-            var start = NaN;
-            var duration = 1;
-            var first = fields[0] || '';
-            var second = fields[1] || '';
-            var third = fields[2] || '';
-
-            if (/^[a-z][\w-]*$/i.test(first) && !/^after\b/i.test(first)) {
-                id = first;
-                first = second;
-                second = third;
-            }
-            if (/^after\s+/i.test(first)) {
-                var afterId = first.replace(/^after\s+/i, '').trim();
-                start = ids[afterId] ? ids[afterId].end : cursor;
-                duration = parseDuration(second);
-            } else if (/^\d{4}-\d{2}-\d{2}$/.test(first)) {
-                start = parseDate(first);
-                duration = parseDuration(second);
-            } else {
-                start = cursor;
-                duration = parseDuration(first || second);
-            }
-
-            if (!Number.isFinite(start)) start = cursor;
-            var end = start + Math.max(1, duration) * dayMs;
-            var task = { name: name, section: section || 'Tasks', start: start, end: end };
-            tasks.push(task);
-            cursor = end;
-            if (id) ids[id] = task;
-        });
-
-        return { title: title, tasks: tasks };
-    }
-
-    function parseDate(value) {
-        var parts = String(value || '').split('-').map(Number);
-        if (parts.length !== 3) return NaN;
-        return Date.UTC(parts[0], parts[1] - 1, parts[2]);
-    }
-
-    function parseDuration(value) {
-        var match = /(\d+)/.exec(String(value || ''));
-        return match ? Number(match[1]) : 1;
-    }
-
-    function startOfWeek(time) {
-        var date = new Date(time);
-        var utcDay = date.getUTCDay();
-        var offset = (utcDay + 6) % 7;
-        return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() - offset);
-    }
-
-    function formatMonthDay(time) {
-        var date = new Date(time);
-        var month = String(date.getUTCMonth() + 1).padStart(2, '0');
-        var day = String(date.getUTCDate()).padStart(2, '0');
-        return month + '-' + day;
-    }
-
-    function estimateTextWidth(text, fontSize) {
-        var total = 0;
-        String(text || '').trim().split('').forEach(function (char) {
-            total += /[\u4e00-\u9fff]/.test(char) ? fontSize : fontSize * 0.58;
-        });
-        return Math.ceil(total);
-    }
-
     function getMermaidDiagramKind(source) {
         var firstLine = String(source || '').split(/\r?\n/).map(function (line) {
             return line.trim();
@@ -645,6 +468,19 @@
         if (/^sequenceDiagram\b/i.test(firstLine)) return 'sequence';
         if (/^gantt\b/i.test(firstLine)) return 'gantt';
         if (/^(?:graph|flowchart)\b/i.test(firstLine)) return 'flowchart';
+        if (/^classDiagram(?:-v2)?\b/i.test(firstLine)) return 'class';
+        if (/^stateDiagram(?:-v2)?\b/i.test(firstLine)) return 'state';
+        if (/^erDiagram\b/i.test(firstLine)) return 'er';
+        if (/^journey\b/i.test(firstLine)) return 'journey';
+        if (/^pie\b/i.test(firstLine)) return 'pie';
+        if (/^gitGraph\b/i.test(firstLine)) return 'git';
+        if (/^mindmap\b/i.test(firstLine)) return 'mindmap';
+        if (/^timeline\b/i.test(firstLine)) return 'timeline';
+        if (/^quadrantChart\b/i.test(firstLine)) return 'quadrant';
+        if (/^xychart-beta\b/i.test(firstLine)) return 'xychart';
+        if (/^block-beta\b/i.test(firstLine)) return 'block';
+        if (/^packet-beta\b/i.test(firstLine)) return 'packet';
+        if (/^architecture-beta\b/i.test(firstLine)) return 'architecture';
         return 'diagram';
     }
 
@@ -680,16 +516,16 @@
             sectionBkgColor: isDark ? '#172033' : '#f8fafc',
             altSectionBkgColor: isDark ? '#111827' : '#ffffff',
             gridColor: isDark ? '#2f3d51' : '#d7dee8',
-            taskBkgColor: isDark ? '#4b5563' : '#64748b',
-            taskTextColor: '#ffffff',
-            taskTextOutsideColor: isDark ? '#dbe4f0' : '#1f2937',
-            taskBorderColor: isDark ? '#6b7280' : '#475569',
-            activeTaskBkgColor: isDark ? '#5f6c7d' : '#64748b',
-            activeTaskBorderColor: isDark ? '#8b96a7' : '#475569',
-            doneTaskBkgColor: isDark ? '#253247' : '#cbd5e1',
-            doneTaskBorderColor: isDark ? '#475569' : '#94a3b8',
-            critBkgColor: isDark ? '#665f4a' : '#b8aa78',
-            critBorderColor: isDark ? '#8c805f' : '#8f825b',
+            taskBkgColor: isDark ? '#4b5563' : '#dce6f2',
+            taskTextColor: isDark ? '#ffffff' : '#233044',
+            taskTextOutsideColor: isDark ? '#dbe4f0' : '#233044',
+            taskBorderColor: isDark ? '#6b7280' : '#9aa8bc',
+            activeTaskBkgColor: isDark ? '#5f6c7d' : '#c9d8e8',
+            activeTaskBorderColor: isDark ? '#8b96a7' : '#8fa1b8',
+            doneTaskBkgColor: isDark ? '#253247' : '#e6edf5',
+            doneTaskBorderColor: isDark ? '#475569' : '#b8c5d6',
+            critBkgColor: isDark ? '#665f4a' : '#eadfb8',
+            critBorderColor: isDark ? '#8c805f' : '#c8b773',
             todayLineColor: isDark ? '#b77b55' : '#8b6f4e'
         };
     }
@@ -828,15 +664,15 @@
                 var box = text.getBBox();
                 var padX = 4;
                 var padY = 2;
-                var size = Math.max(16, Math.ceil(Math.max(box.width + padX * 2, box.height + padY * 2)));
+                var size = Math.max(18, Math.ceil(Math.max(box.width + padX * 2, box.height + padY * 2)));
                 var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
                 rect.setAttribute('class', 'freecat-mermaid-sequence-number-bg');
                 rect.setAttribute('x', Math.round(box.x + box.width / 2 - size / 2));
                 rect.setAttribute('y', Math.round(box.y + box.height / 2 - size / 2));
                 rect.setAttribute('width', size);
                 rect.setAttribute('height', size);
-                rect.setAttribute('rx', 4);
-                rect.setAttribute('ry', 4);
+                rect.setAttribute('rx', Math.round(size / 2));
+                rect.setAttribute('ry', Math.round(size / 2));
                 text.parentNode.insertBefore(rect, text);
                 text.classList.add('freecat-mermaid-sequence-number');
                 text.setAttribute('text-anchor', 'middle');

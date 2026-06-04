@@ -152,8 +152,72 @@
 
 @font-face {
     font-family: "Freecat Noto Sans SC";
+    src: url("/assets/fonts/freecat-noto-sans-sc-thin-subset.woff2") format("woff2");
+    font-weight: 1 149;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Freecat Noto Sans SC";
+    src: url("/assets/fonts/freecat-noto-sans-sc-extra-light-subset.woff2") format("woff2");
+    font-weight: 150 249;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Freecat Noto Sans SC";
+    src: url("/assets/fonts/freecat-noto-sans-sc-light-subset.woff2") format("woff2");
+    font-weight: 250 349;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Freecat Noto Sans SC";
     src: url("/assets/fonts/freecat-noto-sans-sc-regular-subset.woff2") format("woff2");
-    font-weight: 400;
+    font-weight: 350 449;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Freecat Noto Sans SC";
+    src: url("/assets/fonts/freecat-noto-sans-sc-medium-subset.woff2") format("woff2");
+    font-weight: 450 549;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Freecat Noto Sans SC";
+    src: url("/assets/fonts/freecat-noto-sans-sc-semi-bold-subset.woff2") format("woff2");
+    font-weight: 550 649;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Freecat Noto Sans SC";
+    src: url("/assets/fonts/freecat-noto-sans-sc-bold-subset.woff2") format("woff2");
+    font-weight: 650 749;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Freecat Noto Sans SC";
+    src: url("/assets/fonts/freecat-noto-sans-sc-extra-bold-subset.woff2") format("woff2");
+    font-weight: 750 849;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Freecat Noto Sans SC";
+    src: url("/assets/fonts/freecat-noto-sans-sc-black-subset.woff2") format("woff2");
+    font-weight: 850 1000;
     font-style: normal;
     font-display: swap;
 }
@@ -559,11 +623,11 @@ article {
     /* 閺屾柨鎷伴惃鍕ガ閻忔媽澹?*/
 }
 
-/* ===== 瀵洜鏁ら崸妤佺壉瀵?(Blockquote) ===== */
+/* ===== Blockquote ===== */
 .prose blockquote {
-    border-left: 3px solid #64748b !important;
-    background-color: #f8fafc !important;
-    padding: 0.95em 1.15em !important;
+    border-left: 2px solid #cbd5e1 !important;
+    background: transparent !important;
+    padding: 0.75em 0 0.75em 1.05em !important;
     margin: 1.618em 0 !important;
     border-radius: 0 !important;
     color: #475569 !important;
@@ -571,9 +635,9 @@ article {
 }
 
 .dark .prose blockquote {
-    background-color: #121a28 !important;
-    border-left-color: #1e293b !important;
-    color: #94a3b8 !important;
+    background: transparent !important;
+    border-left-color: #475569 !important;
+    color: #cbd5e1 !important;
 }
 
 .prose .callout {
@@ -724,32 +788,33 @@ article {
     margin-top: 0 !important;
 }
 
-/* 瀹撳苯顨滃鏇犳暏 */
 .prose blockquote blockquote {
-    margin: 0.9em 0 0 0.75em !important;
-    border-left-color: #94a3b8 !important;
-    background-color: #f1f5f9 !important;
-    color: #475569 !important;
+    margin: 0.75em 0 0 0.7em !important;
+    padding: 0.35em 0 0.35em 0.85em !important;
+    border-left-width: 1px !important;
+    border-left-color: #d8dee8 !important;
+    background: transparent !important;
+    color: #64748b !important;
     border-radius: 0 !important;
 }
 
 .dark .prose blockquote blockquote {
-    border-left-color: #475569 !important;
-    background-color: #0f172a !important;
-    color: #94a3b8 !important;
+    border-left-color: #334155 !important;
+    background: transparent !important;
+    color: #aab6c5 !important;
 }
 
 .prose blockquote blockquote blockquote {
-    margin-left: 0.7em !important;
-    border-left-color: #cbd5e1 !important;
-    background-color: #e2e8f0 !important;
-    color: #475569 !important;
+    margin-left: 0.65em !important;
+    border-left-color: #e2e8f0 !important;
+    background: transparent !important;
+    color: #64748b !important;
     border-radius: 0 !important;
 }
 
 .dark .prose blockquote blockquote blockquote {
-    border-left-color: #64748b !important;
-    background-color: #0b1220 !important;
+    border-left-color: #263244 !important;
+    background: transparent !important;
     color: #94a3b8 !important;
 }
 
@@ -1319,8 +1384,8 @@ article {
 
 .prose blockquote {
     margin: calc(var(--article-rhythm) * 0.9) 0 !important;
-    padding: calc(var(--article-rhythm) * 0.35) 0 calc(var(--article-rhythm) * 0.35) 1.1em !important;
-    border-left: 3px solid #cbd5e1 !important;
+    padding: calc(var(--article-rhythm) * 0.35) 0 calc(var(--article-rhythm) * 0.35) 1.05em !important;
+    border-left: 2px solid #cbd5e1 !important;
     color: #475569 !important;
     background: transparent !important;
 }
@@ -1567,6 +1632,48 @@ article {
 .prose.prose :is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+:is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
 .prose.prose .markdown-gap+:is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player) {
     margin-block-start: var(--article-space-flow) !important;
+}
+
+.prose.prose blockquote {
+    padding: calc(var(--article-rhythm) * 0.35) 0 calc(var(--article-rhythm) * 0.35) 1.05em !important;
+    border-left: 2px solid #cbd5e1 !important;
+    color: #475569 !important;
+    background: transparent !important;
+}
+
+.dark .prose.prose blockquote {
+    border-left-color: #475569 !important;
+    color: #cbd5e1 !important;
+    background: transparent !important;
+}
+
+.prose.prose blockquote blockquote {
+    margin-block-start: calc(var(--article-rhythm) * 0.42) !important;
+    margin-left: 0.7em !important;
+    padding: calc(var(--article-rhythm) * 0.18) 0 calc(var(--article-rhythm) * 0.18) 0.85em !important;
+    border-left-width: 1px !important;
+    border-left-color: #d8dee8 !important;
+    color: #64748b !important;
+    background: transparent !important;
+}
+
+.dark .prose.prose blockquote blockquote {
+    border-left-color: #334155 !important;
+    color: #aab6c5 !important;
+    background: transparent !important;
+}
+
+.prose.prose blockquote blockquote blockquote {
+    margin-left: 0.65em !important;
+    border-left-color: #e2e8f0 !important;
+    color: #64748b !important;
+    background: transparent !important;
+}
+
+.dark .prose.prose blockquote blockquote blockquote {
+    border-left-color: #263244 !important;
+    color: #94a3b8 !important;
+    background: transparent !important;
 }
 
 .prose.prose .article-heading-depth-1+:is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
@@ -2065,11 +2172,13 @@ article {
     border-radius: 0 !important;
     padding: 0 !important;
     margin: 2rem auto !important;
-    overflow: hidden !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
     min-height: 0;
     box-shadow: none !important;
     box-sizing: border-box;
-    max-width: 100% !important;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--diagram-line) 45%, transparent) transparent;
 }
 
 .dark .diagram-block {
@@ -2084,13 +2193,25 @@ article {
 }
 
 .mermaid-block[data-mermaid-kind="flowchart"],
+.mermaid-block[data-mermaid-kind="class"],
+.mermaid-block[data-mermaid-kind="state"],
+.mermaid-block[data-mermaid-kind="er"],
+.mermaid-block[data-mermaid-kind="mindmap"],
+.mermaid-block[data-mermaid-kind="timeline"],
+.mermaid-block[data-mermaid-kind="block"],
+.mermaid-block[data-mermaid-kind="architecture"],
 .mermaid-block[data-mermaid-kind="diagram"] {
     width: 100% !important;
     max-width: 100% !important;
 }
 
 .mermaid-block[data-mermaid-kind="sequence"],
-.mermaid-block[data-mermaid-kind="gantt"] {
+.mermaid-block[data-mermaid-kind="gantt"],
+.mermaid-block[data-mermaid-kind="journey"],
+.mermaid-block[data-mermaid-kind="git"],
+.mermaid-block[data-mermaid-kind="quadrant"],
+.mermaid-block[data-mermaid-kind="xychart"],
+.mermaid-block[data-mermaid-kind="packet"] {
     width: 100% !important;
 }
 
@@ -2175,7 +2296,11 @@ article {
 .mermaid-block .messageLine0,
 .mermaid-block .messageLine1,
 .mermaid-block .loopLine,
-.mermaid-block .actor-line {
+.mermaid-block .actor-line,
+.mermaid-block .relationshipLine,
+.mermaid-block .relation,
+.mermaid-block .state-start,
+.mermaid-block .state-end {
     stroke: var(--diagram-line) !important;
     stroke-width: 0.75px !important;
 }
@@ -2221,13 +2346,15 @@ article {
 }
 
 .mermaid-block .freecat-mermaid-sequence-number-bg {
-    fill: #eef4fb !important;
-    stroke: #9aa8bc !important;
-    stroke-width: 0.55px !important;
+    fill: #334155 !important;
+    stroke: none !important;
+    stroke-width: 0 !important;
 }
 
 .mermaid-block .freecat-mermaid-sequence-number {
-    fill: #334155 !important;
+    fill: #ffffff !important;
+    stroke: none !important;
+    stroke-width: 0 !important;
     font-size: 10px !important;
     font-weight: 500 !important;
 }
@@ -2252,6 +2379,42 @@ article {
     stroke: #d8ca70 !important;
 }
 
+.mermaid-block :is(.task, .taskText, .section, .sectionTitle, .grid .tick text, .today),
+.mermaid-block :is(.classText, .state-title, .entityLabel, .relationshipLabel, .pieTitleText, .slice, .legend text) {
+    font-weight: 400 !important;
+}
+
+.mermaid-block :is(.taskText, .sectionTitle, .grid .tick text, .classText, .state-title, .entityLabel, .relationshipLabel, .pieTitleText, .slice, .legend text) {
+    fill: #0f172a !important;
+    color: #0f172a !important;
+}
+
+.mermaid-block :is(.task, .section, .classGroup rect, .stateGroup rect, .entityBox) {
+    stroke: var(--diagram-line) !important;
+}
+
+.mermaid-block[data-mermaid-kind="gantt"] .task {
+    fill: #dce6f2 !important;
+    stroke: #9aa8bc !important;
+    stroke-width: 0.8px !important;
+}
+
+.mermaid-block[data-mermaid-kind="gantt"] .taskText,
+.mermaid-block[data-mermaid-kind="gantt"] .taskTextOutsideRight,
+.mermaid-block[data-mermaid-kind="gantt"] .taskTextOutsideLeft {
+    fill: #233044 !important;
+    color: #233044 !important;
+    font-weight: 400 !important;
+}
+
+.mermaid-block[data-mermaid-kind="gantt"] .section {
+    stroke: #d7dee8 !important;
+}
+
+.mermaid-block[data-mermaid-kind="gantt"] .grid .tick line {
+    stroke: #d7dee8 !important;
+}
+
 .dark .mermaid-block .node rect,
 .dark .mermaid-block .node polygon,
 .dark .mermaid-block rect.actor,
@@ -2265,7 +2428,11 @@ article {
 .dark .mermaid-block .messageLine0,
 .dark .mermaid-block .messageLine1,
 .dark .mermaid-block .loopLine,
-.dark .mermaid-block .actor-line {
+.dark .mermaid-block .actor-line,
+.dark .mermaid-block .relationshipLine,
+.dark .mermaid-block .relation,
+.dark .mermaid-block .state-start,
+.dark .mermaid-block .state-end {
     stroke: #94a3b8 !important;
 }
 
@@ -2329,81 +2496,34 @@ article {
 }
 
 .dark .mermaid-block .freecat-mermaid-sequence-number-bg {
-    fill: #172033 !important;
-    stroke: #64748b !important;
+    fill: #dbe4f0 !important;
+    stroke: none !important;
 }
 
 .dark .mermaid-block .freecat-mermaid-sequence-number {
-    fill: #dbe4f0 !important;
+    fill: #101622 !important;
+    stroke: none !important;
 }
 
-.freecat-gantt {
-    display: block;
-    max-width: 100%;
-    overflow: visible;
+.dark .mermaid-block :is(.taskText, .sectionTitle, .grid .tick text, .classText, .state-title, .entityLabel, .relationshipLabel, .pieTitleText, .slice, .legend text) {
+    fill: #e7edf6 !important;
+    color: #e7edf6 !important;
 }
 
-.freecat-gantt-title {
-    fill: #1f2937;
-    font-size: 18px;
-    font-weight: 500;
+.dark .mermaid-block[data-mermaid-kind="gantt"] .task {
+    fill: #4b5563 !important;
+    stroke: #8b96a7 !important;
 }
 
-.freecat-gantt-section-bg {
-    fill: rgba(226, 232, 240, 0.3);
+.dark .mermaid-block[data-mermaid-kind="gantt"] .taskText,
+.dark .mermaid-block[data-mermaid-kind="gantt"] .taskTextOutsideRight,
+.dark .mermaid-block[data-mermaid-kind="gantt"] .taskTextOutsideLeft {
+    fill: #ffffff !important;
+    color: #ffffff !important;
 }
 
-.freecat-gantt-section-label,
-.freecat-gantt-task-text,
-.freecat-gantt-tick {
-    fill: #334155;
-    font-size: 12px;
-    font-weight: 400;
-}
-
-.freecat-gantt-section-label {
-    font-size: 13px;
-}
-
-.freecat-gantt-grid {
-    stroke: #d8e0ea;
-    stroke-width: 1;
-}
-
-.freecat-gantt-axis {
-    stroke: #cbd5e1;
-    stroke-width: 1;
-}
-
-.freecat-gantt-task {
-    fill: #5f7087;
-    stroke: #475569;
-    stroke-width: 1;
-}
-
-.freecat-gantt-task-text.inside {
-    fill: #ffffff;
-}
-
-.dark .freecat-gantt-title,
-.dark .freecat-gantt-section-label,
-.dark .freecat-gantt-task-text,
-.dark .freecat-gantt-tick {
-    fill: #dbe4f0;
-}
-
-.dark .freecat-gantt-section-bg {
-    fill: rgba(30, 41, 59, 0.5);
-}
-
-.dark .freecat-gantt-grid,
-.dark .freecat-gantt-axis {
-    stroke: #2f3d51;
-}
-
-.dark .freecat-gantt-task {
-    fill: #718096;
-    stroke: #9aa8bc;
+.dark .mermaid-block[data-mermaid-kind="gantt"] .section {
+    stroke: #2f3d51 !important;
 }
 
 .echarts-block {
