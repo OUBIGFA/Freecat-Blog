@@ -14,6 +14,7 @@ const header = fs.readFileSync(path.join(__dirname, '../src/partials/header.html
 const homeSidebar = fs.readFileSync(path.join(__dirname, '../src/partials/home-sidebar.html'), 'utf-8');
 const transitionsCss = fs.readFileSync(path.join(__dirname, '../src/assets/transitions.css'), 'utf-8');
 const allTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index_all.html'), 'utf-8');
+const updateSortControl = fs.readFileSync(path.join(__dirname, '../src/partials/update-sort-control.html'), 'utf-8');
 const aboutTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index_About.html'), 'utf-8');
 const notFoundTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index_404.html'), 'utf-8');
 const buildJs = fs.readFileSync(path.join(__dirname, '../build.js'), 'utf-8');
@@ -173,8 +174,10 @@ test('go back and update sort labels use requested font assets', () => {
         assert.doesNotMatch(template, /<span class="text-sm font-bold">Go Back<\/span>/);
     }
 
-    assert.match(allTemplate, /class="freecat-update-sort-label">按更新排序<\/span>/);
-    assert.doesNotMatch(allTemplate, /<span>按更新排序<\/span>/);
+    assert.match(updateSortControl, /class="freecat-update-sort-label">按更新排序<\/span>/);
+    assert.match(allTemplate, /<!-- INCLUDE:update-sort-control -->/);
+    assert.match(searchTemplate, /<!-- INCLUDE:update-sort-control -->/);
+    assert.doesNotMatch(updateSortControl, /<span>按更新排序<\/span>/);
 });
 
 test('article table of contents uses requested Chinese and Latin font assets', () => {
@@ -286,10 +289,17 @@ test('all-page cards can opt out of order-based entrance delay', () => {
     assert.doesNotMatch(html, /animation-delay:\s*(?:560|960)ms/);
 });
 
-test('search page result count renders as the untagged-style numeric badge', () => {
-    assert.match(mainJs, /resultsCountDisplay\.textContent\s*=\s*String\(results\.length\);/);
+test('search page result count reserves space before rendering the numeric badge', () => {
+    assert.match(mainJs, /function setSearchResultsCount\(count\)\s*\{/);
+    assert.match(mainJs, /value\.textContent\s*=\s*String\(count\);/);
+    assert.match(mainJs, /resultsCountDisplay\.dataset\.countReady\s*=\s*'true';/);
+    assert.match(mainJs, /setSearchResultsCount\(results\.length\);/);
     assert.doesNotMatch(mainJs, /resultsCountDisplay\.textContent\s*=\s*`\(\$\{results\.length\} results\)`;/);
-    assert.match(searchTemplate, /id="results-count"[\s\S]*background:\s*rgba\(148,\s*163,\s*184,\s*0\.18\);\s*color:\s*#475569;/);
+    assert.match(searchTemplate, /id="results-count" class="freecat-results-count" data-count-ready="false"/);
+    assert.match(searchTemplate, /class="freecat-results-count-icon"[\s\S]*M24 12L18\.3431 17\.6568/);
+    assert.match(searchTemplate, /class="freecat-results-count-value"/);
+    assert.match(transitionsCss, /\.freecat-results-count\s*\{[\s\S]*width:\s*1\.25rem;[\s\S]*height:\s*1\.25rem;[\s\S]*background:\s*rgba\(148,\s*163,\s*184,\s*0\.18\);[\s\S]*color:\s*#475569;/);
+    assert.match(transitionsCss, /\.freecat-results-count\[data-count-ready="true"\]\s+\.freecat-results-count-value\s*\{[\s\S]*opacity:\s*1;/);
 });
 
 test('all-page cards can reuse the metadata row for mobile tags', () => {

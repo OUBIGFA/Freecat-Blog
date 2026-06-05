@@ -22,6 +22,7 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir, recentPos
             slug: post.slug,
             postId: post.postId,
             date: post.date.tz('Asia/Shanghai').format('YYYY-MM-DD'),
+            sortDate: post.date.valueOf(),
             excerpt: post.excerpt,
             preview: post.preview || post.excerpt,
             content: truncated,
@@ -32,7 +33,8 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir, recentPos
             coverWidth: post.coverWidth || 0,
             coverHeight: post.coverHeight || 0,
             pinned: post.pinned,
-            modifiedDate: post.modifiedDate.tz('Asia/Shanghai').format('YYYY-MM-DD')
+            modifiedDate: post.modifiedDate.tz('Asia/Shanghai').format('YYYY-MM-DD'),
+            sortModifiedDate: post.modifiedDate.valueOf()
         };
     });
     const tagPosts = searchIndex.map(post => {

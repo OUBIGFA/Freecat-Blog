@@ -26,7 +26,7 @@
                     <div class="freecat-home-posts-inner w-full">
                         <!-- Go Back 按钮 -->
                         <div
-                            class="flex items-center justify-between pb-2 mb-4">
+                            class="flex items-center justify-between gap-4 pb-2 mb-4">
                             <a href="/" data-go-back
                                 class="group inline-flex items-center gap-2 h-10 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors duration-150">
                                 <svg class="text-xl t-btn-arrow-prev"
@@ -38,6 +38,7 @@
                                 </svg>
                                 <span class="freecat-go-back-text text-sm">Go Back</span>
                             </a>
+                            <!-- INCLUDE:update-sort-control -->
                         </div>
 
                         <!-- 搜索查询显示 -->
@@ -47,9 +48,16 @@
                                 Searching for: <span id="current-query"
                                     class="font-semibold text-[#1e293b] dark:text-slate-200"></span>
                             </p>
-                            <span id="results-count"
-                                class="shrink-0 rounded-[4px] px-2 py-0.5 text-[11px] font-semibold"
-                                style="background: rgba(148, 163, 184, 0.18); color: #475569;"></span>
+                            <span id="results-count" class="freecat-results-count" data-count-ready="false"
+                                aria-label="Loading results">
+                                <svg class="freecat-results-count-icon" xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                    <path
+                                        d="M24 12L18.3431 17.6568L16.9289 16.2426L21.1716 12L16.9289 7.75735L18.3431 6.34314L24 12ZM2.82843 12L7.07107 16.2426L5.65685 17.6568L0 12L5.65685 6.34314L7.07107 7.75735L2.82843 12Z">
+                                    </path>
+                                </svg>
+                                <span class="freecat-results-count-value" aria-hidden="true"></span>
+                            </span>
                         </div>
 
                         <!-- === 动态搜索结果注入区 === -->

@@ -854,6 +854,56 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function initUpdateSortControls() {
+        const switches = document.querySelectorAll('[data-update-sort-switch]');
+        if (!switches.length) return;
+
+        const getListForSwitch = (updateSortSwitch) => {
+            const explicitTarget = updateSortSwitch.closest('[data-update-sort-controls]')?.dataset.updateSortTarget;
+            if (explicitTarget) return document.querySelector(explicitTarget);
+            return document.getElementById('posts-list') || document.getElementById('search-results');
+        };
+        const getCardDelay = (index) => `${Math.min(index, 10) * 70}ms`;
+        const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        switches.forEach(updateSortSwitch => {
+            if (updateSortSwitch.dataset.updateSortReady === 'true') return;
+            updateSortSwitch.dataset.updateSortReady = 'true';
+
+            updateSortSwitch.addEventListener('click', () => {
+                const list = getListForSwitch(updateSortSwitch);
+                if (!list) return;
+
+                const cards = Array.from(list.querySelectorAll('.post-card')).map((card, index) => ({ card, index }));
+                const useModifiedSort = updateSortSwitch.getAttribute('aria-checked') !== 'true';
+                const mode = useModifiedSort ? 'modified' : 'date';
+                const sortedCards = cards.sort((a, b) => {
+                    const pinnedDelta = mode === 'date'
+                        ? Number(b.card.dataset.sortPinned || 0) - Number(a.card.dataset.sortPinned || 0)
+                        : 0;
+                    const field = mode === 'modified' ? 'sortModified' : 'sortDate';
+                    const delta = pinnedDelta || Number(b.card.dataset[field] || 0) - Number(a.card.dataset[field] || 0);
+                    return delta || a.index - b.index;
+                });
+
+                sortedCards.forEach(({ card }, index) => {
+                    card.style.animationDelay = getCardDelay(index);
+                    list.appendChild(card);
+                    if (!prefersReducedMotion()) {
+                        card.classList.remove('animate-fade-in-up');
+                    }
+                });
+                updateSortSwitch.setAttribute('aria-checked', String(mode === 'modified'));
+                if (prefersReducedMotion()) return;
+
+                void list.offsetWidth;
+                sortedCards.forEach(({ card }) => {
+                    card.classList.add('animate-fade-in-up');
+                });
+            });
+        });
+    }
+
     // 搜索函数：支持精确匹配和模糊匹配
     function searchPosts(query, posts, isTagSearch = false) {
         if (!query.trim()) return [];
@@ -1157,6 +1207,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 excerptHtml: escapeHtml(post.preview || post.excerpt),
                 date: post.date,
                 modifiedDate: post.modifiedDate,
+                sortDate: post.sortDate,
+                sortModifiedDate: post.sortModifiedDate,
                 tagsHtml,
                 cover: post.cover,
                 coverPlaceholder: post.coverPlaceholder,
@@ -1214,6 +1266,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const noResultsDisplay = document.getElementById('no-results');
     const resultsCountDisplay = document.getElementById('results-count');
 
+    initUpdateSortControls();
+
+    function setSearchResultsCount(count) {
+        if (!resultsCountDisplay) return;
+        const value = resultsCountDisplay.querySelector('.freecat-results-count-value');
+        if (value) {
+            value.textContent = String(count);
+        } else {
+            resultsCountDisplay.textContent = String(count);
+        }
+        resultsCountDisplay.dataset.countReady = 'true';
+        resultsCountDisplay.setAttribute('aria-label', `${count} results`);
+    }
+
     if (searchResultsContainer && currentQueryDisplay) {
         const urlParams = new URLSearchParams(window.location.search);
         const query = urlParams.get('q');
@@ -1247,10 +1313,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             loadResults.then(results => {
 
-                if (resultsCountDisplay) {
-                    resultsCountDisplay.textContent = String(results.length);
-                    resultsCountDisplay.setAttribute('aria-label', `${results.length} results`);
-                }
+                setSearchResultsCount(results.length);
 
                 if (results.length === 0) {
                     unobserveDeferredImages(searchResultsContainer);
@@ -1280,6 +1343,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 excerptHtml: escapeHtml(post.preview || post.excerpt),
                 date: post.date,
                 modifiedDate: post.modifiedDate,
+                sortDate: post.sortDate,
+                sortModifiedDate: post.sortModifiedDate,
                 tagsHtml,
                 cover: post.cover,
                 coverPlaceholder: post.coverPlaceholder,

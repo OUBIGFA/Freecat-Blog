@@ -116,72 +116,6 @@
             padding-right: clamp(0.35rem, 0.7vw, 0.625rem) !important;
         }
 
-        .freecat-all-switch-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.625rem;
-            color: #475569;
-            font-size: 0.8125rem;
-            font-weight: 600;
-            line-height: 1.2;
-        }
-
-        .dark .freecat-all-switch-label {
-            color: #cbd5e1;
-        }
-
-        .freecat-all-switch {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            width: 2.5rem;
-            height: 1.375rem;
-            flex: none;
-            border: 1px solid rgba(148, 163, 184, 0.24);
-            border-radius: 999px;
-            background: #edf1f5;
-            transition: background-color 160ms ease, border-color 160ms ease;
-        }
-
-        .freecat-all-switch::after {
-            content: "";
-            width: 1rem;
-            height: 1rem;
-            margin-left: 0.125rem;
-            border-radius: 999px;
-            background: #ffffff;
-            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.18);
-            transition: transform 160ms ease;
-        }
-
-        .freecat-all-switch[aria-checked="true"] {
-            border-color: rgba(100, 116, 139, 0.28);
-            background: #334155;
-        }
-
-        .freecat-all-switch[aria-checked="true"]::after {
-            transform: translateX(1.125rem);
-        }
-
-        .freecat-all-switch:focus-visible {
-            outline: 2px solid rgba(51, 65, 85, 0.42);
-            outline-offset: 2px;
-        }
-
-        .dark .freecat-all-switch {
-            border-color: rgba(148, 163, 184, 0.26);
-            background: #334155;
-        }
-
-        .dark .freecat-all-switch[aria-checked="true"] {
-            border-color: rgba(203, 213, 225, 0.3);
-            background: #cbd5e1;
-        }
-
-        .dark .freecat-all-switch[aria-checked="true"]::after {
-            background: #0f172a;
-        }
-
         @media (min-width: 720px) {
             .freecat-all-page #posts-list {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -236,7 +170,7 @@
                 gap: 0.875rem;
             }
 
-            .freecat-all-page [data-all-sort-controls] {
+            .freecat-all-page [data-update-sort-controls] {
                 flex-wrap: wrap;
                 gap: 0.625rem;
             }
@@ -272,13 +206,7 @@
                         </svg>
                         <span class="freecat-go-back-text text-sm">Go Back</span>
                     </a>
-                    <div data-all-sort-controls class="flex items-center gap-2">
-                        <div class="freecat-all-switch-label">
-                            <button type="button" class="freecat-all-switch" data-update-sort-switch role="switch"
-                                aria-checked="false" aria-label="按更新排序"></button>
-                            <span class="freecat-update-sort-label">按更新排序</span>
-                        </div>
-                    </div>
+                    <!-- INCLUDE:update-sort-control -->
                 </div>
 
                 <!-- === 动态文章注入区（显示所有文章，无分页） === -->
@@ -296,54 +224,6 @@
     </div>
 
     <!-- INCLUDE:scripts-end -->
-    <script>
-        (function () {
-            const list = document.getElementById('posts-list');
-            const updateSortSwitch = document.querySelector('[data-update-sort-switch]');
-            if (!list || !updateSortSwitch) return;
-
-            const cards = Array.from(list.querySelectorAll('.post-card')).map((card, index) => ({ card, index }));
-            const getCardDelay = (index) => `${Math.min(index, 10) * 70}ms`;
-            const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-            const replayEntrance = (sortedCards) => {
-                sortedCards.forEach(({ card }, index) => {
-                    card.style.animationDelay = getCardDelay(index);
-                    if (!prefersReducedMotion()) {
-                        card.classList.remove('animate-fade-in-up');
-                    }
-                });
-                if (prefersReducedMotion()) return;
-
-                void list.offsetWidth;
-                sortedCards.forEach(({ card }) => {
-                    card.classList.add('animate-fade-in-up');
-                });
-            };
-
-            const sortCards = (mode) => {
-                const sortedCards = cards
-                    .sort((a, b) => {
-                        const pinnedDelta = mode === 'date'
-                            ? Number(b.card.dataset.sortPinned || 0) - Number(a.card.dataset.sortPinned || 0)
-                            : 0;
-                        const field = mode === 'modified' ? 'sortModified' : 'sortDate';
-                        const delta = pinnedDelta || Number(b.card.dataset[field] || 0) - Number(a.card.dataset[field] || 0);
-                        return delta || a.index - b.index;
-                    });
-
-                sortedCards.forEach(({ card }) => list.appendChild(card));
-
-                updateSortSwitch.setAttribute('aria-checked', String(mode === 'modified'));
-                replayEntrance(sortedCards);
-            };
-
-            updateSortSwitch.addEventListener('click', () => {
-                const useModifiedSort = updateSortSwitch.getAttribute('aria-checked') !== 'true';
-                sortCards(useModifiedSort ? 'modified' : 'date');
-            });
-        }());
-    </script>
 </body>
 
 </html>
