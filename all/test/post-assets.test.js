@@ -261,10 +261,26 @@ test('only pages that render post cards preload post-card font assets', () => {
 test('article video players default to 16:9 before metadata and then use real video ratio', () => {
     assert.match(videoPlayerCss, /\.video-player-stage\s*\{[\s\S]*aspect-ratio:\s*var\(--video-aspect-ratio,\s*16\s*\/\s*9\);/);
     assert.match(videoPlayerCss, /\.video-player-video\s*\{[\s\S]*height:\s*100%;[\s\S]*object-fit:\s*contain;/);
+    assert.match(videoPlayerCss, /\.video-player-loading-overlay\s*\{[\s\S]*position:\s*absolute;[\s\S]*inset:\s*0;/);
     assert.match(videoPlayerJs, /function updateVideoAspectRatio\(\)\s*\{[\s\S]*video\.videoWidth[\s\S]*video\.videoHeight[\s\S]*stage\.style\.setProperty\('--video-aspect-ratio',\s*`\$\{width\} \/ \$\{height\}`\);[\s\S]*\}/);
     assert.match(videoPlayerJs, /onLoadedMetadata:\s*updateVideoAspectRatio/);
     assert.match(mediaPlayerJs, /function hydrateMediaControls\(container,\s*media/);
     assert.match(mediaPlayerCss, /\.media-progress-container\s*\{/);
+    assert.match(mediaPlayerCss, /\.media-player-loading-chrome\s*\{/);
+    assert.match(mediaPlayerCss, /\.media-player-loading-progress::before\s*\{/);
+});
+
+test('all-page compact cards clamp excerpts to two lines', () => {
+    const html = postCardTemplate.renderPostCard({
+        link: '/posts/example.html',
+        titleHtml: 'Example',
+        excerptHtml: 'Long excerpt '.repeat(40),
+        date: '2026-05-30',
+        layout: 'compact-grid'
+    });
+
+    assert.match(html, /<p class="post-card-excerpt[^"]*" style="[^"]*-webkit-line-clamp:2/);
+    assert.doesNotMatch(html, /-webkit-line-clamp:9/);
 });
 
 test('mobile post cards remove the image-to-tags divider and extend the cover', () => {

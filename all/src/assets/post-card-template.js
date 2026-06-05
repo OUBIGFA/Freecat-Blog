@@ -127,8 +127,8 @@
             : '';
 
         if (layout === 'compact-grid') {
-            const compactExcerptLines = imageMarkup ? 2 : 9;
-            const compactExcerptMinHeight = imageMarkup ? 'min-h-[2.9rem]' : 'min-h-[12.995rem]';
+            const compactExcerptLines = 2;
+            const compactExcerptMinHeight = 'min-h-[2.9rem]';
             const compactImageHeight = mobileTagsInline
                 ? 'h-[clamp(11.25rem,14.5vw,13.25rem)] max-[480px]:h-[11.5rem]'
                 : 'h-[clamp(8.75rem,12vw,10.75rem)] max-[480px]:h-36';

@@ -607,6 +607,26 @@ function renderExternalEmbed(href, text) {
     </figure>`;
 }
 
+function renderMediaLoadingChrome(kind, safeSrc, fallbackLabel) {
+    const label = fallbackLabel || safeSrc;
+    return `
+        <div class="media-player-loading-chrome">
+            <div class="media-player-loading-title">
+                <a class="${kind}-player-fallback" href="${safeSrc}" target="_blank" rel="noopener noreferrer">${label}</a>
+                <span class="media-time">
+                    <span>0:00</span>
+                    <span> / </span>
+                    <span>0:00</span>
+                </span>
+            </div>
+            <div class="media-player-loading-progress"></div>
+            <div class="media-player-loading-controls">
+                <span class="media-player-loading-play"></span>
+                <span class="media-player-loading-settings"></span>
+            </div>
+        </div>`;
+}
+
 // 视频播放器占位：图片语法 ![标题](视频.mp4) 命中视频直链时产出。
 // 客户端 video-player.js 会读取 data-* 把它替换成自定义播放器；
 // 内部的 <a> 是无 JS 时的优雅降级（仍可点开直链）。
@@ -617,8 +637,13 @@ function renderVideoEmbed(href, text, { force = false } = {}) {
     const safeTitle = escapeRenderedText(String(text || '').replace(/\u{1f3ac}|\u{1f3a5}|\u{1f4f9}/gu, '').trim());
     const fallbackLabel = safeTitle || safeSrc;
     return `
-    <figure class="video-player video-player-loading" data-video-src="${safeSrc}" data-video-title="${safeTitle}">
-        <a class="video-player-fallback" href="${safeSrc}" target="_blank" rel="noopener noreferrer">${fallbackLabel}</a>
+    <figure class="video-player video-player-loading media-player-container" data-video-src="${safeSrc}" data-video-title="${safeTitle}">
+        <div class="video-player-stage" aria-hidden="true">
+            <div class="video-player-loading-overlay">
+                <span class="video-player-loading-icon"></span>
+            </div>
+        </div>
+        ${renderMediaLoadingChrome('video', safeSrc, fallbackLabel)}
     </figure>`;
 }
 
@@ -632,8 +657,8 @@ function renderAudioEmbed(href, text, { force = false } = {}) {
     const safeTitle = escapeRenderedText(String(text || '').replace(/\u{1f3b5}/gu, '').trim());
     const fallbackLabel = safeTitle || safeSrc;
     return `
-    <figure class="audio-player audio-player-loading" data-audio-src="${safeSrc}" data-audio-title="${safeTitle}">
-        <a class="audio-player-fallback" href="${safeSrc}" target="_blank" rel="noopener noreferrer">${fallbackLabel}</a>
+    <figure class="audio-player audio-player-loading media-player-container" data-audio-src="${safeSrc}" data-audio-title="${safeTitle}">
+        ${renderMediaLoadingChrome('audio', safeSrc, fallbackLabel)}
     </figure>`;
 }
 

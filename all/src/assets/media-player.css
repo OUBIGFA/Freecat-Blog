@@ -10,6 +10,101 @@
     border-color: rgba(255, 255, 255, 0.1);
 }
 
+.media-player-loading {
+    display: block;
+}
+
+.media-player-loading-chrome {
+    display: block;
+}
+
+.media-player-loading-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    min-width: 0;
+    margin-bottom: 1rem;
+}
+
+.media-player-loading-title .audio-player-fallback,
+.media-player-loading-title .video-player-fallback {
+    min-width: 0;
+    overflow: hidden;
+    color: #1e293b;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.5;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.media-player-loading-title .audio-player-fallback:hover,
+.media-player-loading-title .video-player-fallback:hover,
+.media-player-loading-title .audio-player-fallback:focus-visible,
+.media-player-loading-title .video-player-fallback:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.dark .media-player-loading-title .audio-player-fallback,
+.dark .media-player-loading-title .video-player-fallback {
+    color: #cbd5e1;
+}
+
+.media-player-loading-progress {
+    position: relative;
+    width: 100%;
+    height: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.media-player-loading-progress::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 0.375rem;
+    transform: translateY(-50%);
+    border-radius: 999px;
+    background: #e2e8f0;
+}
+
+.dark .media-player-loading-progress::before {
+    background: #334155;
+}
+
+.media-player-loading-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.media-player-loading-play {
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(15, 23, 42, 0.18);
+    border-radius: 50%;
+}
+
+.dark .media-player-loading-play {
+    border-color: rgba(255, 255, 255, 0.22);
+}
+
+.media-player-loading-settings {
+    width: 3.5rem;
+    height: 1.75rem;
+    border-radius: 999px;
+    background: #e2e8f0;
+}
+
+.dark .media-player-loading-settings {
+    background: #334155;
+}
+
 .media-player-title {
     display: flex;
     align-items: center;
