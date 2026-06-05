@@ -281,13 +281,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!backToTopBtn && !scrollToBottomBtn && !floatingGoBackBtn && !goBackLinks.length) return;
 
+        function getUpdateSortFallbackUrl() {
+            const controls = document.querySelector('[data-update-sort-controls]');
+            const activeSwitch = controls ? controls.querySelector('[data-update-sort-switch]') : null;
+            if (!activeSwitch || activeSwitch.getAttribute('aria-checked') !== 'true') return '/';
+
+            const url = new URL('/', window.location.origin);
+            url.searchParams.set('updateSort', 'modified');
+            return url.pathname + url.search;
+        }
+
+        function syncCurrentHistoryEntry() {
+            const sync = window.FreecatSyncUpdateSortUrl;
+            if (typeof sync === 'function') sync({ replace: true });
+        }
+
         function goBackOrHome() {
+            syncCurrentHistoryEntry();
             if (window.history.length > 1) {
                 window.history.back();
                 return;
             }
 
-            window.location.href = '/';
+            window.location.href = getUpdateSortFallbackUrl();
         }
 
         let floatingNavLayoutFrame = 0;
@@ -899,6 +915,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const switches = document.querySelectorAll('[data-update-sort-switch]');
         if (!switches.length) return;
 
+        const updateSortParam = 'updateSort';
+        const updateSortValue = 'modified';
+        const isUpdateSortUrlEnabled = () => {
+            const params = new URLSearchParams(window.location.search);
+            return params.get(updateSortParam) === updateSortValue;
+        };
+        const syncUpdateSortUrl = (options = {}) => {
+            const params = new URLSearchParams(window.location.search);
+            const useModifiedSort = Array.from(switches).some((updateSortSwitch) => {
+                return updateSortSwitch.getAttribute('aria-checked') === 'true';
+            });
+
+            if (useModifiedSort) {
+                params.set(updateSortParam, updateSortValue);
+            } else {
+                params.delete(updateSortParam);
+            }
+
+            const query = params.toString();
+            const nextUrl = window.location.pathname + (query ? `?${query}` : '') + window.location.hash;
+            if (nextUrl === window.location.pathname + window.location.search + window.location.hash) return;
+
+            const method = options.replace ? 'replaceState' : 'pushState';
+            window.history[method](window.history.state || {}, '', nextUrl);
+        };
+        window.FreecatSyncUpdateSortUrl = syncUpdateSortUrl;
+
         const getListForSwitch = (updateSortSwitch) => {
             const explicitTarget = updateSortSwitch.closest('[data-update-sort-controls]')?.dataset.updateSortTarget;
             if (explicitTarget) return document.querySelector(explicitTarget);
@@ -906,41 +949,56 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         const getCardDelay = (index) => `${Math.min(index, 10) * 70}ms`;
         const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const setUpdateSortMode = (updateSortSwitch, useModifiedSort, options = {}) => {
+            const list = getListForSwitch(updateSortSwitch);
+            const mode = useModifiedSort ? 'modified' : 'date';
+            updateSortSwitch.setAttribute('aria-checked', String(useModifiedSort));
+
+            if (!list) {
+                if (options.syncUrl !== false) syncUpdateSortUrl(options);
+                return;
+            }
+
+            const cards = Array.from(list.querySelectorAll('.post-card')).map((card, index) => ({ card, index }));
+            const sortedCards = cards.sort((a, b) => {
+                const pinnedDelta = mode === 'date'
+                    ? Number(b.card.dataset.sortPinned || 0) - Number(a.card.dataset.sortPinned || 0)
+                    : 0;
+                const field = mode === 'modified' ? 'sortModified' : 'sortDate';
+                const delta = pinnedDelta || Number(b.card.dataset[field] || 0) - Number(a.card.dataset[field] || 0);
+                return delta || a.index - b.index;
+            });
+
+            sortedCards.forEach(({ card }, index) => {
+                card.style.animationDelay = getCardDelay(index);
+                list.appendChild(card);
+                if (options.animate !== false && !prefersReducedMotion()) {
+                    card.classList.remove('animate-fade-in-up');
+                }
+            });
+
+            if (options.syncUrl !== false) syncUpdateSortUrl(options);
+            if (options.animate === false || prefersReducedMotion()) return;
+
+            void list.offsetWidth;
+            sortedCards.forEach(({ card }) => {
+                card.classList.add('animate-fade-in-up');
+            });
+        };
 
         switches.forEach(updateSortSwitch => {
+            if (isUpdateSortUrlEnabled()) {
+                setUpdateSortMode(updateSortSwitch, true, { animate: false, syncUrl: false });
+            } else if (updateSortSwitch.getAttribute('aria-checked') === 'true') {
+                setUpdateSortMode(updateSortSwitch, true, { animate: false, syncUrl: false });
+            }
+
             if (updateSortSwitch.dataset.updateSortReady === 'true') return;
             updateSortSwitch.dataset.updateSortReady = 'true';
 
             updateSortSwitch.addEventListener('click', () => {
-                const list = getListForSwitch(updateSortSwitch);
-                if (!list) return;
-
-                const cards = Array.from(list.querySelectorAll('.post-card')).map((card, index) => ({ card, index }));
                 const useModifiedSort = updateSortSwitch.getAttribute('aria-checked') !== 'true';
-                const mode = useModifiedSort ? 'modified' : 'date';
-                const sortedCards = cards.sort((a, b) => {
-                    const pinnedDelta = mode === 'date'
-                        ? Number(b.card.dataset.sortPinned || 0) - Number(a.card.dataset.sortPinned || 0)
-                        : 0;
-                    const field = mode === 'modified' ? 'sortModified' : 'sortDate';
-                    const delta = pinnedDelta || Number(b.card.dataset[field] || 0) - Number(a.card.dataset[field] || 0);
-                    return delta || a.index - b.index;
-                });
-
-                sortedCards.forEach(({ card }, index) => {
-                    card.style.animationDelay = getCardDelay(index);
-                    list.appendChild(card);
-                    if (!prefersReducedMotion()) {
-                        card.classList.remove('animate-fade-in-up');
-                    }
-                });
-                updateSortSwitch.setAttribute('aria-checked', String(mode === 'modified'));
-                if (prefersReducedMotion()) return;
-
-                void list.offsetWidth;
-                sortedCards.forEach(({ card }) => {
-                    card.classList.add('animate-fade-in-up');
-                });
+                setUpdateSortMode(updateSortSwitch, useModifiedSort);
             });
         });
     }
@@ -1400,6 +1458,7 @@ document.addEventListener('DOMContentLoaded', () => {
         searchResultsContainer.innerHTML = html;
         fitTagRows();
         initDeferredImages();
+        initUpdateSortControls();
     }
 
 

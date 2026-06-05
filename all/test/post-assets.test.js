@@ -624,6 +624,15 @@ test('history navigation restores saved scroll positions after bfcache expires',
     assert.match(mainJs, /initScrollPositionMemory\(\);/);
 });
 
+test('go back preserves the update sort switch state in history entries', () => {
+    assert.match(mainJs, /const updateSortParam = 'updateSort';/);
+    assert.match(mainJs, /params\.get\(updateSortParam\)\s*===\s*updateSortValue/);
+    assert.match(mainJs, /window\.FreecatSyncUpdateSortUrl = syncUpdateSortUrl;/);
+    assert.match(mainJs, /syncCurrentHistoryEntry\(\);[\s\S]*window\.history\.back\(\);/);
+    assert.match(mainJs, /url\.searchParams\.set\('updateSort',\s*'modified'\);/);
+    assert.match(mainJs, /initDeferredImages\(\);\s*initUpdateSortControls\(\);/);
+});
+
 test('post cards render the audio glyph for music-prefixed excerpts', () => {
     const html = postCardTemplate.renderPostCard({
         link: '/posts/example/',
