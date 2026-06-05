@@ -292,11 +292,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let floatingNavLayoutFrame = 0;
 
+        function isVisibleRect(rect) {
+            return rect.width > 0
+                && rect.height > 0
+                && rect.bottom > 0
+                && rect.right > 0
+                && rect.top < window.innerHeight
+                && rect.left < window.innerWidth;
+        }
+
+        function rectsTouch(a, b) {
+            return a.left <= b.right
+                && a.right >= b.left
+                && a.top <= b.bottom
+                && a.bottom >= b.top;
+        }
+
+        function getFloatingNavCollisionTargets() {
+            return document.querySelectorAll([
+                'article',
+                '.freecat-post-toc-panel',
+                '.freecat-home-sidebar',
+                '.freecat-home-posts-inner',
+                '.layout-content-container',
+                '[data-all-toolbar]',
+                '#posts-list',
+                '#pagination-buttons'
+            ].join(','));
+        }
+
+        function touchesVisibleContentEdge() {
+            const panelRect = floatingNavPanel.getBoundingClientRect();
+            if (!isVisibleRect(panelRect)) return false;
+
+            return Array.from(getFloatingNavCollisionTargets()).some((target) => {
+                if (target === floatingNavPanel || floatingNavPanel.contains(target)) return false;
+                const targetRect = target.getBoundingClientRect();
+                return isVisibleRect(targetRect) && rectsTouch(panelRect, targetRect);
+            });
+        }
+
         function updateFloatingNavLayout() {
             floatingNavLayoutFrame = 0;
             if (!floatingNavPanel) return;
 
-            const shouldHide = window.innerWidth < 1024;
+            const shouldHide = window.innerWidth < 1024 || touchesVisibleContentEdge();
 
             floatingNavPanel.classList.toggle('is-layout-hidden', shouldHide);
             floatingNavPanel.setAttribute('aria-hidden', shouldHide ? 'true' : 'false');
@@ -391,6 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         updateFloatingNavLayout();
+        window.addEventListener('scroll', scheduleFloatingNavLayout, { passive: true });
         window.addEventListener('resize', scheduleFloatingNavLayout);
         window.addEventListener('load', scheduleFloatingNavLayout);
         window.addEventListener('pageshow', scheduleFloatingNavLayout);

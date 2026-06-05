@@ -579,6 +579,13 @@ test('root scroller disables browser scroll anchoring during async layout change
     assert.match(transitionsCss, /html\s*\{[\s\S]*overflow-anchor:\s*none;/);
 });
 
+test('floating nav hides when it touches visible content blocks including toc', () => {
+    assert.match(mainJs, /function touchesVisibleContentEdge\(\)/);
+    assert.match(mainJs, /\.freecat-post-toc-panel/);
+    assert.match(mainJs, /rectsTouch\(panelRect,\s*targetRect\)/);
+    assert.match(mainJs, /window\.addEventListener\('scroll',\s*scheduleFloatingNavLayout,\s*\{\s*passive:\s*true\s*\}\)/);
+});
+
 test('code folding uses a smooth height transition with fading mask cleanup', () => {
     const codeContentRule = postCss.match(/\.prose \.code-content\s*\{[\s\S]*?\n\}/)?.[0] || '';
     const codeMaskRule = postCss.match(/\.prose \.code-content::after\s*\{[\s\S]*?\n\}/)?.[0] || '';
