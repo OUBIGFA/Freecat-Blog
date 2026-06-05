@@ -120,6 +120,8 @@ google_html_marker: <meta name="google-site-verification" content="abc123XXXXXXX
 
 4. 状态显示"成功"就完成了。Google 会在接下来几天到几周内陆续把你的文章收录进搜索结果。
 
+> 如果你用的是自己的域名，并且这个域名托管在 Cloudflare，请先到 Cloudflare 后台关闭会拦截搜索引擎的反爬规则。重点检查 Bot Fight Mode、WAF 托管质询、Security Rules、AI Crawl Control / Managed robots 这类功能，至少要放行 Googlebot、Bingbot、`/sitemap.xml` 和 `/robots.txt`。否则浏览器里明明能打开网站，Google Search Console 仍可能一直显示 `Couldn't fetch`。
+
 ***
 
 ## 二、Bing 站长平台（让必应、ChatGPT 等找到你）
@@ -235,6 +237,7 @@ bing_html_marker: <meta name="msvalidate.01" content="XXXXXXXXXXXXXXXXXXXXXXXXXX
 * [ ] 浏览器打开 `https://freecat-blog.pages.dev` 能正常访问
 * [ ] 网页源代码里能搜到 `google-site-verification`（代表 Google 验证已上线）
 * [ ] 网页源代码里能搜到 `msvalidate.01`（如果走的是 Bing 手动添加；用导入方式则不会有）
+* [ ] 如果域名托管在 Cloudflare，已经关闭或放行反爬规则，确保搜索引擎能访问 `/sitemap.xml` 和 `/robots.txt`
 * [ ] Google Search Console 显示"已验证所有权"
 * [ ] Google Search Console 的站点地图列表里有 `sitemap.xml`，状态"成功"
 * [ ] Bing 站长平台首页能看到 `https://freecat-blog.pages.dev`
