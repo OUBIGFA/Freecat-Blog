@@ -159,6 +159,14 @@ test('sidebar and about text use build-time Figtree and Noto Sans SC font classe
     assert.doesNotMatch(buildJs, />\s*最近更新\s*</);
 });
 
+test('header brand link only uses content-sized click target', () => {
+    const brandLinkClass = header.match(/<a href="\/" class="([^"]*)">[\s\S]*?freecat-brand-text/)?.[1] || '';
+
+    assert.match(brandLinkClass, /\binline-flex\b/);
+    assert.match(brandLinkClass, /\bshrink-0\b/);
+    assert.doesNotMatch(brandLinkClass, /\bflex-1\b/);
+});
+
 test('go back and update sort labels use requested font assets', () => {
     for (const template of [postTemplate, searchTemplate, allTemplate]) {
         assert.match(template, /class="freecat-go-back-text text-sm">Go Back<\/span>/);
