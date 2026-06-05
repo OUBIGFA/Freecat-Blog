@@ -22,6 +22,8 @@ const paginationJs = fs.readFileSync(path.join(__dirname, '../build/pagination.j
 const seoJs = fs.readFileSync(path.join(__dirname, '../build/seo.js'), 'utf-8');
 const tailwindBuild = fs.readFileSync(path.join(__dirname, '../build/tailwind.js'), 'utf-8');
 const notoSubsetScript = fs.readFileSync(path.join(__dirname, '../tools/generate-noto-subset.py'), 'utf-8');
+const mediaPlayerJs = fs.readFileSync(path.join(__dirname, '../src/assets/media-player.js'), 'utf-8');
+const mediaPlayerCss = fs.readFileSync(path.join(__dirname, '../src/assets/media-player.css'), 'utf-8');
 const videoPlayerJs = fs.readFileSync(path.join(__dirname, '../src/assets/video-player.js'), 'utf-8');
 const videoPlayerCss = fs.readFileSync(path.join(__dirname, '../src/assets/video-player.css'), 'utf-8');
 const shared = require('../src/assets/shared.js');
@@ -221,16 +223,25 @@ test('site text does not request unsupported bold weight', () => {
 });
 
 test('only pages that render post cards preload post-card font assets', () => {
-    assert.match(allTemplate, /\.freecat-all-page #posts-list \.post-card h3\s*\{[\s\S]*font-weight:\s*900\s*!important;/);
+    const compactHtml = postCardTemplate.renderPostCard({
+        link: '/posts/example.html',
+        titleHtml: 'Example',
+        excerptHtml: 'Example excerpt',
+        date: '2026-05-30',
+        layout: 'compact-grid'
+    });
+
+    assert.match(compactHtml, /post-card-layout-compact-grid/);
+    assert.doesNotMatch(allTemplate, /\.freecat-all-page #posts-list \.post-card h3/);
 
     const sharedFontPreloads = [
-        './assets/fonts/freecat-figtree-regular-subset.woff2',
-        './assets/fonts/freecat-figtree-semi-bold-subset.woff2',
-        './assets/fonts/freecat-figtree-extra-bold-subset.woff2',
-        './assets/fonts/freecat-noto-sans-sc-regular-subset.woff2',
-        './assets/fonts/freecat-noto-sans-sc-medium-subset.woff2',
-        './assets/fonts/freecat-noto-sans-sc-semi-bold-subset.woff2',
-        './assets/fonts/freecat-noto-sans-sc-extra-bold-subset.woff2'
+        '/assets/fonts/freecat-figtree-regular-subset.woff2',
+        '/assets/fonts/freecat-figtree-semi-bold-subset.woff2',
+        '/assets/fonts/freecat-figtree-extra-bold-subset.woff2',
+        '/assets/fonts/freecat-noto-sans-sc-regular-subset.woff2',
+        '/assets/fonts/freecat-noto-sans-sc-medium-subset.woff2',
+        '/assets/fonts/freecat-noto-sans-sc-semi-bold-subset.woff2',
+        '/assets/fonts/freecat-noto-sans-sc-extra-bold-subset.woff2'
     ];
 
     assert.deepEqual(preloadFontHrefs(headBase), sharedFontPreloads);
@@ -251,7 +262,9 @@ test('article video players default to 16:9 before metadata and then use real vi
     assert.match(videoPlayerCss, /\.video-player-stage\s*\{[\s\S]*aspect-ratio:\s*var\(--video-aspect-ratio,\s*16\s*\/\s*9\);/);
     assert.match(videoPlayerCss, /\.video-player-video\s*\{[\s\S]*height:\s*100%;[\s\S]*object-fit:\s*contain;/);
     assert.match(videoPlayerJs, /function updateVideoAspectRatio\(\)\s*\{[\s\S]*video\.videoWidth[\s\S]*video\.videoHeight[\s\S]*stage\.style\.setProperty\('--video-aspect-ratio',\s*`\$\{width\} \/ \$\{height\}`\);[\s\S]*\}/);
-    assert.match(videoPlayerJs, /video\.addEventListener\('loadedmetadata',\s*\(\)\s*=>\s*\{\s*updateVideoAspectRatio\(\);/);
+    assert.match(videoPlayerJs, /onLoadedMetadata:\s*updateVideoAspectRatio/);
+    assert.match(mediaPlayerJs, /function hydrateMediaControls\(container,\s*media/);
+    assert.match(mediaPlayerCss, /\.media-progress-container\s*\{/);
 });
 
 test('mobile post cards remove the image-to-tags divider and extend the cover', () => {
@@ -327,9 +340,19 @@ test('all-page cards can reuse the metadata row for mobile tags', () => {
 });
 
 test('all-page inline mobile tags are not clipped by the metadata row', () => {
-    assert.match(allTemplate, /\.post-card\.tags-inline-mobile h3 \+ div\s*\{[\s\S]*overflow:\s*visible;/);
-    assert.match(allTemplate, /\.post-card\.tags-inline-mobile \.tags-fit\s*\{[\s\S]*overflow:\s*visible;/);
-    assert.match(allTemplate, /\.post-card\.tags-inline-mobile \.tags-fit\s*\{[\s\S]*transform-origin:\s*left center;/);
+    const html = postCardTemplate.renderPostCard({
+        link: '/posts/example.html',
+        titleHtml: 'Example',
+        excerptHtml: 'Example excerpt',
+        date: '2026-05-30',
+        tagsHtml: '<span>Free</span>',
+        mobileTagsInline: true,
+        layout: 'compact-grid'
+    });
+
+    assert.match(html, /post-card-layout-compact-grid/);
+    assert.match(html, /tags-inline-mobile/);
+    assert.match(html, /overflow-visible/);
 });
 
 test('second-largest article heading rank renders the divider rule when multiple ranks exist', () => {
@@ -482,10 +505,7 @@ test('markdown horizontal rule spacing is centered and preserves blank-line gaps
     assert.match(postCss, /\.prose \.markdown-gap\+hr\s*\{[\s\S]*margin-block-start:\s*var\(--article-space-divider\)\s*!important;/);
     assert.match(postCss, /\.prose>hr\+:not\(\.markdown-gap\)\s*,/);
     assert.match(postCss, /\.prose>hr\+\.markdown-gap\+:not\(\.markdown-gap\)\s*\{[\s\S]*margin-block-start:\s*var\(--article-space-divider\)\s*!important;/);
-    assert.match(postCss, /\.prose\.prose>:not\(\.markdown-gap\)\+hr\s*,/);
-    assert.match(postCss, /\.prose\.prose \.markdown-gap\+hr\s*\{[\s\S]*margin-block-start:\s*var\(--article-space-divider\)\s*!important;/);
-    assert.match(postCss, /\.prose\.prose>hr\+:not\(\.markdown-gap\)\s*,/);
-    assert.match(postCss, /\.prose\.prose>hr\+\.markdown-gap\+:not\(\.markdown-gap\)\s*\{[\s\S]*margin-block-start:\s*var\(--article-space-divider\)\s*!important;/);
+    assert.doesNotMatch(postCss, /\.prose\.prose/);
     assert.doesNotMatch(postCss, /hr\+\.article-heading-depth-/);
     assert.doesNotMatch(postCss, /hr\+\.markdown-gap\+\.article-heading-depth-/);
 });
@@ -510,9 +530,9 @@ test('markdown tables use horizontal rules without vertical borders', () => {
 });
 
 test('nested article blockquotes stay quiet and aligned', () => {
-    const finalQuoteRule = postCss.match(/\.prose\.prose blockquote\s*\{[\s\S]*?\}/)?.[0] || '';
-    const nestedQuoteRule = postCss.match(/\.prose\.prose blockquote blockquote\s*\{[\s\S]*?\}/)?.[0] || '';
-    const thirdLevelQuoteRule = postCss.match(/\.prose\.prose blockquote blockquote blockquote\s*\{[\s\S]*?\}/)?.[0] || '';
+    const finalQuoteRule = postCss.match(/\.prose blockquote\s*\{[\s\S]*?\}/)?.[0] || '';
+    const nestedQuoteRule = postCss.match(/\.prose blockquote blockquote\s*\{[\s\S]*?\}/)?.[0] || '';
+    const thirdLevelQuoteRule = postCss.match(/\.prose blockquote blockquote blockquote\s*\{[\s\S]*?\}/)?.[0] || '';
 
     assert.match(finalQuoteRule, /border-left:\s*2px solid #cbd5e1\s*!important;/);
     assert.match(finalQuoteRule, /background:\s*transparent\s*!important;/);
@@ -549,7 +569,7 @@ test('markdown diagram blocks center rendered chart content', () => {
     assert.match(diagramBlockRule, /justify-content:\s*center;/);
     assert.match(diagramContentRule, /margin-inline:\s*auto\s*!important;/);
     assert.match(diagramSvgRule, /display:\s*block;/);
-    assert.match(postCss, /\.prose\.prose [\s\S]*?\.diagram-block,[\s\S]*?\.katex-display/);
+    assert.match(postCss, /\.prose [\s\S]*?\.diagram-block,[\s\S]*?\.katex-display/);
 });
 
 test('mermaid light theme avoids heavy sequence and gantt blocks', () => {

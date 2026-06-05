@@ -11,7 +11,8 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir }) {
     const html = posts
         .map((post, index) => renderPostCardForList(post, index, {
             animationDelayStep: 70,
-            mobileTagsInline: true
+            mobileTagsInline: true,
+            layout: 'compact-grid'
         }))
         .join('');
     const title = `All Articles - ${siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog'}`;

@@ -1,8 +1,6 @@
 /* post.js
  * 文章页专属交互逻辑（曾经全部内联在 template_post.html）。
- *   - 代码块复制按钮 (.copy-btn / .copy-btn-container input)
- *   - 代码块折叠 (.code-fold-controls / .fold-toggle-btn)
- *   - Back-to-top / Scroll-to-bottom / Floating Go Back
+ *   - 代码块折叠辅助按钮 (.code-fold-controls / .fold-toggle-btn)
  *   - Share button（Web Share API + 剪贴板兜底）
  *   - TOC 锚点点击：history.replaceState + footer-safe 滚动定位
  *   - highlight.js 全文初始化
@@ -11,11 +9,10 @@
     'use strict';
 
     // shared.js 在 main.js / post.js 之前加载（template_post.html 中
-    // <script src="../assets/shared.js"> 已先于本文件）。
+    // <script src="/assets/shared.js"> 已先于本文件）。
     // 直接断言其存在，缺失 = 加载顺序被破坏，应早失败。
     var shared = window.FreecatShared;
     if (!shared) throw new Error('FreecatShared not loaded — ensure shared.js loads before post.js');
-    var copyToClipboard = shared.copyText;
     var CODE_COLLAPSED_HEIGHT = 400;
     var CODE_FOLD_TRANSITION_MS = 420;
 
@@ -205,33 +202,8 @@
         setTimeout(finish, CODE_FOLD_TRANSITION_MS + 80);
     }
 
-    // 复制按钮 + 折叠按钮统一委托
+    // 代码块导航和折叠按钮统一委托
     document.addEventListener('click', function (e) {
-        var btn = e.target.closest('.copy-btn');
-        if (btn) {
-            var container = btn.closest('.code-block-container');
-            if (!container) return;
-
-            var codeEl = container.querySelector('.code-content code') ||
-                container.querySelector('pre code') ||
-                container.querySelector('code');
-            if (!codeEl) return;
-
-            var textToCopy = codeEl.textContent || codeEl.innerText || '';
-
-            copyToClipboard(textToCopy).then(function () {
-                btn.style.transition = 'transform 0.1s ease-out';
-                btn.style.transform = 'scale(0.92)';
-                setTimeout(function () {
-                    btn.style.transition = 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)';
-                    btn.style.transform = 'scale(1)';
-                }, 50);
-            }).catch(function (err) {
-                console.error('Copy failed:', err);
-            });
-            return;
-        }
-
         var codeNavBtn = e.target.closest('.code-nav-btn');
         if (codeNavBtn) {
             var navContainer = codeNavBtn.closest('.code-block-container');
@@ -826,115 +798,6 @@
 
     // 代码块折叠辅助样式（.collapsed-code .code-content / .code-fold-controls）
     // 已挪到 transitions.css，不再运行时注入。
-
-    // Back-to-top / Scroll-to-bottom / Floating Go Back
-    var backToTopBtn = null;
-    var scrollToBottomBtn = null;
-    var floatingGoBackBtn = null;
-
-    // 计算"文章容器底部"对应的滚动位置：
-    //   目标 = <main> 下第一层包装 div（class="...pb-36 lg:pb-48" 那层）的底边对齐到视口底边。
-    //   这一层是用户视觉/语义上的「文章容器」，它包含：
-    //     - <article>（文章 header / 正文 / Share 按钮）
-    //     - 右侧 sticky TOC + 浮动按钮列
-    //     - 自身的 pb-36/lg:pb-48（文章块到 footer 的过渡留白，仍属"文章容器"边界内）
-    //   只取 <article> 会停在 Share 按钮底部 —— 漏掉容器自带的底部留白；
-    //   取 document 末端则会跨进 footer。这一层正好是视觉上的「文章块结束」。
-    //
-    //   所有高度都用 getBoundingClientRect() 实时读取，不缓存任何数值，
-    //   自适应文章长度 / 内嵌图片 / 字体回流 / pb-tokens 调整。
-    //   最后用文档可滚动上限 clamp，避免越界。
-    function getArticleBottomScrollY() {
-        // 优先取最外层包装 div（含底部留白）；找不到时逐级回退
-        var container = document.querySelector('main > div')
-            || document.querySelector('main')
-            || document.querySelector('article');
-
-        var scrollingElement = document.scrollingElement || document.documentElement;
-        var docHeight = scrollingElement ? scrollingElement.scrollHeight : 0;
-        var maxScroll = Math.max(0, docHeight - window.innerHeight);
-
-        if (!container) {
-            return maxScroll;
-        }
-
-        var rect = container.getBoundingClientRect();
-        var containerBottomAbs = rect.bottom + window.pageYOffset;
-        var target = containerBottomAbs - window.innerHeight;
-
-        // clamp：上限是文档实际可滚动的最大位置，下限是 0
-        if (target > maxScroll) target = maxScroll;
-        if (target < 0) target = 0;
-        return target;
-    }
-
-    function toggleNavButtons() {
-        // 始终显示浮动按钮，不再随滚动隐藏。
-        [backToTopBtn, scrollToBottomBtn, floatingGoBackBtn].forEach(function (btn) {
-            if (btn) btn.classList.remove('is-hidden');
-        });
-    }
-
-    if (backToTopBtn || scrollToBottomBtn || floatingGoBackBtn) {
-        toggleNavButtons();
-
-        if (backToTopBtn) {
-            backToTopBtn.addEventListener('click', function () {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                var tocContainer = document.getElementById('toc-container');
-                if (tocContainer) {
-                    tocContainer.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-            });
-        }
-
-        if (scrollToBottomBtn) {
-            scrollToBottomBtn.addEventListener('click', function () {
-                var startY = window.scrollY;
-                var startTime = performance.now();
-                var lastTarget = getArticleBottomScrollY();
-                var distance = Math.abs(lastTarget - startY);
-                var duration = Math.min(2200, Math.max(700, distance * 0.35));
-
-                function easeOutCubic(t) {
-                    return 1 - Math.pow(1 - t, 3);
-                }
-
-                function animate(now) {
-                    var target = getArticleBottomScrollY();
-                    if (Math.abs(target - lastTarget) > 1) {
-                        lastTarget = target;
-                    }
-
-                    var elapsed = now - startTime;
-                    var t = Math.min(1, elapsed / duration);
-                    var eased = easeOutCubic(t);
-                    var nextY = startY + (lastTarget - startY) * eased;
-                    window.scrollTo(0, nextY);
-
-                    var remaining = Math.abs(window.scrollY - lastTarget);
-                    if (t < 1 || remaining > 1) {
-                        if (t >= 1) {
-                            // 目标在动画期间变远了（图片/公式/图表加载），继续用当前位置作为新起点平滑补齐。
-                            startY = window.scrollY;
-                            startTime = now;
-                            distance = Math.abs(lastTarget - startY);
-                            duration = Math.min(900, Math.max(240, distance * 0.45));
-                        }
-                        requestAnimationFrame(animate);
-                    }
-                }
-
-                requestAnimationFrame(animate);
-            });
-        }
-
-        if (floatingGoBackBtn) {
-            floatingGoBackBtn.addEventListener('click', function () {
-                window.location.href = '/';
-            });
-        }
-    }
 
     // Share Button: Web Share API → 剪贴板兜底
     // 视觉反馈完全交给 CSS（data-state 切换 + opacity crossfade），

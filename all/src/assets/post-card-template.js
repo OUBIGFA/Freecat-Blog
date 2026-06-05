@@ -52,6 +52,7 @@
 
     function renderPostCard(post) {
         const encodeSitePath = (shared && shared.encodeSitePath) || function (url) { return url; };
+        const layout = post.layout || 'default';
         const link = escapeHtml(encodeSitePath(post.link || '#'));
         const titleHtml = post.titleHtml || '';
         const excerptHtml = post.excerptHtml || '';
@@ -124,6 +125,42 @@
                         <div class="flex min-h-5 items-center">${tagsBlock}</div>
                     </div>`
             : '';
+
+        if (layout === 'compact-grid') {
+            const compactExcerptLines = imageMarkup ? 2 : 9;
+            const compactExcerptMinHeight = imageMarkup ? 'min-h-[2.9rem]' : 'min-h-[12.995rem]';
+            const compactImageHeight = mobileTagsInline
+                ? 'h-[clamp(11.25rem,14.5vw,13.25rem)] max-[480px]:h-[11.5rem]'
+                : 'h-[clamp(8.75rem,12vw,10.75rem)] max-[480px]:h-36';
+            const compactImageBlock = imageMarkup
+                ? `<div class="lazy-image-frame mt-4 ${compactImageHeight} shrink-0 rounded-lg overflow-hidden">
+                        ${imageMarkup}
+                    </div>`
+                : '';
+
+            return `
+        <a href="${link}" class="post-card post-card-layout-compact-grid ${imageMarkup ? 'has-cover' : 'has-no-cover'} ${mobileTagsInline ? 'tags-inline-mobile' : ''} animate-fade-in-up block h-full min-w-0 group cursor-pointer" style="animation-delay: ${animationDelay}ms" data-sort-date="${sortDate}" data-sort-modified="${sortModifiedDate}" data-sort-pinned="${pinned ? '1' : '0'}">
+            <div class="relative flex h-full min-h-0 ${imageMarkup ? '' : 'min-h-[clamp(21rem,27vw,23.4rem)] max-[480px]:min-h-[18.5rem]'} flex-col rounded-lg bg-white dark:bg-card-dark p-4 sm:p-5 shadow-none">
+                ${pinnedBadge}
+                <div class="shrink-0">
+                    <h3 class="post-card-title text-[#1e293b] dark:text-slate-200 text-[20px] max-[480px]:text-[18px] font-semibold leading-[1.24] min-h-[3.1rem] max-[480px]:min-h-[2.8rem]" style="${clampStyle(2)}">${titleHtml}</h3>
+                    <div class="mt-2.5 flex min-h-[1.625rem] flex-wrap items-center gap-x-3.5 gap-y-1.5 overflow-visible text-[#657188] dark:text-gray-400 text-xs font-semibold">
+                        <div class="flex items-center gap-2">
+                            <svg class="text-base" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M7 3V1H9V3H15V1H17V3H21C21.5523 3 22 3.44772 22 4V9H20V5H17V7H15V5H9V7H7V5H4V19H10V21H3C2.44772 21 2 20.5523 2 20V4C2 3.44772 2.44772 3 3 3H7ZM17 12C14.7909 12 13 13.7909 13 16C13 18.2091 14.7909 20 17 20C19.2091 20 21 18.2091 21 16C21 13.7909 19.2091 12 17 12ZM11 16C11 12.6863 13.6863 10 17 10C20.3137 10 23 12.6863 23 16C23 19.3137 20.3137 22 17 22C13.6863 22 11 19.3137 11 16ZM16 13V16.4142L18.2929 18.7071L19.7071 17.2929L18 15.5858V13H16Z"></path></svg>
+                            <span class="freecat-published-date-text">${date}</span>
+                        </div>
+                        ${modifiedBlock}
+                        ${mobileInlineTagsBlock}
+                    </div>
+                </div>
+                <div class="mt-4 shrink-0">
+                    <p class="post-card-excerpt text-[#63718a] dark:text-gray-400 text-[14px] font-normal leading-[1.65] ${compactExcerptMinHeight}" style="${clampStyle(compactExcerptLines)}">${mediaIconHtml}${excerptBodyHtml}</p>
+                </div>
+                ${compactImageBlock}
+                ${mobileFooterTagsBlock}
+            </div>
+        </a>`;
+        }
 
         return `
         <a href="${link}" class="post-card ${imageMarkup ? 'has-cover' : 'has-no-cover'} ${mobileTagsInline ? 'tags-inline-mobile' : ''} animate-fade-in-up block mb-8 md:mb-10 group cursor-pointer" style="animation-delay: ${animationDelay}ms" data-sort-date="${sortDate}" data-sort-modified="${sortModifiedDate}" data-sort-pinned="${pinned ? '1' : '0'}">

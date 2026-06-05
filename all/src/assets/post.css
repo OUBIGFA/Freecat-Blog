@@ -1,4 +1,4 @@
-﻿.copy-btn-container {
+.copy-btn-container {
     --color: var(--code-muted, #7b8797);
     --size: 15px;
     display: flex;
@@ -78,7 +78,7 @@
     }
 }
 
-/* 鑷畾涔夋粴鍔ㄦ潯鏍峰紡 */
+/* Custom scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
     width: 4px;
 }
@@ -112,12 +112,7 @@
     background-color: rgba(148, 163, 184, 0.38);
 }
 
-/* ===== 榛勯噾姣斾緥闃呰闂磋窛绯荤粺 =====
-   鍩轰簬绉戝鐨勯粍閲戞瘮渚?(蠁 = 1.618) 璁捐
-   - 娈佃惤闂磋窛 (p 鈫?p): 1.618em (澶ч棿璺濓紝鍖哄垎涓嶅悓娈佃惤)
-   - 鏍囬鍒版鏂?(h 鈫?p): 0.618em (灏忛棿璺濓紝淇濇寔鏍囬涓庡唴瀹圭殑绱у瘑鍏宠仈)
-   - 鏂版钀藉埌鏍囬 (p 鈫?h): 2.618em (鏈€澶ч棿璺濓紝鏄庣‘鍖哄垎涓嶅悓绔犺妭)
-*/
+/* Article spacing is defined once in the Article Reading Hierarchy section below. */
 
 /* Post Title Responsive Styles */
 .post-title {
@@ -281,66 +276,7 @@ article {
     font-synthesis-weight: none;
 }
 
-/* 娈佃惤鏍峰紡锛氭钀戒箣闂翠娇鐢ㄩ粍閲戞瘮渚嬮棿璺?*/
-.prose {
-    --article-block-radius: 8px;
-    font-family: inherit;
-    font-size: 1.15rem !important;
-}
-
-@media (min-width: 768px) {
-    .prose {
-        font-size: 1.1875rem !important;
-    }
-}
-
-.prose p {
-    color: #1e293b !important;
-    /* Slate-700 */
-    /* 浠?2rem 鍑忓皯鍒?1.75rem (28px) */
-    line-height: 1.8 !important;
-    /* 榛樿宸﹀榻愶紝閫氳繃绫诲悕鎺у埗鍏蜂綋瀵归綈鏂瑰紡 */
-    text-align: left;
-    /* 闃叉瀛よ鏍囩偣锛氬厑璁告爣鐐规孩鍑哄鍣ㄨ竟缂?*/
-    hanging-punctuation: allow-end last;
-    /* 涓ユ牸鎹㈣瑙勫垯锛氶槻姝㈡爣鐐瑰嚭鐜板湪琛岄 */
-    line-break: strict;
-    /* 鍏佽闀垮崟璇?URL 鎹㈣浣嗕紭鍏堜繚鎸佸畬鏁?*/
-    overflow-wrap: break-word;
-    /* 寮哄埗涓嶄娇鐢ㄨ繛瀛楃鎹㈣ */
-    -webkit-hyphens: none !important;
-    -ms-hyphens: none !important;
-    hyphens: none !important;
-}
-
-/* 绾腑鏂囨钀斤細涓ょ瀵归綈 */
-.prose p.text-justify-cjk {
-    text-align: justify !important;
-    text-align-last: left !important;
-    /* 浼樺寲涓枃鎺掔増 */
-    text-justify: inter-ideograph;
-    /* 闃叉瀛よ鏍囩偣锛氬厑璁告爣鐐规孩鍑哄鍣ㄨ竟缂?*/
-    hanging-punctuation: allow-end last;
-    /* 涓ユ牸鎹㈣瑙勫垯 */
-    line-break: strict;
-}
-
-/* 鑻辨枃/娣锋帓娈佃惤锛氬乏瀵归綈 */
-.prose p.text-align-left {
-    text-align: left !important;
-    /* 缁ф壙闃叉瀛よ鏍囩偣鐨勮鍒?*/
-}
-
-.dark .prose p {
-    color: #94a3b8 !important;
-    /* Slate-400 */
-}
-
-/* 绉婚櫎娈佃惤鏈熬澶氫綑闂磋窛 */
-
-
-
-/* 鍒楄〃鏍峰紡浼樺寲锛氬垪琛ㄥ唴閮ㄤ繚鎸佺揣鍑戯紝鍒楄〃鍧椾箣闂村啀鐣欏嚭娈佃惤绾ч棿璺?*/
+/* Soft line breaks keep normal line-height without extra spacing. */
 /* 杞崲琛?(Shift+Enter / <br>) 浣跨敤姝ｅ父琛岄棿璺?*/
 .prose br {
     display: block !important;
@@ -682,23 +618,6 @@ article {
     /* 閺屾柨鎷伴惃鍕ガ閻忔媽澹?*/
 }
 
-/* ===== Blockquote ===== */
-.prose blockquote {
-    border-left: 2px solid #cbd5e1 !important;
-    background: transparent !important;
-    padding: 0.75em 0 0.75em 1.05em !important;
-    margin: 1.618em 0 !important;
-    border-radius: 0 !important;
-    color: #475569 !important;
-    font-size: calc(var(--article-body-size) * 0.85) !important;
-}
-
-.dark .prose blockquote {
-    background: transparent !important;
-    border-left-color: #475569 !important;
-    color: #cbd5e1 !important;
-}
-
 .prose .callout {
     --callout-accent: #64748b;
     --callout-bg: #f8fafc;
@@ -833,48 +752,6 @@ article {
 
 .prose .callout-content>*:last-child {
     margin-bottom: 0 !important;
-}
-
-.prose blockquote p {
-    margin: 0.45em 0 !important;
-}
-
-.prose blockquote p:last-child {
-    margin-bottom: 0 !important;
-}
-
-.prose blockquote p:first-child {
-    margin-top: 0 !important;
-}
-
-.prose blockquote blockquote {
-    margin: 0.75em 0 0 0.7em !important;
-    padding: 0.35em 0 0.35em 0.85em !important;
-    border-left-width: 1px !important;
-    border-left-color: #d8dee8 !important;
-    background: transparent !important;
-    color: #64748b !important;
-    border-radius: 0 !important;
-}
-
-.dark .prose blockquote blockquote {
-    border-left-color: #334155 !important;
-    background: transparent !important;
-    color: #aab6c5 !important;
-}
-
-.prose blockquote blockquote blockquote {
-    margin-left: 0.65em !important;
-    border-left-color: #e2e8f0 !important;
-    background: transparent !important;
-    color: #64748b !important;
-    border-radius: 0 !important;
-}
-
-.dark .prose blockquote blockquote blockquote {
-    border-left-color: #263244 !important;
-    background: transparent !important;
-    color: #94a3b8 !important;
 }
 
 /* ===== 鍒楄〃鏍峰紡 ===== */
@@ -1223,6 +1100,17 @@ article {
     --article-line-height: 1.86;
     --article-rhythm: calc(var(--article-body-size) * var(--article-line-height));
     --article-heading-rule: #d8e0eb;
+    --article-space-tight: 0.42rem;
+    --article-space-flow: 1.2rem;
+    --article-space-heading-to-content: 1.25rem;
+    --article-space-heading-parent-child: 1.99rem;
+    --article-space-heading-peer-1: 5.59rem;
+    --article-space-heading-peer-2: 4.11rem;
+    --article-space-heading-peer-3: 3.45rem;
+    --article-space-heading-peer-4: 2.8rem;
+    --article-space-heading-peer-5: 2.5rem;
+    --article-space-heading-peer-6: 2.28rem;
+    --article-space-divider: 80px;
     --article-heading-h1: calc(var(--article-body-size) * 2.36);
     --article-heading-h2: calc(var(--article-body-size) * 1.92);
     --article-heading-h3: calc(var(--article-body-size) * 1.62);
@@ -1486,21 +1374,6 @@ article {
     font-size: 0.86em !important;
 }
 
-/* Normal Markdown article rhythm: final readable cascade, not exaggerated display spacing. */
-.prose {
-    --article-space-tight: 0.42rem;
-    --article-space-flow: 1.2rem;
-    --article-space-heading-to-content: 1.25rem;
-    --article-space-heading-parent-child: 1.99rem;
-    --article-space-heading-peer-1: 5.59rem;
-    --article-space-heading-peer-2: 4.11rem;
-    --article-space-heading-peer-3: 3.45rem;
-    --article-space-heading-peer-4: 2.8rem;
-    --article-space-heading-peer-5: 2.5rem;
-    --article-space-heading-peer-6: 2.28rem;
-    --article-space-divider: 80px;
-}
-
 .prose .markdown-gap {
     --md-gap-lines: 0;
     --md-gap-size: 0lh;
@@ -1673,56 +1546,56 @@ article {
    .callout, .katex-display, .footnotes, ...), making them sit flush against
    a preceding hr or heading. :is() inherits the class specificity of its arguments
    and reliably beats this guard, exactly like the flow rule just below. */
-.prose.prose p,
-.prose.prose ul,
-.prose.prose ol,
-.prose.prose dl,
-.prose.prose blockquote,
-.prose.prose hr,
-.prose.prose table,
-.prose.prose .article-heading,
-.prose.prose .article-heading-depth-1,
-.prose.prose .article-heading-depth-2,
-.prose.prose .article-heading-depth-3,
-.prose.prose .article-heading-depth-4,
-.prose.prose .article-heading-depth-5,
-.prose.prose .article-heading-depth-6,
-.prose.prose .code-block-container,
-.prose.prose figure.post-image,
-.prose.prose details,
-.prose.prose .callout,
-.prose.prose .diagram-block,
-.prose.prose .katex-display,
-.prose.prose center,
-.prose.prose .mermaid,
-.prose.prose pre,
-.prose.prose .footnotes,
-.prose.prose iframe,
-.prose.prose video,
-.prose.prose picture,
-.prose.prose .audio-player {
+.prose p,
+.prose ul,
+.prose ol,
+.prose dl,
+.prose blockquote,
+.prose hr,
+.prose table,
+.prose .article-heading,
+.prose .article-heading-depth-1,
+.prose .article-heading-depth-2,
+.prose .article-heading-depth-3,
+.prose .article-heading-depth-4,
+.prose .article-heading-depth-5,
+.prose .article-heading-depth-6,
+.prose .code-block-container,
+.prose figure.post-image,
+.prose details,
+.prose .callout,
+.prose .diagram-block,
+.prose .katex-display,
+.prose center,
+.prose .mermaid,
+.prose pre,
+.prose .footnotes,
+.prose iframe,
+.prose video,
+.prose picture,
+.prose .audio-player {
     margin: 0 !important;
 }
 
-.prose.prose :is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .diagram-block, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+:is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .diagram-block, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
-.prose.prose .markdown-gap+:is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .diagram-block, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player) {
+.prose :is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .diagram-block, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+:is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .diagram-block, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
+.prose .markdown-gap+:is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .diagram-block, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player) {
     margin-block-start: var(--article-space-flow) !important;
 }
 
-.prose.prose blockquote {
+.prose blockquote {
     padding: calc(var(--article-rhythm) * 0.35) 0 calc(var(--article-rhythm) * 0.35) 1.05em !important;
     border-left: 2px solid #cbd5e1 !important;
     color: #475569 !important;
     background: transparent !important;
 }
 
-.dark .prose.prose blockquote {
+.dark .prose blockquote {
     border-left-color: #475569 !important;
     color: #cbd5e1 !important;
     background: transparent !important;
 }
 
-.prose.prose blockquote blockquote {
+.prose blockquote blockquote {
     margin-block-start: calc(var(--article-rhythm) * 0.42) !important;
     margin-left: 0.7em !important;
     padding: calc(var(--article-rhythm) * 0.18) 0 calc(var(--article-rhythm) * 0.18) 0.85em !important;
@@ -1732,154 +1605,154 @@ article {
     background: transparent !important;
 }
 
-.dark .prose.prose blockquote blockquote {
+.dark .prose blockquote blockquote {
     border-left-color: #334155 !important;
     color: #aab6c5 !important;
     background: transparent !important;
 }
 
-.prose.prose blockquote blockquote blockquote {
+.prose blockquote blockquote blockquote {
     margin-left: 0.65em !important;
     border-left-color: #e2e8f0 !important;
     color: #64748b !important;
     background: transparent !important;
 }
 
-.dark .prose.prose blockquote blockquote blockquote {
+.dark .prose blockquote blockquote blockquote {
     border-left-color: #263244 !important;
     color: #94a3b8 !important;
     background: transparent !important;
 }
 
-.prose.prose .article-heading-depth-1+:is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .diagram-block, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
-.prose.prose .article-heading-depth-1+.markdown-gap+:where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .diagram-block, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
-.prose.prose .article-heading-depth-2+:is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .diagram-block, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
-.prose.prose .article-heading-depth-2+.markdown-gap+:where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .diagram-block, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
-.prose.prose .article-heading-depth-3+:is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .diagram-block, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
-.prose.prose .article-heading-depth-3+.markdown-gap+:where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .diagram-block, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
-.prose.prose .article-heading-depth-4+:is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .diagram-block, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
-.prose.prose .article-heading-depth-4+.markdown-gap+:where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .diagram-block, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player) {
+.prose .article-heading-depth-1+:is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .diagram-block, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
+.prose .article-heading-depth-1+.markdown-gap+:where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .diagram-block, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
+.prose .article-heading-depth-2+:is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .diagram-block, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
+.prose .article-heading-depth-2+.markdown-gap+:where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .diagram-block, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
+.prose .article-heading-depth-3+:is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .diagram-block, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
+.prose .article-heading-depth-3+.markdown-gap+:where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .diagram-block, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
+.prose .article-heading-depth-4+:is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .diagram-block, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
+.prose .article-heading-depth-4+.markdown-gap+:where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .diagram-block, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player) {
     margin-block-start: var(--article-space-heading-to-content) !important;
 }
 
-.prose.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+.article-heading-depth-1,
-.prose.prose .markdown-gap+.article-heading-depth-1,
-.prose.prose .article-heading-depth-1+.article-heading-depth-1,
-.prose.prose .article-heading-depth-1+.markdown-gap+.article-heading-depth-1 {
+.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+.article-heading-depth-1,
+.prose .markdown-gap+.article-heading-depth-1,
+.prose .article-heading-depth-1+.article-heading-depth-1,
+.prose .article-heading-depth-1+.markdown-gap+.article-heading-depth-1 {
     margin-block-start: var(--article-space-heading-peer-1) !important;
 }
 
-.prose.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+.article-heading-depth-2,
-.prose.prose .markdown-gap+.article-heading-depth-2,
-.prose.prose .article-heading-depth-2+.article-heading-depth-2,
-.prose.prose .article-heading-depth-2+.markdown-gap+.article-heading-depth-2 {
+.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+.article-heading-depth-2,
+.prose .markdown-gap+.article-heading-depth-2,
+.prose .article-heading-depth-2+.article-heading-depth-2,
+.prose .article-heading-depth-2+.markdown-gap+.article-heading-depth-2 {
     margin-block-start: var(--article-space-heading-peer-2) !important;
 }
 
-.prose.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+.article-heading-depth-3,
-.prose.prose .markdown-gap+.article-heading-depth-3,
-.prose.prose .article-heading-depth-3+.article-heading-depth-3,
-.prose.prose .article-heading-depth-3+.markdown-gap+.article-heading-depth-3 {
+.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+.article-heading-depth-3,
+.prose .markdown-gap+.article-heading-depth-3,
+.prose .article-heading-depth-3+.article-heading-depth-3,
+.prose .article-heading-depth-3+.markdown-gap+.article-heading-depth-3 {
     margin-block-start: var(--article-space-heading-peer-3) !important;
 }
 
-.prose.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+.article-heading-depth-4,
-.prose.prose .markdown-gap+.article-heading-depth-4,
-.prose.prose .article-heading-depth-4+.article-heading-depth-4,
-.prose.prose .article-heading-depth-4+.markdown-gap+.article-heading-depth-4 {
+.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+.article-heading-depth-4,
+.prose .markdown-gap+.article-heading-depth-4,
+.prose .article-heading-depth-4+.article-heading-depth-4,
+.prose .article-heading-depth-4+.markdown-gap+.article-heading-depth-4 {
     margin-block-start: var(--article-space-heading-peer-4) !important;
 }
 
-.prose.prose .article-heading+.article-heading,
-.prose.prose .article-heading+.markdown-gap+.article-heading,
-.prose.prose .article-heading-depth-1+.article-heading-depth-2,
-.prose.prose .article-heading-depth-1+.markdown-gap+.article-heading-depth-2,
-.prose.prose .article-heading-depth-1+.article-heading-depth-3,
-.prose.prose .article-heading-depth-1+.markdown-gap+.article-heading-depth-3,
-.prose.prose .article-heading-depth-1+.article-heading-depth-4,
-.prose.prose .article-heading-depth-1+.markdown-gap+.article-heading-depth-4,
-.prose.prose .article-heading-depth-2+.article-heading-depth-3,
-.prose.prose .article-heading-depth-2+.markdown-gap+.article-heading-depth-3,
-.prose.prose .article-heading-depth-2+.article-heading-depth-4,
-.prose.prose .article-heading-depth-2+.markdown-gap+.article-heading-depth-4,
-.prose.prose .article-heading-depth-3+.article-heading-depth-4,
-.prose.prose .article-heading-depth-3+.markdown-gap+.article-heading-depth-4 {
+.prose .article-heading+.article-heading,
+.prose .article-heading+.markdown-gap+.article-heading,
+.prose .article-heading-depth-1+.article-heading-depth-2,
+.prose .article-heading-depth-1+.markdown-gap+.article-heading-depth-2,
+.prose .article-heading-depth-1+.article-heading-depth-3,
+.prose .article-heading-depth-1+.markdown-gap+.article-heading-depth-3,
+.prose .article-heading-depth-1+.article-heading-depth-4,
+.prose .article-heading-depth-1+.markdown-gap+.article-heading-depth-4,
+.prose .article-heading-depth-2+.article-heading-depth-3,
+.prose .article-heading-depth-2+.markdown-gap+.article-heading-depth-3,
+.prose .article-heading-depth-2+.article-heading-depth-4,
+.prose .article-heading-depth-2+.markdown-gap+.article-heading-depth-4,
+.prose .article-heading-depth-3+.article-heading-depth-4,
+.prose .article-heading-depth-3+.markdown-gap+.article-heading-depth-4 {
     margin-block-start: var(--article-space-heading-parent-child) !important;
 }
 
-.prose.prose .article-heading-depth-1+.article-heading-depth-1,
-.prose.prose .article-heading-depth-1+.markdown-gap+.article-heading-depth-1 {
+.prose .article-heading-depth-1+.article-heading-depth-1,
+.prose .article-heading-depth-1+.markdown-gap+.article-heading-depth-1 {
     margin-block-start: var(--article-space-heading-peer-1) !important;
 }
 
-.prose.prose :is(.article-heading-depth-2, .article-heading-depth-3, .article-heading-depth-4, .article-heading-depth-5, .article-heading-depth-6)+.article-heading-depth-1,
-.prose.prose :is(.article-heading-depth-2, .article-heading-depth-3, .article-heading-depth-4, .article-heading-depth-5, .article-heading-depth-6)+.markdown-gap+.article-heading-depth-1 {
+.prose :is(.article-heading-depth-2, .article-heading-depth-3, .article-heading-depth-4, .article-heading-depth-5, .article-heading-depth-6)+.article-heading-depth-1,
+.prose :is(.article-heading-depth-2, .article-heading-depth-3, .article-heading-depth-4, .article-heading-depth-5, .article-heading-depth-6)+.markdown-gap+.article-heading-depth-1 {
     margin-block-start: var(--article-space-heading-peer-1) !important;
 }
 
-.prose.prose .article-heading-depth-2+.article-heading-depth-2,
-.prose.prose .article-heading-depth-2+.markdown-gap+.article-heading-depth-2 {
+.prose .article-heading-depth-2+.article-heading-depth-2,
+.prose .article-heading-depth-2+.markdown-gap+.article-heading-depth-2 {
     margin-block-start: var(--article-space-heading-peer-2) !important;
 }
 
-.prose.prose :is(.article-heading-depth-3, .article-heading-depth-4, .article-heading-depth-5, .article-heading-depth-6)+.article-heading-depth-2,
-.prose.prose :is(.article-heading-depth-3, .article-heading-depth-4, .article-heading-depth-5, .article-heading-depth-6)+.markdown-gap+.article-heading-depth-2 {
+.prose :is(.article-heading-depth-3, .article-heading-depth-4, .article-heading-depth-5, .article-heading-depth-6)+.article-heading-depth-2,
+.prose :is(.article-heading-depth-3, .article-heading-depth-4, .article-heading-depth-5, .article-heading-depth-6)+.markdown-gap+.article-heading-depth-2 {
     margin-block-start: var(--article-space-heading-peer-2) !important;
 }
 
-.prose.prose .article-heading-depth-3+.article-heading-depth-3,
-.prose.prose .article-heading-depth-3+.markdown-gap+.article-heading-depth-3 {
+.prose .article-heading-depth-3+.article-heading-depth-3,
+.prose .article-heading-depth-3+.markdown-gap+.article-heading-depth-3 {
     margin-block-start: var(--article-space-heading-peer-3) !important;
 }
 
-.prose.prose :is(.article-heading-depth-4, .article-heading-depth-5, .article-heading-depth-6)+.article-heading-depth-3,
-.prose.prose :is(.article-heading-depth-4, .article-heading-depth-5, .article-heading-depth-6)+.markdown-gap+.article-heading-depth-3 {
+.prose :is(.article-heading-depth-4, .article-heading-depth-5, .article-heading-depth-6)+.article-heading-depth-3,
+.prose :is(.article-heading-depth-4, .article-heading-depth-5, .article-heading-depth-6)+.markdown-gap+.article-heading-depth-3 {
     margin-block-start: var(--article-space-heading-peer-3) !important;
 }
 
-.prose.prose .article-heading-depth-4+.article-heading-depth-4,
-.prose.prose .article-heading-depth-4+.markdown-gap+.article-heading-depth-4 {
+.prose .article-heading-depth-4+.article-heading-depth-4,
+.prose .article-heading-depth-4+.markdown-gap+.article-heading-depth-4 {
     margin-block-start: var(--article-space-heading-peer-4) !important;
 }
 
-.prose.prose :is(.article-heading-depth-5, .article-heading-depth-6)+.article-heading-depth-4,
-.prose.prose :is(.article-heading-depth-5, .article-heading-depth-6)+.markdown-gap+.article-heading-depth-4 {
+.prose :is(.article-heading-depth-5, .article-heading-depth-6)+.article-heading-depth-4,
+.prose :is(.article-heading-depth-5, .article-heading-depth-6)+.markdown-gap+.article-heading-depth-4 {
     margin-block-start: var(--article-space-heading-peer-4) !important;
 }
 
-.prose.prose .article-heading-depth-6+.article-heading-depth-5,
-.prose.prose .article-heading-depth-6+.markdown-gap+.article-heading-depth-5 {
+.prose .article-heading-depth-6+.article-heading-depth-5,
+.prose .article-heading-depth-6+.markdown-gap+.article-heading-depth-5 {
     margin-block-start: var(--article-space-heading-peer-5) !important;
 }
 
-.prose.prose>:not(.markdown-gap)+hr,
-.prose.prose .markdown-gap+hr {
+.prose>:not(.markdown-gap)+hr,
+.prose .markdown-gap+hr {
     margin-block-start: var(--article-space-divider) !important;
 }
 
-.prose.prose>hr+:not(.markdown-gap),
-.prose.prose>hr+.markdown-gap+:not(.markdown-gap) {
+.prose>hr+:not(.markdown-gap),
+.prose>hr+.markdown-gap+:not(.markdown-gap) {
     margin-block-start: var(--article-space-divider) !important;
 }
 
-.prose.prose .article-heading-depth-5+:is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
-.prose.prose .article-heading-depth-5+.markdown-gap+:where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
-.prose.prose .article-heading-depth-6+:is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
-.prose.prose .article-heading-depth-6+.markdown-gap+:where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player) {
+.prose .article-heading-depth-5+:is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
+.prose .article-heading-depth-5+.markdown-gap+:where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
+.prose .article-heading-depth-6+:is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
+.prose .article-heading-depth-6+.markdown-gap+:where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player) {
     margin-block-start: var(--article-space-heading-to-content) !important;
 }
 
-.prose.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+.article-heading-depth-5,
-.prose.prose .markdown-gap+.article-heading-depth-5,
-.prose.prose .article-heading-depth-5+.article-heading-depth-5,
-.prose.prose .article-heading-depth-5+.markdown-gap+.article-heading-depth-5 {
+.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+.article-heading-depth-5,
+.prose .markdown-gap+.article-heading-depth-5,
+.prose .article-heading-depth-5+.article-heading-depth-5,
+.prose .article-heading-depth-5+.markdown-gap+.article-heading-depth-5 {
     margin-block-start: var(--article-space-heading-peer-5) !important;
 }
 
-.prose.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+.article-heading-depth-6,
-.prose.prose .markdown-gap+.article-heading-depth-6,
-.prose.prose .article-heading-depth-6+.article-heading-depth-6,
-.prose.prose .article-heading-depth-6+.markdown-gap+.article-heading-depth-6 {
+.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+.article-heading-depth-6,
+.prose .markdown-gap+.article-heading-depth-6,
+.prose .article-heading-depth-6+.article-heading-depth-6,
+.prose .article-heading-depth-6+.markdown-gap+.article-heading-depth-6 {
     margin-block-start: var(--article-space-heading-peer-6) !important;
 }
 

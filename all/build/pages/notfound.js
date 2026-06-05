@@ -12,14 +12,10 @@ const path = require('path');
  * 模板由 build.js 在调用前用 createEngine 注入了 partials 与 SITE_* 占位，
  * 因此此处只负责写出。
  */
-function normalizeNotFoundAssetUrls(html) {
-    return String(html || '').replace(/(["'])\.\/assets\//g, '$1/assets/');
-}
-
 function generateNotFoundPage({ template, outputDir }) {
     console.log('🚫 Generating 404.html...');
-    fs.writeFileSync(path.join(outputDir, '404.html'), normalizeNotFoundAssetUrls(template), 'utf-8');
+    fs.writeFileSync(path.join(outputDir, '404.html'), template, 'utf-8');
     console.log('  Generated: 404.html');
 }
 
-module.exports = { generateNotFoundPage, normalizeNotFoundAssetUrls };
+module.exports = { generateNotFoundPage };

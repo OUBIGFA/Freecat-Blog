@@ -158,7 +158,7 @@ test('generateAll writes only the fixed post id page', (t) => {
 
     generateAll({
         posts: [post],
-        template: '<!doctype html><html><head><!-- POST_SEO_HEAD --><!-- POST_JSONLD --></head><body><!-- TITLE_PLACEHOLDER --><!-- TITLE_H1_PLACEHOLDER --><!-- TAGS_PLACEHOLDER --><!-- DATE_PLACEHOLDER --><!-- DATE_ISO_PLACEHOLDER --><!-- MODIFIED_PLACEHOLDER --><!-- CONTENT_PLACEHOLDER --><!-- TOC_PLACEHOLDER --><!-- POST_HIGHLIGHT_CSS --><!-- POST_KATEX_CSS --><!-- POST_HIGHLIGHT_JS --><!-- POST_CHART_JS --><!-- POST_AUDIO_CSS --><!-- POST_AUDIO_JS --><!-- POST_VIDEO_CSS --><!-- POST_VIDEO_JS --></body></html>',
+        template: '<!doctype html><html><head><!-- POST_SEO_HEAD --><!-- POST_JSONLD --></head><body><!-- TITLE_PLACEHOLDER --><!-- TITLE_H1_PLACEHOLDER --><!-- TAGS_PLACEHOLDER --><!-- DATE_PLACEHOLDER --><!-- DATE_ISO_PLACEHOLDER --><!-- MODIFIED_PLACEHOLDER --><!-- CONTENT_PLACEHOLDER --><!-- TOC_PLACEHOLDER --><!-- POST_HIGHLIGHT_CSS --><!-- POST_KATEX_CSS --><!-- POST_HIGHLIGHT_JS --><!-- POST_CHART_JS --><!-- POST_MEDIA_CSS --><!-- POST_MEDIA_JS --><!-- POST_AUDIO_CSS --><!-- POST_AUDIO_JS --><!-- POST_VIDEO_CSS --><!-- POST_VIDEO_JS --></body></html>',
         siteConfig: { site_name: 'Example', site_title: 'Example', site_url: 'https://example.com' },
         seoConfig: {},
         outputDir: 'dist'
@@ -171,7 +171,7 @@ test('generateAll writes only the fixed post id page', (t) => {
 });
 
 test('post page loads video player assets only when video content is present', () => {
-    const baseTemplate = '<!doctype html><html><head><!-- POST_SEO_HEAD --><!-- POST_JSONLD --><!-- POST_VIDEO_CSS --></head><body><!-- TITLE_PLACEHOLDER --><!-- TITLE_H1_PLACEHOLDER --><!-- TAGS_PLACEHOLDER --><!-- DATE_PLACEHOLDER --><!-- DATE_ISO_PLACEHOLDER --><!-- MODIFIED_PLACEHOLDER --><!-- CONTENT_PLACEHOLDER --><!-- TOC_PLACEHOLDER --><!-- POST_HIGHLIGHT_CSS --><!-- POST_KATEX_CSS --><!-- POST_HIGHLIGHT_JS --><!-- POST_CHART_JS --><!-- POST_AUDIO_CSS --><!-- POST_AUDIO_JS --><!-- POST_VIDEO_JS --></body></html>';
+    const baseTemplate = '<!doctype html><html><head><!-- POST_SEO_HEAD --><!-- POST_JSONLD --><!-- POST_MEDIA_CSS --><!-- POST_VIDEO_CSS --></head><body><!-- TITLE_PLACEHOLDER --><!-- TITLE_H1_PLACEHOLDER --><!-- TAGS_PLACEHOLDER --><!-- DATE_PLACEHOLDER --><!-- DATE_ISO_PLACEHOLDER --><!-- MODIFIED_PLACEHOLDER --><!-- CONTENT_PLACEHOLDER --><!-- TOC_PLACEHOLDER --><!-- POST_HIGHLIGHT_CSS --><!-- POST_KATEX_CSS --><!-- POST_HIGHLIGHT_JS --><!-- POST_CHART_JS --><!-- POST_MEDIA_JS --><!-- POST_AUDIO_CSS --><!-- POST_AUDIO_JS --><!-- POST_VIDEO_JS --></body></html>';
     const siteConfig = { site_name: 'Example', site_title: 'Example', site_url: 'https://example.com' };
     const postBase = {
         title: 'Video Post',
@@ -203,15 +203,21 @@ test('post page loads video player assets only when video content is present', (
     });
 
     assert.match(videoHtml, /href="\/assets\/video-player\.css"/);
+    assert.match(videoHtml, /href="\/assets\/media-player\.css"/);
+    assert.match(videoHtml, /src="\/assets\/media-player\.js"/);
     assert.match(videoHtml, /src="\/assets\/video-player\.js"/);
     assert.match(emojiVideoHtml, /href="\/assets\/video-player\.css"/);
+    assert.match(emojiVideoHtml, /href="\/assets\/media-player\.css"/);
+    assert.match(emojiVideoHtml, /src="\/assets\/media-player\.js"/);
     assert.match(emojiVideoHtml, /src="\/assets\/video-player\.js"/);
     assert.doesNotMatch(plainHtml, /video-player\.css/);
     assert.doesNotMatch(plainHtml, /video-player\.js/);
+    assert.doesNotMatch(plainHtml, /media-player\.css/);
+    assert.doesNotMatch(plainHtml, /media-player\.js/);
 });
 
 test('post page loads audio player assets only for image-style audio content', () => {
-    const baseTemplate = '<!doctype html><html><head><!-- POST_SEO_HEAD --><!-- POST_JSONLD --><!-- POST_AUDIO_CSS --></head><body><!-- TITLE_PLACEHOLDER --><!-- TITLE_H1_PLACEHOLDER --><!-- TAGS_PLACEHOLDER --><!-- DATE_PLACEHOLDER --><!-- DATE_ISO_PLACEHOLDER --><!-- MODIFIED_PLACEHOLDER --><!-- CONTENT_PLACEHOLDER --><!-- TOC_PLACEHOLDER --><!-- POST_HIGHLIGHT_CSS --><!-- POST_KATEX_CSS --><!-- POST_HIGHLIGHT_JS --><!-- POST_CHART_JS --><!-- POST_AUDIO_JS --><!-- POST_VIDEO_CSS --><!-- POST_VIDEO_JS --></body></html>';
+    const baseTemplate = '<!doctype html><html><head><!-- POST_SEO_HEAD --><!-- POST_JSONLD --><!-- POST_MEDIA_CSS --><!-- POST_AUDIO_CSS --></head><body><!-- TITLE_PLACEHOLDER --><!-- TITLE_H1_PLACEHOLDER --><!-- TAGS_PLACEHOLDER --><!-- DATE_PLACEHOLDER --><!-- DATE_ISO_PLACEHOLDER --><!-- MODIFIED_PLACEHOLDER --><!-- CONTENT_PLACEHOLDER --><!-- TOC_PLACEHOLDER --><!-- POST_HIGHLIGHT_CSS --><!-- POST_KATEX_CSS --><!-- POST_HIGHLIGHT_JS --><!-- POST_CHART_JS --><!-- POST_MEDIA_JS --><!-- POST_AUDIO_JS --><!-- POST_VIDEO_CSS --><!-- POST_VIDEO_JS --></body></html>';
     const siteConfig = { site_name: 'Example', site_title: 'Example', site_url: 'https://example.com' };
     const postBase = {
         title: 'Audio Post',
@@ -237,7 +243,11 @@ test('post page loads audio player assets only for image-style audio content', (
     });
 
     assert.match(audioHtml, /href="\/assets\/audio-player\.css"/);
+    assert.match(audioHtml, /href="\/assets\/media-player\.css"/);
+    assert.match(audioHtml, /src="\/assets\/media-player\.js"/);
     assert.match(audioHtml, /src="\/assets\/audio-player\.js"/);
     assert.doesNotMatch(quoteAudioHtml, /audio-player\.css/);
     assert.doesNotMatch(quoteAudioHtml, /audio-player\.js/);
+    assert.doesNotMatch(quoteAudioHtml, /media-player\.css/);
+    assert.doesNotMatch(quoteAudioHtml, /media-player\.js/);
 });

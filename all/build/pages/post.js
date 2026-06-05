@@ -163,6 +163,7 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
     const needsAudioPlayer = /class="[^"]*\baudio-player\b/i.test(finalContentHtml);
 
     const needsVideoPlayer = /🎬|🎥|📹|class="[^"]*\bvideo-player\b|<a [^>]*href="[^"]*\.(?:mp4|webm|ogv|mov|m4v|m3u8)(?:[?#]|\b)/i.test(finalContentHtml);
+    const needsMediaPlayer = needsAudioPlayer || needsVideoPlayer;
 
     const chartJs = [
         needsMermaid ? '<script src="https://cdn.jsdelivr.net/npm/mermaid@11.15.0/dist/mermaid.min.js"></script>' : '',
@@ -176,6 +177,12 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
         : '';
     const highlightJs = needsHighlight
         ? '<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>'
+        : '';
+    const mediaCss = needsMediaPlayer
+        ? '<link rel="stylesheet" href="/assets/media-player.css" />'
+        : '';
+    const mediaJs = needsMediaPlayer
+        ? '<script src="/assets/media-player.js"></script>'
         : '';
     const audioCss = needsAudioPlayer
         ? '<link rel="stylesheet" href="/assets/audio-player.css" />'
@@ -231,6 +238,8 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
         .replace('<!-- POST_KATEX_CSS -->', () => katexCss)
         .replace('<!-- POST_HIGHLIGHT_JS -->', () => highlightJs)
         .replace('<!-- POST_CHART_JS -->', () => [chartJs, embedJs].filter(Boolean).join('\n    '))
+        .replace('<!-- POST_MEDIA_CSS -->', () => mediaCss)
+        .replace('<!-- POST_MEDIA_JS -->', () => mediaJs)
         .replace('<!-- POST_AUDIO_CSS -->', () => audioCss)
         .replace('<!-- POST_AUDIO_JS -->', () => audioJs)
         .replace('<!-- POST_VIDEO_CSS -->', () => videoCss)

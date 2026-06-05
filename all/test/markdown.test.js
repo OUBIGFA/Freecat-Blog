@@ -78,17 +78,17 @@ test('markdown image syntax renders direct audio URLs as audio player placeholde
     const html = parseMarkdown('![Audio](https://example.com/audio.ogg)');
 
     assert.equal(html.includes('class="video-player video-player-loading"'), false);
-    assert.equal(html.includes('class="audio-player audio-player-container audio-player-loading"'), true);
+    assert.equal(html.includes('class="audio-player audio-player-loading"'), true);
     assert.equal(html.includes('data-audio-src="https://example.com/audio.ogg"'), true);
     assert.equal(html.includes('data-audio-title="Audio"'), true);
-    assert.equal(html.includes('class="audio-play-btn"'), true);
-    assert.equal(html.includes('<audio preload="auto">'), true);
+    assert.equal(html.includes('class="audio-player-fallback"'), true);
+    assert.equal(html.includes('<audio preload="auto">'), false);
 });
 
 test('audio emoji forces image-link syntax to render as an audio player', () => {
     const html = parseMarkdown('![🎵 Audio](https://example.com/listen?id=1)');
 
-    assert.equal(html.includes('class="audio-player audio-player-container audio-player-loading"'), true);
+    assert.equal(html.includes('class="audio-player audio-player-loading"'), true);
     assert.equal(html.includes('data-audio-src="https://example.com/listen?id=1"'), true);
     assert.equal(html.includes('data-audio-title="Audio"'), true);
     assert.equal(html.includes('🎵'), false);

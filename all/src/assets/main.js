@@ -1147,26 +1147,8 @@ document.addEventListener('DOMContentLoaded', () => {
             await loadSearchIndex();
         });
 
-        const hideSearch = (immediate = false) => {
-            searchContainer.dataset.open = 'false';
-            searchToggle.dataset.uiState = 'idle';
-            document.body.classList.remove('search-active');
-            searchInput.value = ''; // 自动清除内容
-            searchInput.blur();
-            closeSearchResults(immediate);
-            const finishClose = () => {
-                searchContainer.classList.add('hidden');
-                searchContainer.classList.remove('flex');
-            };
-            if (immediate) {
-                finishClose();
-            } else {
-                setTimeout(finishClose, panelCloseMs);
-            }
-        };
-
         if (searchClose) {
-            searchClose.addEventListener('click', hideSearch);
+            searchClose.addEventListener('click', () => closeHeaderSearch());
         }
 
         // 实时搜索
@@ -1193,7 +1175,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 按 ESC 关闭搜索
         searchInput.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                hideSearch();
+                closeHeaderSearch();
             }
             // 按 Enter 跳转到搜索页
             if (e.key === 'Enter' && searchInput.value.trim()) {
@@ -1210,14 +1192,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 1. 如果点击了背景遮罩层（overlay 本身）
             if (e.target === overlay) {
-                hideSearch();
+                closeHeaderSearch();
                 return;
             }
 
             // 2. 如果容器内没有显示结果（即还没有 overlay），且点击了搜索区域之外的地方
             const clickedInsideSearch = searchContainer.contains(e.target) || searchToggle.contains(e.target);
             if (!clickedInsideSearch && !overlay) {
-                hideSearch();
+                closeHeaderSearch();
                 return;
             }
 
@@ -1226,7 +1208,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 检查是否点击在结果列表容器（居中限制宽度的那个 div）之外
                 const resultsWrapper = overlay.querySelector('.max-w-\\[1200px\\]');
                 if (resultsWrapper && !resultsWrapper.contains(e.target)) {
-                    hideSearch();
+                    closeHeaderSearch();
                 }
             }
         });
@@ -1238,6 +1220,34 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!tags) return '';
         if (!renderTagSpan) return ''; // shared.js 未加载，理论上不会发生
         return tags.map(tag => renderTagSpan(tag, { withDataAttrs: true, escapeText: true })).join('');
+    }
+
+    function buildSearchResultCardData(post, index, options = {}) {
+        return {
+            link: post.link,
+            titleHtml: processTitleHtml(escapeHtml(post.title)),
+            excerptHtml: escapeHtml(post.preview || post.excerpt),
+            date: post.date,
+            modifiedDate: post.modifiedDate,
+            sortDate: post.sortDate,
+            sortModifiedDate: post.sortModifiedDate,
+            tagsHtml: generateTagsHtml(post.tags),
+            cover: post.cover,
+            coverPlaceholder: post.coverPlaceholder,
+            coverWidth: post.coverWidth,
+            coverHeight: post.coverHeight,
+            pinned: post.pinned,
+            animationDelay: getStaggerDelayMs(index),
+            layout: options.layout
+        };
+    }
+
+    function renderSearchResultCards(results, options = {}) {
+        const renderer = window.PostCardTemplate && typeof window.PostCardTemplate.renderPostCard === 'function';
+        if (!renderer) return '';
+        return results
+            .map((post, index) => window.PostCardTemplate.renderPostCard(buildSearchResultCardData(post, index, options)))
+            .join('');
     }
 
     // 显示搜索结果覆盖层
@@ -1296,27 +1306,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const renderer = window.PostCardTemplate && typeof window.PostCardTemplate.renderPostCard === 'function';
-        const resultsHtml = results.map((post, index) => {
-            const tagsHtml = generateTagsHtml(post.tags);
-            // PostCardTemplate 在所有模板中都会随主 script 一起加载；这里没有 fallback 路径
-            return renderer ? window.PostCardTemplate.renderPostCard({
-                link: post.link,
-                titleHtml: processTitleHtml(escapeHtml(post.title)),
-                excerptHtml: escapeHtml(post.preview || post.excerpt),
-                date: post.date,
-                modifiedDate: post.modifiedDate,
-                sortDate: post.sortDate,
-                sortModifiedDate: post.sortModifiedDate,
-                tagsHtml,
-                cover: post.cover,
-                coverPlaceholder: post.coverPlaceholder,
-                coverWidth: post.coverWidth,
-                coverHeight: post.coverHeight,
-                pinned: post.pinned,
-                animationDelay: getStaggerDelayMs(index)
-            }) : '';
-        }).join('');
+        const resultsHtml = renderSearchResultCards(results);
 
         overlay.innerHTML = `
             <div class="max-w-[1200px] mx-auto px-5 sm:px-6 md:px-8 pt-2 pb-10 md:pt-4 md:pb-12">
@@ -1433,26 +1423,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderSearchPageResults(results) {
         if (!searchResultsContainer) return;
 
-        const renderer = window.PostCardTemplate && typeof window.PostCardTemplate.renderPostCard === 'function';
-        const html = results.map((post, index) => {
-            const tagsHtml = generateTagsHtml(post.tags);
-            return renderer ? window.PostCardTemplate.renderPostCard({
-                link: post.link,
-                titleHtml: processTitleHtml(escapeHtml(post.title)),
-                excerptHtml: escapeHtml(post.preview || post.excerpt),
-                date: post.date,
-                modifiedDate: post.modifiedDate,
-                sortDate: post.sortDate,
-                sortModifiedDate: post.sortModifiedDate,
-                tagsHtml,
-                cover: post.cover,
-                coverPlaceholder: post.coverPlaceholder,
-                coverWidth: post.coverWidth,
-                coverHeight: post.coverHeight,
-                pinned: post.pinned,
-                animationDelay: getStaggerDelayMs(index)
-            }) : '';
-        }).join('');
+        const html = renderSearchResultCards(results);
 
         unobserveDeferredImages(searchResultsContainer);
         searchResultsContainer.innerHTML = html;

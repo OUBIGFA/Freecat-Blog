@@ -6,10 +6,8 @@
  * 这里集中放置原本在 build.js 与 main.js 双向重复的小工具：
  *   - hashTagColor(tag)                  根据标签名生成稳定 HSL 配色
  *   - escapeHtml(text)                   HTML 转义
- *   - escapeAttr(text)                   属性值转义（含单引号），主要给 onclick 用
  *   - processTitleHtml(title)            把标题中的 | 包成 span 以应用样式
  *   - renderTagSpan(tag, opts)           生成标签 <span> HTML（统一首页/全部/文章/搜索四处）
- *   - IMG_FALLBACK_ATTR                  统一的 <img onerror> 兜底字符串
  *   - copyText(text)                     现代 clipboard + 兜底 textarea，浏览器端可用
  */
 (function (root, factory) {
@@ -44,14 +42,6 @@
             .replace(/'/g, '&#39;');
     }
 
-    function escapeAttr(text) {
-        // 主要给 onclick 内联字符串字面量使用：避免单引号闭合 + 避免 HTML 注入
-        return String(text == null ? '' : text)
-            .replace(/\\/g, '\\\\')
-            .replace(/'/g, "\\'")
-            .replace(/"/g, '&quot;');
-    }
-
     function encodePathSegment(segment) {
         try {
             return encodeURIComponent(decodeURIComponent(segment));
@@ -82,13 +72,6 @@
     function encodeTagQueryValue(tag) {
         return encodeURIComponent(String(tag == null ? '' : tag)).replace(/'/g, '%27');
     }
-
-    // 统一的图片兜底 onerror 处理。注意：作为 HTML 属性内联使用，必须是单引号字符串。
-    const IMG_FALLBACK_ATTR =
-        "onerror=\"if(this.dataset.fallbackApplied!=='true'){" +
-        "this.dataset.fallbackApplied='true';" +
-        "this.removeAttribute('srcset');" +
-        "this.src='/image/404.png';}\"";
 
     function renderTagSpan(tag, opts) {
         const options = opts || {};
@@ -216,14 +199,12 @@
     return {
         hashTagColor,
         escapeHtml,
-        escapeAttr,
         encodeSitePath,
         processTitleHtml,
         renderTagSpan,
         normalizeTagKey,
         collectMenuTags,
         renderTagMenuItemsHtml,
-        IMG_FALLBACK_ATTR,
         copyText
     };
 }));
