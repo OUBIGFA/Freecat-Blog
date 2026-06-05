@@ -24,6 +24,8 @@ _08: 🔹 显示文章：是否在全站展示此文章
 
 > 准备工作：先确认你的网站能在浏览器里正常打开。例如把 `https://freecat-blog.pages.dev` 粘贴到浏览器地址栏，能看到你的博客首页，就可以开始了。
 
+> 如果你用的是自己的域名，并且这个域名托管在 Cloudflare，请先到 Cloudflare 后台关闭或放行会拦截搜索引擎的反爬规则。重点检查 Bot Fight Mode、WAF 托管质询、Security Rules、AI Crawl Control / Managed robots 这类功能，至少要放行 Googlebot、Bingbot、`/sitemap.xml` 和 `/robots.txt`。否则浏览器里明明能打开网站，Google 或 Bing 仍可能读不到 Sitemap。
+
 ***
 
 ## 一、Google Search Console（让 Google 找到你）
@@ -119,8 +121,6 @@ google_html_marker: <meta name="google-site-verification" content="abc123XXXXXXX
 3. 点"**提交**"按钮。
 
 4. 状态显示"成功"就完成了。Google 会在接下来几天到几周内陆续把你的文章收录进搜索结果。
-
-> 如果你用的是自己的域名，并且这个域名托管在 Cloudflare，请先到 Cloudflare 后台关闭会拦截搜索引擎的反爬规则。重点检查 Bot Fight Mode、WAF 托管质询、Security Rules、AI Crawl Control / Managed robots 这类功能，至少要放行 Googlebot、Bingbot、`/sitemap.xml` 和 `/robots.txt`。否则浏览器里明明能打开网站，Google Search Console 仍可能一直显示 `Couldn't fetch`。
 
 ***
 
@@ -266,6 +266,16 @@ bing_html_marker: <meta name="msvalidate.01" content="XXXXXXXXXXXXXXXXXXXXXXXXXX
 **问：Sitemap 提交后多久能看到文章被收录？**
 
 * Google 一般几天到 2 周，Bing 一般 1～4 周。新站需要耐心，期间不用反复重新提交。
+
+**问：浏览器能打开 `sitemap.xml`，但 Google Search Console 一直显示 `Couldn't fetch`，或者 Bing 一直读取失败，怎么办？**
+
+* 先在浏览器里分别打开你自己的 `https://你的域名/sitemap.xml` 和 `https://你的域名/robots.txt`，确认两个地址都能正常显示。
+
+* 如果你的域名托管在 Cloudflare，优先检查 Cloudflare 后台的反爬和机器人防护设置。关闭 Bot Fight Mode、WAF 托管质询、Security Rules、AI Crawl Control / Managed robots 等可能拦截搜索引擎的功能，或者单独放行 Googlebot、Bingbot、`/sitemap.xml` 和 `/robots.txt`。
+
+* 改完后清理 Cloudflare 缓存，再回 Google Search Console 或 Bing 站长平台删除旧的 Sitemap 记录，重新提交一次。
+
+* 重点记住：浏览器能打开，不代表搜索引擎机器人也一定能打开。搜索平台看到的是服务器、DNS、Cloudflare 和反爬规则共同作用后的结果。
 
 **问：要不要把这两段 meta 代码删掉？**
 
