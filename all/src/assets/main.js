@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function updateFloatingNavLayout() {
             floatingNavLayoutFrame = 0;
-            if (!floatingNavPanel) return;
+            if (!floatingNavPanel || !floatingNavPanel.isConnected) return;
 
             const shouldHide = window.innerWidth < 1024 || touchesVisibleContentEdge();
 
@@ -1106,11 +1106,191 @@ document.addEventListener('DOMContentLoaded', () => {
     function initNavAudioButton() {
         if (!navAudioToggle || !navAudio) return;
 
+        const STATE_KEY = 'freecat-nav-audio-state-v1';
+        const VOLUME_KEY = 'freecat-nav-audio-volume-v1';
+        const DEFAULT_NAV_AUDIO_VOLUME = 0.5;
+        const STATE_SAVE_INTERVAL_MS = 1500;
+        const NAV_AUDIO_VOLUME_HIDE_DELAY_MS = 2000;
+        const navAudioControl = document.getElementById('nav-audio-control');
+        const navAudioVolume = document.getElementById('nav-audio-volume');
+        const navAudioVolumeWrapper = navAudioVolume
+            ? navAudioVolume.closest('.nav-audio-volume-slider-wrapper')
+            : null;
         const idleIcon = navAudioToggle.querySelector('.nav-audio-icon-idle');
         const playingIcon = navAudioToggle.querySelector('.nav-audio-icon-playing');
+        const playlist = readNavAudioPlaylist();
+        const playlistKey = playlist.map(track => track.src).join('\n');
+        let currentIndex = 0;
+        let pendingSeekTime = null;
+        let requestedPlayback = false;
+        let lastStateSave = 0;
+        let currentVolume = readSavedNavAudioVolume();
+        let errorSkipTimer = 0;
+        let volumeHideTimer = 0;
+        const failedTrackIndexes = new Set();
+
+        if (!playlist.length) return;
+
+        function readNavAudioPlaylist() {
+            const rawPlaylist = navAudioToggle.dataset.audioPlaylist || '';
+            if (rawPlaylist) {
+                try {
+                    const parsed = JSON.parse(rawPlaylist);
+                    if (Array.isArray(parsed)) {
+                        return parsed
+                            .map(track => ({
+                                src: String(track && track.src || '').trim(),
+                                title: String(track && track.title || 'Audio').trim() || 'Audio'
+                            }))
+                            .filter(track => track.src);
+                    }
+                } catch (err) {}
+            }
+
+            const fallbackSrc = String(navAudioToggle.dataset.audioSrc || navAudio.getAttribute('src') || '').trim();
+            if (!fallbackSrc) return [];
+            return [{
+                src: fallbackSrc,
+                title: String(navAudioToggle.dataset.audioTitle || navAudio.dataset.audioTitle || 'Audio').trim() || 'Audio'
+            }];
+        }
+
+        function clampTrackIndex(index) {
+            const value = Number(index);
+            if (!Number.isFinite(value) || value < 0) return 0;
+            return Math.min(playlist.length - 1, Math.floor(value));
+        }
+
+        function getSavedNavAudioState() {
+            try {
+                const raw = sessionStorage.getItem(STATE_KEY);
+                const state = raw ? JSON.parse(raw) : null;
+                if (!state || state.playlistKey !== playlistKey) return null;
+                return state;
+            } catch (err) {
+                return null;
+            }
+        }
+
+        function readSavedNavAudioVolume() {
+            try {
+                const saved = localStorage.getItem(VOLUME_KEY);
+                const volume = saved == null ? DEFAULT_NAV_AUDIO_VOLUME : Number(saved);
+                return Number.isFinite(volume) ? Math.max(0, Math.min(1, volume)) : DEFAULT_NAV_AUDIO_VOLUME;
+            } catch (err) {
+                return DEFAULT_NAV_AUDIO_VOLUME;
+            }
+        }
+
+        function saveNavAudioVolume(volume) {
+            try {
+                localStorage.setItem(VOLUME_KEY, String(volume));
+            } catch (err) {}
+        }
+
+        function syncNavAudioVolumeUi(volume) {
+            const nextVolume = Math.max(0, Math.min(1, Number(volume) || 0));
+            navAudio.volume = nextVolume;
+            navAudio.muted = nextVolume === 0;
+            if (navAudioVolume) {
+                navAudioVolume.value = String(nextVolume);
+                navAudioVolume.style.setProperty('--volume-percent', `${nextVolume * 100}%`);
+            }
+        }
+
+        function setNavAudioVolumeOpen(open) {
+            if (!navAudioControl) return;
+            if (volumeHideTimer) {
+                window.clearTimeout(volumeHideTimer);
+                volumeHideTimer = 0;
+            }
+            const shouldOpen = open && requestedPlayback && !navAudio.ended;
+            navAudioControl.dataset.volumeOpen = shouldOpen ? 'true' : 'false';
+        }
+
+        function scheduleNavAudioVolumeClose() {
+            if (!navAudioControl) return;
+            if (volumeHideTimer) window.clearTimeout(volumeHideTimer);
+            volumeHideTimer = window.setTimeout(() => {
+                volumeHideTimer = 0;
+                if (
+                    navAudioControl.matches(':hover')
+                    || navAudioControl.matches(':focus-within')
+                    || (navAudioVolumeWrapper && navAudioVolumeWrapper.matches(':hover'))
+                ) {
+                    setNavAudioVolumeOpen(true);
+                    return;
+                }
+                setNavAudioVolumeOpen(false);
+            }, NAV_AUDIO_VOLUME_HIDE_DELAY_MS);
+        }
+
+        function getContinuousTime(state) {
+            if (!state) return 0;
+            const baseTime = Number(state.currentTime) || 0;
+            if (state.paused === true) return baseTime;
+            const updatedAt = Number(state.updatedAt) || Date.now();
+            return Math.max(0, baseTime + (Date.now() - updatedAt) / 1000);
+        }
+
+        function saveNavAudioState(force = false) {
+            const now = Date.now();
+            if (!force && now - lastStateSave < STATE_SAVE_INTERVAL_MS) return;
+            lastStateSave = now;
+            try {
+                sessionStorage.setItem(STATE_KEY, JSON.stringify({
+                    playlistKey,
+                    index: currentIndex,
+                    currentTime: Number(navAudio.currentTime) || 0,
+                    paused: !requestedPlayback,
+                    updatedAt: now
+                }));
+            } catch (err) {}
+        }
+
+        function applyPendingSeek() {
+            if (pendingSeekTime === null) return;
+            try {
+                const duration = Number(navAudio.duration);
+                const maxTime = Number.isFinite(duration) && duration > 0
+                    ? Math.max(0, duration - 0.25)
+                    : pendingSeekTime;
+                navAudio.currentTime = Math.max(0, Math.min(pendingSeekTime, maxTime));
+                pendingSeekTime = null;
+            } catch (err) {}
+        }
+
+        function setNavAudioTrack(index, options = {}) {
+            currentIndex = clampTrackIndex(index);
+            const track = playlist[currentIndex];
+            if (!track) return;
+
+            navAudio.dataset.audioTitle = track.title;
+            navAudio.dataset.audioIndex = String(currentIndex);
+            navAudioToggle.dataset.audioSrc = track.src;
+            navAudioToggle.dataset.audioTitle = track.title;
+
+            if (navAudio.getAttribute('src') !== track.src) {
+                navAudio.setAttribute('src', track.src);
+                navAudio.load();
+            }
+
+            if (typeof options.currentTime === 'number' && options.currentTime >= 0) {
+                pendingSeekTime = options.currentTime;
+                applyPendingSeek();
+            } else {
+                pendingSeekTime = null;
+            }
+        }
 
         function syncNavAudioState() {
-            const isPlaying = !navAudio.paused && !navAudio.ended;
+            const isPlaying = requestedPlayback && !navAudio.ended;
+            if (navAudioControl) navAudioControl.dataset.playing = isPlaying ? 'true' : 'false';
+            if (!isPlaying) {
+                setNavAudioVolumeOpen(false);
+            } else if (navAudioControl && (navAudioControl.matches(':hover') || navAudioControl.matches(':focus-within'))) {
+                setNavAudioVolumeOpen(true);
+            }
             navAudioToggle.dataset.playing = isPlaying ? 'true' : 'false';
             navAudioToggle.setAttribute('aria-pressed', isPlaying ? 'true' : 'false');
             navAudioToggle.setAttribute('aria-label', isPlaying ? 'Pause audio' : 'Play audio');
@@ -1119,29 +1299,128 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function playNavAudio() {
+            requestedPlayback = true;
+            syncNavAudioState();
+            saveNavAudioState(true);
             const playResult = navAudio.play();
             if (playResult && typeof playResult.catch === 'function') {
-                playResult.catch(() => syncNavAudioState());
+                playResult.catch(handleNavAudioPlaybackFailure);
             }
+        }
+
+        function stopNavAudioRequest() {
+            requestedPlayback = false;
+            syncNavAudioState();
+            saveNavAudioState(true);
+        }
+
+        function pauseNavAudio() {
+            requestedPlayback = false;
+            navAudio.pause();
+            syncNavAudioState();
+            saveNavAudioState(true);
+        }
+
+        function playNextNavAudioTrack() {
+            setNavAudioTrack((currentIndex + 1) % playlist.length, { currentTime: 0 });
+            playNavAudio();
+        }
+
+        function handleNavAudioPlaybackFailure(error) {
+            if (!requestedPlayback) {
+                syncNavAudioState();
+                return;
+            }
+            if (error && error.name === 'NotAllowedError') {
+                stopNavAudioRequest();
+                return;
+            }
+            if (errorSkipTimer) return;
+            errorSkipTimer = window.setTimeout(() => {
+                errorSkipTimer = 0;
+                failedTrackIndexes.add(currentIndex);
+                if (failedTrackIndexes.size >= playlist.length) {
+                    stopNavAudioRequest();
+                    return;
+                }
+                playNextNavAudioTrack();
+            }, 0);
+        }
+
+        const savedState = getSavedNavAudioState();
+        if (savedState) {
+            currentIndex = clampTrackIndex(savedState.index);
+            requestedPlayback = savedState.paused !== true;
+            setNavAudioTrack(currentIndex, { currentTime: getContinuousTime(savedState) });
+        } else {
+            setNavAudioTrack(0);
         }
 
         navAudioToggle.addEventListener('click', () => {
             closeTagMenu();
             closeHeaderSearch(true);
-            if (navAudio.paused || navAudio.ended) {
+            if (requestedPlayback) pauseNavAudio();
+            else {
+                failedTrackIndexes.clear();
                 playNavAudio();
-            } else {
-                navAudio.pause();
             }
         });
 
-        ['play', 'playing', 'pause', 'ended', 'emptied'].forEach((eventName) => {
-            navAudio.addEventListener(eventName, syncNavAudioState);
+        if (navAudioVolume) {
+            navAudioVolume.addEventListener('click', (event) => {
+                event.stopPropagation();
+            });
+            navAudioVolume.addEventListener('input', (event) => {
+                currentVolume = Math.max(0, Math.min(1, Number(event.target.value) || 0));
+                syncNavAudioVolumeUi(currentVolume);
+                saveNavAudioVolume(currentVolume);
+                saveNavAudioState(true);
+            });
+        }
+
+        if (navAudioControl) {
+            navAudioControl.dataset.volumeOpen = 'false';
+            navAudioControl.addEventListener('pointerenter', () => setNavAudioVolumeOpen(true));
+            navAudioControl.addEventListener('pointerleave', scheduleNavAudioVolumeClose);
+            navAudioControl.addEventListener('focusin', () => setNavAudioVolumeOpen(true));
+            navAudioControl.addEventListener('focusout', scheduleNavAudioVolumeClose);
+        }
+
+        if (navAudioVolumeWrapper) {
+            navAudioVolumeWrapper.addEventListener('pointerenter', () => setNavAudioVolumeOpen(true));
+            navAudioVolumeWrapper.addEventListener('pointerleave', scheduleNavAudioVolumeClose);
+        }
+
+        navAudio.addEventListener('ended', () => {
+            if (requestedPlayback) {
+                playNextNavAudioTrack();
+                return;
+            }
+            syncNavAudioState();
+            saveNavAudioState(true);
         });
 
+        navAudio.addEventListener('loadedmetadata', applyPendingSeek);
+        navAudio.addEventListener('durationchange', applyPendingSeek);
+        navAudio.addEventListener('error', () => handleNavAudioPlaybackFailure(navAudio.error));
+        navAudio.addEventListener('timeupdate', () => saveNavAudioState());
+        ['play', 'playing', 'pause', 'emptied'].forEach((eventName) => {
+            navAudio.addEventListener(eventName, () => {
+                if (eventName === 'playing') failedTrackIndexes.clear();
+                syncNavAudioState();
+                saveNavAudioState(eventName !== 'timeupdate');
+            });
+        });
+        window.addEventListener('pagehide', () => saveNavAudioState(true));
+        window.addEventListener('beforeunload', () => saveNavAudioState(true));
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') saveNavAudioState(true);
+        });
+
+        syncNavAudioVolumeUi(currentVolume);
         syncNavAudioState();
 
-        if (navAudioToggle.dataset.audioAutoplay === 'true') {
+        if (requestedPlayback || (!savedState && navAudioToggle.dataset.audioAutoplay === 'true')) {
             window.setTimeout(playNavAudio, 0);
         }
     }
@@ -1175,6 +1454,316 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     initNavAudioButton();
+
+    function initSoftNavigation() {
+        if (!window.fetch || !window.DOMParser || !window.history || !history.pushState) return;
+
+        const managedHeadSelector = 'style[data-soft-nav-head]';
+        const scrollStorageKey = 'freecat-soft-nav-scroll-v1';
+        const maxScrollEntries = 80;
+        const softNavState = {
+            seq: 0,
+            scrollFrame: 0,
+            currentKey: getUrlKey(window.location.href),
+            loadedScripts: new Set(Array.from(document.querySelectorAll('script[src]')).map(script => normalizeUrl(script.src)))
+        };
+
+        function normalizeUrl(value) {
+            try {
+                return new URL(value, window.location.href).href;
+            } catch (err) {
+                return '';
+            }
+        }
+
+        function getUrlKey(value) {
+            const url = new URL(value, window.location.href);
+            return url.pathname + url.search;
+        }
+
+        function readSoftScrollPositions() {
+            try {
+                const raw = sessionStorage.getItem(scrollStorageKey);
+                const parsed = raw ? JSON.parse(raw) : {};
+                return parsed && typeof parsed === 'object' ? parsed : {};
+            } catch (err) {
+                return {};
+            }
+        }
+
+        function writeSoftScrollPositions(positions) {
+            try {
+                sessionStorage.setItem(scrollStorageKey, JSON.stringify(positions));
+            } catch (err) {}
+        }
+
+        function pruneSoftScrollPositions(positions) {
+            const entries = Object.entries(positions)
+                .filter(([, value]) => value && typeof value === 'object')
+                .sort((a, b) => (b[1].time || 0) - (a[1].time || 0));
+            return Object.fromEntries(entries.slice(0, maxScrollEntries));
+        }
+
+        function saveSoftScrollPosition(key = softNavState.currentKey) {
+            const positions = readSoftScrollPositions();
+            positions[key] = {
+                x: window.scrollX || window.pageXOffset || 0,
+                y: window.scrollY || window.pageYOffset || 0,
+                time: Date.now()
+            };
+            writeSoftScrollPositions(pruneSoftScrollPositions(positions));
+        }
+
+        function scheduleSoftScrollSave() {
+            if (softNavState.scrollFrame) return;
+            softNavState.scrollFrame = window.requestAnimationFrame(() => {
+                softNavState.scrollFrame = 0;
+                saveSoftScrollPosition();
+            });
+        }
+
+        function restoreSoftScrollPosition(url) {
+            const saved = readSoftScrollPositions()[getUrlKey(url.href)];
+            if (!saved || typeof saved.y !== 'number') {
+                window.scrollTo(0, 0);
+                return;
+            }
+
+            const targetX = typeof saved.x === 'number' ? saved.x : 0;
+            const targetY = Math.max(0, saved.y);
+            const start = Date.now();
+
+            function clampTargetY() {
+                const scrollingElement = document.scrollingElement || document.documentElement;
+                const maxY = scrollingElement
+                    ? Math.max(0, scrollingElement.scrollHeight - window.innerHeight)
+                    : targetY;
+                return Math.min(targetY, maxY);
+            }
+
+            function attemptRestore() {
+                window.scrollTo(targetX, clampTargetY());
+                const currentY = window.scrollY || window.pageYOffset || 0;
+                if (Math.abs(currentY - targetY) <= 2 || Date.now() - start > 1800) return;
+                window.setTimeout(attemptRestore, 80);
+            }
+
+            requestAnimationFrame(attemptRestore);
+        }
+
+        function isSameDocumentHashOnly(url) {
+            return url.origin === window.location.origin
+                && url.pathname === window.location.pathname
+                && url.search === window.location.search
+                && url.hash;
+        }
+
+        function shouldSoftNavigateLink(link, event) {
+            if (!link || event.defaultPrevented) return false;
+            if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return false;
+            if (link.target && link.target.toLowerCase() !== '_self') return false;
+            if (link.hasAttribute('download')) return false;
+            if (link.closest('[data-no-soft-nav]')) return false;
+
+            const url = new URL(link.href, window.location.href);
+            if (url.origin !== window.location.origin) return false;
+            if (isSameDocumentHashOnly(url)) return false;
+            if (url.pathname === '/search.html') return false;
+            if (/\/assets\//.test(url.pathname)) return false;
+            if (/\.(?:avif|webp|png|jpe?g|gif|svg|ico|pdf|zip|mp3|m4a|wav|ogg|mp4|webm|xml|json|txt)(?:$|[?#])/i.test(url.pathname)) return false;
+            return true;
+        }
+
+        function syncAttributes(target, source) {
+            Array.from(target.attributes).forEach(attr => target.removeAttribute(attr.name));
+            Array.from(source.attributes).forEach(attr => target.setAttribute(attr.name, attr.value));
+        }
+
+        function getPageShell(doc) {
+            const header = doc.querySelector('body > div > header') || doc.querySelector('header');
+            return header ? header.parentElement : null;
+        }
+
+        function ensureStylesheet(link) {
+            const href = normalizeUrl(link.getAttribute('href'));
+            if (!href) return Promise.resolve();
+            const exists = Array.from(document.querySelectorAll('link[rel~="stylesheet"][href]'))
+                .some(existing => normalizeUrl(existing.href) === href);
+            if (exists) return Promise.resolve();
+
+            return new Promise(resolve => {
+                const clone = link.cloneNode(true);
+                clone.onload = resolve;
+                clone.onerror = resolve;
+                window.setTimeout(resolve, 2500);
+                document.head.appendChild(clone);
+            });
+        }
+
+        function syncInlineHeadStyles(newDoc) {
+            document.querySelectorAll(managedHeadSelector).forEach(style => style.remove());
+            const existingStyles = new Set(Array.from(document.head.querySelectorAll('style')).map(style => style.textContent));
+            Array.from(newDoc.head.querySelectorAll('style')).forEach(style => {
+                if (existingStyles.has(style.textContent)) return;
+                const clone = style.cloneNode(true);
+                clone.setAttribute('data-soft-nav-head', 'true');
+                document.head.appendChild(clone);
+            });
+        }
+
+        function syncHead(newDoc) {
+            document.title = newDoc.title || document.title;
+            syncInlineHeadStyles(newDoc);
+            return Promise.all(Array.from(newDoc.head.querySelectorAll('link[rel~="stylesheet"][href]')).map(ensureStylesheet));
+        }
+
+        function getTargetScripts(newDoc) {
+            return Array.from(newDoc.querySelectorAll('script[src]'))
+                .map(script => script.getAttribute('src'))
+                .filter(Boolean)
+                .map(src => normalizeUrl(src))
+                .filter(Boolean);
+        }
+
+        function ensureScript(src) {
+            if (softNavState.loadedScripts.has(src)) return Promise.resolve();
+
+            return new Promise(resolve => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.async = false;
+                script.onload = () => {
+                    softNavState.loadedScripts.add(src);
+                    resolve();
+                };
+                script.onerror = resolve;
+                document.body.appendChild(script);
+            });
+        }
+
+        function scrollAfterNavigation(url, options) {
+            if (options && options.preserveScroll) return;
+            if (options && options.restoreScroll) {
+                restoreSoftScrollPosition(url);
+                return;
+            }
+            if (url.hash) {
+                const target = document.getElementById(decodeURIComponent(url.hash.slice(1)));
+                if (target) {
+                    window.requestAnimationFrame(() => target.scrollIntoView());
+                    return;
+                }
+            }
+            window.scrollTo(0, 0);
+        }
+
+        function runPageReady(newDoc) {
+            updateContentTopOffset();
+            scheduleHomeHeroMeasure();
+            scheduleHomeSidebarFooterAvoid();
+            initDeferredImages();
+            initFloatingNavButtons();
+            fitTagRows();
+            initUpdateSortControls();
+            const searchPageReady = initSearchPageResults();
+            document.dispatchEvent(new CustomEvent('freecat:page-ready', {
+                detail: { url: window.location.href }
+            }));
+            requestAnimationFrame(() => {
+                updateContentTopOffset();
+                scheduleHomeSidebarFooterAvoid();
+            });
+            return searchPageReady;
+        }
+
+        async function softNavigate(targetHref, options = {}) {
+            const seq = ++softNavState.seq;
+            const url = new URL(targetHref, window.location.href);
+            saveSoftScrollPosition();
+            closeHeaderSearch(true);
+            closeTagMenu();
+
+            const response = await fetch(url.href, { credentials: 'same-origin' });
+            if (!response.ok) throw new Error('HTTP ' + response.status);
+            const htmlText = await response.text();
+            if (seq !== softNavState.seq) return;
+
+            const newDoc = new DOMParser().parseFromString(htmlText, 'text/html');
+            const currentHeader = document.querySelector('body > div > header') || document.querySelector('header');
+            const currentShell = currentHeader && currentHeader.parentElement;
+            const newHeader = newDoc.querySelector('body > div > header') || newDoc.querySelector('header');
+            const newShell = getPageShell(newDoc);
+            if (!currentHeader || !currentShell || !newHeader || !newShell || !newDoc.body) {
+                throw new Error('Soft navigation target is missing the expected page shell');
+            }
+
+            const targetScripts = getTargetScripts(newDoc);
+            await syncHead(newDoc);
+            if (seq !== softNavState.seq) return;
+
+            syncAttributes(document.body, newDoc.body);
+            syncAttributes(currentShell, newShell);
+            unobserveDeferredImages(currentShell);
+            Array.from(currentShell.childNodes).forEach(node => {
+                if (node !== currentHeader) node.remove();
+            });
+            Array.from(newShell.childNodes).forEach(node => {
+                if (node === newHeader || node.nodeName === 'SCRIPT') return;
+                currentShell.appendChild(document.importNode(node, true));
+            });
+
+            if (options.history !== 'none') {
+                const method = options.history === 'replace' ? 'replaceState' : 'pushState';
+                history[method]({ freecatSoftNav: true }, '', url.href);
+            }
+            softNavState.currentKey = getUrlKey(url.href);
+
+            const pageReady = runPageReady(newDoc);
+
+            for (const scriptSrc of targetScripts) {
+                await ensureScript(scriptSrc);
+            }
+            if (seq !== softNavState.seq) return;
+
+            if (pageReady && typeof pageReady.then === 'function') {
+                await pageReady;
+            }
+            if (seq !== softNavState.seq) return;
+
+            requestAnimationFrame(() => {
+                updateContentTopOffset();
+                scheduleHomeSidebarFooterAvoid();
+            });
+            scrollAfterNavigation(url, options);
+        }
+
+        document.addEventListener('click', event => {
+            const link = event.target.closest && event.target.closest('a[href]');
+            if (!shouldSoftNavigateLink(link, event)) return;
+
+            event.preventDefault();
+            softNavigate(link.href).catch(err => {
+                console.error('Soft navigation failed:', err);
+                window.location.href = link.href;
+            });
+        });
+
+        window.addEventListener('popstate', () => {
+            saveSoftScrollPosition();
+            softNavigate(window.location.href, { history: 'none', restoreScroll: true }).catch(() => {
+                window.location.reload();
+            });
+        });
+
+        window.addEventListener('scroll', scheduleSoftScrollSave, { passive: true });
+        window.addEventListener('pagehide', () => saveSoftScrollPosition());
+        window.addEventListener('beforeunload', () => saveSoftScrollPosition());
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') saveSoftScrollPosition();
+        });
+    }
+
+    initSoftNavigation();
 
     // 搜索 UI 切换
     if (searchToggle && searchContainer && navLinks) {
@@ -1397,14 +1986,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // === 5. 搜索页专属逻辑 ===
     // ============================================================
     // 如果在搜索页，从 URL 参数读取查询并执行搜索
-    const searchResultsContainer = document.getElementById('search-results');
-    const currentQueryDisplay = document.getElementById('current-query');
-    const noResultsDisplay = document.getElementById('no-results');
-    const resultsCountDisplay = document.getElementById('results-count');
-
     initUpdateSortControls();
 
     function setSearchResultsCount(count) {
+        const resultsCountDisplay = document.getElementById('results-count');
         if (!resultsCountDisplay) return;
         const value = resultsCountDisplay.querySelector('.freecat-results-count-value');
         if (value) {
@@ -1416,7 +2001,17 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsCountDisplay.setAttribute('aria-label', `${count} results`);
     }
 
-    if (searchResultsContainer && currentQueryDisplay) {
+    function getSearchPageLocationKey() {
+        return window.location.pathname + window.location.search;
+    }
+
+    async function initSearchPageResults() {
+        const searchResultsContainer = document.getElementById('search-results');
+        const currentQueryDisplay = document.getElementById('current-query');
+        const noResultsDisplay = document.getElementById('no-results');
+        if (!searchResultsContainer || !currentQueryDisplay) return false;
+
+        const locationKey = getSearchPageLocationKey();
         const urlParams = new URLSearchParams(window.location.search);
         const query = urlParams.get('q');
         const tag = urlParams.get('tag');
@@ -1447,27 +2042,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
                 : loadSearchIndex().then(index => searchPosts(searchTerm, index, false));
 
-            loadResults.then(results => {
+            const results = await loadResults;
+            if (locationKey !== getSearchPageLocationKey()) return false;
+            if (document.getElementById('search-results') !== searchResultsContainer) return false;
 
-                setSearchResultsCount(results.length);
+            setSearchResultsCount(results.length);
 
-                if (results.length === 0) {
-                    unobserveDeferredImages(searchResultsContainer);
-                    searchResultsContainer.innerHTML = '';
-                    if (noResultsDisplay) noResultsDisplay.classList.remove('hidden');
-                } else {
-                    if (noResultsDisplay) noResultsDisplay.classList.add('hidden');
-                    renderSearchPageResults(results);
-                }
-            });
+            if (results.length === 0) {
+                unobserveDeferredImages(searchResultsContainer);
+                searchResultsContainer.innerHTML = '';
+                if (noResultsDisplay) noResultsDisplay.classList.remove('hidden');
+            } else {
+                if (noResultsDisplay) noResultsDisplay.classList.add('hidden');
+                renderSearchPageResults(results, searchResultsContainer);
+            }
+            return true;
         } else {
             currentQueryDisplay.textContent = '...';
-            document.getElementById('search-query-display').innerHTML = '<p class="text-sm text-gray-600 dark:text-gray-400">Enter a search term in the search box above.</p>';
+            const searchQueryDisplay = document.getElementById('search-query-display');
+            if (searchQueryDisplay) {
+                searchQueryDisplay.innerHTML = '<p class="text-sm text-gray-600 dark:text-gray-400">Enter a search term in the search box above.</p>';
+            }
+            return true;
         }
     }
 
     // 在搜索页渲染完整结果卡片
-    function renderSearchPageResults(results) {
+    function renderSearchPageResults(results, searchResultsContainer = document.getElementById('search-results')) {
         if (!searchResultsContainer) return;
 
         const html = renderSearchResultCards(results);
@@ -1480,6 +2081,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
+    initSearchPageResults();
     fitTagRows();
 
     // ============================================================

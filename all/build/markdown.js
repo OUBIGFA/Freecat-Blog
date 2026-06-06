@@ -528,6 +528,29 @@ function parseImageStyleAudio(value) {
     return { src, title };
 }
 
+function parseImageStyleAudioList(value) {
+    const raw = String(value || '').trim();
+    if (!raw) return [];
+
+    const playlist = [];
+    const imageRe = /!\[([^\]]*)\]\(([\s\S]*?)\)/g;
+    let match;
+    while ((match = imageRe.exec(raw))) {
+        const audio = parseImageStyleAudio(match[0]);
+        if (audio) playlist.push(audio);
+    }
+    if (playlist.length) return playlist;
+
+    return raw.split(',')
+        .map(part => part.trim())
+        .filter(Boolean)
+        .map(part => {
+            const src = pickAudioUrl(part, { force: true });
+            return src ? { src, title: '' } : null;
+        })
+        .filter(Boolean);
+}
+
 function pickVideoUrl(href, { force = false } = {}) {
     const raw = String(href || '').trim();
     if (!raw) return '';
@@ -1374,6 +1397,7 @@ module.exports = {
     extractHeadingsAndGenerateTOC,
     addHeadingIds,
     parseImageStyleAudio,
+    parseImageStyleAudioList,
     stripMarkdown,
     slugify
 };

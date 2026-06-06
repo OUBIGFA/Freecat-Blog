@@ -10,13 +10,21 @@
     const VIDEO_EXT_RE = /\.(?:mp4|webm|ogv|mov|m4v|m3u8)(?:[?#]|$)/i;
     const VIDEO_EMOJI_RE = /\u{1f3ac}|\u{1f3a5}|\u{1f4f9}/gu;
 
+    window.FreecatVideoPlayer = {
+        init: initVideoPlayers
+    };
+
     initVideoPlayers();
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initVideoPlayers, { once: true });
     }
+    document.addEventListener('freecat:page-ready', function () {
+        initVideoPlayers();
+    });
 
-    function initVideoPlayers() {
-        document.querySelectorAll('blockquote').forEach(function (blockquote) {
+    function initVideoPlayers(root) {
+        const scope = root && root.querySelectorAll ? root : document;
+        scope.querySelectorAll('blockquote').forEach(function (blockquote) {
             const link = blockquote.querySelector('a');
             if (!link) return;
             const text = link.textContent.trim();
@@ -26,7 +34,7 @@
             blockquote.parentNode.replaceChild(player, blockquote);
         });
 
-        document.querySelectorAll('figure.video-player[data-video-src]').forEach(function (figure) {
+        scope.querySelectorAll('figure.video-player[data-video-src]').forEach(function (figure) {
             const url = figure.getAttribute('data-video-src') || '';
             if (!url) return;
             const title = cleanTitle(figure.getAttribute('data-video-title') || '');

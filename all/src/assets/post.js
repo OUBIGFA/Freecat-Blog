@@ -781,29 +781,20 @@
         initEchartsBlocks();
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initDiagramBlocks);
-    } else {
-        initDiagramBlocks();
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initCodeFolding);
-    } else {
-        initCodeFolding();
-    }
-
     window.addEventListener('scroll', scheduleCodeControlsUpdate, { passive: true });
     window.addEventListener('resize', scheduleCodeControlsUpdate);
 
     // 代码块折叠辅助样式（.collapsed-code .code-content / .code-fold-controls）
     // 已挪到 transitions.css，不再运行时注入。
 
-    // Share Button: Web Share API → 剪贴板兜底
-    // 视觉反馈完全交给 CSS（data-state 切换 + opacity crossfade），
-    // JS 不再注入内联 transform / transition，避免和 .t-btn 系统冲突。
-    var shareBtn = document.getElementById('share-btn');
-    if (shareBtn) {
+    function initShareButton() {
+        // Share Button: Web Share API → 剪贴板兜底
+        // 视觉反馈完全交给 CSS（data-state 切换 + opacity crossfade），
+        // JS 不再注入内联 transform / transition，避免和 .t-btn 系统冲突。
+        var shareBtn = document.getElementById('share-btn');
+        if (!shareBtn || shareBtn.getAttribute('data-share-ready') === 'true') return;
+
+        shareBtn.setAttribute('data-share-ready', 'true');
         var shareLabel = shareBtn.querySelector('.share-btn-label');
         var shareDefaultText = shareLabel ? shareLabel.textContent : 'Share';
         var shareResetTimer = 0;
@@ -828,6 +819,15 @@
             }, SHARE_FEEDBACK_MS);
         }
 
+        function copyUrlToClipboard(url) {
+            copyToClipboard(url).then(function () {
+                flashShareState('copied', 'Copied');
+            }).catch(function (err) {
+                console.error('Copy failed:', err);
+                flashShareState('error', 'Copy failed');
+            });
+        }
+
         shareBtn.addEventListener('click', function () {
             var articleUrl = window.location.href;
             var titleEl = document.querySelector('.post-title');
@@ -841,15 +841,6 @@
                 copyUrlToClipboard(articleUrl);
             }
         });
-
-        function copyUrlToClipboard(url) {
-            copyToClipboard(url).then(function () {
-                flashShareState('copied', 'Copied');
-            }).catch(function (err) {
-                console.error('Copy failed:', err);
-                flashShareState('error', 'Copy failed');
-            });
-        }
     }
 
     // TOC History Optimization & Last Item Sync
@@ -905,22 +896,26 @@
         return Math.max(0, finalScrollY);
     }
 
-    document.querySelectorAll('nav a[href^="#"]').forEach(function (anchor) {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            var targetId = this.getAttribute('href').substring(1);
-            var targetElement = document.getElementById(targetId);
-            var article = document.querySelector('article');
+    function initTocAnchors() {
+        document.querySelectorAll('nav a[href^="#"]').forEach(function (anchor) {
+            if (anchor.getAttribute('data-toc-ready') === 'true') return;
+            anchor.setAttribute('data-toc-ready', 'true');
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                var targetId = this.getAttribute('href').substring(1);
+                var targetElement = document.getElementById(targetId);
+                var article = document.querySelector('article');
 
-            if (targetElement && article) {
-                window.scrollTo({
-                    top: getTocTargetScrollY(targetElement, article),
-                    behavior: 'smooth'
-                });
-                history.replaceState(null, null, '#' + targetId);
-            }
+                if (targetElement && article) {
+                    window.scrollTo({
+                        top: getTocTargetScrollY(targetElement, article),
+                        behavior: 'smooth'
+                    });
+                    history.replaceState(null, null, '#' + targetId);
+                }
+            });
         });
-    });
+    }
 
     // highlight.js 初始化
     function escapeHtmlText(value) {
@@ -1045,15 +1040,24 @@
         if (window.hljs) window.hljs.highlightAll();
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function () {
-            initHighlight();
-            initExternalEmbedPlaceholders();
-            initTwitterEmbedFallback();
-        });
-    } else {
+    function initPostPage() {
+        initDiagramBlocks();
+        initCodeFolding();
+        initShareButton();
+        initTocAnchors();
         initHighlight();
         initExternalEmbedPlaceholders();
         initTwitterEmbedFallback();
     }
+
+    window.FreecatPostPage = {
+        init: initPostPage
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPostPage);
+    } else {
+        initPostPage();
+    }
+    document.addEventListener('freecat:page-ready', initPostPage);
 })();

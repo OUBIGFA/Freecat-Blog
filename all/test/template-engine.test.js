@@ -217,9 +217,41 @@ test('nav audio button renders before search button for image-style audio config
     }).loadTemplate('template_index.html');
 
     assert.equal(html.includes('id="nav-audio-toggle"'), true);
+    assert.equal(html.includes('id="nav-audio-control"'), true);
+    assert.equal(html.includes('id="nav-audio-volume"'), true);
+    assert.equal(html.includes('value="0.5"'), true);
     assert.equal(html.includes('data-audio-src="https://lz.qaiu.top/parser?url=https://share.feijipan.com/s/aOWQf7va"'), true);
     assert.equal(html.includes('data-audio-title="中医为何难过科学关"'), true);
     assert.equal(html.includes('data-audio-autoplay="true"'), true);
     assert.ok(html.indexOf('id="nav-audio-toggle"') < html.indexOf('id="search-toggle"'));
 });
 
+test('nav audio button renders comma-separated audio playlist', () => {
+    const html = createTestEngine('https://example.com', {
+        siteConfig: {
+            nav_audio: [
+                '![🎵 First](https://example.com/listen?id=1)',
+                '![🎵 Second](https://example.com/listen?id=2)'
+            ].join(',')
+        }
+    }).loadTemplate('template_index.html');
+
+    assert.equal(html.includes('data-audio-src="https://example.com/listen?id=1"'), true);
+    assert.equal(html.includes('data-audio-title="First"'), true);
+    assert.equal(html.includes('data-audio-playlist="'), true);
+    assert.equal(html.includes('&quot;src&quot;:&quot;https://example.com/listen?id=1&quot;'), true);
+    assert.equal(html.includes('&quot;src&quot;:&quot;https://example.com/listen?id=2&quot;'), true);
+    assert.equal(html.includes('&quot;title&quot;:&quot;Second&quot;'), true);
+});
+
+test('nav audio normalizes feijipan share pages to playable parser urls', () => {
+    const html = createTestEngine('https://example.com', {
+        siteConfig: {
+            nav_audio: '![🎵 First](https://share.feijipan.com/s/gmbl4ECj)'
+        }
+    }).loadTemplate('template_index.html');
+
+    const parserUrl = 'https://lz.qaiu.top/parser?url=https%3A%2F%2Fshare.feijipan.com%2Fs%2Fgmbl4ECj';
+    assert.equal(html.includes(`data-audio-src="${parserUrl}"`), true);
+    assert.equal(html.includes('&quot;src&quot;:&quot;' + parserUrl + '&quot;'), true);
+});

@@ -337,6 +337,28 @@ test('search page result count reserves space before rendering the numeric badge
     assert.match(transitionsCss, /\.freecat-results-count\[data-count-ready="true"\]\s+\.freecat-results-count-value\s*\{[\s\S]*opacity:\s*1;/);
 });
 
+test('search page soft navigation re-renders against the current page before restoring scroll', () => {
+    assert.match(mainJs, /async function initSearchPageResults\(\)\s*\{/);
+    assert.match(mainJs, /const searchPageReady = initSearchPageResults\(\);/);
+    assert.match(mainJs, /if \(pageReady && typeof pageReady\.then === 'function'\) \{\s*await pageReady;/);
+    assert.match(mainJs, /if \(document\.getElementById\('search-results'\) !== searchResultsContainer\) return false;/);
+    assert.match(mainJs, /renderSearchPageResults\(results,\s*searchResultsContainer\);/);
+    assert.doesNotMatch(mainJs, /renderSearchPageResults\(results\);/);
+});
+
+test('nav audio defaults to half volume and exposes the matching volume slider while playing', () => {
+    assert.match(mainJs, /const DEFAULT_NAV_AUDIO_VOLUME = 0\.5;/);
+    assert.match(mainJs, /const NAV_AUDIO_VOLUME_HIDE_DELAY_MS = 2000;/);
+    assert.match(mainJs, /navAudio\.volume = nextVolume;/);
+    assert.match(mainJs, /navAudioVolume\.style\.setProperty\('--volume-percent', `\$\{nextVolume \* 100\}%`\);/);
+    assert.match(mainJs, /if \(navAudioControl\) navAudioControl\.dataset\.playing = isPlaying \? 'true' : 'false';/);
+    assert.match(mainJs, /navAudioVolumeWrapper\.addEventListener\('pointerenter', \(\) => setNavAudioVolumeOpen\(true\)\);/);
+    assert.match(mainJs, /navAudioVolumeWrapper\.addEventListener\('pointerleave', scheduleNavAudioVolumeClose\);/);
+    assert.match(transitionsCss, /\.nav-audio-control\[data-playing="true"\]\[data-volume-open="true"\] \.nav-audio-volume-slider-wrapper\s*\{[\s\S]*width:\s*80px;[\s\S]*opacity:\s*1;/);
+    assert.match(transitionsCss, /\.nav-audio-volume-slider\s*\{[\s\S]*height:\s*4px;[\s\S]*background:\s*linear-gradient\(to right, #475569 0%, #475569 var\(--volume-percent, 50%\), #cbd5e1 var\(--volume-percent, 50%\), #cbd5e1 100%\);/);
+    assert.match(transitionsCss, /\.nav-audio-volume-slider::-webkit-slider-thumb\s*\{[\s\S]*width:\s*12px;[\s\S]*height:\s*12px;[\s\S]*border:\s*2px solid white;/);
+});
+
 test('all-page cards can reuse the metadata row for mobile tags', () => {
     const dateValue = {
         tz: () => ({ format: () => '2026-05-30' }),

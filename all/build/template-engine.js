@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const shared = require('../src/assets/shared.js');
 const seo = require('./seo.js');
-const { autoSpacing, parseImageStyleAudio } = require('./markdown.js');
+const { autoSpacing, parseImageStyleAudioList } = require('./markdown.js');
 const { SOCIAL_PLATFORM_ORDER } = require('./social-defaults.js');
 
 /**
@@ -129,23 +129,55 @@ function parseBooleanControl(value) {
     return false;
 }
 
-function generateNavAudioButton(siteConfig) {
-    const audio = parseImageStyleAudio(siteConfig && siteConfig.nav_audio);
-    if (!audio || !safeUrl(audio.src)) return '';
+function getNavAudioPlaylist(siteConfig) {
+    return parseImageStyleAudioList(siteConfig && siteConfig.nav_audio)
+        .map(audio => {
+            const src = normalizeNavAudioSrc(safeUrl(audio.src));
+            if (!src) return null;
+            return {
+                src,
+                title: audio.title || 'Audio'
+            };
+        })
+        .filter(Boolean);
+}
 
-    const safeSrc = escapeText(safeUrl(audio.src));
-    const safeTitle = escapeText(audio.title || 'Audio');
+function normalizeNavAudioSrc(src) {
+    if (!src) return '';
+    try {
+        const url = new URL(src);
+        if (url.hostname.toLowerCase() === 'share.feijipan.com' && /^\/s\//i.test(url.pathname)) {
+            return `https://lz.qaiu.top/parser?url=${encodeURIComponent(src)}`;
+        }
+    } catch (err) {}
+    return src;
+}
+
+function generateNavAudioButton(siteConfig) {
+    const playlist = getNavAudioPlaylist(siteConfig);
+    const audio = playlist[0];
+    if (!audio) return '';
+
+    const safeSrc = escapeText(audio.src);
+    const safeTitle = escapeText(audio.title);
+    const safePlaylist = escapeText(JSON.stringify(playlist));
     const autoplay = parseBooleanControl(siteConfig.nav_audio_autoplay) ? 'true' : 'false';
-    return `<button type="button" aria-label="Play audio" aria-pressed="false"
-                class="t-btn-icon group relative flex items-center justify-center rounded-full size-9 md:size-10 bg-[#f0f2f4] dark:bg-gray-800 text-[#1e293b] dark:text-slate-200 hover:text-primary dark:hover:text-primary"
-                id="nav-audio-toggle"
-                data-audio-src="${safeSrc}"
-                data-audio-title="${safeTitle}"
-                data-audio-autoplay="${autoplay}">
-                <span class="nav-audio-icon nav-audio-icon-idle icon-breathe text-lg md:text-xl text-gray-700 dark:text-gray-400 group-hover:rotate-12" aria-hidden="true">${NAV_AUDIO_IDLE_ICON}</span>
-                <span class="nav-audio-icon nav-audio-icon-playing icon-breathe hidden text-lg md:text-xl text-gray-700 dark:text-gray-400 group-hover:rotate-6" aria-hidden="true">${NAV_AUDIO_PLAYING_ICON}</span>
-            </button>
-            <audio id="nav-audio" preload="auto" src="${safeSrc}" data-audio-title="${safeTitle}"></audio>`;
+    return `<div id="nav-audio-control" class="nav-audio-control" data-playing="false">
+                <button type="button" aria-label="Play audio" aria-pressed="false"
+                    class="t-btn-icon group relative flex items-center justify-center rounded-full size-9 md:size-10 bg-[#f0f2f4] dark:bg-gray-800 text-[#1e293b] dark:text-slate-200 hover:text-primary dark:hover:text-primary"
+                    id="nav-audio-toggle"
+                    data-audio-src="${safeSrc}"
+                    data-audio-title="${safeTitle}"
+                    data-audio-playlist="${safePlaylist}"
+                    data-audio-autoplay="${autoplay}">
+                    <span class="nav-audio-icon nav-audio-icon-idle icon-breathe text-lg md:text-xl text-gray-700 dark:text-gray-400 group-hover:rotate-12" aria-hidden="true">${NAV_AUDIO_IDLE_ICON}</span>
+                    <span class="nav-audio-icon nav-audio-icon-playing icon-breathe hidden text-lg md:text-xl text-gray-700 dark:text-gray-400 group-hover:rotate-6" aria-hidden="true">${NAV_AUDIO_PLAYING_ICON}</span>
+                </button>
+                <div class="nav-audio-volume-slider-wrapper">
+                    <input type="range" id="nav-audio-volume" class="nav-audio-volume-slider" min="0" max="1" step="0.01" value="0.5" aria-label="Audio volume">
+                </div>
+                <audio id="nav-audio" preload="auto" src="${safeSrc}" data-audio-title="${safeTitle}" data-audio-index="0"></audio>
+            </div>`;
 }
 
 function shouldRenderSocialPlatform(platform, siteConfig) {

@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const { parseMarkdown, extractHeadingsAndGenerateTOC, parseImageStyleAudio } = require('../build/markdown.js');
+const { parseMarkdown, extractHeadingsAndGenerateTOC, parseImageStyleAudio, parseImageStyleAudioList } = require('../build/markdown.js');
 
 test('callout titles are rendered as text', () => {
     const html = parseMarkdown('> [!note] <img src=x onerror=alert(1)>\\n> content');
@@ -114,6 +114,18 @@ test('image-style audio parser keeps emoji-forced audio behavior reusable', () =
         src: 'https://example.com/listen?id=1',
         title: 'Audio'
     });
+});
+
+test('image-style audio list parser accepts comma-separated audio values', () => {
+    const audio = parseImageStyleAudioList([
+        '![🎵 First](https://example.com/listen?id=1)',
+        '![🎵 Second](https://example.com/listen?id=2)'
+    ].join(','));
+
+    assert.deepEqual(audio, [
+        { src: 'https://example.com/listen?id=1', title: 'First' },
+        { src: 'https://example.com/listen?id=2', title: 'Second' }
+    ]);
 });
 
 test('markdown horizontal rules keep optional blank-line gap markers on both sides', () => {
