@@ -336,10 +336,11 @@ article {
     color: #6b7280 !important;
     /* 涓伆鑹?*/
     text-decoration: underline !important;
+    text-decoration-skip-ink: none !important;
     text-underline-offset: 4px !important;
-    white-space: nowrap !important;
+    white-space: normal !important;
     word-break: normal !important;
-    overflow-wrap: normal !important;
+    overflow-wrap: anywhere !important;
     transition: opacity 0.2s ease !important;
 }
 

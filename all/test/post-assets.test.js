@@ -462,6 +462,15 @@ test('article heading links drop the body link underline', () => {
     assert.match(postCss, /\.prose \.article-heading a,\s*\.prose \.article-heading a:hover\s*\{[\s\S]*text-decoration:\s*none\s*!important;/);
 });
 
+test('article body links can wrap while keeping continuous underlines', () => {
+    const rule = postCss.match(/\.prose a\s*\{[\s\S]*?\}/)?.[0] || '';
+
+    assert.match(rule, /white-space:\s*normal\s*!important;/);
+    assert.match(rule, /overflow-wrap:\s*anywhere\s*!important;/);
+    assert.match(rule, /text-decoration-skip-ink:\s*none\s*!important;/);
+    assert.doesNotMatch(rule, /white-space:\s*nowrap\s*!important;/);
+});
+
 test('article heading links are prefixed with a currentColor link icon', () => {
     const beforeBlock = postCss.match(/\.prose \.article-heading a::before\s*\{[\s\S]*?\}/);
     assert.ok(beforeBlock, 'expected a .prose .article-heading a::before rule');
