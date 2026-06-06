@@ -358,26 +358,26 @@ test('search page soft navigation re-renders against the current page before res
     assert.match(mainJs, /if \(node === newHeader \|\| node\.nodeName === 'SCRIPT'\) return;/);
     assert.match(mainJs, /async function initSearchPageResults\(\)\s*\{/);
     assert.match(mainJs, /const searchPageReady = initSearchPageResults\(\);/);
-    assert.match(mainJs, /if \(pageReady && typeof pageReady\.then === 'function'\) \{\s*await pageReady;/);
+    assert.match(mainJs, /if \(newDoc\.getElementById\('search-results'\) && pageReady && typeof pageReady\.then === 'function'\) \{\s*await pageReady;/);
     assert.match(mainJs, /if \(document\.getElementById\('search-results'\) !== searchResultsContainer\) return false;/);
     assert.match(mainJs, /renderSearchPageResults\(results,\s*searchResultsContainer\);/);
     assert.doesNotMatch(mainJs, /renderSearchPageResults\(results\);/);
 });
 
-test('soft navigation settles scroll before new page initialization can paint', () => {
+test('soft navigation settles scroll before page initialization and background scripts', () => {
     const appendIndex = mainJs.indexOf('currentShell.appendChild(document.importNode(node, true));');
     const scrollIndex = mainJs.indexOf('scrollAfterNavigation(url, options);');
     const pageReadyIndex = mainJs.indexOf('const pageReady = runPageReady(newDoc);');
-    const ensureScriptIndex = mainJs.indexOf('for (const scriptSrc of targetScripts)');
+    const loadScriptsIndex = mainJs.indexOf('loadTargetScripts(targetScripts, seq);');
 
     assert.notEqual(appendIndex, -1);
     assert.notEqual(scrollIndex, -1);
     assert.notEqual(pageReadyIndex, -1);
-    assert.notEqual(ensureScriptIndex, -1);
+    assert.notEqual(loadScriptsIndex, -1);
     assert.equal(mainJs.indexOf('scrollAfterNavigation(url, options);', scrollIndex + 1), -1);
     assert.ok(appendIndex < scrollIndex);
     assert.ok(scrollIndex < pageReadyIndex);
-    assert.ok(scrollIndex < ensureScriptIndex);
+    assert.ok(scrollIndex < loadScriptsIndex);
 });
 
 test('nav audio defaults to half volume and exposes the matching volume slider while playing', () => {
@@ -780,8 +780,12 @@ test('direct URL entries use the home fallback for go back controls', () => {
 
 test('soft navigation hides the old page while replacing the shell', () => {
     assert.match(mainJs, /const softNavTransitionClass = 'soft-nav-transitioning';/);
+    assert.match(mainJs, /const softNavCoverDelayMs = 120;/);
+    assert.match(mainJs, /cacheSoftPageHtmlByKey\(softNavState\.currentKey,\s*'<!DOCTYPE html>\\n' \+ document\.documentElement\.outerHTML\);/);
     assert.match(mainJs, /function showSoftNavCover\(\)/);
-    assert.match(mainJs, /showSoftNavCover\(\);[\s\S]*const response = await fetch/);
+    assert.match(mainJs, /function scheduleSoftNavCover\(\)/);
+    assert.match(mainJs, /scheduleSoftNavCover\(\);[\s\S]*const htmlText = await fetchSoftPage\(url\);/);
+    assert.match(mainJs, /function fetchSoftPage\(url\)\s*\{/);
     assert.match(mainJs, /syncAttributes\(document\.body,\s*newDoc\.body\);/);
     assert.match(mainJs, /finally \{\s*if \(seq === softNavState\.seq\) await finishSoftNavSwap\(\);/);
     assert.match(transitionsCss, /html\.soft-nav-transitioning::before/);

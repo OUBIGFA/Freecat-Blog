@@ -1035,7 +1035,8 @@
     }
 
     window.FreecatPostPage = {
-        init: initPostPage
+        init: initPostPage,
+        initHighlight: initHighlight
     };
 
     if (document.readyState === 'loading') {

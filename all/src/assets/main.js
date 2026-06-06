@@ -1513,11 +1513,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const scrollStorageKey = 'freecat-soft-nav-scroll-v1';
         const maxScrollEntries = 80;
         const softNavTransitionClass = 'soft-nav-transitioning';
+        const softNavCoverDelayMs = 120;
+        const softNavStylesheetTimeoutMs = 1200;
+        const softNavScriptTimeoutMs = 2500;
+        const softNavPageCacheMax = 12;
+        const idlePrefetchLimit = 3;
         const softNavState = {
             seq: 0,
             scrollFrame: 0,
             currentKey: getUrlKey(window.location.href),
-            loadedScripts: new Set(Array.from(document.querySelectorAll('script[src]')).map(script => normalizeUrl(script.src)))
+            loadedScripts: new Set(Array.from(document.querySelectorAll('script[src]')).map(script => normalizeUrl(script.src))),
+            pageCache: new Map(),
+            coverTimer: 0,
+            coverVisible: false,
+            idlePrefetchFrame: 0
         };
 
         function normalizeUrl(value) {
@@ -1531,6 +1540,55 @@ document.addEventListener('DOMContentLoaded', () => {
         function getUrlKey(value) {
             const url = new URL(value, window.location.href);
             return url.pathname + url.search;
+        }
+
+        function touchSoftPageCache(key, value) {
+            if (softNavState.pageCache.has(key)) softNavState.pageCache.delete(key);
+            softNavState.pageCache.set(key, value);
+            while (softNavState.pageCache.size > softNavPageCacheMax) {
+                const oldestKey = softNavState.pageCache.keys().next().value;
+                softNavState.pageCache.delete(oldestKey);
+            }
+        }
+
+        function cacheSoftPageHtmlByKey(key, htmlText) {
+            if (!htmlText) return;
+            touchSoftPageCache(key, htmlText);
+        }
+
+        function cacheSoftPageHtml(url, htmlText) {
+            cacheSoftPageHtmlByKey(getUrlKey(url), htmlText);
+        }
+
+        function cacheCurrentDocument() {
+            try {
+                cacheSoftPageHtmlByKey(softNavState.currentKey, '<!DOCTYPE html>\n' + document.documentElement.outerHTML);
+            } catch (err) {}
+        }
+
+        function fetchSoftPage(url) {
+            const key = getUrlKey(url.href);
+            if (softNavState.pageCache.has(key)) {
+                const cached = softNavState.pageCache.get(key);
+                touchSoftPageCache(key, cached);
+                return Promise.resolve(cached);
+            }
+
+            const request = fetch(url.href, { credentials: 'same-origin' })
+                .then(response => {
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    return response.text();
+                })
+                .then(htmlText => {
+                    cacheSoftPageHtml(url.href, htmlText);
+                    return htmlText;
+                })
+                .catch(err => {
+                    softNavState.pageCache.delete(key);
+                    throw err;
+                });
+            touchSoftPageCache(key, request);
+            return request;
         }
 
         function readSoftScrollPositions() {
@@ -1610,6 +1668,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 && url.hash;
         }
 
+        function isNavigableSoftUrl(url) {
+            if (url.origin !== window.location.origin) return false;
+            if (isSameDocumentHashOnly(url)) return false;
+            if (/\/assets\//.test(url.pathname)) return false;
+            if (/\.(?:avif|webp|png|jpe?g|gif|svg|ico|pdf|zip|mp3|m4a|wav|ogg|mp4|webm|xml|json|txt)(?:$|[?#])/i.test(url.pathname)) return false;
+            return true;
+        }
+
         function shouldSoftNavigateLink(link, event) {
             if (!link || event.defaultPrevented) return false;
             if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return false;
@@ -1618,11 +1684,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (link.closest('[data-no-soft-nav]')) return false;
 
             const url = new URL(link.href, window.location.href);
-            if (url.origin !== window.location.origin) return false;
-            if (isSameDocumentHashOnly(url)) return false;
-            if (/\/assets\//.test(url.pathname)) return false;
-            if (/\.(?:avif|webp|png|jpe?g|gif|svg|ico|pdf|zip|mp3|m4a|wav|ogg|mp4|webm|xml|json|txt)(?:$|[?#])/i.test(url.pathname)) return false;
-            return true;
+            return isNavigableSoftUrl(url);
         }
 
         function syncAttributes(target, source) {
@@ -1635,19 +1697,40 @@ document.addEventListener('DOMContentLoaded', () => {
             return header ? header.parentElement : null;
         }
 
-        function ensureStylesheet(link) {
+        function isCriticalSoftStylesheet(link) {
+            const href = normalizeUrl(link.getAttribute('href'));
+            if (!href) return false;
+            const url = new URL(href, window.location.href);
+            if (url.origin !== window.location.origin) return false;
+            return /\/assets\/(?:tailwind|transitions|post|media-player|audio-player|video-player)\.css$/i.test(url.pathname);
+        }
+
+        function ensureStylesheet(link, options = {}) {
             const href = normalizeUrl(link.getAttribute('href'));
             if (!href) return Promise.resolve();
             const exists = Array.from(document.querySelectorAll('link[rel~="stylesheet"][href]'))
                 .some(existing => normalizeUrl(existing.href) === href);
             if (exists) return Promise.resolve();
 
+            const waitForLoad = options.waitForLoad !== false;
             return new Promise(resolve => {
                 const clone = link.cloneNode(true);
-                clone.onload = resolve;
-                clone.onerror = resolve;
-                window.setTimeout(resolve, 2500);
+                let done = false;
+                let timer = 0;
+                const finish = () => {
+                    if (done) return;
+                    done = true;
+                    if (timer) window.clearTimeout(timer);
+                    resolve();
+                };
+                clone.onload = finish;
+                clone.onerror = finish;
                 document.head.appendChild(clone);
+                if (!waitForLoad) {
+                    finish();
+                    return;
+                }
+                timer = window.setTimeout(finish, softNavStylesheetTimeoutMs);
             });
         }
 
@@ -1665,7 +1748,13 @@ document.addEventListener('DOMContentLoaded', () => {
         function syncHead(newDoc) {
             document.title = newDoc.title || document.title;
             syncInlineHeadStyles(newDoc);
-            return Promise.all(Array.from(newDoc.head.querySelectorAll('link[rel~="stylesheet"][href]')).map(ensureStylesheet));
+            const waits = [];
+            Array.from(newDoc.head.querySelectorAll('link[rel~="stylesheet"][href]')).forEach(link => {
+                const shouldWait = isCriticalSoftStylesheet(link);
+                const ready = ensureStylesheet(link, { waitForLoad: shouldWait });
+                if (shouldWait) waits.push(ready);
+            });
+            return Promise.all(waits);
         }
 
         function shouldReduceSoftNavMotion() {
@@ -1677,15 +1766,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function showSoftNavCover() {
+            softNavState.coverTimer = 0;
+            softNavState.coverVisible = true;
             document.documentElement.classList.add(softNavTransitionClass);
         }
 
+        function scheduleSoftNavCover() {
+            if (softNavState.coverTimer) window.clearTimeout(softNavState.coverTimer);
+            softNavState.coverVisible = false;
+            softNavState.coverTimer = window.setTimeout(showSoftNavCover, softNavCoverDelayMs);
+        }
+
+        function cancelSoftNavCoverTimer() {
+            if (!softNavState.coverTimer) return;
+            window.clearTimeout(softNavState.coverTimer);
+            softNavState.coverTimer = 0;
+        }
+
         async function finishSoftNavSwap() {
-            await waitForFrame();
-            if (!shouldReduceSoftNavMotion()) {
-                await new Promise(resolve => window.setTimeout(resolve, 90));
+            cancelSoftNavCoverTimer();
+            if (!softNavState.coverVisible) {
+                document.documentElement.classList.remove(softNavTransitionClass);
+                return;
             }
+            await waitForFrame();
             document.documentElement.classList.remove(softNavTransitionClass);
+            softNavState.coverVisible = false;
         }
 
         function getTargetScripts(newDoc) {
@@ -1701,14 +1807,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
             return new Promise(resolve => {
                 const script = document.createElement('script');
-                script.src = src;
-                script.async = false;
-                script.onload = () => {
-                    softNavState.loadedScripts.add(src);
+                let done = false;
+                let timer = 0;
+                const finish = (loaded) => {
+                    if (done) return;
+                    done = true;
+                    if (timer) window.clearTimeout(timer);
+                    if (loaded) softNavState.loadedScripts.add(src);
                     resolve();
                 };
-                script.onerror = resolve;
+                script.src = src;
+                script.async = false;
+                script.onload = () => finish(true);
+                script.onerror = () => finish(false);
+                timer = window.setTimeout(() => finish(false), softNavScriptTimeoutMs);
                 document.body.appendChild(script);
+            });
+        }
+
+        function loadTargetScripts(targetScripts, seq) {
+            targetScripts.reduce((chain, scriptSrc) => chain.then(() => {
+                if (seq !== softNavState.seq) return null;
+                return ensureScript(scriptSrc);
+            }), Promise.resolve()).then(() => {
+                if (seq !== softNavState.seq) return;
+                if (window.FreecatPostPage && typeof window.FreecatPostPage.initHighlight === 'function') {
+                    window.FreecatPostPage.initHighlight();
+                }
+            }).catch(err => {
+                console.error('Soft navigation script loading failed:', err);
             });
         }
 
@@ -1744,21 +1871,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateContentTopOffset();
                 scheduleHomeSidebarFooterAvoid();
             });
+            scheduleIdleLinkPrefetch();
             return searchPageReady;
         }
 
         async function softNavigate(targetHref, options = {}) {
             const seq = ++softNavState.seq;
             const url = new URL(targetHref, window.location.href);
+            cacheCurrentDocument();
             saveSoftScrollPosition();
             closeHeaderSearch(true);
             closeTagMenu();
-            showSoftNavCover();
+            scheduleSoftNavCover();
 
             try {
-                const response = await fetch(url.href, { credentials: 'same-origin' });
-                if (!response.ok) throw new Error('HTTP ' + response.status);
-                const htmlText = await response.text();
+                const htmlText = await fetchSoftPage(url);
                 if (seq !== softNavState.seq) return;
 
                 const newDoc = new DOMParser().parseFromString(htmlText, 'text/html');
@@ -1794,12 +1921,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 scrollAfterNavigation(url, options);
                 const pageReady = runPageReady(newDoc);
 
-                for (const scriptSrc of targetScripts) {
-                    await ensureScript(scriptSrc);
-                }
-                if (seq !== softNavState.seq) return;
+                loadTargetScripts(targetScripts, seq);
 
-                if (pageReady && typeof pageReady.then === 'function') {
+                if (newDoc.getElementById('search-results') && pageReady && typeof pageReady.then === 'function') {
                     await pageReady;
                 }
                 if (seq !== softNavState.seq) return;
@@ -1820,6 +1944,44 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         };
 
+        function prefetchSoftLink(link) {
+            if (!link || link.target && link.target.toLowerCase() !== '_self') return;
+            if (link.hasAttribute('download')) return;
+            if (link.closest('[data-no-soft-nav]')) return;
+            const url = new URL(link.href, window.location.href);
+            if (!isNavigableSoftUrl(url)) return;
+            if (getUrlKey(url.href) === softNavState.currentKey) return;
+            fetchSoftPage(url).catch(() => {});
+        }
+
+        function handleSoftLinkPrefetch(event) {
+            const link = event.target.closest && event.target.closest('a[href]');
+            prefetchSoftLink(link);
+        }
+
+        function scheduleIdleLinkPrefetch() {
+            if (softNavState.idlePrefetchFrame) return;
+            const run = () => {
+                softNavState.idlePrefetchFrame = 0;
+                const seen = new Set();
+                const links = Array.from(document.querySelectorAll('.post-card[href], header a[href]'))
+                    .filter(link => {
+                        const key = getUrlKey(link.href);
+                        if (seen.has(key)) return false;
+                        seen.add(key);
+                        return key !== softNavState.currentKey;
+                    })
+                    .slice(0, idlePrefetchLimit);
+                links.forEach(prefetchSoftLink);
+            };
+
+            if ('requestIdleCallback' in window) {
+                softNavState.idlePrefetchFrame = window.requestIdleCallback(run, { timeout: 1800 });
+            } else {
+                softNavState.idlePrefetchFrame = window.setTimeout(run, 700);
+            }
+        }
+
         document.addEventListener('click', event => {
             const link = event.target.closest && event.target.closest('a[href]');
             if (!shouldSoftNavigateLink(link, event)) return;
@@ -1829,6 +1991,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('Soft navigation failed:', err);
                 window.location.href = link.href;
             });
+        });
+        ['mouseover', 'focusin', 'touchstart'].forEach(eventName => {
+            document.addEventListener(eventName, handleSoftLinkPrefetch, { passive: true });
         });
 
         window.addEventListener('popstate', () => {
@@ -1844,6 +2009,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden') saveSoftScrollPosition();
         });
+        cacheCurrentDocument();
+        scheduleIdleLinkPrefetch();
     }
 
     initSoftNavigation();
