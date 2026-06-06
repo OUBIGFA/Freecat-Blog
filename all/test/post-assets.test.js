@@ -41,11 +41,18 @@ test('external embeds keep placeholders until visible content or fallback link i
     assert.match(postJs, /rect\.width > 0 && rect\.height >= 120/);
     assert.match(postJs, /function requestTwitterEmbedRender\(figure\)/);
     assert.match(postJs, /window\.twttr\.widgets\.load\(figure\);/);
+    assert.match(postJs, /var safeUrl = shared\.escapeHtml\(url\);/);
+    assert.doesNotMatch(postJs, /function escapeHtmlText\(value\)/);
     assert.match(postJs, /if \(isFailedTwitterEmbed\(figure\)\) \{\s*replaceFailedTwitterEmbed\(figure\);/);
     assert.match(postJs, /if \(attempts >= 80\) \{\s*requestTwitterEmbedRender\(figure\);\s*attempts = 0;/);
     assert.doesNotMatch(postJs, /if \(attempts >= 80\) \{\s*replaceFailedTwitterEmbed\(figure\);/);
     assert.doesNotMatch(postJs, /if \(iframe \|\| attempts >= 80\) \{\s*markExternalEmbedReady\(figure\);/);
     assert.doesNotMatch(postJs, /window\.setTimeout\(function \(\) \{\s*markExternalEmbedReady\(figure\);\s*\}, 2200\);/);
+});
+
+test('post share fallback reuses shared clipboard helper', () => {
+    assert.match(postJs, /shared\.copyText\(url\)\.then/);
+    assert.doesNotMatch(postJs, /copyToClipboard\(url\)/);
 });
 
 test('post card cover placeholders render the shared loading spinner', () => {
@@ -322,6 +329,11 @@ test('all-page cards can opt out of order-based entrance delay', () => {
 
     assert.match(html, /animation-delay:\s*0ms/);
     assert.doesNotMatch(html, /animation-delay:\s*(?:560|960)ms/);
+});
+
+test('main animation checks reuse a single reduced-motion helper', () => {
+    assert.equal((mainJs.match(/function prefersReducedMotion\(\)/g) || []).length, 1);
+    assert.doesNotMatch(mainJs, /const prefersReducedMotion = \(\) =>/);
 });
 
 test('search page result count reserves space before rendering the numeric badge', () => {
@@ -713,6 +725,9 @@ test('code folding uses a smooth height transition with fading mask cleanup', ()
     const openingControlsRule = postCss.match(/\.prose \.code-fold-controls\.code-controls-opening\s*\{[\s\S]*?\n\}/)?.[0] || '';
     const reducedMotionRule = postCss.match(/@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\.prose \.fold-toggle-btn[\s\S]*?\n\}/)?.[0] || '';
 
+    assert.match(postJs, /function setCodeControlsInlineLayout\(controls\)/);
+    assert.doesNotMatch(postJs, /function setCollapsedCodeControlsLayout\(controls\)/);
+    assert.doesNotMatch(postJs, /function setExpandedCodeControlsLayout\(controls\)/);
     assert.match(postJs, /var CODE_FOLD_TRANSITION_MS = 420;/);
     assert.match(postJs, /setTimeout\(finish, CODE_FOLD_TRANSITION_MS \+ 80\);/);
     assert.match(postJs, /function settleCollapsedCodeHeight\(content, container\)/);

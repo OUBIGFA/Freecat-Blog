@@ -973,7 +973,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return document.getElementById('posts-list') || document.getElementById('search-results');
         };
         const getCardDelay = (index) => `${Math.min(index, 10) * 70}ms`;
-        const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const setUpdateSortMode = (updateSortSwitch, useModifiedSort, options = {}) => {
             const list = getListForSwitch(updateSortSwitch);
             const mode = useModifiedSort ? 'modified' : 'date';

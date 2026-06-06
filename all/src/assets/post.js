@@ -28,13 +28,7 @@
         controls.style.maxWidth = '';
     }
 
-    function setCollapsedCodeControlsLayout(controls) {
-        if (!controls) return;
-        controls.classList.remove('absolute', 'bottom-0', 'h-20', 'bg-gradient-to-t');
-        controls.classList.add('flex', 'justify-center', 'py-2', 'border-t', 'border-slate-200/50', 'dark:border-slate-700/50', 'bg-slate-50/50', 'dark:bg-transparent');
-    }
-
-    function setExpandedCodeControlsLayout(controls) {
+    function setCodeControlsInlineLayout(controls) {
         if (!controls) return;
         controls.classList.remove('absolute', 'bottom-0', 'h-20', 'bg-gradient-to-t');
         controls.classList.add('flex', 'justify-center', 'py-2', 'border-t', 'border-slate-200/50', 'dark:border-slate-700/50', 'bg-slate-50/50', 'dark:bg-transparent');
@@ -252,7 +246,7 @@
                 foldContainer.classList.remove('collapsed-code');
                 foldContainer.classList.add('expanded-code');
                 if (controls) {
-                    setExpandedCodeControlsLayout(controls);
+                    setCodeControlsInlineLayout(controls);
                     openingTarget = getCodeControlsTarget(foldContainer, targetHeight);
                     if (openingTarget) {
                         controls.style.width = 'max-content';
@@ -291,7 +285,7 @@
                 if (controls) controls.classList.remove('code-controls-opening');
                 resetCodeControlsPosition(controls);
                 wrapper.style.maxHeight = CODE_COLLAPSED_HEIGHT + 'px';
-                setCollapsedCodeControlsLayout(controls);
+                setCodeControlsInlineLayout(controls);
 
                 if (expandIcon) expandIcon.classList.remove('hidden');
                 if (collapseIcon) collapseIcon.classList.add('hidden');
@@ -320,7 +314,7 @@
                 block.classList.remove('expanded-code');
                 content.style.maxHeight = CODE_COLLAPSED_HEIGHT + 'px';
                 controls.classList.remove('hidden');
-                setCollapsedCodeControlsLayout(controls);
+                setCodeControlsInlineLayout(controls);
             } else {
                 block.classList.remove('code-fold');
                 block.classList.remove('expanded-code');
@@ -820,7 +814,7 @@
         }
 
         function copyUrlToClipboard(url) {
-            copyToClipboard(url).then(function () {
+            shared.copyText(url).then(function () {
                 flashShareState('copied', 'Copied');
             }).catch(function (err) {
                 console.error('Copy failed:', err);
@@ -917,20 +911,10 @@
         });
     }
 
-    // highlight.js 初始化
-    function escapeHtmlText(value) {
-        return String(value || '')
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-    }
-
     function replaceFailedTwitterEmbed(figure) {
         var url = figure && figure.getAttribute('data-embed-url');
         if (!url) return;
-        var safeUrl = escapeHtmlText(url);
+        var safeUrl = shared.escapeHtml(url);
         figure.className = 'external-embed external-embed-link';
         figure.setAttribute('data-embed-provider', 'link');
         figure.innerHTML = '<a href="' + safeUrl + '" target="_blank" rel="noopener noreferrer">' + safeUrl + '</a>';
