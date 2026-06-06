@@ -352,6 +352,22 @@ test('search page soft navigation re-renders against the current page before res
     assert.doesNotMatch(mainJs, /renderSearchPageResults\(results\);/);
 });
 
+test('soft navigation settles scroll before new page initialization can paint', () => {
+    const appendIndex = mainJs.indexOf('currentShell.appendChild(document.importNode(node, true));');
+    const scrollIndex = mainJs.indexOf('scrollAfterNavigation(url, options);');
+    const pageReadyIndex = mainJs.indexOf('const pageReady = runPageReady(newDoc);');
+    const ensureScriptIndex = mainJs.indexOf('for (const scriptSrc of targetScripts)');
+
+    assert.notEqual(appendIndex, -1);
+    assert.notEqual(scrollIndex, -1);
+    assert.notEqual(pageReadyIndex, -1);
+    assert.notEqual(ensureScriptIndex, -1);
+    assert.equal(mainJs.indexOf('scrollAfterNavigation(url, options);', scrollIndex + 1), -1);
+    assert.ok(appendIndex < scrollIndex);
+    assert.ok(scrollIndex < pageReadyIndex);
+    assert.ok(scrollIndex < ensureScriptIndex);
+});
+
 test('nav audio defaults to half volume and exposes the matching volume slider while playing', () => {
     assert.match(mainJs, /const DEFAULT_NAV_AUDIO_VOLUME = 0\.5;/);
     assert.match(mainJs, /const NAV_AUDIO_VOLUME_HIDE_DELAY_MS = 1000;/);

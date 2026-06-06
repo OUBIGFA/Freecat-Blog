@@ -1769,6 +1769,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             softNavState.currentKey = getUrlKey(url.href);
 
+            scrollAfterNavigation(url, options);
             const pageReady = runPageReady(newDoc);
 
             for (const scriptSrc of targetScripts) {
@@ -1785,7 +1786,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateContentTopOffset();
                 scheduleHomeSidebarFooterAvoid();
             });
-            scrollAfterNavigation(url, options);
         }
 
         window.FreecatNavigate = function (targetHref, options = {}) {
