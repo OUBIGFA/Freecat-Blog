@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const shared = require('../src/assets/shared.js');
 const seo = require('./seo.js');
-const { autoSpacing } = require('./markdown.js');
+const { autoSpacing, parseImageStyleAudio } = require('./markdown.js');
 const { SOCIAL_PLATFORM_ORDER } = require('./social-defaults.js');
 
 /**
@@ -118,6 +118,34 @@ function generateLogoIcon(siteConfig) {
         return `<img src="${shared.escapeHtml(logoUrl)}" class="w-full h-full object-contain" alt="Logo" />`;
     }
     return defaultIcon;
+}
+
+const NAV_AUDIO_IDLE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M9 8.48216V15.518L15.0307 12.0001L9 8.48216ZM7.75194 5.43872L18.2596 11.5682C18.4981 11.7073 18.5787 12.0135 18.4396 12.252C18.3961 12.3265 18.3341 12.3885 18.2596 12.432L7.75194 18.5615C7.51341 18.7006 7.20725 18.62 7.06811 18.3815C7.0235 18.305 7 18.2181 7 18.1296V5.87061C7 5.59446 7.22386 5.37061 7.5 5.37061C7.58853 5.37061 7.67547 5.39411 7.75194 5.43872Z"></path></svg>`;
+const NAV_AUDIO_PLAYING_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 3V17C20 19.2091 18.2091 21 16 21C13.7909 21 12 19.2091 12 17C12 14.7909 13.7909 13 16 13C16.7286 13 17.4117 13.1948 18 13.5351V6H9V17C9 19.2091 7.20914 21 5 21C2.79086 21 1 19.2091 1 17C1 14.7909 2.79086 13 5 13C5.72857 13 6.41165 13.1948 7 13.5351V3H20Z"></path></svg>`;
+
+function parseBooleanControl(value) {
+    if (value === true) return true;
+    if (typeof value === 'string') return /^(true|yes|y|1|是|开启|开)$/i.test(value.trim());
+    return false;
+}
+
+function generateNavAudioButton(siteConfig) {
+    const audio = parseImageStyleAudio(siteConfig && siteConfig.nav_audio);
+    if (!audio || !safeUrl(audio.src)) return '';
+
+    const safeSrc = escapeText(safeUrl(audio.src));
+    const safeTitle = escapeText(audio.title || 'Audio');
+    const autoplay = parseBooleanControl(siteConfig.nav_audio_autoplay) ? 'true' : 'false';
+    return `<button type="button" aria-label="Play audio" aria-pressed="false"
+                class="t-btn-icon group relative flex items-center justify-center rounded-full size-9 md:size-10 bg-[#f0f2f4] dark:bg-gray-800 text-[#1e293b] dark:text-slate-200 hover:text-primary dark:hover:text-primary"
+                id="nav-audio-toggle"
+                data-audio-src="${safeSrc}"
+                data-audio-title="${safeTitle}"
+                data-audio-autoplay="${autoplay}">
+                <span class="nav-audio-icon nav-audio-icon-idle icon-breathe text-lg md:text-xl text-gray-700 dark:text-gray-400 group-hover:rotate-12" aria-hidden="true">${NAV_AUDIO_IDLE_ICON}</span>
+                <span class="nav-audio-icon nav-audio-icon-playing icon-breathe hidden text-lg md:text-xl text-gray-700 dark:text-gray-400 group-hover:rotate-6" aria-hidden="true">${NAV_AUDIO_PLAYING_ICON}</span>
+            </button>
+            <audio id="nav-audio" preload="auto" src="${safeSrc}" data-audio-title="${safeTitle}"></audio>`;
 }
 
 function shouldRenderSocialPlatform(platform, siteConfig) {
@@ -280,6 +308,7 @@ function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, s
     const socialLinks = generateSocialLinks(socialConfig, siteConfig);
     const discoveryLinks = generateDiscoveryLinks(siteConfig);
     const searchEngineHtmlMarkers = generateSearchEngineHtmlMarkers(seoConfig);
+    const navAudioButton = generateNavAudioButton(siteConfig);
     const partialsCache = loadPartialsCache(partialsDir);
 
     function applySiteConfig(template) {
@@ -299,6 +328,7 @@ function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, s
         out = replacePlaceholder(out, /<!-- HERO_AVATAR -->/g, safeAvatar);
         out = replacePlaceholder(out, /<!-- SITE_FAVICON -->/g, safeFavicon);
         out = replacePlaceholder(out, /<!-- SITE_LOGO_ICON -->/g, logoIcon);
+        out = replacePlaceholder(out, /<!-- NAV_AUDIO_BUTTON -->/g, navAudioButton);
         out = replacePlaceholder(out, /<!-- THEME_SCRIPT -->/g, themeScript);
         out = replacePlaceholder(out, /<!-- SOCIAL_LINKS -->/g, socialLinks);
         out = replacePlaceholder(out, /<!-- TAG_MENU_ITEMS -->/g, tagMenuItemsHtml);

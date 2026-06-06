@@ -51,6 +51,9 @@ function defaultDescription(siteConfig, seoConfig) {
 }
 
 function defaultImage(siteConfig, seoConfig) {
+    if (siteConfig && siteConfig.hero_avatar_configured && siteConfig.hero_avatar) {
+        return siteConfig.hero_avatar;
+    }
     return seoConfig.site_default_image || siteConfig.hero_avatar || siteConfig.site_favicon || '';
 }
 

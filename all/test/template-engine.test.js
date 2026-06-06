@@ -14,7 +14,8 @@ function createTestEngine(siteUrl, options = {}) {
             site_name: 'FreeCat',
             site_url: siteUrl || '',
             site_favicon: '/image/freecat.png',
-            hero_avatar: '/image/freecat.png'
+            hero_avatar: '/image/freecat.png',
+            ...(options.siteConfig || {})
         },
         seoConfig: { site_language: 'zh-CN' },
         socialConfig: options.socialConfig || {},
@@ -198,5 +199,27 @@ test('engine pre-renders tag menu items into the header placeholder', () => {
     assert.equal(html.includes('<!-- TAG_MENU_ITEMS -->'), false); // 占位符已被替换
     assert.equal(html.includes('class="tag-menu-item'), true);     // 标签项已预渲染进页面
     assert.equal(html.includes('Loading tags...'), false);         // 不再有加载占位
+});
+
+test('nav audio button is omitted when nav_audio is empty', () => {
+    const html = createTestEngine('https://example.com').loadTemplate('template_index.html');
+
+    assert.equal(html.includes('id="nav-audio-toggle"'), false);
+    assert.equal(html.includes('id="nav-audio"'), false);
+});
+
+test('nav audio button renders before search button for image-style audio config', () => {
+    const html = createTestEngine('https://example.com', {
+        siteConfig: {
+            nav_audio: '![🎵中医为何难过科学关](https://lz.qaiu.top/parser?url=https://share.feijipan.com/s/aOWQf7va)',
+            nav_audio_autoplay: true
+        }
+    }).loadTemplate('template_index.html');
+
+    assert.equal(html.includes('id="nav-audio-toggle"'), true);
+    assert.equal(html.includes('data-audio-src="https://lz.qaiu.top/parser?url=https://share.feijipan.com/s/aOWQf7va"'), true);
+    assert.equal(html.includes('data-audio-title="中医为何难过科学关"'), true);
+    assert.equal(html.includes('data-audio-autoplay="true"'), true);
+    assert.ok(html.indexOf('id="nav-audio-toggle"') < html.indexOf('id="search-toggle"'));
 });
 

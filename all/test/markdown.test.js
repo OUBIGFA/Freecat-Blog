@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const { parseMarkdown, extractHeadingsAndGenerateTOC } = require('../build/markdown.js');
+const { parseMarkdown, extractHeadingsAndGenerateTOC, parseImageStyleAudio } = require('../build/markdown.js');
 
 test('callout titles are rendered as text', () => {
     const html = parseMarkdown('> [!note] <img src=x onerror=alert(1)>\\n> content');
@@ -76,6 +76,16 @@ test('multiline media image syntax picks the video URL for the video player', ()
     assert.equal(html.includes('https://example.com/cover.jpg'), false);
 });
 
+test('blockquote video links render the player placeholder before client scripts run', () => {
+    const html = parseMarkdown('> [🎬 Demo](https://example.com/video.mp4)');
+
+    assert.match(html, /class="video-player video-player-loading media-player-container"/);
+    assert.equal(html.includes('class="video-player-stage"'), true);
+    assert.equal(html.includes('class="media-player-loading-chrome"'), true);
+    assert.equal(html.includes('data-video-src="https://example.com/video.mp4"'), true);
+    assert.equal(html.includes('<blockquote>'), false);
+});
+
 test('markdown image syntax renders direct audio URLs as audio player placeholders', () => {
     const html = parseMarkdown('![Audio](https://example.com/audio.ogg)');
 
@@ -95,6 +105,15 @@ test('audio emoji forces image-link syntax to render as an audio player', () => 
     assert.equal(html.includes('data-audio-src="https://example.com/listen?id=1"'), true);
     assert.equal(html.includes('data-audio-title="Audio"'), true);
     assert.equal(html.includes('🎵'), false);
+});
+
+test('image-style audio parser keeps emoji-forced audio behavior reusable', () => {
+    const audio = parseImageStyleAudio('![🎵 Audio](https://example.com/listen?id=1)');
+
+    assert.deepEqual(audio, {
+        src: 'https://example.com/listen?id=1',
+        title: 'Audio'
+    });
 });
 
 test('markdown horizontal rules keep optional blank-line gap markers on both sides', () => {

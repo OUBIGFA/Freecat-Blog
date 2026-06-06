@@ -857,6 +857,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const tagMenuToggle = document.getElementById('tag-menu-toggle');
     const tagMenu = document.getElementById('tag-menu');
     const tagMenuItems = tagMenu ? tagMenu.querySelector('[data-tag-menu-items]') : null;
+    const navAudioToggle = document.getElementById('nav-audio-toggle');
+    const navAudio = document.getElementById('nav-audio');
 
     let searchIndex = null;
     let tagIndex = null;
@@ -1101,6 +1103,49 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => tagMenu.classList.remove('is-closing'), dropdownCloseMs);
     }
 
+    function initNavAudioButton() {
+        if (!navAudioToggle || !navAudio) return;
+
+        const idleIcon = navAudioToggle.querySelector('.nav-audio-icon-idle');
+        const playingIcon = navAudioToggle.querySelector('.nav-audio-icon-playing');
+
+        function syncNavAudioState() {
+            const isPlaying = !navAudio.paused && !navAudio.ended;
+            navAudioToggle.dataset.playing = isPlaying ? 'true' : 'false';
+            navAudioToggle.setAttribute('aria-pressed', isPlaying ? 'true' : 'false');
+            navAudioToggle.setAttribute('aria-label', isPlaying ? 'Pause audio' : 'Play audio');
+            if (idleIcon) idleIcon.classList.toggle('hidden', isPlaying);
+            if (playingIcon) playingIcon.classList.toggle('hidden', !isPlaying);
+        }
+
+        function playNavAudio() {
+            const playResult = navAudio.play();
+            if (playResult && typeof playResult.catch === 'function') {
+                playResult.catch(() => syncNavAudioState());
+            }
+        }
+
+        navAudioToggle.addEventListener('click', () => {
+            closeTagMenu();
+            closeHeaderSearch(true);
+            if (navAudio.paused || navAudio.ended) {
+                playNavAudio();
+            } else {
+                navAudio.pause();
+            }
+        });
+
+        ['play', 'playing', 'pause', 'ended', 'emptied'].forEach((eventName) => {
+            navAudio.addEventListener(eventName, syncNavAudioState);
+        });
+
+        syncNavAudioState();
+
+        if (navAudioToggle.dataset.audioAutoplay === 'true') {
+            window.setTimeout(playNavAudio, 0);
+        }
+    }
+
     if (tagMenuToggle && tagMenu) {
         tagMenuToggle.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -1128,6 +1173,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.key === 'Escape') closeTagMenu();
         });
     }
+
+    initNavAudioButton();
 
     // 搜索 UI 切换
     if (searchToggle && searchContainer && navLinks) {

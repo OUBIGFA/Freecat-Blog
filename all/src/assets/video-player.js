@@ -10,10 +10,9 @@
     const VIDEO_EXT_RE = /\.(?:mp4|webm|ogv|mov|m4v|m3u8)(?:[?#]|$)/i;
     const VIDEO_EMOJI_RE = /\u{1f3ac}|\u{1f3a5}|\u{1f4f9}/gu;
 
+    initVideoPlayers();
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initVideoPlayers);
-    } else {
-        initVideoPlayers();
+        document.addEventListener('DOMContentLoaded', initVideoPlayers, { once: true });
     }
 
     function initVideoPlayers() {

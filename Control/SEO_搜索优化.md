@@ -12,7 +12,7 @@ _05: 作者主页链接，可留空；填写时建议使用完整网址。
 site_author_sameas:
 _06: 作者社交主页列表（YAML 数组），用于 Schema.org Person.sameAs，帮助 Google 识别作者身份。示例见下方注释。
 site_default_image: /image/freecat.png
-_07: 默认分享图片；页面或文章没有封面图时使用。
+_07: 默认分享图片；页面或文章没有封面图时使用。若 site_网站属性.md 的 hero_avatar 已填写，构建时会自动优先使用头像。
 google_html_marker: <meta name="google-site-verification" content="SYFsSowdYtQ4XyZC1rsuoK8zHEfDe2CDd4MWoRZXnMo" />
 _08: Google Search Console 的 HTML 标记；直接粘贴 Google 提供的整段 <meta name="google-site-verification" ... />，可留空。
 bing_html_marker:

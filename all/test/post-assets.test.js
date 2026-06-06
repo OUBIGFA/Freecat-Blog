@@ -268,18 +268,24 @@ test('article video players default to 16:9 before metadata and then use real vi
     assert.match(mediaPlayerCss, /\.media-progress-container\s*\{/);
     assert.match(mediaPlayerCss, /\.media-player-loading-chrome\s*\{/);
     assert.match(mediaPlayerCss, /\.media-player-loading-progress::before\s*\{/);
+    assert.match(mediaPlayerCss, /\.media-player-loading-controls-left,\s*\.media-player-loading-controls-right\s*\{/);
 });
 
-test('all-page compact cards clamp excerpts to two lines', () => {
+test('all-page compact cards use native two-line excerpt ellipsis', () => {
+    const excerpt = 'Long excerpt '.repeat(40);
     const html = postCardTemplate.renderPostCard({
         link: '/posts/example.html',
         titleHtml: 'Example',
-        excerptHtml: 'Long excerpt '.repeat(40),
+        excerptHtml: excerpt,
         date: '2026-05-30',
         layout: 'compact-grid'
     });
 
-    assert.match(html, /<p class="post-card-excerpt[^"]*" style="[^"]*-webkit-line-clamp:2/);
+    assert.match(html, /<p class="post-card-excerpt[^"]*\bmin-h-\[3\.3em\][^"]*" style="[^"]*-webkit-line-clamp:2/);
+    assert.match(html, /overflow-wrap:break-word/);
+    assert.equal(html.includes(excerpt), true);
+    assert.doesNotMatch(html, /data-excerpt-overflow/);
+    assert.doesNotMatch(headBase, /post-card-excerpt-clamp/);
     assert.doesNotMatch(html, /-webkit-line-clamp:9/);
 });
 

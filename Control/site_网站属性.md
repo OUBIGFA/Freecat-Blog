@@ -24,6 +24,10 @@ _11: 🔹 浅色模式：全站强制使用明亮风格
 theme_dark: false
 _12: 🔹 深色模式：全站强制使用暗黑风格
 show_recent_posts: true
-_13: 🔹 最近更新开关：是否显示最近更新的十篇文章
+_13: 🔹 最近更新开关：是否显示最近更新的文章
+nav_audio: ![🎵纸飞机](https://lz.qaiu.top/parser?url=https://share.feijipan.com/s/D1bleFCJ)
+_14: 🔹 顶部导航音频：填写 ![🎵标题](音频链接) 后，在顶部导航栏显示播放按钮
+nav_audio_autoplay: false
+_15: 🔹 顶部导航音频是否默认播放
 ---
 

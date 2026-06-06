@@ -88,15 +88,19 @@ const siteDefaults = {
     footer_copyright: '© FreeCat | Curiosity is the best motivation.',
     hero_title: 'Hi, I\'m FreeCat.Building Blog & writing.',
     hero_subtitle: 'Always maintain a strong curiosity and be willing to explore a world of freedom, experiencing a life of liberty.',
-    hero_avatar: '/image/freecat.png',
+    hero_avatar: '',
     posts_per_page: DEFAULT_POSTS_PER_PAGE,
     default_theme: 'system',
     site_logo_icon: '',
     site_favicon: '/image/freecat.png',
     site_url: '',
-    show_recent_posts: false
+    show_recent_posts: false,
+    nav_audio: '',
+    nav_audio_autoplay: false
 };
 const siteConfig = loadConfig(DIRS.control, 'site', 'site.md', siteDefaults);
+const hasConfiguredHeroAvatar = String(siteConfig.hero_avatar || '').trim() !== '';
+siteConfig.hero_avatar_configured = hasConfiguredHeroAvatar;
 if (!siteConfig.site_favicon) siteConfig.site_favicon = '/image/freecat.png';
 if (!siteConfig.hero_avatar) siteConfig.hero_avatar = '/image/freecat.png';
 
@@ -127,6 +131,7 @@ const seoConfig = loadConfig(DIRS.control, 'SEO', 'SEO_搜索优化.md', {
     enable_llms_txt: true
 });
 if (seoConfig.site_url) siteConfig.site_url = seoConfig.site_url;
+if (hasConfiguredHeroAvatar) seoConfig.site_default_image = siteConfig.hero_avatar;
 
 console.log('👤 Loading about page configuration...');
 const aboutConfig = loadConfig(DIRS.control, 'about', 'about.md', {

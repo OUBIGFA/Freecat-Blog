@@ -488,6 +488,10 @@ function hasAudioMarker(text) {
     return AUDIO_EMOJI_RE.test(String(text || ''));
 }
 
+function cleanAudioTitle(text) {
+    return String(text || '').replace(/\u{1f3b5}/gu, '').trim();
+}
+
 function pickAudioUrl(href, { force = false } = {}) {
     const raw = String(href || '').trim();
     if (!raw) return '';
@@ -507,6 +511,21 @@ function pickAudioUrl(href, { force = false } = {}) {
 
 function isAudioUrl(href) {
     return Boolean(pickAudioUrl(href));
+}
+
+function parseImageStyleAudio(value) {
+    const raw = String(value || '').trim();
+    if (!raw) return null;
+
+    const match = /^!\[([^\]]*)\]\(([\s\S]*?)\)$/.exec(raw);
+    if (!match) return null;
+
+    const title = cleanAudioTitle(match[1]);
+    const force = hasAudioMarker(match[1]);
+    const src = pickAudioUrl(match[2], { force });
+    if (!src) return null;
+
+    return { src, title };
 }
 
 function pickVideoUrl(href, { force = false } = {}) {
@@ -607,8 +626,11 @@ function renderExternalEmbed(href, text) {
     </figure>`;
 }
 
-function renderMediaLoadingChrome(kind, safeSrc, fallbackLabel) {
+function renderMediaLoadingChrome(kind, safeSrc, fallbackLabel, { fullscreen = false } = {}) {
     const label = fallbackLabel || safeSrc;
+    const fullscreenControl = fullscreen
+        ? '<span class="media-player-loading-fullscreen"></span>'
+        : '';
     return `
         <div class="media-player-loading-chrome">
             <div class="media-player-loading-title">
@@ -621,8 +643,14 @@ function renderMediaLoadingChrome(kind, safeSrc, fallbackLabel) {
             </div>
             <div class="media-player-loading-progress"></div>
             <div class="media-player-loading-controls">
-                <span class="media-player-loading-play"></span>
-                <span class="media-player-loading-settings"></span>
+                <div class="media-player-loading-controls-left">
+                    <span class="media-player-loading-play"></span>
+                    <span class="media-player-loading-volume"></span>
+                </div>
+                <div class="media-player-loading-controls-right">
+                    <span class="media-player-loading-speed">1.0x</span>
+                    ${fullscreenControl}
+                </div>
             </div>
         </div>`;
 }
@@ -643,7 +671,7 @@ function renderVideoEmbed(href, text, { force = false } = {}) {
                 <span class="video-player-loading-icon"></span>
             </div>
         </div>
-        ${renderMediaLoadingChrome('video', safeSrc, fallbackLabel)}
+        ${renderMediaLoadingChrome('video', safeSrc, fallbackLabel, { fullscreen: true })}
     </figure>`;
 }
 
@@ -654,12 +682,26 @@ function renderAudioEmbed(href, text, { force = false } = {}) {
     const src = pickAudioUrl(href, { force });
     if (!src) return '';
     const safeSrc = escapeHtml(src);
-    const safeTitle = escapeRenderedText(String(text || '').replace(/\u{1f3b5}/gu, '').trim());
+    const safeTitle = escapeRenderedText(cleanAudioTitle(text));
     const fallbackLabel = safeTitle || safeSrc;
     return `
     <figure class="audio-player audio-player-loading media-player-container" data-audio-src="${safeSrc}" data-audio-title="${safeTitle}">
         ${renderMediaLoadingChrome('audio', safeSrc, fallbackLabel)}
     </figure>`;
+}
+
+function stripRenderedHtmlTags(html) {
+    return decodeBasicHtmlEntities(String(html || '').replace(/<[^>]*>/g, '').trim());
+}
+
+function extractSingleRenderedLink(html) {
+    const trimmed = String(html || '').trim();
+    const match = /^<p>\s*<a\b[^>]*\bhref="([^"]+)"[^>]*>([\s\S]*?)<\/a>\s*<\/p>$/i.exec(trimmed);
+    if (!match) return null;
+    return {
+        href: decodeBasicHtmlEntities(match[1]),
+        text: stripRenderedHtmlTags(match[2])
+    };
 }
 
 // 解析图片 markdown title 中的尺寸标记。
@@ -1160,6 +1202,15 @@ function buildRenderer() {
     </figure>`;
     };
 
+    const blockquoteRenderer = renderer.blockquote;
+    renderer.blockquote = (quote) => {
+        const renderedLink = extractSingleRenderedLink(quote);
+        if (renderedLink && (isVideoUrl(renderedLink.href) || hasVideoMarker(renderedLink.text))) {
+            return renderVideoEmbed(renderedLink.href, renderedLink.text, { force: hasVideoMarker(renderedLink.text) });
+        }
+        return blockquoteRenderer.call(renderer, quote);
+    };
+
     const paragraphRenderer = renderer.paragraph;
     renderer.paragraph = (text) => {
         const trimmed = String(text || '').trim();
@@ -1322,6 +1373,7 @@ module.exports = {
     applyParagraphAlignment,
     extractHeadingsAndGenerateTOC,
     addHeadingIds,
+    parseImageStyleAudio,
     stripMarkdown,
     slugify
 };
