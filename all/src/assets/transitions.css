@@ -360,7 +360,6 @@
 }
 
 .nav-audio-control[data-playing="true"]:hover .nav-audio-volume-slider-wrapper,
-.nav-audio-control[data-playing="true"]:focus-within .nav-audio-volume-slider-wrapper,
 .nav-audio-control[data-playing="true"][data-volume-open="true"] .nav-audio-volume-slider-wrapper {
     width: 80px;
     opacity: 1;

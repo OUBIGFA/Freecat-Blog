@@ -19,7 +19,7 @@ function createTestEngine(siteUrl, options = {}) {
         },
         seoConfig: { site_language: 'zh-CN' },
         socialConfig: options.socialConfig || {},
-        assetVersion: '',
+        assetVersion: options.assetVersion || '',
         tagMenuItemsHtml: options.tagMenuItemsHtml || ''
     });
 }
@@ -56,6 +56,8 @@ test('tag click query is pre-encoded for inline handlers', () => {
 
     assert.equal(html.includes("x');alert(1);//"), false);
     assert.equal(html.includes('x%27)%3Balert(1)%3B%2F%2F'), true);
+    assert.equal(html.includes('window.FreecatNavigate'), true);
+    assert.equal(html.includes("window.location.href='/search.html?tag=x%27)%3Balert(1)%3B%2F%2F'"), true);
 });
 
 test('404 template includes the theme bootstrap only once', () => {
@@ -72,6 +74,14 @@ test('404 page uses root asset paths so nested missing URLs render correctly', (
     assert.equal(html.includes('src="./assets/'), false);
     assert.equal(html.includes('href="/assets/tailwind.css'), true);
     assert.equal(html.includes('src="/assets/main.js'), true);
+});
+
+test('root asset urls receive the build asset version', () => {
+    const html = createTestEngine('https://example.com', { assetVersion: 'test-version' }).loadTemplate('template_post.html');
+
+    assert.equal(html.includes('href="/assets/post.css?v=test-version"'), true);
+    assert.equal(html.includes('href="/assets/tailwind.css?v=test-version"'), true);
+    assert.equal(html.includes('src="/assets/main.js?v=test-version"'), true);
 });
 
 test('theme bootstrap prevents initial restored scroll on normal entry and reload', () => {

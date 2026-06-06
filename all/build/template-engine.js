@@ -326,7 +326,7 @@ function versionAssetUrls(html, assetVersion) {
     if (!assetVersion) return html;
     const encodedVersion = encodeURIComponent(String(assetVersion));
     return html.replace(
-        /((?:href|src)=["'](?:\.\/|\.\.\/)assets\/[^"'\?#]+)(\?[^"']*)?(["'])/g,
+        /((?:href|src)=["'](?:\/assets\/|\.\/assets\/|\.\.\/assets\/)[^"'\?#]+)(\?[^"']*)?(["'])/g,
         (match, assetPath, query, quote) => {
             const separator = query ? `${query}&` : '?';
             return `${assetPath}${separator}v=${encodedVersion}${quote}`;

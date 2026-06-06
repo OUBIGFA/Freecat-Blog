@@ -80,6 +80,7 @@
             ? ` data-bg-light="${colors.bg}" data-text-light="${colors.text}" data-bg-dark="${colors.bgDark}" data-text-dark="${colors.textDark}"`
             : '';
         const encodedForClick = encodeTagQueryValue(tag);
+        const searchUrl = '/search.html?tag=' + encodedForClick;
         const visibleText = options.escapeText === false ? tag : escapeHtml(tag);
         const extraClass = options.darkHover ? ' dark:hover:brightness-110' : '';
         // tag-span 类名仅在 withDataAttrs（即客户端渲染场景）时添加，
@@ -88,7 +89,7 @@
         return (
             '<span class="' + tagSpanClass + 'freecat-tag-text relative z-10 inline-flex items-center px-2.5 py-0.5 rounded-[4px] text-[10px] font-medium tracking-wider cursor-pointer hover:brightness-95' + extraClass + ' transition-[filter] duration-200 ease-out whitespace-nowrap" ' +
             'style="background: ' + colors.bg + '; color: ' + colors.text + ';"' + dataAttrs + ' ' +
-            "onclick=\"event.preventDefault(); event.stopPropagation(); window.location.href='/search.html?tag=" + encodedForClick + "';\">" +
+            "onclick=\"event.preventDefault(); event.stopPropagation(); if (window.FreecatNavigate) window.FreecatNavigate('" + searchUrl + "'); else window.location.href='" + searchUrl + "';\">" +
             visibleText +
             '</span>'
         );

@@ -482,22 +482,22 @@ article {
 }
 
 /* 鍥剧墖鍚庨潰鐨勬爣棰橈細閲嶇疆 margin-top锛屼繚鎸佷笌娈佃惤鐩稿悓鐨勯棿璺?*/
-.prose .relative.w-full.inline-block+h1,
-.prose .relative.w-full.inline-block+h2,
-.prose .relative.w-full.inline-block+h3,
-.prose .relative.w-full.inline-block+h4,
-.prose .relative.w-full.inline-block+h5,
-.prose .relative.w-full.inline-block+h6 {
+.prose .relative.w-full.inline-block+h1:not(.article-heading),
+.prose .relative.w-full.inline-block+h2:not(.article-heading),
+.prose .relative.w-full.inline-block+h3:not(.article-heading),
+.prose .relative.w-full.inline-block+h4:not(.article-heading),
+.prose .relative.w-full.inline-block+h5:not(.article-heading),
+.prose .relative.w-full.inline-block+h6:not(.article-heading) {
     margin-top: 0 !important;
     /* 浣跨敤鍥剧墖鑷繁鐨?margin-bottom (1.618em) 浣滀负鍞竴闂磋窛 */
 }
 
-.prose figure.post-image+h1,
-.prose figure.post-image+h2,
-.prose figure.post-image+h3,
-.prose figure.post-image+h4,
-.prose figure.post-image+h5,
-.prose figure.post-image+h6 {
+.prose figure.post-image+h1:not(.article-heading),
+.prose figure.post-image+h2:not(.article-heading),
+.prose figure.post-image+h3:not(.article-heading),
+.prose figure.post-image+h4:not(.article-heading),
+.prose figure.post-image+h5:not(.article-heading),
+.prose figure.post-image+h6:not(.article-heading) {
     margin-top: 0 !important;
 }
 

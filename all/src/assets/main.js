@@ -296,9 +296,23 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof sync === 'function') sync({ replace: true });
         }
 
+        function hasSameOriginReferrer() {
+            if (!document.referrer) return false;
+            try {
+                return new URL(document.referrer).origin === window.location.origin;
+            } catch (err) {
+                return false;
+            }
+        }
+
+        function canGoBackWithinSite() {
+            return !!(window.history.state && window.history.state.freecatSoftNav)
+                || hasSameOriginReferrer();
+        }
+
         function goBackOrHome() {
             syncCurrentHistoryEntry();
-            if (window.history.length > 1) {
+            if (canGoBackWithinSite()) {
                 window.history.back();
                 return;
             }
@@ -865,6 +879,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let tagMenuBuilt = false;
     const dropdownCloseMs = getCssDurationMs('--dropdown-close-dur', 150);
     const panelCloseMs = getCssDurationMs('--panel-close-dur', 350);
+
+    function navigateWithinSite(url, options = {}) {
+        const navigate = window.FreecatNavigate;
+        if (typeof navigate === 'function') {
+            navigate(url, options);
+            return;
+        }
+        window.location.href = url;
+    }
     // 顶栏搜索的遮罩 / 输入框定位 / overlay 样式已挪到 transitions.css，
     // 这里不再运行时注入。
 
@@ -1110,7 +1133,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const VOLUME_KEY = 'freecat-nav-audio-volume-v1';
         const DEFAULT_NAV_AUDIO_VOLUME = 0.5;
         const STATE_SAVE_INTERVAL_MS = 1500;
-        const NAV_AUDIO_VOLUME_HIDE_DELAY_MS = 2000;
+        const NAV_AUDIO_VOLUME_HIDE_DELAY_MS = 1000;
         const navAudioControl = document.getElementById('nav-audio-control');
         const navAudioVolume = document.getElementById('nav-audio-volume');
         const navAudioVolumeWrapper = navAudioVolume
@@ -1127,6 +1150,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let currentVolume = readSavedNavAudioVolume();
         let errorSkipTimer = 0;
         let volumeHideTimer = 0;
+        let navAudioVolumePointerInside = false;
         const failedTrackIndexes = new Set();
 
         if (!playlist.length) return;
@@ -1208,21 +1232,41 @@ document.addEventListener('DOMContentLoaded', () => {
             navAudioControl.dataset.volumeOpen = shouldOpen ? 'true' : 'false';
         }
 
+        function shouldKeepNavAudioVolumeOpen() {
+            return navAudioVolumePointerInside
+                || navAudioControl.matches(':hover')
+                || (navAudioVolumeWrapper && navAudioVolumeWrapper.matches(':hover'));
+        }
+
         function scheduleNavAudioVolumeClose() {
             if (!navAudioControl) return;
             if (volumeHideTimer) window.clearTimeout(volumeHideTimer);
             volumeHideTimer = window.setTimeout(() => {
                 volumeHideTimer = 0;
-                if (
-                    navAudioControl.matches(':hover')
-                    || navAudioControl.matches(':focus-within')
-                    || (navAudioVolumeWrapper && navAudioVolumeWrapper.matches(':hover'))
-                ) {
+                if (shouldKeepNavAudioVolumeOpen()) {
                     setNavAudioVolumeOpen(true);
                     return;
                 }
                 setNavAudioVolumeOpen(false);
             }, NAV_AUDIO_VOLUME_HIDE_DELAY_MS);
+        }
+
+        function isNavAudioVolumeEventTarget(target) {
+            return target instanceof Node
+                && (
+                    navAudioControl.contains(target)
+                    || (navAudioVolumeWrapper && navAudioVolumeWrapper.contains(target))
+                );
+        }
+
+        function closeNavAudioVolumeOnOutsidePointerDown(event) {
+            if (!navAudioControl || navAudioControl.dataset.volumeOpen !== 'true') return;
+            if (isNavAudioVolumeEventTarget(event.target)) return;
+            navAudioVolumePointerInside = false;
+            if (document.activeElement instanceof HTMLElement && navAudioControl.contains(document.activeElement)) {
+                document.activeElement.blur();
+            }
+            setNavAudioVolumeOpen(false);
         }
 
         function getContinuousTime(state) {
@@ -1387,9 +1431,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (navAudioVolumeWrapper) {
-            navAudioVolumeWrapper.addEventListener('pointerenter', () => setNavAudioVolumeOpen(true));
-            navAudioVolumeWrapper.addEventListener('pointerleave', scheduleNavAudioVolumeClose);
+            navAudioVolumeWrapper.addEventListener('pointerenter', () => {
+                navAudioVolumePointerInside = true;
+                setNavAudioVolumeOpen(true);
+            });
+            navAudioVolumeWrapper.addEventListener('pointerleave', () => {
+                navAudioVolumePointerInside = false;
+                scheduleNavAudioVolumeClose();
+            });
         }
+
+        document.addEventListener('pointerdown', closeNavAudioVolumeOnOutsidePointerDown, true);
 
         navAudio.addEventListener('ended', () => {
             if (requestedPlayback) {
@@ -1568,7 +1620,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const url = new URL(link.href, window.location.href);
             if (url.origin !== window.location.origin) return false;
             if (isSameDocumentHashOnly(url)) return false;
-            if (url.pathname === '/search.html') return false;
             if (/\/assets\//.test(url.pathname)) return false;
             if (/\.(?:avif|webp|png|jpe?g|gif|svg|ico|pdf|zip|mp3|m4a|wav|ogg|mp4|webm|xml|json|txt)(?:$|[?#])/i.test(url.pathname)) return false;
             return true;
@@ -1737,6 +1788,13 @@ document.addEventListener('DOMContentLoaded', () => {
             scrollAfterNavigation(url, options);
         }
 
+        window.FreecatNavigate = function (targetHref, options = {}) {
+            return softNavigate(targetHref, options).catch(err => {
+                console.error('Soft navigation failed:', err);
+                window.location.href = new URL(targetHref, window.location.href).href;
+            });
+        };
+
         document.addEventListener('click', event => {
             const link = event.target.closest && event.target.closest('a[href]');
             if (!shouldSoftNavigateLink(link, event)) return;
@@ -1815,7 +1873,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             // 按 Enter 跳转到搜索页
             if (e.key === 'Enter' && searchInput.value.trim()) {
-                window.location.href = `/search.html?q=${encodeURIComponent(searchInput.value.trim())}`;
+                navigateWithinSite(`/search.html?q=${encodeURIComponent(searchInput.value.trim())}`);
             }
         });
 

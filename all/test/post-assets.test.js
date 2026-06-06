@@ -338,6 +338,12 @@ test('search page result count reserves space before rendering the numeric badge
 });
 
 test('search page soft navigation re-renders against the current page before restoring scroll', () => {
+    assert.match(mainJs, /function navigateWithinSite\(url, options = \{\}\)\s*\{/);
+    assert.match(mainJs, /window\.FreecatNavigate = function \(targetHref, options = \{\}\)\s*\{/);
+    assert.equal(mainJs.includes("navigateWithinSite(`/search.html?q=${encodeURIComponent(searchInput.value.trim())}`);"), true);
+    assert.doesNotMatch(mainJs, /url\.pathname === '\/search\.html'/);
+    assert.match(mainJs, /if \(node !== currentHeader\) node\.remove\(\);/);
+    assert.match(mainJs, /if \(node === newHeader \|\| node\.nodeName === 'SCRIPT'\) return;/);
     assert.match(mainJs, /async function initSearchPageResults\(\)\s*\{/);
     assert.match(mainJs, /const searchPageReady = initSearchPageResults\(\);/);
     assert.match(mainJs, /if \(pageReady && typeof pageReady\.then === 'function'\) \{\s*await pageReady;/);
@@ -348,12 +354,29 @@ test('search page soft navigation re-renders against the current page before res
 
 test('nav audio defaults to half volume and exposes the matching volume slider while playing', () => {
     assert.match(mainJs, /const DEFAULT_NAV_AUDIO_VOLUME = 0\.5;/);
-    assert.match(mainJs, /const NAV_AUDIO_VOLUME_HIDE_DELAY_MS = 2000;/);
+    assert.match(mainJs, /const NAV_AUDIO_VOLUME_HIDE_DELAY_MS = 1000;/);
     assert.match(mainJs, /navAudio\.volume = nextVolume;/);
     assert.match(mainJs, /navAudioVolume\.style\.setProperty\('--volume-percent', `\$\{nextVolume \* 100\}%`\);/);
     assert.match(mainJs, /if \(navAudioControl\) navAudioControl\.dataset\.playing = isPlaying \? 'true' : 'false';/);
-    assert.match(mainJs, /navAudioVolumeWrapper\.addEventListener\('pointerenter', \(\) => setNavAudioVolumeOpen\(true\)\);/);
-    assert.match(mainJs, /navAudioVolumeWrapper\.addEventListener\('pointerleave', scheduleNavAudioVolumeClose\);/);
+    assert.match(mainJs, /let navAudioVolumePointerInside = false;/);
+    const shouldKeepVolumeBlock = mainJs.match(/function shouldKeepNavAudioVolumeOpen\(\) \{[\s\S]*?\n        \}/)?.[0] || '';
+    assert.equal(mainJs.includes('function shouldKeepNavAudioVolumeOpen()'), true);
+    assert.equal(mainJs.includes('return navAudioVolumePointerInside'), true);
+    assert.equal(mainJs.includes("navAudioControl.matches(':hover')"), true);
+    assert.equal(mainJs.includes("navAudioControl.matches(':focus-within')"), true);
+    assert.doesNotMatch(shouldKeepVolumeBlock, /focus-within/);
+    assert.equal(mainJs.includes("navAudioVolumeWrapper.matches(':hover')"), true);
+    assert.match(mainJs, /if \(shouldKeepNavAudioVolumeOpen\(\)\) \{\s*setNavAudioVolumeOpen\(true\);/);
+    assert.match(mainJs, /navAudioVolumeWrapper\.addEventListener\('pointerenter', \(\) => \{\s*navAudioVolumePointerInside = true;\s*setNavAudioVolumeOpen\(true\);\s*\}\);/);
+    assert.match(mainJs, /navAudioVolumeWrapper\.addEventListener\('pointerleave', \(\) => \{\s*navAudioVolumePointerInside = false;\s*scheduleNavAudioVolumeClose\(\);\s*\}\);/);
+    assert.equal(mainJs.includes('function closeNavAudioVolumeOnOutsidePointerDown(event)'), true);
+    assert.match(mainJs, /if \(!navAudioControl \|\| navAudioControl\.dataset\.volumeOpen !== 'true'\) return;/);
+    assert.match(mainJs, /if \(isNavAudioVolumeEventTarget\(event\.target\)\) return;/);
+    assert.match(mainJs, /document\.activeElement instanceof HTMLElement && navAudioControl\.contains\(document\.activeElement\)/);
+    assert.match(mainJs, /document\.activeElement\.blur\(\);/);
+    assert.match(mainJs, /navAudioVolumePointerInside = false;[\s\S]*document\.activeElement\.blur\(\);[\s\S]*setNavAudioVolumeOpen\(false\);/);
+    assert.match(mainJs, /document\.addEventListener\('pointerdown', closeNavAudioVolumeOnOutsidePointerDown, true\);/);
+    assert.doesNotMatch(transitionsCss, /\.nav-audio-control\[data-playing="true"\]:focus-within \.nav-audio-volume-slider-wrapper/);
     assert.match(transitionsCss, /\.nav-audio-control\[data-playing="true"\]\[data-volume-open="true"\] \.nav-audio-volume-slider-wrapper\s*\{[\s\S]*width:\s*80px;[\s\S]*opacity:\s*1;/);
     assert.match(transitionsCss, /\.nav-audio-volume-slider\s*\{[\s\S]*height:\s*4px;[\s\S]*background:\s*linear-gradient\(to right, #475569 0%, #475569 var\(--volume-percent, 50%\), #cbd5e1 var\(--volume-percent, 50%\), #cbd5e1 100%\);/);
     assert.match(transitionsCss, /\.nav-audio-volume-slider::-webkit-slider-thumb\s*\{[\s\S]*width:\s*12px;[\s\S]*height:\s*12px;[\s\S]*border:\s*2px solid white;/);
@@ -530,6 +553,14 @@ test('article Chinese font weight ranges cover title and bold text rules', () =>
     );
 });
 
+test('article headings keep peer spacing after standalone post images', () => {
+    assert.equal(postCss.includes('.prose figure.post-image+h3:not(.article-heading),'), true);
+    assert.equal(postCss.includes('.prose figure.post-image+h3,'), false);
+    assert.equal(postCss.includes('.prose .relative.w-full.inline-block+h3:not(.article-heading),'), true);
+    assert.equal(postCss.includes('.prose .relative.w-full.inline-block+h3,'), false);
+    assert.match(postCss, /\.prose :where\([^)]*figure\.post-image[^)]*\)\+\.article-heading-depth-2,\s*\.prose \.markdown-gap\+\.article-heading-depth-2[\s\S]*margin-block-start:\s*var\(--article-space-heading-peer-2\)\s*!important;/);
+});
+
 test('markdown horizontal rules render as thick article dividers', () => {
     const hrBlocks = postCss.match(/(?:\.dark )?\.prose>hr\s*\{[^}]*\}/g) || [];
 
@@ -692,9 +723,19 @@ test('go back preserves the update sort switch state in history entries', () => 
     assert.match(mainJs, /const updateSortParam = 'updateSort';/);
     assert.match(mainJs, /params\.get\(updateSortParam\)\s*===\s*updateSortValue/);
     assert.match(mainJs, /window\.FreecatSyncUpdateSortUrl = syncUpdateSortUrl;/);
-    assert.match(mainJs, /syncCurrentHistoryEntry\(\);[\s\S]*window\.history\.back\(\);/);
+    assert.match(mainJs, /syncCurrentHistoryEntry\(\);[\s\S]*canGoBackWithinSite\(\)[\s\S]*window\.history\.back\(\);/);
     assert.match(mainJs, /url\.searchParams\.set\('updateSort',\s*'modified'\);/);
     assert.match(mainJs, /initDeferredImages\(\);\s*initUpdateSortControls\(\);/);
+});
+
+test('direct URL entries use the home fallback for go back controls', () => {
+    assert.match(mainJs, /function hasSameOriginReferrer\(\)\s*\{/);
+    assert.match(mainJs, /new URL\(document\.referrer\)\.origin === window\.location\.origin/);
+    assert.match(mainJs, /function canGoBackWithinSite\(\)\s*\{/);
+    assert.match(mainJs, /window\.history\.state && window\.history\.state\.freecatSoftNav/);
+    assert.match(mainJs, /\|\| hasSameOriginReferrer\(\);/);
+    assert.match(mainJs, /if \(canGoBackWithinSite\(\)\) \{\s*window\.history\.back\(\);/);
+    assert.doesNotMatch(mainJs, /window\.history\.length > 1/);
 });
 
 test('post cards render the audio glyph for music-prefixed excerpts', () => {
