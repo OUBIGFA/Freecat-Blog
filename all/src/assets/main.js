@@ -1513,6 +1513,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const managedHeadSelector = 'style[data-soft-nav-head]';
         const scrollStorageKey = 'freecat-soft-nav-scroll-v1';
         const maxScrollEntries = 80;
+        const softNavTransitionClass = 'soft-nav-transitioning';
         const softNavState = {
             seq: 0,
             scrollFrame: 0,
@@ -1668,6 +1669,26 @@ document.addEventListener('DOMContentLoaded', () => {
             return Promise.all(Array.from(newDoc.head.querySelectorAll('link[rel~="stylesheet"][href]')).map(ensureStylesheet));
         }
 
+        function shouldReduceSoftNavMotion() {
+            return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        }
+
+        function waitForFrame() {
+            return new Promise(resolve => requestAnimationFrame(() => resolve()));
+        }
+
+        function showSoftNavCover() {
+            document.documentElement.classList.add(softNavTransitionClass);
+        }
+
+        async function finishSoftNavSwap() {
+            await waitForFrame();
+            if (!shouldReduceSoftNavMotion()) {
+                await new Promise(resolve => window.setTimeout(resolve, 90));
+            }
+            document.documentElement.classList.remove(softNavTransitionClass);
+        }
+
         function getTargetScripts(newDoc) {
             return Array.from(newDoc.querySelectorAll('script[src]'))
                 .map(script => script.getAttribute('src'))
@@ -1733,59 +1754,64 @@ document.addEventListener('DOMContentLoaded', () => {
             saveSoftScrollPosition();
             closeHeaderSearch(true);
             closeTagMenu();
+            showSoftNavCover();
 
-            const response = await fetch(url.href, { credentials: 'same-origin' });
-            if (!response.ok) throw new Error('HTTP ' + response.status);
-            const htmlText = await response.text();
-            if (seq !== softNavState.seq) return;
+            try {
+                const response = await fetch(url.href, { credentials: 'same-origin' });
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                const htmlText = await response.text();
+                if (seq !== softNavState.seq) return;
 
-            const newDoc = new DOMParser().parseFromString(htmlText, 'text/html');
-            const currentHeader = document.querySelector('body > div > header') || document.querySelector('header');
-            const currentShell = currentHeader && currentHeader.parentElement;
-            const newHeader = newDoc.querySelector('body > div > header') || newDoc.querySelector('header');
-            const newShell = getPageShell(newDoc);
-            if (!currentHeader || !currentShell || !newHeader || !newShell || !newDoc.body) {
-                throw new Error('Soft navigation target is missing the expected page shell');
+                const newDoc = new DOMParser().parseFromString(htmlText, 'text/html');
+                const currentHeader = document.querySelector('body > div > header') || document.querySelector('header');
+                const currentShell = currentHeader && currentHeader.parentElement;
+                const newHeader = newDoc.querySelector('body > div > header') || newDoc.querySelector('header');
+                const newShell = getPageShell(newDoc);
+                if (!currentHeader || !currentShell || !newHeader || !newShell || !newDoc.body) {
+                    throw new Error('Soft navigation target is missing the expected page shell');
+                }
+
+                const targetScripts = getTargetScripts(newDoc);
+                await syncHead(newDoc);
+                if (seq !== softNavState.seq) return;
+
+                syncAttributes(document.body, newDoc.body);
+                syncAttributes(currentShell, newShell);
+                unobserveDeferredImages(currentShell);
+                Array.from(currentShell.childNodes).forEach(node => {
+                    if (node !== currentHeader) node.remove();
+                });
+                Array.from(newShell.childNodes).forEach(node => {
+                    if (node === newHeader || node.nodeName === 'SCRIPT') return;
+                    currentShell.appendChild(document.importNode(node, true));
+                });
+
+                if (options.history !== 'none') {
+                    const method = options.history === 'replace' ? 'replaceState' : 'pushState';
+                    history[method]({ freecatSoftNav: true }, '', url.href);
+                }
+                softNavState.currentKey = getUrlKey(url.href);
+
+                scrollAfterNavigation(url, options);
+                const pageReady = runPageReady(newDoc);
+
+                for (const scriptSrc of targetScripts) {
+                    await ensureScript(scriptSrc);
+                }
+                if (seq !== softNavState.seq) return;
+
+                if (pageReady && typeof pageReady.then === 'function') {
+                    await pageReady;
+                }
+                if (seq !== softNavState.seq) return;
+
+                requestAnimationFrame(() => {
+                    updateContentTopOffset();
+                    scheduleHomeSidebarFooterAvoid();
+                });
+            } finally {
+                if (seq === softNavState.seq) await finishSoftNavSwap();
             }
-
-            const targetScripts = getTargetScripts(newDoc);
-            await syncHead(newDoc);
-            if (seq !== softNavState.seq) return;
-
-            syncAttributes(document.body, newDoc.body);
-            syncAttributes(currentShell, newShell);
-            unobserveDeferredImages(currentShell);
-            Array.from(currentShell.childNodes).forEach(node => {
-                if (node !== currentHeader) node.remove();
-            });
-            Array.from(newShell.childNodes).forEach(node => {
-                if (node === newHeader || node.nodeName === 'SCRIPT') return;
-                currentShell.appendChild(document.importNode(node, true));
-            });
-
-            if (options.history !== 'none') {
-                const method = options.history === 'replace' ? 'replaceState' : 'pushState';
-                history[method]({ freecatSoftNav: true }, '', url.href);
-            }
-            softNavState.currentKey = getUrlKey(url.href);
-
-            scrollAfterNavigation(url, options);
-            const pageReady = runPageReady(newDoc);
-
-            for (const scriptSrc of targetScripts) {
-                await ensureScript(scriptSrc);
-            }
-            if (seq !== softNavState.seq) return;
-
-            if (pageReady && typeof pageReady.then === 'function') {
-                await pageReady;
-            }
-            if (seq !== softNavState.seq) return;
-
-            requestAnimationFrame(() => {
-                updateContentTopOffset();
-                scheduleHomeSidebarFooterAvoid();
-            });
         }
 
         window.FreecatNavigate = function (targetHref, options = {}) {

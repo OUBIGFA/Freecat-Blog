@@ -754,6 +754,20 @@ test('direct URL entries use the home fallback for go back controls', () => {
     assert.doesNotMatch(mainJs, /window\.history\.length > 1/);
 });
 
+test('soft navigation hides the old page while replacing the shell', () => {
+    assert.match(mainJs, /const softNavTransitionClass = 'soft-nav-transitioning';/);
+    assert.match(mainJs, /function showSoftNavCover\(\)/);
+    assert.match(mainJs, /showSoftNavCover\(\);[\s\S]*const response = await fetch/);
+    assert.match(mainJs, /syncAttributes\(document\.body,\s*newDoc\.body\);/);
+    assert.match(mainJs, /finally \{\s*if \(seq === softNavState\.seq\) await finishSoftNavSwap\(\);/);
+    assert.match(transitionsCss, /html\.soft-nav-transitioning::before/);
+    assert.match(transitionsCss, /top:\s*var\(--freecat-header-height\);/);
+    assert.match(transitionsCss, /z-index:\s*45;/);
+    assert.match(transitionsCss, /html\.soft-nav-transitioning \.page-blur-target/);
+    assert.match(transitionsCss, /html\.soft-nav-transitioning \.freecat-floating-nav-panel/);
+    assert.match(transitionsCss, /html\.soft-nav-transitioning footer/);
+});
+
 test('post cards render the audio glyph for music-prefixed excerpts', () => {
     const html = postCardTemplate.renderPostCard({
         link: '/posts/example/',
