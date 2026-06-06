@@ -62,8 +62,15 @@ function loadConfig(controlDir, keyword, label, defaults) {
 
     if (configPath) {
         const raw = fs.readFileSync(configPath, 'utf-8');
-        const { data } = matter(raw);
-        const fallbackData = Object.keys(data).length ? {} : parseLooseConfig(raw);
+        let data = {};
+        let shouldUseLooseConfig = false;
+        try {
+            ({ data } = matter(raw));
+        } catch (err) {
+            shouldUseLooseConfig = true;
+            console.log(`  ${path.basename(configPath)} is not strict YAML; using loose key:value parsing.`);
+        }
+        const fallbackData = shouldUseLooseConfig || !Object.keys(data).length ? parseLooseConfig(raw) : {};
         result = { ...result, ...data, ...fallbackData };
         console.log(`  Loaded configuration from: ${path.basename(configPath)}`);
     } else {
