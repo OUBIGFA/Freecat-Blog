@@ -1044,5 +1044,4 @@
     } else {
         initPostPage();
     }
-    document.addEventListener('freecat:page-ready', initPostPage);
 })();

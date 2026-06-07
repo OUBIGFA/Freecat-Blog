@@ -18,9 +18,6 @@
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initVideoPlayers, { once: true });
     }
-    document.addEventListener('freecat:page-ready', function () {
-        initVideoPlayers();
-    });
 
     function initVideoPlayers(root) {
         const scope = root && root.querySelectorAll ? root : document;

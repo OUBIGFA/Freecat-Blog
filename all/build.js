@@ -35,6 +35,7 @@ const allPage = require('./build/pages/all.js');
 const searchPage = require('./build/pages/search.js');
 const aboutPage = require('./build/pages/about.js');
 const notFoundPage = require('./build/pages/notfound.js');
+const shellPage = require('./build/pages/shell.js');
 const { generateSitemap, generateRobotsTxt, generateLlmsTxt, generateFeed, generateOpenSearchXml } = require('./build/pages/sitemap.js');
 
 function skipBuildUntilGitDatesUpdate(err) {
@@ -175,6 +176,7 @@ const tplIndexAll = engine.loadTemplate('template_index_all.html');
 const tplSearch = engine.loadTemplate('template_index_search.html');
 const tplAbout = engine.loadTemplate('template_index_About.html');
 const tplNotFound = engine.loadTemplate('template_index_404.html');
+const tplShell = engine.loadTemplate('template_shell.html');
 
 // ===== 5.5 生成最近更新文章列表 HTML =====
 let recentPostsSidebarHomeWrapperHtml = '';
@@ -224,6 +226,9 @@ fs.mkdirSync(path.join(DIRS.output, 'posts'));
 // ===== 6. 生成各页面 =====
 postPage.generateAll({ posts: allPosts, template: tplPost, siteConfig, seoConfig, outputDir: DIRS.output });
 indexPage.generateAll({ posts: allPosts, template: tplIndex, postsPerPage: POSTS_PER_PAGE, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarHomeWrapperHtml });
+// 外壳 index.html 必须在首页列表之后生成：首页列表现输出到 /home.html（供 iframe 加载），
+// 外壳占据 / 入口（顶栏 + 播放器 + 满视口 iframe），实现顶栏音频跨页无缝。
+shellPage.generate({ template: tplShell, siteConfig, seoConfig, outputDir: DIRS.output });
 allPage.generate({ posts: allPosts, template: tplIndexAll, siteConfig, seoConfig, outputDir: DIRS.output });
 searchPage.generate({ posts: allPosts, template: tplSearch, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarHomeWrapperHtml });
 aboutPage.generate({ template: tplAbout, siteConfig, seoConfig, aboutConfig, outputDir: DIRS.output });

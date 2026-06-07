@@ -15,9 +15,6 @@
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initAudioPlayers, { once: true });
     }
-    document.addEventListener('freecat:page-ready', function () {
-        initAudioPlayers();
-    });
 
     function initAudioPlayers(root) {
         const scope = root && root.querySelectorAll ? root : document;

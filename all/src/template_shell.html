@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="<!-- SITE_LANGUAGE -->">
+
+<head>
+    <!-- 安全网：外壳一旦被误嵌进 iframe（例如 iframe 内点了指向 / 的链接），
+         立即换成首页内容，避免外壳自我嵌套。必须放在最前、解析期即执行。 -->
+    <script>if (window.self !== window.top) { window.location.replace('/home.html'); }</script>
+    <!-- INCLUDE:head-base -->
+    <title><!-- SITE_TITLE --></title>
+    <!-- SHELL_SEO_HEAD -->
+    <!-- SHELL_JSONLD -->
+    <style>
+        /* 外壳：顶栏常驻，正文放进满视口 iframe（iframe 内部自己滚动）。
+           外壳自身不滚动，所以音频所在的这份文档永不被导航销毁 → 真正无缝。 */
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            overflow: hidden;
+        }
+
+        #freecat-content-frame {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            display: block;
+            background: transparent;
+            color-scheme: normal;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark font-display text-[#1e293b] dark:text-slate-200 transition-colors duration-200">
+
+    <!-- INCLUDE:header -->
+
+    <!-- 正文承载层：默认静态 src=/home.html（无 JS 也能看到首页列表 / 利于抓取）；
+         若带 hash 深链（/#/posts/foo.html），下面的内联脚本在解析期就改写为目标页，
+         保证只加载一次、不二次跳转。 -->
+    <iframe id="freecat-content-frame" title="页面内容" src="/home.html"
+        allow="autoplay; fullscreen; clipboard-write"></iframe>
+    <script>
+        (function () {
+            var frame = document.getElementById('freecat-content-frame');
+            if (!frame) return;
+            var raw = String(window.location.hash || '').replace(/^#/, '');
+            // 只接受站内根相对路径（/ 开头但非 //），其余一律回首页，避免被注入跨站地址。
+            if (raw && raw !== '/' && /^\/(?!\/)/.test(raw)) {
+                frame.src = raw;
+            }
+        })();
+    </script>
+
+    <script src="/assets/shared.js" defer></script>
+    <script src="/assets/post-card-template.js" defer></script>
+    <script src="/assets/main.js" defer></script>
+</body>
+
+</html>

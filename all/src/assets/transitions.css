@@ -798,33 +798,6 @@ html.theme-view-transitioning body *::after {
     animation: pageSlideIn var(--page-slide-dur) var(--page-slide-ease) both;
 }
 
-html.soft-nav-transitioning .page-blur-target,
-html.soft-nav-transitioning .freecat-floating-nav-panel,
-html.soft-nav-transitioning footer {
-    opacity: 0;
-    filter: blur(2px);
-    pointer-events: none;
-    transition:
-        opacity 140ms ease-out,
-        filter 140ms ease-out;
-}
-
-html.soft-nav-transitioning::before {
-    content: "";
-    position: fixed;
-    top: var(--freecat-header-height);
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 45;
-    background: #f6f6f8;
-    pointer-events: auto;
-}
-
-html.dark.soft-nav-transitioning::before {
-    background: #101622;
-}
-
 @keyframes pageSlideIn {
     from {
         opacity: 0;
@@ -908,9 +881,6 @@ body.search-active .page-blur-target::before {
     .tag-menu-item,
     .page-transitioning-out,
     .page-transitioning-in,
-    html.soft-nav-transitioning .page-blur-target,
-    html.soft-nav-transitioning .freecat-floating-nav-panel,
-    html.soft-nav-transitioning footer,
     .icon-breathe,
     #search-results-overlay,
     body.search-active .page-blur-target {
@@ -938,6 +908,13 @@ header.fixed {
 
 header.fixed .header-blur-target {
     height: 100%;
+}
+
+/* 外壳 + iframe 架构：内容页被嵌入 iframe（html.freecat-framed）时隐藏其自带顶栏，
+   顶栏由常驻外壳统一提供；正文上边距仍走 --freecat-page-top-offset（默认值已接近真实高度，
+   外壳再按实测顶栏高度精修），故隐藏顶栏不影响正文位置。 */
+html.freecat-framed header.fixed {
+    display: none;
 }
 
 .search-active #search-container {

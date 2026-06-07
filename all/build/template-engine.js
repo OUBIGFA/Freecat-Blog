@@ -40,7 +40,8 @@ function autoLineBreak(text) {
 }
 
 function generateThemeScript(siteConfig) {
-    const initialScrollGuard = `try {
+    const initialScrollGuard = `if (window.self !== window.top) { try { document.documentElement.classList.add('freecat-framed'); } catch (e) {} }
+        try {
             var navEntries = performance && performance.getEntriesByType ? performance.getEntriesByType('navigation') : null;
             var navType = navEntries && navEntries[0] && navEntries[0].type;
             var hasAnchorTarget = window.location.hash && window.location.hash.length > 1;

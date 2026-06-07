@@ -86,7 +86,9 @@ function generateAll({ posts, template, postsPerPage, siteConfig, seoConfig, out
             .replace('<!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->', () => recentPostsSidebarHtml || '');
 
         if (page === 1) {
-            fs.writeFileSync(path.join(outputDir, 'index.html'), outputHtml, 'utf-8');
+            // 外壳占据 /（index.html）；首页文章列表输出到 /home.html，作为 iframe 默认内容，
+            // 同时是无 JS / 爬虫可直接访问的真实独立页（canonical 仍指向 /，归并到主页）。
+            fs.writeFileSync(path.join(outputDir, 'home.html'), outputHtml, 'utf-8');
         } else {
             const pageDir = path.join(outputDir, 'page', String(page));
             if (!fs.existsSync(pageDir)) fs.mkdirSync(pageDir, { recursive: true });
