@@ -110,6 +110,37 @@ function generateThemeScript(siteConfig) {
         })();`;
 }
 
+function generateShellBootstrapScript() {
+    return `(function () {
+            if (window.self !== window.top) return;
+            if (window.__FREECAT_SHELL_DOCUMENT__) return;
+
+            var path = window.location.pathname || '/';
+            var publicPath = path + (window.location.search || '') + (window.location.hash || '');
+            if (path === '/' || path === '/index.html') return;
+
+            if (path === '/home.html') {
+                publicPath = '/' + (window.location.search || '') + (window.location.hash || '');
+                try { history.replaceState(history.state, '', publicPath); } catch (e) {}
+            }
+
+            if (!/^\\/(?!\\/)/.test(publicPath)) return;
+
+            fetch('/', { credentials: 'same-origin', cache: 'no-store' })
+                .then(function (response) {
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    return response.text();
+                })
+                .then(function (htmlText) {
+                    if (htmlText.indexOf('id="freecat-content-frame"') === -1) return;
+                    document.open();
+                    document.write(htmlText);
+                    document.close();
+                })
+                .catch(function () {});
+        })();`;
+}
+
 function generateLogoIcon(siteConfig) {
     const defaultIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><title>quill-pen-ai-fill</title><path d="m4.713 7.128l-.246.566a.506.506 0 0 1-.934 0l-.246-.566a4.36 4.36 0 0 0-2.22-2.25l-.759-.339a.53.53 0 0 1 0-.963l.717-.319A4.37 4.37 0 0 0 3.276.931L3.53.32a.506.506 0 0 1 .942 0l.253.61a4.37 4.37 0 0 0 2.25 2.327l.718.32a.53.53 0 0 1 0 .962l-.76.338a4.36 4.36 0 0 0-2.219 2.251m-1.65 14.485C4.09 15.422 6.312 1.997 21 1.997c-1.496 3-2.5 4.5-3.5 5.5l-1 1l1.5 1c-1 3-4 6.5-8 7q-4.003.5-5.002 5.5H3z"/></svg>`;
 
@@ -342,6 +373,7 @@ function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, s
     const discoveryLinks = generateDiscoveryLinks(siteConfig);
     const searchEngineHtmlMarkers = generateSearchEngineHtmlMarkers(seoConfig);
     const navAudioButton = generateNavAudioButton(siteConfig);
+    const shellBootstrapScript = generateShellBootstrapScript();
     const partialsCache = loadPartialsCache(partialsDir);
 
     function applySiteConfig(template) {
@@ -363,6 +395,7 @@ function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, s
         out = replacePlaceholder(out, /<!-- SITE_LOGO_ICON -->/g, logoIcon);
         out = replacePlaceholder(out, /<!-- NAV_AUDIO_BUTTON -->/g, navAudioButton);
         out = replacePlaceholder(out, /<!-- THEME_SCRIPT -->/g, themeScript);
+        out = replacePlaceholder(out, /<!-- SHELL_BOOTSTRAP_SCRIPT -->/g, shellBootstrapScript);
         out = replacePlaceholder(out, /<!-- SOCIAL_LINKS -->/g, socialLinks);
         out = replacePlaceholder(out, /<!-- TAG_MENU_ITEMS -->/g, tagMenuItemsHtml);
         out = replacePlaceholder(out, /<!-- DISCOVERY_LINKS -->/g, discoveryLinks);

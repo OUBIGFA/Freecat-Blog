@@ -196,6 +196,13 @@ test('article table of contents uses requested Chinese and Latin font assets', (
     assert.match(postCss, /#toc-container a\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
 });
 
+test('article toc anchor scrolling respects the shell header offset when framed', () => {
+    assert.match(postJs, /function getRootPixelValue\(name,\s*fallback\)\s*\{/);
+    assert.match(postJs, /getRootPixelValue\('--freecat-page-top-offset',\s*0\)/);
+    assert.match(postJs, /document\.documentElement\.classList\.contains\('freecat-framed'\)/);
+    assert.match(postJs, /return Math\.max\(0,\s*shellOffset,\s*headerHeight \+ safeGap\);/);
+});
+
 test('pagination text uses requested regular and active font weights', () => {
     const html = generatePaginationHtml(1, 2);
 
@@ -358,35 +365,24 @@ test('search page result count reserves space before rendering the numeric badge
     assert.match(transitionsCss, /\.freecat-results-count\[data-count-ready="true"\]\s+\.freecat-results-count-value\s*\{[\s\S]*opacity:\s*1;/);
 });
 
-test('search page soft navigation re-renders against the current page before restoring scroll', () => {
+test('shell router uses clean history URLs for framed navigation', () => {
     assert.match(mainJs, /function navigateWithinSite\(url, options = \{\}\)\s*\{/);
     assert.match(mainJs, /window\.FreecatNavigate = function \(targetHref, options = \{\}\)\s*\{/);
     assert.equal(mainJs.includes("navigateWithinSite(`/search.html?q=${encodeURIComponent(searchInput.value.trim())}`);"), true);
-    assert.doesNotMatch(mainJs, /url\.pathname === '\/search\.html'/);
-    assert.match(mainJs, /if \(node !== currentHeader\) node\.remove\(\);/);
-    assert.match(mainJs, /if \(node === newHeader \|\| node\.nodeName === 'SCRIPT'\) return;/);
-    assert.match(mainJs, /async function initSearchPageResults\(\)\s*\{/);
-    assert.match(mainJs, /const searchPageReady = initSearchPageResults\(\);/);
-    assert.match(mainJs, /if \(newDoc\.getElementById\('search-results'\) && pageReady && typeof pageReady\.then === 'function'\) \{\s*await pageReady;/);
-    assert.match(mainJs, /if \(document\.getElementById\('search-results'\) !== searchResultsContainer\) return false;/);
-    assert.match(mainJs, /renderSearchPageResults\(results,\s*searchResultsContainer\);/);
-    assert.doesNotMatch(mainJs, /renderSearchPageResults\(results\);/);
+    assert.match(mainJs, /function publicPathToContentPath\(raw\)\s*\{/);
+    assert.match(mainJs, /function contentPathToPublicPath\(raw\)\s*\{/);
+    assert.match(mainJs, /window\.history\[method\]\(state,\s*'',\s*publicPath\);/);
+    assert.match(mainJs, /window\.addEventListener\('popstate',\s*syncFrameToLocation\);/);
+    assert.doesNotMatch(mainJs, /window\.addEventListener\('hashchange'/);
+    assert.doesNotMatch(mainJs, /function pathToHash\(/);
 });
 
-test('soft navigation settles scroll before page initialization and background scripts', () => {
-    const appendIndex = mainJs.indexOf('currentShell.appendChild(document.importNode(node, true));');
-    const scrollIndex = mainJs.indexOf('scrollAfterNavigation(url, options);');
-    const pageReadyIndex = mainJs.indexOf('const pageReady = runPageReady(newDoc);');
-    const loadScriptsIndex = mainJs.indexOf('loadTargetScripts(targetScripts, seq);');
-
-    assert.notEqual(appendIndex, -1);
-    assert.notEqual(scrollIndex, -1);
-    assert.notEqual(pageReadyIndex, -1);
-    assert.notEqual(loadScriptsIndex, -1);
-    assert.equal(mainJs.indexOf('scrollAfterNavigation(url, options);', scrollIndex + 1), -1);
-    assert.ok(appendIndex < scrollIndex);
-    assert.ok(scrollIndex < pageReadyIndex);
-    assert.ok(scrollIndex < loadScriptsIndex);
+test('framed pages delegate same-origin links to the parent shell but keep anchors local', () => {
+    assert.match(mainJs, /function initFramedNavigationBridge\(\)\s*\{/);
+    assert.match(mainJs, /const parentNavigate = window\.parent && window\.parent\.FreecatNavigate;/);
+    assert.match(mainJs, /rawHref\.charAt\(0\) === '#'/);
+    assert.match(mainJs, /navigateWithinSite\(url\.pathname \+ url\.search \+ url\.hash\);/);
+    assert.match(mainJs, /if \(FRAMED\) initFramedNavigationBridge\(\);/);
 });
 
 test('nav audio defaults to half volume and exposes the matching volume slider while playing', () => {
@@ -782,27 +778,21 @@ test('direct URL entries use the home fallback for go back controls', () => {
     assert.match(mainJs, /new URL\(document\.referrer\)\.origin === window\.location\.origin/);
     assert.match(mainJs, /function canGoBackWithinSite\(\)\s*\{/);
     assert.match(mainJs, /window\.history\.state && window\.history\.state\.freecatSoftNav/);
+    assert.match(mainJs, /window\.history\.state && window\.history\.state\.freecatShell/);
+    assert.match(mainJs, /window\.parent\.history\.state\.freecatShell/);
     assert.match(mainJs, /\|\| hasSameOriginReferrer\(\);/);
     assert.match(mainJs, /if \(canGoBackWithinSite\(\)\) \{\s*window\.history\.back\(\);/);
     assert.doesNotMatch(mainJs, /window\.history\.length > 1/);
 });
 
-test('soft navigation hides the old page while replacing the shell', () => {
-    assert.match(mainJs, /const softNavTransitionClass = 'soft-nav-transitioning';/);
-    assert.match(mainJs, /const softNavCoverDelayMs = 120;/);
-    assert.match(mainJs, /cacheSoftPageHtmlByKey\(softNavState\.currentKey,\s*'<!DOCTYPE html>\\n' \+ document\.documentElement\.outerHTML\);/);
-    assert.match(mainJs, /function showSoftNavCover\(\)/);
-    assert.match(mainJs, /function scheduleSoftNavCover\(\)/);
-    assert.match(mainJs, /scheduleSoftNavCover\(\);[\s\S]*const htmlText = await fetchSoftPage\(url\);/);
-    assert.match(mainJs, /function fetchSoftPage\(url\)\s*\{/);
-    assert.match(mainJs, /syncAttributes\(document\.body,\s*newDoc\.body\);/);
-    assert.match(mainJs, /finally \{\s*if \(seq === softNavState\.seq\) await finishSoftNavSwap\(\);/);
-    assert.match(transitionsCss, /html\.soft-nav-transitioning::before/);
-    assert.match(transitionsCss, /top:\s*var\(--freecat-header-height\);/);
-    assert.match(transitionsCss, /z-index:\s*45;/);
-    assert.match(transitionsCss, /html\.soft-nav-transitioning \.page-blur-target/);
-    assert.match(transitionsCss, /html\.soft-nav-transitioning \.freecat-floating-nav-panel/);
-    assert.match(transitionsCss, /html\.soft-nav-transitioning footer/);
+test('shell template bootstraps clean URLs without hash routing', () => {
+    const shellTemplate = fs.readFileSync(path.join(__dirname, '../src/template_shell.html'), 'utf-8');
+
+    assert.match(shellTemplate, /window\.__FREECAT_SHELL_DOCUMENT__ = true/);
+    assert.equal(shellTemplate.includes("raw = legacyHash.replace(/^#/, '');"), true);
+    assert.match(shellTemplate, /history\.replaceState\(history\.state,\s*'',\s*raw\)/);
+    assert.match(shellTemplate, /url\.pathname === '\/home\.html'/);
+    assert.doesNotMatch(shellTemplate, /String\(window\.location\.hash \|\| ''\)\.replace\(\/^#\/,\s*''\)/);
 });
 
 test('post cards render the audio glyph for music-prefixed excerpts', () => {

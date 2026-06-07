@@ -844,6 +844,14 @@
         return Number.isFinite(parsed) ? parsed : fallback;
     }
 
+    function getRootPixelValue(name, fallback) {
+        if (!window.getComputedStyle || !document.documentElement) return fallback;
+        return parsePixelValue(
+            window.getComputedStyle(document.documentElement).getPropertyValue(name),
+            fallback
+        );
+    }
+
     function getCurrentScrollY() {
         return window.pageYOffset || window.scrollY || 0;
     }
@@ -861,15 +869,14 @@
 
     function getTocHeaderOffset() {
         var header = document.querySelector('header.fixed');
-        if (!header) return 100;
+        var safeGap = getRootPixelValue('--freecat-header-safe-gap', 20);
+        var shellOffset = getRootPixelValue('--freecat-page-top-offset', 0);
+        var headerHeight = getRootPixelValue('--freecat-header-height', 0);
+        if (!header) return Math.max(100, shellOffset, headerHeight + safeGap);
 
         var headerBottom = header.getBoundingClientRect().bottom;
-        var safeGap = 20;
-        if (window.getComputedStyle && document.documentElement) {
-            safeGap = parsePixelValue(
-                window.getComputedStyle(document.documentElement).getPropertyValue('--freecat-header-safe-gap'),
-                safeGap
-            );
+        if (document.documentElement.classList.contains('freecat-framed') || headerBottom <= 0) {
+            return Math.max(0, shellOffset, headerHeight + safeGap);
         }
 
         return Math.max(0, headerBottom + safeGap);

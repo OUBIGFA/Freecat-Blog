@@ -315,17 +315,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function canGoBackWithinSite() {
             return !!(window.history.state && window.history.state.freecatSoftNav)
+                || !!(window.history.state && window.history.state.freecatShell)
                 || hasSameOriginReferrer();
         }
 
         function goBackOrHome() {
             syncCurrentHistoryEntry();
+            if (FRAMED) {
+                try {
+                    if (window.parent && window.parent.history && window.parent.history.state && window.parent.history.state.freecatShell) {
+                        window.parent.history.back();
+                        return;
+                    }
+                } catch (err) {}
+            }
             if (canGoBackWithinSite()) {
                 window.history.back();
                 return;
             }
 
-            window.location.href = getUpdateSortFallbackUrl();
+            navigateWithinSite(getUpdateSortFallbackUrl());
         }
 
         let floatingNavLayoutFrame = 0;
@@ -907,6 +916,19 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         window.location.href = url;
+    }
+
+    if (FRAMED) {
+        window.FreecatNavigate = function (targetHref, options = {}) {
+            try {
+                const parentNavigate = window.parent && window.parent.FreecatNavigate;
+                if (typeof parentNavigate === 'function') {
+                    parentNavigate(targetHref, options);
+                    return;
+                }
+            } catch (err) {}
+            window.location.href = targetHref;
+        };
     }
     // 顶栏搜索的遮罩 / 输入框定位 / overlay 样式已挪到 transitions.css，
     // 这里不再运行时注入。
@@ -1533,45 +1555,112 @@ document.addEventListener('DOMContentLoaded', () => {
     // 顶栏与 <audio> 常驻外壳、永不被销毁 → 顶栏音频跨页真正无缝不断。
     // （旧的全站软导航实现已整体移除：站内链接默认走真实导航，外壳模式下由本路由驱动 iframe。）
     // ============================================================
+    function initFramedNavigationBridge() {
+        document.addEventListener('click', (event) => {
+            const link = event.target.closest && event.target.closest('a[href]');
+            if (!link || event.defaultPrevented) return;
+            if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+            if (link.target && link.target.toLowerCase() !== '_self') return;
+            if (link.hasAttribute('download')) return;
+
+            const rawHref = link.getAttribute('href') || '';
+            const url = new URL(link.href, window.location.href);
+            if (url.origin !== window.location.origin) return;
+            if (rawHref.charAt(0) === '#' && url.pathname === window.location.pathname && url.search === window.location.search) return;
+
+            event.preventDefault();
+            navigateWithinSite(url.pathname + url.search + url.hash);
+        });
+    }
+
     function initShellRouter() {
         const frame = contentFrame;
         if (!frame) return;
 
         const HOME_CONTENT = '/home.html';
         const headerEl = document.querySelector('header.fixed');
-        let syncingHash = false;
 
-        // 站内路径 → iframe 可加载的真实页面；'/' 或空 → /home.html；非根相对路径一律回首页（防注入）
-        function resolveContentPath(raw) {
-            const p = String(raw == null ? '' : raw).trim();
-            if (!p || p === '/') return HOME_CONTENT;
-            if (!/^\/(?!\/)/.test(p)) return HOME_CONTENT;
-            return p;
+        function getPublicLocation() {
+            return window.location.pathname + window.location.search + window.location.hash;
+        }
+
+        function parseSameOriginPath(raw, fallback = '/') {
+            const input = String(raw == null ? '' : raw).trim() || fallback;
+            let url;
+            try {
+                url = new URL(input, window.location.origin);
+            } catch (err) {
+                return fallback;
+            }
+            if (url.origin !== window.location.origin) return fallback;
+            if (!/^\/(?!\/)/.test(url.pathname)) return fallback;
+            return url.pathname + url.search + url.hash;
+        }
+
+        function publicPathToContentPath(raw) {
+            const path = parseSameOriginPath(raw, '/');
+            const url = new URL(path, window.location.origin);
+            if (url.pathname === '/' || url.pathname === '/index.html' || url.pathname === HOME_CONTENT) {
+                return HOME_CONTENT + url.search + url.hash;
+            }
+            return url.pathname + url.search + url.hash;
+        }
+
+        function contentPathToPublicPath(raw) {
+            const path = parseSameOriginPath(raw, HOME_CONTENT);
+            const url = new URL(path, window.location.origin);
+            if (url.pathname === HOME_CONTENT) {
+                return '/' + url.search + url.hash;
+            }
+            return url.pathname + url.search + url.hash;
         }
 
         function getFramePath() {
             try {
                 const loc = frame.contentWindow.location;
-                return loc.pathname + loc.search;
+                return loc.pathname + loc.search + loc.hash;
             } catch (err) {
                 return '';
             }
         }
 
-        // iframe 真实路径 → 对外展示的 hash（/home.html 显示为干净的 /）
-        function pathToHash(path) {
-            if (!path || path === HOME_CONTENT) return '';
-            return '#' + path;
-        }
-
-        function setFrameLocation(path, replace) {
-            const target = resolveContentPath(path);
+        function setFrameLocation(path) {
+            const target = publicPathToContentPath(path);
             try {
-                if (replace) frame.contentWindow.location.replace(target);
-                else frame.contentWindow.location.assign(target);
+                frame.contentWindow.location.replace(target);
             } catch (err) {
                 frame.src = target;
             }
+        }
+
+        function syncHistoryToFrame(options = {}) {
+            const framePath = getFramePath();
+            if (!framePath) return;
+            const publicPath = contentPathToPublicPath(framePath);
+            if (publicPath === getPublicLocation()) return;
+            const method = options.push ? 'pushState' : 'replaceState';
+            const state = { ...(window.history.state || {}), freecatShell: true };
+            window.history[method](state, '', publicPath);
+        }
+
+        function navigateShell(targetHref, options = {}) {
+            const contentPath = publicPathToContentPath(targetHref);
+            const publicPath = contentPathToPublicPath(contentPath);
+            const currentPublicPath = getPublicLocation();
+            const state = { ...(window.history.state || {}), freecatShell: true };
+            if (publicPath !== currentPublicPath) {
+                const method = options.replace ? 'replaceState' : 'pushState';
+                window.history[method](state, '', publicPath);
+            }
+            if (publicPathToContentPath(getFramePath()) !== contentPath) {
+                setFrameLocation(contentPath);
+            }
+        }
+
+        function syncFrameToLocation() {
+            const target = publicPathToContentPath(getPublicLocation());
+            if (publicPathToContentPath(getFramePath()) === target) return;
+            setFrameLocation(target);
         }
 
         // 按外壳顶栏实测高度，给 iframe 文档喂入上边距变量，避免正文被浮动顶栏遮挡
@@ -1588,7 +1677,7 @@ document.addEventListener('DOMContentLoaded', () => {
             rs.setProperty('--freecat-page-top-offset', `${h + gap}px`);
         }
 
-        // iframe 每次真实加载后：同步标题 / 地址栏 hash / 顶栏高度
+        // iframe 每次真实加载后：同步标题 / 地址栏干净路径 / 顶栏高度
         function onFrameLoad() {
             try {
                 const t = frame.contentDocument && frame.contentDocument.title;
@@ -1596,20 +1685,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (err) {}
             syncFrameTheme(resolveThemeIsDark());
             syncFrameOffset();
-            const hash = pathToHash(getFramePath());
-            const current = window.location.hash || '';
-            if (hash !== current) {
-                syncingHash = true;
-                history.replaceState(history.state, '', hash || (window.location.pathname + window.location.search));
-                syncingHash = false;
-            }
-        }
-
-        function onHashChange() {
-            if (syncingHash) return;
-            const target = resolveContentPath(String(window.location.hash || '').replace(/^#/, ''));
-            if (resolveContentPath(getFramePath()) === target) return;
-            setFrameLocation(target, true);
+            syncHistoryToFrame();
         }
 
         // 外壳顶栏里的站内 <a> 点击：阻止外壳自身导航（那会销毁音频），改为驱动 iframe。
@@ -1625,11 +1701,11 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
             if (typeof closeHeaderSearch === 'function') closeHeaderSearch(true);
             if (typeof closeTagMenu === 'function') closeTagMenu();
-            setFrameLocation(url.pathname + url.search + url.hash, false);
+            navigateShell(url.pathname + url.search + url.hash);
         }
 
         frame.addEventListener('load', onFrameLoad);
-        window.addEventListener('hashchange', onHashChange);
+        window.addEventListener('popstate', syncFrameToLocation);
         window.addEventListener('resize', syncFrameOffset);
         if (headerEl && typeof ResizeObserver !== 'undefined') {
             new ResizeObserver(syncFrameOffset).observe(headerEl);
@@ -1637,18 +1713,22 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('click', onShellLinkClick);
 
         // 顶栏搜索 / 标签 / Logo 复用既有 navigateWithinSite + shared.js 兜底：
-        // 在外壳里把 FreecatNavigate 接到 iframe，其它上下文（独立页 / iframe 内）此值缺失 → 自动走普通跳转。
-        window.FreecatNavigate = function (url) {
-            setFrameLocation(url, false);
+        // 在外壳里把 FreecatNavigate 接到干净 URL 路由；独立页缺失此值时自动走普通跳转。
+        window.FreecatNavigate = function (targetHref, options = {}) {
+            navigateShell(targetHref, options);
         };
 
         // load 可能早于本脚本执行：若初始内容已就绪，补同步一次
         try {
             if (frame.contentDocument && frame.contentDocument.readyState === 'complete') onFrameLoad();
-            else syncFrameOffset();
+            else {
+                syncFrameToLocation();
+                syncFrameOffset();
+            }
         } catch (err) {}
     }
 
+    if (FRAMED) initFramedNavigationBridge();
     if (IS_SHELL) initShellRouter();
 
     // 搜索 UI 切换

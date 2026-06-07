@@ -67,6 +67,28 @@ test('404 template includes the theme bootstrap only once', () => {
     assert.equal(count, 1);
 });
 
+test('content templates include the shell bootstrap for direct clean URLs', () => {
+    const engine = createTestEngine('https://example.com');
+    const indexHtml = engine.loadTemplate('template_index.html');
+    const postHtml = engine.loadTemplate('template_post.html');
+
+    for (const html of [indexHtml, postHtml]) {
+        assert.equal(html.includes('window.__FREECAT_SHELL_DOCUMENT__'), true);
+        assert.equal(html.includes("fetch('/', { credentials: 'same-origin', cache: 'no-store' })"), true);
+        assert.equal(html.includes('id="freecat-content-frame"'), true);
+        assert.equal(html.includes('document.write(htmlText)'), true);
+    }
+});
+
+test('shell template marks itself and keeps direct paths clean', () => {
+    const html = createTestEngine('https://example.com').loadTemplate('template_shell.html');
+
+    assert.equal(html.includes('window.__FREECAT_SHELL_DOCUMENT__ = true'), true);
+    assert.equal(html.includes("history.replaceState(history.state, '', raw)"), true);
+    assert.equal(html.includes("url.pathname === '/home.html'"), true);
+    assert.equal(html.includes('window.location.hash'), true);
+});
+
 test('404 page uses root asset paths so nested missing URLs render correctly', () => {
     const html = createTestEngine('https://example.com').loadTemplate('template_index_404.html');
 
