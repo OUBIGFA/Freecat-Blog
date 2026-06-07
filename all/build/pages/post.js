@@ -54,8 +54,8 @@ function versionedAssetUrl(href, assetVersion) {
     return `${href}${separator}v=${encodeURIComponent(String(assetVersion))}`;
 }
 
-function postNotoFontHref(postId, weightName) {
-    return `/assets/fonts/posts/${postId}/freecat-noto-sans-sc-${weightName}-subset.woff2`;
+function postNotoFontHref(weightName) {
+    return `/assets/fonts/freecat-noto-sans-sc-${weightName}-subset.woff2`;
 }
 
 function renderFontPreload(href) {
@@ -67,10 +67,10 @@ function renderPostFontPreloads(postId, assetVersion = '') {
         '/assets/fonts/freecat-figtree-regular-subset.woff2',
         '/assets/fonts/freecat-figtree-semi-bold-subset.woff2',
         '/assets/fonts/freecat-figtree-extra-bold-subset.woff2',
-        postNotoFontHref(postId, 'regular'),
-        postNotoFontHref(postId, 'medium'),
-        postNotoFontHref(postId, 'semi-bold'),
-        postNotoFontHref(postId, 'extra-bold')
+        postNotoFontHref('regular'),
+        postNotoFontHref('medium'),
+        postNotoFontHref('semi-bold'),
+        postNotoFontHref('extra-bold')
     ].map(href => versionedAssetUrl(href, assetVersion));
 
     return hrefs.map(renderFontPreload).join('\n    ');
@@ -91,10 +91,10 @@ function renderPostFontFaceCss(postId, assetVersion = '') {
     const figtreeRegular = versionedAssetUrl('/assets/fonts/freecat-figtree-regular-subset.woff2', assetVersion);
     const figtreeSemiBold = versionedAssetUrl('/assets/fonts/freecat-figtree-semi-bold-subset.woff2', assetVersion);
     const figtreeExtraBold = versionedAssetUrl('/assets/fonts/freecat-figtree-extra-bold-subset.woff2', assetVersion);
-    const regular = versionedAssetUrl(postNotoFontHref(postId, 'regular'), assetVersion);
-    const medium = versionedAssetUrl(postNotoFontHref(postId, 'medium'), assetVersion);
-    const semiBold = versionedAssetUrl(postNotoFontHref(postId, 'semi-bold'), assetVersion);
-    const extraBold = versionedAssetUrl(postNotoFontHref(postId, 'extra-bold'), assetVersion);
+    const regular = versionedAssetUrl(postNotoFontHref('regular'), assetVersion);
+    const medium = versionedAssetUrl(postNotoFontHref('medium'), assetVersion);
+    const semiBold = versionedAssetUrl(postNotoFontHref('semi-bold'), assetVersion);
+    const extraBold = versionedAssetUrl(postNotoFontHref('extra-bold'), assetVersion);
     const figtreeRange = 'U+0000-00FF, U+0100-024F, U+2000-206F, U+20A0-20CF, U+2122, U+2190-21FF';
 
     return [

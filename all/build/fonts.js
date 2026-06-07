@@ -76,15 +76,8 @@ function useExistingSubsetIfAvailable(rootDir, output) {
         ].map(weight => path.join(rootDir, 'src', 'assets', 'fonts', `freecat-figtree-${weight}-subset.woff2`))
     ];
 
-    const distPostsDir = path.join(rootDir, 'dist', 'posts');
-    if (fs.existsSync(distPostsDir)) {
-        for (const postId of fs.readdirSync(distPostsDir)) {
-            const postDir = path.join(distPostsDir, postId);
-            if (!fs.statSync(postDir).isDirectory()) continue;
-            for (const weight of ['regular', 'medium', 'semi-bold', 'extra-bold']) {
-                expectedSubsets.push(path.join(rootDir, 'src', 'assets', 'fonts', 'posts', postId, `freecat-noto-sans-sc-${weight}-subset.woff2`));
-            }
-        }
+    for (const weight of ['regular', 'medium', 'semi-bold', 'extra-bold']) {
+        expectedSubsets.push(path.join(rootDir, 'src', 'assets', 'fonts', `freecat-noto-sans-sc-${weight}-subset.woff2`));
     }
 
     if (!expectedSubsets.every(file => fs.existsSync(file))) return false;

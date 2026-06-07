@@ -9,8 +9,6 @@ from fontTools.ttLib import TTFont
 ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = ROOT.parent
 OUTPUT_DIR = ROOT / "src" / "assets" / "fonts"
-POST_OUTPUT_DIR = OUTPUT_DIR / "posts"
-ARTICLE_CACHE_DIR = ROOT / "node_modules" / ".cache" / "freecat-fonts" / "article"
 
 NOTO_FONT_WEIGHTS = [
     ("regular", 400, ROOT / "fonts" / "freecat-noto-sans-sc-regular.woff2"),
@@ -171,29 +169,26 @@ def build_ui_noto_family():
     print(f"UI Noto Sans SC unsupported by source fonts: {len(unsupported)}")
 
 
-def build_post_noto_families():
+def build_article_noto_family():
     pages = list(iter_post_pages())
-    page_requests = []
     all_requested = set()
     for page in pages:
-        post_id = page.parent.name
         requested = collect_codepoints([page], include_ascii=False, visual_html=True)
-        page_requests.append((post_id, requested))
         all_requested.update(requested)
 
-    post_font_weights = NOTO_FONT_WEIGHTS
-
-    for post_id, requested in page_requests:
-        build_noto_family("freecat-noto-sans-sc", requested, POST_OUTPUT_DIR / post_id, font_weights=post_font_weights)
-        print(f"Post {post_id} Noto Sans SC requested characters: {len(requested)}")
-
-    print(f"Post Noto Sans SC pages: {len(pages)}")
+    coverage = build_noto_family("freecat-noto-sans-sc", all_requested, OUTPUT_DIR)
+    supported = sorted(set().union(*(set(item[0]) for item in coverage)))
+    unsupported = sorted(all_requested - set(supported))
+    print(f"Article Noto Sans SC pages: {len(pages)}")
+    print(f"Article Noto Sans SC requested characters: {len(all_requested)}")
+    print(f"Article Noto Sans SC covered by source fonts: {len(supported)}")
+    print(f"Article Noto Sans SC unsupported by source fonts: {len(unsupported)}")
 
 
 def main():
     build_figtree_family()
     build_ui_noto_family()
-    build_post_noto_families()
+    build_article_noto_family()
 
 
 if __name__ == "__main__":

@@ -570,7 +570,7 @@ test('article Chinese font uses generated Noto Sans SC subsets for available wei
         const face = notoFaces.find(block => block.includes(`freecat-noto-sans-sc-${name}-subset.woff2`)) || '';
 
         assert.match(face, new RegExp(`font-weight:\\s*${weight}`));
-        assert.match(face, new RegExp(`/assets/fonts/posts/${postId}/freecat-noto-sans-sc-${name}-subset\\.woff2\\?v=test-version`));
+        assert.match(face, new RegExp(`/assets/fonts/freecat-noto-sans-sc-${name}-subset\\.woff2\\?v=test-version`));
         assert.doesNotMatch(face, /unicode-range/);
         assert.match(face, /font-display:\s*block/);
     }
@@ -582,10 +582,10 @@ test('article Chinese font uses generated Noto Sans SC subsets for available wei
         '/assets/fonts/freecat-figtree-regular-subset.woff2?v=test-version',
         '/assets/fonts/freecat-figtree-semi-bold-subset.woff2?v=test-version',
         '/assets/fonts/freecat-figtree-extra-bold-subset.woff2?v=test-version',
-        `/assets/fonts/posts/${postId}/freecat-noto-sans-sc-regular-subset.woff2?v=test-version`,
-        `/assets/fonts/posts/${postId}/freecat-noto-sans-sc-medium-subset.woff2?v=test-version`,
-        `/assets/fonts/posts/${postId}/freecat-noto-sans-sc-semi-bold-subset.woff2?v=test-version`,
-        `/assets/fonts/posts/${postId}/freecat-noto-sans-sc-extra-bold-subset.woff2?v=test-version`
+        '/assets/fonts/freecat-noto-sans-sc-regular-subset.woff2?v=test-version',
+        '/assets/fonts/freecat-noto-sans-sc-medium-subset.woff2?v=test-version',
+        '/assets/fonts/freecat-noto-sans-sc-semi-bold-subset.woff2?v=test-version',
+        '/assets/fonts/freecat-noto-sans-sc-extra-bold-subset.woff2?v=test-version'
     ]);
 });
 

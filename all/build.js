@@ -244,7 +244,7 @@ console.log('🔤 Generating article font subset...');
 buildArticleFontSubset({ rootDir: __dirname });
 
 console.log('📦 Moving assets and configs...');
-if (fs.existsSync(DIRS.assets)) copyDir(DIRS.assets, path.join(DIRS.output, 'assets'));
+if (fs.existsSync(DIRS.assets)) copyDir(DIRS.assets, path.join(DIRS.output, 'assets'), { ignore: ['posts'] });
 if (fs.existsSync(DIRS.images)) copyDir(DIRS.images, path.join(DIRS.output, 'image'));
 
 // ===== 7. 复制部署平台配置 (_headers / vercel.json) =====

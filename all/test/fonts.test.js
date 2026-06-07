@@ -21,7 +21,7 @@ test('font subset build falls back to the existing subset when fontTools is unav
     fs.existsSync = (file) => {
         const normalized = String(file).replace(/\\/g, '/');
         if (normalized.includes('/src/assets/fonts/freecat-ui-noto-sans-sc-')) return true;
-        if (normalized.includes('/src/assets/fonts/posts/')) return true;
+        if (normalized.includes('/src/assets/fonts/freecat-noto-sans-sc-')) return true;
         return originalExistsSync(file);
     };
     console.warn = (message) => warnings.push(String(message));
