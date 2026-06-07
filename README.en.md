@@ -22,11 +22,11 @@
 
 ## Why Choose Freecat Blog
 
-**Beginner-Friendly**
+**Your Data Stays With You**
 
-- No metadata needed at all—just write your content
-- Supports `.md`, `.txt`, and other formats
-- No need to worry about formatting—plain text works perfectly
+- Your original articles stay on your computer and in your GitHub repository
+- Even if a cloud deployment or platform service fails, you do not lose ownership of your writing
+- You are not locked into one platform, so you can back up, move, or republish your content anytime
 
 **Powerful Features**
 
@@ -36,6 +36,12 @@
 - Supports audio and video playback
 - Supports embedded external websites
 - Long code blocks auto-collapse with built-in top/bottom navigation and expand/collapse controls
+
+**Beginner-Friendly**
+
+- No metadata needed at all—just write your content
+- Supports `.md`, `.txt`, and other formats
+- No need to worry about formatting—plain text works perfectly
 
 **Automatic Formatting**
 

@@ -53,6 +53,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const contentFrame = document.getElementById('freecat-content-frame');
     const IS_SHELL = !FRAMED && !!contentFrame;
 
+    function syncParentFrameHistory(options = {}) {
+        if (!FRAMED) return;
+        try {
+            const syncParent = window.parent && window.parent.FreecatSyncFrameHistory;
+            if (typeof syncParent === 'function') syncParent(options);
+        } catch (err) {}
+    }
+
     const imageFallback = '/image/404.png';
     let deferredImageObserver = null;
 
@@ -236,6 +244,8 @@ document.addEventListener('DOMContentLoaded', () => {
             writePositions(prunePositions(positions));
         }
 
+        window.FreecatSaveScrollPosition = saveScrollPosition;
+
         function scheduleSaveScrollPosition() {
             if (saveFrame) return;
             saveFrame = window.requestAnimationFrame(saveScrollPosition);
@@ -380,16 +390,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function getFloatingNavCollisionTargets() {
+            const isHomePage = document.body && document.body.dataset.page === 'home';
             return document.querySelectorAll([
                 'article',
                 '.freecat-post-toc-panel',
-                '.freecat-home-sidebar',
-                '.freecat-home-posts-inner',
+                isHomePage ? null : '.freecat-home-sidebar',
+                isHomePage ? null : '.freecat-home-posts-inner',
                 '.layout-content-container',
                 '[data-all-toolbar]',
-                '#posts-list',
+                isHomePage ? null : '#posts-list',
                 '#pagination-buttons'
-            ].join(','));
+            ].filter(Boolean).join(','));
+        }
+
+        function getFloatingNavCollisionRects(target) {
+            if (target.id !== 'pagination-buttons') return [target.getBoundingClientRect()];
+
+            const contentRects = Array.from(target.children)
+                .map((child) => child.getBoundingClientRect())
+                .filter(isVisibleRect);
+
+            return contentRects.length ? contentRects : [target.getBoundingClientRect()];
         }
 
         function touchesVisibleContentEdge() {
@@ -398,8 +419,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             return Array.from(getFloatingNavCollisionTargets()).some((target) => {
                 if (target === floatingNavPanel || floatingNavPanel.contains(target)) return false;
-                const targetRect = target.getBoundingClientRect();
-                return isVisibleRect(targetRect) && rectsTouch(panelRect, targetRect);
+                return getFloatingNavCollisionRects(target).some((targetRect) => {
+                    return isVisibleRect(targetRect) && rectsTouch(panelRect, targetRect);
+                });
             });
         }
 
@@ -868,8 +890,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Trigger staggered animation for new content
                 applyStaggeredAnimations('#posts-list .post-card');
 
-                // 更新浏览器地址栏
-                window.history.pushState({}, '', url);
+                // 更新浏览器地址栏，并同步外壳历史；这样从文章页返回时能回到当前分页。
+                window.history.pushState({ ...(window.history.state || {}), freecatSoftNav: true }, '', url);
+                syncParentFrameHistory({ push: true });
 
                 // 翻页后回到页面顶部，对齐进入首页时的初始位置。
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1033,14 +1056,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.history[method](window.history.state || {}, '', nextUrl);
             }
 
-            if (FRAMED) {
-                try {
-                    const syncParent = window.parent && window.parent.FreecatSyncFrameHistory;
-                    if (typeof syncParent === 'function') {
-                        syncParent({ push: !options.replace });
-                    }
-                } catch (err) {}
-            }
+            syncParentFrameHistory({ push: !options.replace });
         };
         window.FreecatSyncUpdateSortUrl = syncUpdateSortUrl;
 
@@ -1335,14 +1351,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 );
         }
 
-        function closeNavAudioVolumeOnOutsidePointerDown(event) {
+        function closeNavAudioVolumeNow() {
             if (!navAudioControl || navAudioControl.dataset.volumeOpen !== 'true') return;
-            if (isNavAudioVolumeEventTarget(event.target)) return;
             navAudioVolumePointerInside = false;
             if (document.activeElement instanceof HTMLElement && navAudioControl.contains(document.activeElement)) {
                 document.activeElement.blur();
             }
             setNavAudioVolumeOpen(false);
+        }
+
+        function closeNavAudioVolumeOnOutsidePointerDown(event) {
+            if (!navAudioControl || navAudioControl.dataset.volumeOpen !== 'true') return;
+            if (isNavAudioVolumeEventTarget(event.target)) return;
+            closeNavAudioVolumeNow();
+        }
+
+        let navAudioFramePointerDownDocument = null;
+
+        function bindNavAudioFramePointerDown() {
+            if (!IS_SHELL || !contentFrame) return;
+            let frameDocument;
+            try {
+                frameDocument = contentFrame.contentDocument;
+            } catch (err) {
+                return;
+            }
+            if (!frameDocument || frameDocument === navAudioFramePointerDownDocument) return;
+            if (navAudioFramePointerDownDocument) {
+                navAudioFramePointerDownDocument.removeEventListener('pointerdown', closeNavAudioVolumeNow, true);
+            }
+            navAudioFramePointerDownDocument = frameDocument;
+            navAudioFramePointerDownDocument.addEventListener('pointerdown', closeNavAudioVolumeNow, true);
         }
 
         function getContinuousTime(state) {
@@ -1518,6 +1557,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         document.addEventListener('pointerdown', closeNavAudioVolumeOnOutsidePointerDown, true);
+        if (IS_SHELL && contentFrame) {
+            contentFrame.addEventListener('load', bindNavAudioFramePointerDown);
+            bindNavAudioFramePointerDown();
+        }
 
         navAudio.addEventListener('ended', () => {
             if (requestedPlayback) {
@@ -1604,6 +1647,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rawHref.charAt(0) === '#' && url.pathname === window.location.pathname && url.search === window.location.search) return;
 
             event.preventDefault();
+            if (typeof window.FreecatSaveScrollPosition === 'function') window.FreecatSaveScrollPosition();
             navigateWithinSite(url.pathname + url.search + url.hash);
         });
     }

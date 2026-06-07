@@ -426,8 +426,12 @@ test('nav audio defaults to half volume and exposes the matching volume slider w
     assert.match(mainJs, /document\.activeElement instanceof HTMLElement && navAudioControl\.contains\(document\.activeElement\)/);
     assert.match(mainJs, /document\.activeElement\.blur\(\);/);
     assert.match(mainJs, /navAudioVolumePointerInside = false;[\s\S]*document\.activeElement\.blur\(\);[\s\S]*setNavAudioVolumeOpen\(false\);/);
+    assert.match(mainJs, /function bindNavAudioFramePointerDown\(\)/);
+    assert.match(mainJs, /navAudioFramePointerDownDocument\.addEventListener\('pointerdown', closeNavAudioVolumeNow, true\);/);
+    assert.match(mainJs, /contentFrame\.addEventListener\('load', bindNavAudioFramePointerDown\);/);
     assert.match(mainJs, /document\.addEventListener\('pointerdown', closeNavAudioVolumeOnOutsidePointerDown, true\);/);
     assert.doesNotMatch(transitionsCss, /\.nav-audio-control\[data-playing="true"\]:focus-within \.nav-audio-volume-slider-wrapper/);
+    assert.match(transitionsCss, /\.nav-audio-control\[data-playing="true"\]:hover \.nav-audio-volume-slider-wrapper,\s*\.nav-audio-control\[data-playing="true"\]\[data-volume-open="true"\] \.nav-audio-volume-slider-wrapper/);
     assert.match(transitionsCss, /\.nav-audio-control\[data-playing="true"\]\[data-volume-open="true"\] \.nav-audio-volume-slider-wrapper\s*\{[\s\S]*width:\s*80px;[\s\S]*opacity:\s*1;/);
     assert.match(transitionsCss, /\.nav-audio-volume-slider\s*\{[\s\S]*height:\s*4px;[\s\S]*background:\s*linear-gradient\(to right, #475569 0%, #475569 var\(--volume-percent, 50%\), #cbd5e1 var\(--volume-percent, 50%\), #cbd5e1 100%\);/);
     assert.match(transitionsCss, /\.nav-audio-volume-slider::-webkit-slider-thumb\s*\{[\s\S]*width:\s*12px;[\s\S]*height:\s*12px;[\s\S]*border:\s*2px solid white;/);
@@ -738,6 +742,20 @@ test('floating nav hides when it touches visible content blocks including toc', 
     assert.match(mainJs, /window\.addEventListener\('scroll',\s*scheduleFloatingNavLayout,\s*\{\s*passive:\s*true\s*\}\)/);
 });
 
+test('floating nav ignores blank pagination wrapper space on home page', () => {
+    assert.match(mainJs, /function getFloatingNavCollisionRects\(target\)/);
+    assert.match(mainJs, /target\.id !== 'pagination-buttons'/);
+    assert.match(mainJs, /Array\.from\(target\.children\)[\s\S]*\.map\(\(child\) => child\.getBoundingClientRect\(\)\)[\s\S]*\.filter\(isVisibleRect\)/);
+    assert.match(mainJs, /contentRects\.length \? contentRects : \[target\.getBoundingClientRect\(\)\]/);
+});
+
+test('floating nav does not hide against home list layout wrappers', () => {
+    assert.match(mainJs, /const isHomePage = document\.body && document\.body\.dataset\.page === 'home';/);
+    assert.match(mainJs, /isHomePage \? null : '\.freecat-home-posts-inner'/);
+    assert.match(mainJs, /isHomePage \? null : '#posts-list'/);
+    assert.match(mainJs, /\.filter\(Boolean\)\.join\(','\)/);
+});
+
 test('code folding uses a smooth height transition with fading mask cleanup', () => {
     const codeContentRule = postCss.match(/\.prose \.code-content\s*\{[\s\S]*?\n\}/)?.[0] || '';
     const codeMaskRule = postCss.match(/\.prose \.code-content::after\s*\{[\s\S]*?\n\}/)?.[0] || '';
@@ -775,6 +793,7 @@ test('history navigation restores saved scroll positions after bfcache expires',
     assert.match(mainJs, /sessionStorage\.setItem\(storageKey,\s*JSON\.stringify\(positions\)\)/);
     assert.match(mainJs, /getNavigationType\(\)\s*===\s*'back_forward'/);
     assert.match(mainJs, /window\.addEventListener\('pagehide',\s*saveScrollPosition\)/);
+    assert.match(mainJs, /window\.FreecatSaveScrollPosition = saveScrollPosition;/);
     assert.match(mainJs, /if \(window\.location\.hash\) return;/);
     assert.match(mainJs, /initScrollPositionMemory\(\);/);
 });
@@ -793,12 +812,18 @@ test('go back preserves the update sort switch state in history entries', () => 
     assert.match(mainJs, /const updateSortParam = 'updateSort';/);
     assert.match(mainJs, /params\.get\(updateSortParam\)\s*===\s*updateSortValue/);
     assert.match(mainJs, /window\.FreecatSyncUpdateSortUrl = syncUpdateSortUrl;/);
-    assert.match(mainJs, /const syncParent = window\.parent && window\.parent\.FreecatSyncFrameHistory;/);
-    assert.match(mainJs, /syncParent\(\{\s*push:\s*!options\.replace\s*\}\);/);
+    assert.match(mainJs, /function syncParentFrameHistory\(options = \{\}\)\s*\{/);
+    assert.match(mainJs, /syncParentFrameHistory\(\{\s*push:\s*!options\.replace\s*\}\);/);
     assert.match(mainJs, /window\.FreecatSyncFrameHistory = function \(options = \{\}\) \{/);
     assert.match(mainJs, /syncCurrentHistoryEntry\(\);[\s\S]*canGoBackWithinSite\(\)[\s\S]*window\.history\.back\(\);/);
     assert.match(mainJs, /url\.searchParams\.set\('updateSort',\s*'modified'\);/);
     assert.match(mainJs, /initDeferredImages\(\);\s*initUpdateSortControls\(\);/);
+});
+
+test('home soft pagination syncs shell history and saved scroll before post navigation', () => {
+    assert.match(mainJs, /window\.history\.pushState\(\{\s*\.\.\.\(window\.history\.state \|\| \{\}\),\s*freecatSoftNav:\s*true\s*\},\s*'',\s*url\);/);
+    assert.match(mainJs, /syncParentFrameHistory\(\{\s*push:\s*true\s*\}\);/);
+    assert.match(mainJs, /if \(typeof window\.FreecatSaveScrollPosition === 'function'\) window\.FreecatSaveScrollPosition\(\);[\s\S]*navigateWithinSite\(url\.pathname \+ url\.search \+ url\.hash\);/);
 });
 
 test('direct URL entries use the home fallback for go back controls', () => {
