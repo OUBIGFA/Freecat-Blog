@@ -48,6 +48,68 @@ function removeEmptyTocAside(html, toc) {
     );
 }
 
+function versionedAssetUrl(href, assetVersion) {
+    if (!assetVersion) return href;
+    const separator = href.includes('?') ? '&' : '?';
+    return `${href}${separator}v=${encodeURIComponent(String(assetVersion))}`;
+}
+
+function postNotoFontHref(postId, weightName) {
+    return `/assets/fonts/posts/${postId}/freecat-noto-sans-sc-${weightName}-subset.woff2`;
+}
+
+function renderFontPreload(href) {
+    return `<link rel="preload" href="${href}" as="font" type="font/woff2" crossorigin />`;
+}
+
+function renderPostFontPreloads(postId, assetVersion = '') {
+    const hrefs = [
+        '/assets/fonts/freecat-figtree-regular-subset.woff2',
+        '/assets/fonts/freecat-figtree-semi-bold-subset.woff2',
+        '/assets/fonts/freecat-figtree-extra-bold-subset.woff2',
+        postNotoFontHref(postId, 'regular'),
+        postNotoFontHref(postId, 'medium'),
+        postNotoFontHref(postId, 'semi-bold'),
+        postNotoFontHref(postId, 'extra-bold')
+    ].map(href => versionedAssetUrl(href, assetVersion));
+
+    return hrefs.map(renderFontPreload).join('\n    ');
+}
+
+function fontFace(family, href, weight, options = {}) {
+    const unicodeRange = options.unicodeRange ? `\n        unicode-range: ${options.unicodeRange};` : '';
+    return `@font-face {
+        font-family: "${family}";
+        src: url("${href}") format("woff2");
+        font-weight: ${weight};
+        font-style: normal;
+        font-display: block;${unicodeRange}
+    }`;
+}
+
+function renderPostFontFaceCss(postId, assetVersion = '') {
+    const figtreeRegular = versionedAssetUrl('/assets/fonts/freecat-figtree-regular-subset.woff2', assetVersion);
+    const figtreeSemiBold = versionedAssetUrl('/assets/fonts/freecat-figtree-semi-bold-subset.woff2', assetVersion);
+    const figtreeExtraBold = versionedAssetUrl('/assets/fonts/freecat-figtree-extra-bold-subset.woff2', assetVersion);
+    const regular = versionedAssetUrl(postNotoFontHref(postId, 'regular'), assetVersion);
+    const medium = versionedAssetUrl(postNotoFontHref(postId, 'medium'), assetVersion);
+    const semiBold = versionedAssetUrl(postNotoFontHref(postId, 'semi-bold'), assetVersion);
+    const extraBold = versionedAssetUrl(postNotoFontHref(postId, 'extra-bold'), assetVersion);
+    const figtreeRange = 'U+0000-00FF, U+0100-024F, U+2000-206F, U+20A0-20CF, U+2122, U+2190-21FF';
+
+    return [
+        fontFace('Freecat Figtree', figtreeRegular, '400', { unicodeRange: figtreeRange }),
+        fontFace('Freecat Figtree', figtreeSemiBold, '600', { unicodeRange: figtreeRange }),
+        fontFace('Freecat Tag Figtree', figtreeSemiBold, '500', { unicodeRange: figtreeRange }),
+        fontFace('Freecat Figtree', figtreeExtraBold, '800 1000', { unicodeRange: figtreeRange }),
+        fontFace('Freecat Noto Sans SC', regular, '350 449'),
+        fontFace('Freecat Noto Sans SC', medium, '450 549'),
+        fontFace('Freecat Noto Sans SC', semiBold, '550 649'),
+        fontFace('Freecat Noto Sans SC', extraBold, '750 849'),
+        fontFace('Freecat Tag Noto Sans SC', medium, '500')
+    ].join('\n\n    ');
+}
+
 /**
  * 读取 writing/ 目录下的所有 Markdown 文章并归一化为 post 对象数组。
  * 跳过 frontmatter 标记 show: false 的文件。已按"置顶在前 + 时间倒序"排序。
@@ -143,7 +205,7 @@ function loadPosts({ postsDir, gitDates, postDates, postIds, skipMissingGitDates
 /**
  * 渲染单篇文章详情页 HTML。
  */
-function renderPostPage({ post, template, siteConfig, seoConfig }) {
+function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = '' }) {
     const { html: finalContentHtml, toc } = renderPostContent({ post });
     const safeTitle = shared.escapeHtml(post.title);
 
@@ -236,6 +298,8 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
         .replace('<!-- POST_SEO_HEAD -->', () => seoHead)
         .replace('<!-- POST_HIGHLIGHT_CSS -->', () => highlightCss)
         .replace('<!-- POST_KATEX_CSS -->', () => katexCss)
+        .replace('<!-- POST_FONT_PRELOADS -->', () => renderPostFontPreloads(post.postId, assetVersion))
+        .replace('<!-- POST_FONT_FACE_CSS -->', () => renderPostFontFaceCss(post.postId, assetVersion))
         .replace('<!-- POST_HIGHLIGHT_JS -->', () => highlightJs)
         .replace('<!-- POST_CHART_JS -->', () => [chartJs, embedJs].filter(Boolean).join('\n    '))
         .replace('<!-- POST_MEDIA_CSS -->', () => mediaCss)
@@ -249,12 +313,12 @@ function renderPostPage({ post, template, siteConfig, seoConfig }) {
     return removeEmptyTocAside(html, toc);
 }
 
-function generateAll({ posts, template, siteConfig, seoConfig, outputDir }) {
+function generateAll({ posts, template, siteConfig, seoConfig, outputDir, assetVersion = '' }) {
     console.log('📄 Generating post pages...');
     fs.mkdirSync(path.join(outputDir, 'posts'), { recursive: true });
 
     posts.forEach(post => {
-        const html = renderPostPage({ post, template, siteConfig, seoConfig });
+        const html = renderPostPage({ post, template, siteConfig, seoConfig, assetVersion });
         const postDir = path.join(outputDir, 'posts', post.postId);
         fs.mkdirSync(postDir, { recursive: true });
         const outFile = path.join(postDir, 'index.html');
@@ -263,4 +327,4 @@ function generateAll({ posts, template, siteConfig, seoConfig, outputDir }) {
     });
 }
 
-module.exports = { loadPosts, renderPostPage, generateAll };
+module.exports = { loadPosts, renderPostPage, generateAll, renderPostFontPreloads, renderPostFontFaceCss };

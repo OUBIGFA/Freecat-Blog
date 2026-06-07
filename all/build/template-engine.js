@@ -126,7 +126,7 @@ function generateShellBootstrapScript() {
 
             if (!/^\\/(?!\\/)/.test(publicPath)) return;
 
-            fetch('/', { credentials: 'same-origin', cache: 'no-store' })
+            fetch('/', { credentials: 'same-origin' })
                 .then(function (response) {
                     if (!response.ok) throw new Error('HTTP ' + response.status);
                     return response.text();
@@ -357,11 +357,18 @@ function replacePlaceholder(template, marker, value) {
 function versionAssetUrls(html, assetVersion) {
     if (!assetVersion) return html;
     const encodedVersion = encodeURIComponent(String(assetVersion));
-    return html.replace(
+    const versionedHtml = html.replace(
         /((?:href|src)=["'](?:\/assets\/|\.\/assets\/|\.\.\/assets\/)[^"'\?#]+)(\?[^"']*)?(["'])/g,
         (match, assetPath, query, quote) => {
             const separator = query ? `${query}&` : '?';
             return `${assetPath}${separator}v=${encodedVersion}${quote}`;
+        }
+    );
+    return versionedHtml.replace(
+        /(url\(["']?(?:\/assets\/|\.\/assets\/|\.\.\/assets\/)[^"'\)\?#]+)(\?[^"'\)]*)?(["']?\))/g,
+        (match, assetPath, query, close) => {
+            const separator = query ? `${query}&` : '?';
+            return `${assetPath}${separator}v=${encodedVersion}${close}`;
         }
     );
 }

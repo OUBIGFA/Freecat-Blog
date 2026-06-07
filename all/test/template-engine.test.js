@@ -5,6 +5,16 @@ const path = require('node:path');
 const { createEngine } = require('../build/template-engine.js');
 const shared = require('../src/assets/shared.js');
 
+function preloadFontHrefs(source) {
+    return [...source.matchAll(/<link\s+rel="preload"\s+href="([^"]+)"\s+as="font"\s+type="font\/woff2"\s+crossorigin\s*\/?>/g)]
+        .map(match => match[1]);
+}
+
+function fontFaceSrcUrls(source) {
+    return [...source.matchAll(/src:\s*url\("([^"]+)"\)\s*format\("woff2"\)/g)]
+        .map(match => match[1]);
+}
+
 function createTestEngine(siteUrl, options = {}) {
     return createEngine({
         templatesDir: path.join(__dirname, '..', 'src'),
@@ -74,7 +84,7 @@ test('content templates include the shell bootstrap for direct clean URLs', () =
 
     for (const html of [indexHtml, postHtml]) {
         assert.equal(html.includes('window.__FREECAT_SHELL_DOCUMENT__'), true);
-        assert.equal(html.includes("fetch('/', { credentials: 'same-origin', cache: 'no-store' })"), true);
+        assert.equal(html.includes("fetch('/', { credentials: 'same-origin' })"), true);
         assert.equal(html.includes('id="freecat-content-frame"'), true);
         assert.equal(html.includes('document.write(htmlText)'), true);
     }
@@ -104,6 +114,15 @@ test('root asset urls receive the build asset version', () => {
     assert.equal(html.includes('href="/assets/post.css?v=test-version"'), true);
     assert.equal(html.includes('href="/assets/tailwind.css?v=test-version"'), true);
     assert.equal(html.includes('src="/assets/main.js?v=test-version"'), true);
+});
+
+test('shared font preloads and font faces use the same versioned urls', () => {
+    const html = createTestEngine('https://example.com', { assetVersion: 'test-version' }).loadTemplate('template_index.html');
+    const preloads = new Set(preloadFontHrefs(html));
+    const fontFaces = new Set(fontFaceSrcUrls(html));
+
+    assert.deepEqual(preloads, fontFaces);
+    assert.equal([...preloads].every(href => href.endsWith('?v=test-version')), true);
 });
 
 test('theme bootstrap prevents initial restored scroll on normal entry and reload', () => {

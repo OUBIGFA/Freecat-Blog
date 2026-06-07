@@ -68,7 +68,7 @@ function useExistingSubsetIfAvailable(rootDir, output) {
             'medium',
             'semi-bold',
             'extra-bold'
-        ].map(weight => path.join(rootDir, 'src', 'assets', 'fonts', `freecat-noto-sans-sc-${weight}-subset.woff2`)),
+        ].map(weight => path.join(rootDir, 'src', 'assets', 'fonts', `freecat-ui-noto-sans-sc-${weight}-subset.woff2`)),
         ...[
             'regular',
             'semi-bold',
@@ -76,9 +76,20 @@ function useExistingSubsetIfAvailable(rootDir, output) {
         ].map(weight => path.join(rootDir, 'src', 'assets', 'fonts', `freecat-figtree-${weight}-subset.woff2`))
     ];
 
+    const distPostsDir = path.join(rootDir, 'dist', 'posts');
+    if (fs.existsSync(distPostsDir)) {
+        for (const postId of fs.readdirSync(distPostsDir)) {
+            const postDir = path.join(distPostsDir, postId);
+            if (!fs.statSync(postDir).isDirectory()) continue;
+            for (const weight of ['regular', 'medium', 'semi-bold', 'extra-bold']) {
+                expectedSubsets.push(path.join(rootDir, 'src', 'assets', 'fonts', 'posts', postId, `freecat-noto-sans-sc-${weight}-subset.woff2`));
+            }
+        }
+    }
+
     if (!expectedSubsets.every(file => fs.existsSync(file))) return false;
 
-    console.warn('⚠️ Could not refresh the article Chinese font subset. Using the existing generated subset instead.');
+    console.warn('⚠️ Could not refresh the generated font subsets. Using the existing generated subsets instead.');
     if (output) console.warn(output);
     return true;
 }

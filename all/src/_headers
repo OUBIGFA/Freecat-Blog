@@ -1,23 +1,24 @@
 # Cloudflare Pages headers
-# JS/CSS file names are stable, so browsers must revalidate them after each deploy.
-# Images can keep a long cache because they do not control site behavior.
-# HTML must revalidate on each visit so users do not see a stale page first and
-# then a silently refreshed page shortly after navigation.
+# Assets are versioned in HTML, so browsers can keep them for a long time.
+# HTML still revalidates in the browser, while CDN caches can absorb repeat edge traffic.
 
 /assets/*
-  Cache-Control: public, max-age=0, must-revalidate
+  Cache-Control: public, max-age=31536000, immutable
 
 /image/*
   Cache-Control: public, max-age=31536000, immutable
 
 /*.html
   Cache-Control: public, max-age=0, must-revalidate
+  CDN-Cache-Control: public, max-age=86400, stale-while-revalidate=604800
 
 /posts/*
   Cache-Control: public, max-age=0, must-revalidate
+  CDN-Cache-Control: public, max-age=86400, stale-while-revalidate=604800
 
 /
   Cache-Control: public, max-age=0, must-revalidate
+  CDN-Cache-Control: public, max-age=86400, stale-while-revalidate=604800
 
 /sitemap.xml
   Cache-Control: public, max-age=3600
@@ -32,4 +33,4 @@
   Cache-Control: public, max-age=3600
 
 /search-index.json
-  Cache-Control: public, max-age=0, must-revalidate
+  Cache-Control: public, max-age=3600

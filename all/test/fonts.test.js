@@ -2,10 +2,12 @@ const path = require('node:path');
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const childProcess = require('node:child_process');
+const fs = require('node:fs');
 
 test('font subset build falls back to the existing subset when fontTools is unavailable', () => {
     const modulePath = path.join(__dirname, '../build/fonts.js');
     const originalSpawnSync = childProcess.spawnSync;
+    const originalExistsSync = fs.existsSync;
     const warnings = [];
     const originalWarn = console.warn;
     const originalLog = console.log;
@@ -16,6 +18,12 @@ test('font subset build falls back to the existing subset when fontTools is unav
         stdout: '',
         stderr: 'ModuleNotFoundError: No module named \'fontTools\''
     });
+    fs.existsSync = (file) => {
+        const normalized = String(file).replace(/\\/g, '/');
+        if (normalized.includes('/src/assets/fonts/freecat-ui-noto-sans-sc-')) return true;
+        if (normalized.includes('/src/assets/fonts/posts/')) return true;
+        return originalExistsSync(file);
+    };
     console.warn = (message) => warnings.push(String(message));
     console.log = () => {};
 
@@ -23,11 +31,12 @@ test('font subset build falls back to the existing subset when fontTools is unav
         const { buildArticleFontSubset } = require(modulePath);
         assert.doesNotThrow(() => buildArticleFontSubset({ rootDir: path.join(__dirname, '..') }));
         assert.equal(
-            warnings.some(message => message.includes('Using the existing generated subset instead')),
+            warnings.some(message => message.includes('Using the existing generated subsets instead')),
             true
         );
     } finally {
         childProcess.spawnSync = originalSpawnSync;
+        fs.existsSync = originalExistsSync;
         console.warn = originalWarn;
         console.log = originalLog;
         delete require.cache[require.resolve(modulePath)];

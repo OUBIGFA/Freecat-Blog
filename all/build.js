@@ -112,7 +112,7 @@ const parsedPostsPerPage = rawPostsPerPage === '' || rawPostsPerPage == null
 const POSTS_PER_PAGE = Number.isFinite(parsedPostsPerPage) && parsedPostsPerPage >= 0
     ? Math.floor(parsedPostsPerPage)
     : DEFAULT_POSTS_PER_PAGE;
-const ASSET_VERSION = process.env.CF_PAGES_COMMIT_SHA || process.env.COMMIT_SHA || String(Date.now());
+const ASSET_VERSION = process.env.CF_PAGES_COMMIT_SHA || process.env.VERCEL_GIT_COMMIT_SHA || process.env.COMMIT_SHA || String(Date.now());
 
 console.log('📱 Loading social media configuration...');
 const socialConfig = loadConfig(DIRS.control, 'social', 'social.md', SOCIAL_DEFAULTS);
@@ -224,7 +224,7 @@ ensureCleanDir(DIRS.output, { within: __dirname, allowedName: 'dist' });
 fs.mkdirSync(path.join(DIRS.output, 'posts'));
 
 // ===== 6. 生成各页面 =====
-postPage.generateAll({ posts: allPosts, template: tplPost, siteConfig, seoConfig, outputDir: DIRS.output });
+postPage.generateAll({ posts: allPosts, template: tplPost, siteConfig, seoConfig, outputDir: DIRS.output, assetVersion: ASSET_VERSION });
 indexPage.generateAll({ posts: allPosts, template: tplIndex, postsPerPage: POSTS_PER_PAGE, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarHomeWrapperHtml });
 // 外壳 index.html 必须在首页列表之后生成：首页列表现输出到 /home.html（供 iframe 加载），
 // 外壳占据 / 入口（顶栏 + 播放器 + 满视口 iframe），实现顶栏音频跨页无缝。
