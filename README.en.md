@@ -48,7 +48,7 @@
 - Automatic optimization for mixed Chinese/English text spacing
 - Focus on writing content, and the system handles the rest
 
-> **Tip:** If you run into build issues, simply go to the main repository, copy the latest [sync-upstream](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/sync-upstream.yml) or [update-git-dates.yml ](https://github.com/OUBIGFA/FreeBlog_BIGFA/blob/main/.github/workflows/update-git-dates.yml)workflow file to your repo, and run it manually. It only syncs build files and will not overwrite your custom settings or writing/ folder.
+> **Tip:** If you run into build issues, simply go to the main repository, copy the latest [sync-upstream](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/sync-upstream.yml) or [update-git-dates.yml](https://github.com/OUBIGFA/FreeBlog_BIGFA/blob/main/.github/workflows/update-git-dates.yml) workflow file to your repo, and run it manually. It only syncs build files and will not overwrite your custom settings or writing/ folder. To use new features, copy the relevant settings from the main repository's [Control folder](https://github.com/OUBIGFA/Freecat-Blog/tree/main/Control) into your own `Control/` folder.
 
 ## Shortest Deployment Path
 
