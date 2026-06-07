@@ -170,6 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function initScrollPositionMemory() {
         const storageKey = 'freecat-scroll-positions-v1';
+        const restoreRequestStorageKey = 'freecat-scroll-restore-requests-v1';
         const maxEntries = 80;
         const restoreTimeoutMs = 2500;
         const restoreIntervalMs = 80;
@@ -194,6 +195,27 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 sessionStorage.setItem(storageKey, JSON.stringify(positions));
             } catch (e) {}
+        }
+
+        function consumeShellRestoreRequest() {
+            try {
+                const raw = sessionStorage.getItem(restoreRequestStorageKey);
+                const requests = raw ? JSON.parse(raw) : {};
+                if (!requests || typeof requests !== 'object') return false;
+
+                const pageKey = getPageKey();
+                if (!requests[pageKey]) return false;
+
+                delete requests[pageKey];
+                if (Object.keys(requests).length) {
+                    sessionStorage.setItem(restoreRequestStorageKey, JSON.stringify(requests));
+                } else {
+                    sessionStorage.removeItem(restoreRequestStorageKey);
+                }
+                return true;
+            } catch (e) {
+                return false;
+            }
         }
 
         function prunePositions(positions) {
@@ -267,7 +289,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-        if (isHistoryRestore()) restoreScrollPosition();
+        if (isHistoryRestore() || consumeShellRestoreRequest()) restoreScrollPosition();
 
         window.addEventListener('scroll', scheduleSaveScrollPosition, { passive: true });
         window.addEventListener('pagehide', saveScrollPosition);
@@ -276,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (document.visibilityState === 'hidden') saveScrollPosition();
         });
         window.addEventListener('pageshow', (event) => {
-            if (isHistoryRestore(event)) restoreScrollPosition();
+            if (isHistoryRestore(event) || consumeShellRestoreRequest()) restoreScrollPosition();
         });
     }
 
@@ -1004,10 +1026,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const query = params.toString();
             const nextUrl = window.location.pathname + (query ? `?${query}` : '') + window.location.hash;
-            if (nextUrl === window.location.pathname + window.location.search + window.location.hash) return;
+            const currentUrl = window.location.pathname + window.location.search + window.location.hash;
 
             const method = options.replace ? 'replaceState' : 'pushState';
-            window.history[method](window.history.state || {}, '', nextUrl);
+            if (nextUrl !== currentUrl) {
+                window.history[method](window.history.state || {}, '', nextUrl);
+            }
+
+            if (FRAMED) {
+                try {
+                    const syncParent = window.parent && window.parent.FreecatSyncFrameHistory;
+                    if (typeof syncParent === 'function') {
+                        syncParent({ push: !options.replace });
+                    }
+                } catch (err) {}
+            }
         };
         window.FreecatSyncUpdateSortUrl = syncUpdateSortUrl;
 
@@ -1580,6 +1613,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!frame) return;
 
         const HOME_CONTENT = '/home.html';
+        const SCROLL_RESTORE_REQUEST_KEY = 'freecat-scroll-restore-requests-v1';
         const headerEl = document.querySelector('header.fixed');
 
         function getPublicLocation() {
@@ -1646,6 +1680,38 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        function getScrollRestorePageKey(raw) {
+            const path = parseSameOriginPath(raw, HOME_CONTENT);
+            const url = new URL(path, window.location.origin);
+            return url.pathname + url.search;
+        }
+
+        function requestFrameScrollRestore(path) {
+            try {
+                const raw = sessionStorage.getItem(SCROLL_RESTORE_REQUEST_KEY);
+                const requests = raw ? JSON.parse(raw) : {};
+                const nextRequests = requests && typeof requests === 'object' ? requests : {};
+                nextRequests[getScrollRestorePageKey(path)] = Date.now();
+                sessionStorage.setItem(SCROLL_RESTORE_REQUEST_KEY, JSON.stringify(nextRequests));
+            } catch (err) {}
+        }
+
+        function clearFrameScrollRestore(path) {
+            try {
+                const raw = sessionStorage.getItem(SCROLL_RESTORE_REQUEST_KEY);
+                const requests = raw ? JSON.parse(raw) : {};
+                if (!requests || typeof requests !== 'object') return;
+                const pageKey = getScrollRestorePageKey(path);
+                if (!requests[pageKey]) return;
+                delete requests[pageKey];
+                if (Object.keys(requests).length) {
+                    sessionStorage.setItem(SCROLL_RESTORE_REQUEST_KEY, JSON.stringify(requests));
+                } else {
+                    sessionStorage.removeItem(SCROLL_RESTORE_REQUEST_KEY);
+                }
+            } catch (err) {}
+        }
+
         function syncHistoryToFrame(options = {}) {
             const framePath = getFramePath();
             if (!framePath) return;
@@ -1670,13 +1736,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        function syncFrameToLocation() {
+        function syncFrameToLocation(options = {}) {
             const framePath = getFramePath();
             // iframe 还停在初始空文档时，交给它的 src 自然加载，别抢着重新导航（会造成二次加载）。
             if (!framePath) return;
             const target = publicPathToContentPath(getPublicLocation());
             if (publicPathToContentPath(framePath) === target) return;
+            if (options.restoreScroll) requestFrameScrollRestore(target);
             setFrameLocation(target);
+            if (options.restoreScroll) {
+                window.setTimeout(() => clearFrameScrollRestore(target), 15000);
+            }
         }
 
         // 按外壳顶栏实测高度，给 iframe 文档喂入上边距变量，避免正文被浮动顶栏遮挡
@@ -1721,7 +1791,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         frame.addEventListener('load', onFrameLoad);
-        window.addEventListener('popstate', syncFrameToLocation);
+        window.addEventListener('popstate', () => syncFrameToLocation({ restoreScroll: true }));
         window.addEventListener('resize', syncFrameOffset);
         if (headerEl && typeof ResizeObserver !== 'undefined') {
             new ResizeObserver(syncFrameOffset).observe(headerEl);
@@ -1732,6 +1802,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // 在外壳里把 FreecatNavigate 接到干净 URL 路由；独立页缺失此值时自动走普通跳转。
         window.FreecatNavigate = function (targetHref, options = {}) {
             navigateShell(targetHref, options);
+        };
+        window.FreecatSyncFrameHistory = function (options = {}) {
+            syncHistoryToFrame(options);
         };
 
         // load 可能早于本脚本执行：若初始内容已就绪，补同步一次

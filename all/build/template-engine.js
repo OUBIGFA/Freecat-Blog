@@ -45,7 +45,15 @@ function generateThemeScript(siteConfig) {
             var navEntries = performance && performance.getEntriesByType ? performance.getEntriesByType('navigation') : null;
             var navType = navEntries && navEntries[0] && navEntries[0].type;
             var hasAnchorTarget = window.location.hash && window.location.hash.length > 1;
-            var shouldResetInitialScroll = !hasAnchorTarget && (!navType || navType === 'navigate' || navType === 'reload');
+            var shellRestorePageKey = window.location.pathname + window.location.search;
+            var shellRestoreRequests = null;
+            try {
+                shellRestoreRequests = JSON.parse(sessionStorage.getItem('freecat-scroll-restore-requests-v1') || '{}');
+            } catch (e) {
+                shellRestoreRequests = null;
+            }
+            var hasShellRestoreRequest = !!(shellRestoreRequests && shellRestoreRequests[shellRestorePageKey]);
+            var shouldResetInitialScroll = !hasAnchorTarget && !hasShellRestoreRequest && (!navType || navType === 'navigate' || navType === 'reload');
             if (shouldResetInitialScroll && 'scrollRestoration' in history) {
                 history.scrollRestoration = 'manual';
                 var userScrollIntent = false;

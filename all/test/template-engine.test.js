@@ -133,6 +133,14 @@ test('theme bootstrap prevents initial restored scroll on normal entry and reloa
     assert.equal(html.includes('window.scrollTo(0, 0)'), true);
 });
 
+test('theme bootstrap keeps shell back restoration from being reset to top', () => {
+    const html = createTestEngine('https://example.com').loadTemplate('template_index.html');
+
+    assert.equal(html.includes("sessionStorage.getItem('freecat-scroll-restore-requests-v1')"), true);
+    assert.equal(html.includes('var hasShellRestoreRequest = !!(shellRestoreRequests && shellRestoreRequests[shellRestorePageKey]);'), true);
+    assert.equal(html.includes('!hasShellRestoreRequest && (!navType || navType ==='), true);
+});
+
 test('theme bootstrap does not reset scroll after user starts scrolling', () => {
     const html = createTestEngine('https://example.com').loadTemplate('template_post.html');
 

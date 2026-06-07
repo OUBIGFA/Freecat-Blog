@@ -390,7 +390,7 @@ test('shell router uses clean history URLs for framed navigation', () => {
     assert.match(mainJs, /function publicPathToContentPath\(raw\)\s*\{/);
     assert.match(mainJs, /function contentPathToPublicPath\(raw\)\s*\{/);
     assert.match(mainJs, /window\.history\[method\]\(state,\s*'',\s*publicPath\);/);
-    assert.match(mainJs, /window\.addEventListener\('popstate',\s*syncFrameToLocation\);/);
+    assert.match(mainJs, /window\.addEventListener\('popstate',\s*\(\)\s*=>\s*syncFrameToLocation\(\{\s*restoreScroll:\s*true\s*\}\)\);/);
     assert.doesNotMatch(mainJs, /window\.addEventListener\('hashchange'/);
     assert.doesNotMatch(mainJs, /function pathToHash\(/);
 });
@@ -779,10 +779,23 @@ test('history navigation restores saved scroll positions after bfcache expires',
     assert.match(mainJs, /initScrollPositionMemory\(\);/);
 });
 
+test('shell history back marks framed pages for scroll restoration', () => {
+    assert.match(mainJs, /const restoreRequestStorageKey = 'freecat-scroll-restore-requests-v1';/);
+    assert.match(mainJs, /function consumeShellRestoreRequest\(\)\s*\{/);
+    assert.match(mainJs, /if \(isHistoryRestore\(\) \|\| consumeShellRestoreRequest\(\)\) restoreScrollPosition\(\);/);
+    assert.match(mainJs, /const SCROLL_RESTORE_REQUEST_KEY = 'freecat-scroll-restore-requests-v1';/);
+    assert.match(mainJs, /function requestFrameScrollRestore\(path\)\s*\{/);
+    assert.match(mainJs, /if \(options\.restoreScroll\) requestFrameScrollRestore\(target\);/);
+    assert.match(mainJs, /syncFrameToLocation\(\{\s*restoreScroll:\s*true\s*\}\)/);
+});
+
 test('go back preserves the update sort switch state in history entries', () => {
     assert.match(mainJs, /const updateSortParam = 'updateSort';/);
     assert.match(mainJs, /params\.get\(updateSortParam\)\s*===\s*updateSortValue/);
     assert.match(mainJs, /window\.FreecatSyncUpdateSortUrl = syncUpdateSortUrl;/);
+    assert.match(mainJs, /const syncParent = window\.parent && window\.parent\.FreecatSyncFrameHistory;/);
+    assert.match(mainJs, /syncParent\(\{\s*push:\s*!options\.replace\s*\}\);/);
+    assert.match(mainJs, /window\.FreecatSyncFrameHistory = function \(options = \{\}\) \{/);
     assert.match(mainJs, /syncCurrentHistoryEntry\(\);[\s\S]*canGoBackWithinSite\(\)[\s\S]*window\.history\.back\(\);/);
     assert.match(mainJs, /url\.searchParams\.set\('updateSort',\s*'modified'\);/);
     assert.match(mainJs, /initDeferredImages\(\);\s*initUpdateSortControls\(\);/);
