@@ -1115,7 +1115,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             updateSortSwitch.addEventListener('click', () => {
                 const useModifiedSort = updateSortSwitch.getAttribute('aria-checked') !== 'true';
-                setUpdateSortMode(updateSortSwitch, useModifiedSort);
+                setUpdateSortMode(updateSortSwitch, useModifiedSort, { replace: true });
             });
         });
     }

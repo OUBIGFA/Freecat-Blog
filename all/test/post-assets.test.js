@@ -817,6 +817,7 @@ test('go back preserves the update sort switch state in history entries', () => 
     assert.match(mainJs, /window\.FreecatSyncFrameHistory = function \(options = \{\}\) \{/);
     assert.match(mainJs, /syncCurrentHistoryEntry\(\);[\s\S]*canGoBackWithinSite\(\)[\s\S]*window\.history\.back\(\);/);
     assert.match(mainJs, /url\.searchParams\.set\('updateSort',\s*'modified'\);/);
+    assert.match(mainJs, /setUpdateSortMode\(updateSortSwitch,\s*useModifiedSort,\s*\{\s*replace:\s*true\s*\}\);/);
     assert.match(mainJs, /initDeferredImages\(\);\s*initUpdateSortControls\(\);/);
 });
 

@@ -108,6 +108,12 @@ def build_subset(prefix, name, weight, source_font, requested, output_dir):
     if not supported and 0x20 in source_cmap:
         supported = [0x20]
 
+    if output_font.exists():
+        output_cmap = set(TTFont(str(output_font)).getBestCmap().keys())
+        if set(supported).issubset(output_cmap):
+            print(f"{prefix} {weight} {name}: reused {output_font.stat().st_size} bytes")
+            return supported, unsupported, output_font
+
     args = [
         str(source_font),
         f"--output-file={output_font}",
@@ -175,15 +181,10 @@ def build_post_noto_families():
         page_requests.append((post_id, requested))
         all_requested.update(requested)
 
-    article_coverage = build_noto_family("freecat-article-noto-sans-sc", all_requested, ARTICLE_CACHE_DIR)
-    article_font_weights = [
-        (name, weight, output_font)
-        for (name, weight, _source_font), (_supported, _unsupported, output_font)
-        in zip(NOTO_FONT_WEIGHTS, article_coverage)
-    ]
+    post_font_weights = NOTO_FONT_WEIGHTS
 
     for post_id, requested in page_requests:
-        build_noto_family("freecat-noto-sans-sc", requested, POST_OUTPUT_DIR / post_id, font_weights=article_font_weights)
+        build_noto_family("freecat-noto-sans-sc", requested, POST_OUTPUT_DIR / post_id, font_weights=post_font_weights)
         print(f"Post {post_id} Noto Sans SC requested characters: {len(requested)}")
 
     print(f"Post Noto Sans SC pages: {len(pages)}")
