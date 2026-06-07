@@ -622,15 +622,6 @@ html.theme-transitioning body *::after {
     transition-delay: 0ms !important;
 }
 
-html.theme-view-transitioning,
-html.theme-view-transitioning body,
-html.theme-view-transitioning body *,
-html.theme-view-transitioning body *::before,
-html.theme-view-transitioning body *::after {
-    transition: none !important;
-    animation-play-state: paused !important;
-}
-
 @keyframes fadeInUp {
     from { opacity: 0; transform: translate3d(0, 14px, 0) scale(0.992); }
     to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }

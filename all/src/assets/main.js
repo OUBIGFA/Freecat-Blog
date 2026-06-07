@@ -575,7 +575,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     const THEME_TRANSITION_CLASS = 'theme-transitioning';
-    const THEME_VIEW_TRANSITION_CLASS = 'theme-view-transitioning';
     let themeTransitionTimer = 0;
 
     function prefersReducedMotion() {
@@ -602,6 +601,25 @@ document.addEventListener('DOMContentLoaded', () => {
         updateTagColors();
     }
 
+    function syncFrameTheme(isDark, options = {}) {
+        if (!contentFrame || !contentFrame.contentWindow) return;
+        try {
+            const applyFrameTheme = contentFrame.contentWindow.FreecatApplyTheme;
+            if (typeof applyFrameTheme === 'function') {
+                applyFrameTheme({ animate: !!options.animate });
+                return;
+            }
+        } catch (err) {}
+
+        try {
+            const frameDoc = contentFrame.contentDocument;
+            if (!frameDoc || !frameDoc.documentElement) return;
+            frameDoc.documentElement.classList.toggle('dark', isDark);
+            const frameThemeToggle = frameDoc.getElementById('theme-toggle');
+            if (frameThemeToggle) frameThemeToggle.dataset.uiState = isDark ? 'dark' : 'light';
+        } catch (err) {}
+    }
+
     function finishThemeTransition() {
         window.clearTimeout(themeTransitionTimer);
         themeTransitionTimer = 0;
@@ -625,19 +643,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!shouldAnimate) {
             setThemeState(isDark);
-            return;
-        }
-
-        if (typeof document.startViewTransition === 'function') {
-            html.classList.add(THEME_VIEW_TRANSITION_CLASS);
-            const transition = document.startViewTransition(() => {
-                setThemeState(isDark);
-            });
-            transition.finished
-                .catch(() => { })
-                .finally(() => {
-                    html.classList.remove(THEME_VIEW_TRANSITION_CLASS);
-                });
+            syncFrameTheme(isDark);
             return;
         }
 
@@ -645,7 +651,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // 确保统一过渡类先生效，再切换深浅色，避免局部 transition 各走各的时长。
         void html.offsetWidth;
         setThemeState(isDark);
+        syncFrameTheme(isDark, { animate: true });
     }
+
+    window.FreecatApplyTheme = applyTheme;
 
     // 标签颜色更新函数
     function updateTagColors() {
@@ -1585,6 +1594,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const t = frame.contentDocument && frame.contentDocument.title;
                 if (t) document.title = t;
             } catch (err) {}
+            syncFrameTheme(resolveThemeIsDark());
             syncFrameOffset();
             const hash = pathToHash(getFramePath());
             const current = window.location.hash || '';

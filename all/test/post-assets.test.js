@@ -336,6 +336,15 @@ test('main animation checks reuse a single reduced-motion helper', () => {
     assert.doesNotMatch(mainJs, /const prefersReducedMotion = \(\) =>/);
 });
 
+test('theme switching uses css transitions and syncs the shell iframe', () => {
+    assert.doesNotMatch(mainJs, /document\.startViewTransition/);
+    assert.match(mainJs, /function syncFrameTheme\(isDark, options = \{\}\)\s*\{/);
+    assert.match(mainJs, /contentFrame\.contentWindow\.FreecatApplyTheme/);
+    assert.match(mainJs, /frameDoc\.documentElement\.classList\.toggle\('dark', isDark\);/);
+    assert.match(mainJs, /window\.FreecatApplyTheme = applyTheme;/);
+    assert.match(mainJs, /syncFrameTheme\(resolveThemeIsDark\(\)\);/);
+});
+
 test('search page result count reserves space before rendering the numeric badge', () => {
     assert.match(mainJs, /function setSearchResultsCount\(count\)\s*\{/);
     assert.match(mainJs, /value\.textContent\s*=\s*String\(count\);/);
