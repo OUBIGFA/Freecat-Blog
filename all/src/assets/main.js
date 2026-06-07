@@ -1599,10 +1599,18 @@ document.addEventListener('DOMContentLoaded', () => {
             return url.pathname + url.search + url.hash;
         }
 
+        // 首页等价路径：兼容 Cloudflare Pages 的干净 URL。CF 会把 /home.html 308 重定向为
+        // /home、/index.html 为 /，若只认 /home.html 会把首页误判成普通内容页，导致 iframe
+        // 二次加载、地址栏被改写成 /home。这里把所有首页形式统一识别。
+        function isHomePathname(pathname) {
+            return pathname === '/' || pathname === '/index.html' || pathname === '/index'
+                || pathname === HOME_CONTENT || pathname === '/home';
+        }
+
         function publicPathToContentPath(raw) {
             const path = parseSameOriginPath(raw, '/');
             const url = new URL(path, window.location.origin);
-            if (url.pathname === '/' || url.pathname === '/index.html' || url.pathname === HOME_CONTENT) {
+            if (isHomePathname(url.pathname)) {
                 return HOME_CONTENT + url.search + url.hash;
             }
             return url.pathname + url.search + url.hash;
@@ -1611,7 +1619,7 @@ document.addEventListener('DOMContentLoaded', () => {
         function contentPathToPublicPath(raw) {
             const path = parseSameOriginPath(raw, HOME_CONTENT);
             const url = new URL(path, window.location.origin);
-            if (url.pathname === HOME_CONTENT) {
+            if (isHomePathname(url.pathname)) {
                 return '/' + url.search + url.hash;
             }
             return url.pathname + url.search + url.hash;
@@ -1620,6 +1628,9 @@ document.addEventListener('DOMContentLoaded', () => {
         function getFramePath() {
             try {
                 const loc = frame.contentWindow.location;
+                // iframe 仍停在初始空文档（about:blank）时视为"未就绪"。否则会把顶层地址
+                // 误同步成 /blank，并触发对 src 正在加载内容的多余重新导航（二次加载）。
+                if (loc.protocol === 'about:' || loc.href === 'about:blank') return '';
                 return loc.pathname + loc.search + loc.hash;
             } catch (err) {
                 return '';
@@ -1660,8 +1671,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function syncFrameToLocation() {
+            const framePath = getFramePath();
+            // iframe 还停在初始空文档时，交给它的 src 自然加载，别抢着重新导航（会造成二次加载）。
+            if (!framePath) return;
             const target = publicPathToContentPath(getPublicLocation());
-            if (publicPathToContentPath(getFramePath()) === target) return;
+            if (publicPathToContentPath(framePath) === target) return;
             setFrameLocation(target);
         }
 

@@ -117,9 +117,9 @@ function generateShellBootstrapScript() {
 
             var path = window.location.pathname || '/';
             var publicPath = path + (window.location.search || '') + (window.location.hash || '');
-            if (path === '/' || path === '/index.html') return;
+            if (path === '/' || path === '/index.html' || path === '/index') return;
 
-            if (path === '/home.html') {
+            if (path === '/home.html' || path === '/home') {
                 publicPath = '/' + (window.location.search || '') + (window.location.hash || '');
                 try { history.replaceState(history.state, '', publicPath); } catch (e) {}
             }

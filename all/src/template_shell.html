@@ -63,7 +63,7 @@
                 return;
             }
             if (url.origin !== window.location.origin) return;
-            if (url.pathname === '/' || url.pathname === '/index.html' || url.pathname === '/home.html') return;
+            if (url.pathname === '/' || url.pathname === '/index.html' || url.pathname === '/index' || url.pathname === '/home.html' || url.pathname === '/home') return;
 
             raw = url.pathname + url.search + url.hash;
             // 只接受站内根相对路径（/ 开头但非 //），其余一律回首页，避免被注入跨站地址。
