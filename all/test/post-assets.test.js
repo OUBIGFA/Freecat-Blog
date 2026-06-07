@@ -795,6 +795,7 @@ test('direct URL entries use the home fallback for go back controls', () => {
     assert.match(mainJs, /window\.history\.state && window\.history\.state\.freecatSoftNav/);
     assert.match(mainJs, /window\.history\.state && window\.history\.state\.freecatShell/);
     assert.match(mainJs, /window\.parent\.history\.state\.freecatShell/);
+    assert.match(mainJs, /window\.parent\.history\.back\(\);[\s\S]*navigateWithinSite\(getUpdateSortFallbackUrl\(\),\s*\{\s*replace:\s*true\s*\}\);[\s\S]*return;[\s\S]*if \(canGoBackWithinSite\(\)\)/);
     assert.match(mainJs, /\|\| hasSameOriginReferrer\(\);/);
     assert.match(mainJs, /if \(canGoBackWithinSite\(\)\) \{\s*window\.history\.back\(\);/);
     assert.doesNotMatch(mainJs, /window\.history\.length > 1/);

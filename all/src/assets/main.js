@@ -328,6 +328,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         return;
                     }
                 } catch (err) {}
+                navigateWithinSite(getUpdateSortFallbackUrl(), { replace: true });
+                return;
             }
             if (canGoBackWithinSite()) {
                 window.history.back();
