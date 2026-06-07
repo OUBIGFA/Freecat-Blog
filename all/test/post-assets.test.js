@@ -794,14 +794,14 @@ test('history navigation restores saved scroll positions after bfcache expires',
     assert.match(mainJs, /getNavigationType\(\)\s*===\s*'back_forward'/);
     assert.match(mainJs, /window\.addEventListener\('pagehide',\s*saveScrollPosition\)/);
     assert.match(mainJs, /window\.FreecatSaveScrollPosition = saveScrollPosition;/);
-    assert.match(mainJs, /if \(window\.location\.hash\) return;/);
+    assert.match(mainJs, /if \(window\.location\.hash\) \{\s*finishPendingStateRestore\(\);\s*return;\s*\}/);
     assert.match(mainJs, /initScrollPositionMemory\(\);/);
 });
 
 test('shell history back marks framed pages for scroll restoration', () => {
     assert.match(mainJs, /const restoreRequestStorageKey = 'freecat-scroll-restore-requests-v1';/);
     assert.match(mainJs, /function consumeShellRestoreRequest\(\)\s*\{/);
-    assert.match(mainJs, /if \(isHistoryRestore\(\) \|\| consumeShellRestoreRequest\(\)\) restoreScrollPosition\(\);/);
+    assert.match(mainJs, /const hasShellRestoreRequest = consumeShellRestoreRequest\(\);[\s\S]*if \(isHistoryRestore\(\) \|\| hasShellRestoreRequest\) restoreScrollPosition\(\);/);
     assert.match(mainJs, /const SCROLL_RESTORE_REQUEST_KEY = 'freecat-scroll-restore-requests-v1';/);
     assert.match(mainJs, /function requestFrameScrollRestore\(path\)\s*\{/);
     assert.match(mainJs, /if \(options\.restoreScroll\) requestFrameScrollRestore\(target\);/);
@@ -812,6 +812,9 @@ test('go back preserves the update sort switch state in history entries', () => 
     assert.match(mainJs, /const updateSortParam = 'updateSort';/);
     assert.match(mainJs, /params\.get\(updateSortParam\)\s*===\s*updateSortValue/);
     assert.match(mainJs, /window\.FreecatSyncUpdateSortUrl = syncUpdateSortUrl;/);
+    assert.match(mainJs, /applyTheme\(\);\s*initUpdateSortControls\(\);\s*initScrollPositionMemory\(\);/);
+    assert.match(headBase, /html\.freecat-state-restore-pending body\s*\{[\s\S]*visibility:\s*hidden;/);
+    assert.match(mainJs, /document\.documentElement\.classList\.remove\('freecat-state-restore-pending'\);/);
     assert.match(mainJs, /function syncParentFrameHistory\(options = \{\}\)\s*\{/);
     assert.match(mainJs, /syncParentFrameHistory\(\{\s*push:\s*!options\.replace\s*\}\);/);
     assert.match(mainJs, /window\.FreecatSyncFrameHistory = function \(options = \{\}\) \{/);

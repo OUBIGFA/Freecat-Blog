@@ -137,6 +137,8 @@ test('theme bootstrap keeps shell back restoration from being reset to top', () 
     const html = createTestEngine('https://example.com').loadTemplate('template_index.html');
 
     assert.equal(html.includes("sessionStorage.getItem('freecat-scroll-restore-requests-v1')"), true);
+    assert.equal(html.includes("new URLSearchParams(window.location.search).get('updateSort') === 'modified'"), true);
+    assert.equal(html.includes("document.documentElement.classList.add('freecat-state-restore-pending')"), true);
     assert.equal(html.includes('var hasShellRestoreRequest = !!(shellRestoreRequests && shellRestoreRequests[shellRestorePageKey]);'), true);
     assert.equal(html.includes('!hasShellRestoreRequest && (!navType || navType ==='), true);
 });

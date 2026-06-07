@@ -185,6 +185,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let saveFrame = 0;
         let restoreTimer = 0;
 
+        function finishPendingStateRestore() {
+            document.documentElement.classList.remove('freecat-state-restore-pending');
+        }
+
         function getPageKey() {
             return window.location.pathname + window.location.search;
         }
@@ -265,8 +269,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function restoreScrollPosition() {
             const saved = readPositions()[getPageKey()];
-            if (!saved || typeof saved.y !== 'number') return;
-            if (window.location.hash) return;
+            if (!saved || typeof saved.y !== 'number') {
+                finishPendingStateRestore();
+                return;
+            }
+            if (window.location.hash) {
+                finishPendingStateRestore();
+                return;
+            }
 
             const start = Date.now();
             const targetX = typeof saved.x === 'number' ? saved.x : 0;
@@ -287,6 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const timedOut = Date.now() - start >= restoreTimeoutMs;
                 if (reachedTarget || timedOut) {
                     restoreTimer = 0;
+                    finishPendingStateRestore();
                     return;
                 }
                 restoreTimer = window.setTimeout(attemptRestore, restoreIntervalMs);
@@ -299,7 +310,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-        if (isHistoryRestore() || consumeShellRestoreRequest()) restoreScrollPosition();
+        const hasShellRestoreRequest = consumeShellRestoreRequest();
+        if (isHistoryRestore() || hasShellRestoreRequest) restoreScrollPosition();
+        else finishPendingStateRestore();
 
         window.addEventListener('scroll', scheduleSaveScrollPosition, { passive: true });
         window.addEventListener('pagehide', saveScrollPosition);
@@ -308,7 +321,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (document.visibilityState === 'hidden') saveScrollPosition();
         });
         window.addEventListener('pageshow', (event) => {
-            if (isHistoryRestore(event) || consumeShellRestoreRequest()) restoreScrollPosition();
+            const hasShellRestoreRequest = consumeShellRestoreRequest();
+            if (isHistoryRestore(event) || hasShellRestoreRequest) restoreScrollPosition();
+            else finishPendingStateRestore();
         });
     }
 
@@ -726,6 +741,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 初始执行
     applyTheme();
+    initUpdateSortControls();
     initScrollPositionMemory();
     updateContentTopOffset();
     observeHeaderOffsetChanges();
