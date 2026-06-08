@@ -143,12 +143,16 @@ test('root asset urls receive the build asset version', () => {
     const html = createTestEngine('https://example.com', { assetVersion: 'test-version' }).loadTemplate('template_post.html');
 
     assert.equal(html.includes('href="/assets/post.css?v=test-version"'), true);
+    assert.equal(html.includes('href="/assets/post-code.css?v=test-version"'), true);
     assert.equal(html.includes('href="/assets/tailwind.css?v=test-version"'), true);
     assert.equal(html.includes('href="/assets/typography.css?v=test-version"'), true);
     assert.equal(html.includes('src="/assets/runtime.js?v=test-version"'), true);
     assert.equal(html.includes('src="/assets/scroll-memory.js?v=test-version"'), true);
     assert.equal(html.includes('src="/assets/nav-audio.js?v=test-version"'), true);
     assert.equal(html.includes('src="/assets/shell-router.js?v=test-version"'), true);
+    assert.equal(html.includes('src="/assets/code-copy.js?v=test-version"'), true);
+    assert.equal(html.includes('src="/assets/floating-nav.js?v=test-version"'), true);
+    assert.equal(html.includes('src="/assets/code-folding.js?v=test-version"'), true);
     assert.equal(html.includes('src="/assets/main.js?v=test-version"'), true);
 });
 

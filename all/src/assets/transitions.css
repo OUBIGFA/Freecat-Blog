@@ -978,15 +978,3 @@ html.freecat-framed header.fixed {
 .dark #search-results-overlay {
     background-color: rgba(11, 15, 26, 0.8) !important;
 }
-
-/* ============================================================
- * 代码块折叠（曾在 post.js 运行时注入，现挪到静态 CSS）。
- * 文章页才用到，但放这里和搜索遮罩一并加载，能让 CSS 缓存命中更稳定，
- * 减少 FOUC；体积也只有几行，不构成额外负担。
- * ============================================================ */
-.collapsed-code .code-content {
-    overflow-y: hidden !important;
-}
-.collapsed-code .code-fold-controls {
-    display: flex !important;
-}

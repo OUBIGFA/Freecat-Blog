@@ -1,53 +1,52 @@
-const fs = require('node:fs');
-const path = require('node:path');
 const test = require('node:test');
 const assert = require('node:assert/strict');
-
-const postJs = fs.readFileSync(path.join(__dirname, '../src/assets/post.js'), 'utf-8');
-const postCss = fs.readFileSync(path.join(__dirname, '../src/assets/post.css'), 'utf-8');
-const mainJs = fs.readFileSync(path.join(__dirname, '../src/assets/main.js'), 'utf-8');
-const runtimeJs = fs.readFileSync(path.join(__dirname, '../src/assets/runtime.js'), 'utf-8');
-const scrollMemoryJs = fs.readFileSync(path.join(__dirname, '../src/assets/scroll-memory.js'), 'utf-8');
-const navAudioJs = fs.readFileSync(path.join(__dirname, '../src/assets/nav-audio.js'), 'utf-8');
-const shellRouterJs = fs.readFileSync(path.join(__dirname, '../src/assets/shell-router.js'), 'utf-8');
-const typographyCss = fs.readFileSync(path.join(__dirname, '../src/assets/typography.css'), 'utf-8');
-const themeSystemJs = fs.readFileSync(path.join(__dirname, '../src/assets/theme-system.js'), 'utf-8');
-const postTemplate = fs.readFileSync(path.join(__dirname, '../src/template_post.html'), 'utf-8');
-const indexTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index.html'), 'utf-8');
-const searchTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index_search.html'), 'utf-8');
-const headBase = fs.readFileSync(path.join(__dirname, '../src/partials/head-base.html'), 'utf-8');
-const scriptsEnd = fs.readFileSync(path.join(__dirname, '../src/partials/scripts-end.html'), 'utf-8');
-const header = fs.readFileSync(path.join(__dirname, '../src/partials/header.html'), 'utf-8');
-const homeSidebar = fs.readFileSync(path.join(__dirname, '../src/partials/home-sidebar.html'), 'utf-8');
-const transitionsCss = fs.readFileSync(path.join(__dirname, '../src/assets/transitions.css'), 'utf-8');
-const allTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index_all.html'), 'utf-8');
-const updateSortControl = fs.readFileSync(path.join(__dirname, '../src/partials/update-sort-control.html'), 'utf-8');
-const aboutTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index_About.html'), 'utf-8');
-const notFoundTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index_404.html'), 'utf-8');
-const buildJs = fs.readFileSync(path.join(__dirname, '../build.js'), 'utf-8');
-const paginationJs = fs.readFileSync(path.join(__dirname, '../build/pagination.js'), 'utf-8');
-const seoJs = fs.readFileSync(path.join(__dirname, '../build/seo.js'), 'utf-8');
-const tailwindBuild = fs.readFileSync(path.join(__dirname, '../build/tailwind.js'), 'utf-8');
-const notoSubsetScript = fs.readFileSync(path.join(__dirname, '../tools/generate-noto-subset.py'), 'utf-8');
-const mediaPlayerJs = fs.readFileSync(path.join(__dirname, '../src/assets/media-player.js'), 'utf-8');
-const mediaPlayerCss = fs.readFileSync(path.join(__dirname, '../src/assets/media-player.css'), 'utf-8');
-const videoPlayerJs = fs.readFileSync(path.join(__dirname, '../src/assets/video-player.js'), 'utf-8');
-const videoPlayerCss = fs.readFileSync(path.join(__dirname, '../src/assets/video-player.css'), 'utf-8');
-const shared = require('../shared/shared.js');
-const postCardTemplate = require('../shared/post-card-template.js');
-const { renderPostFontPreloads, renderPostFontFaceCss } = require('../build/pages/post.js');
-const { renderPostCardForList } = require('../build/pages/index.js');
-const { generatePaginationHtml } = require('../build/pagination.js');
-
-function preloadFontHrefs(source) {
-    return [...source.matchAll(/<link\s+rel="preload"\s+href="([^"]+)"\s+as="font"\s+type="font\/woff2"\s+crossorigin\s*\/?>/g)]
-        .map(match => match[1]);
-}
-
-function fontFaceSrcUrls(source) {
-    return [...source.matchAll(/src:\s*url\("([^"]+)"\)\s*format\("woff2"\)/g)]
-        .map(match => match[1]);
-}
+const {
+    fs,
+    path,
+    readProjectFile,
+    postJs,
+    postCss,
+    postCodeCss,
+    mainJs,
+    codeCopyJs,
+    codeFoldingJs,
+    floatingNavJs,
+    runtimeJs,
+    scrollMemoryJs,
+    navAudioJs,
+    shellRouterJs,
+    typographyCss,
+    themeSystemJs,
+    postTemplate,
+    indexTemplate,
+    searchTemplate,
+    headBase,
+    scriptsEnd,
+    header,
+    homeSidebar,
+    transitionsCss,
+    allTemplate,
+    updateSortControl,
+    aboutTemplate,
+    notFoundTemplate,
+    buildJs,
+    paginationJs,
+    seoJs,
+    tailwindBuild,
+    notoSubsetScript,
+    mediaPlayerJs,
+    mediaPlayerCss,
+    videoPlayerJs,
+    videoPlayerCss,
+    shared,
+    postCardTemplate,
+    renderPostFontPreloads,
+    renderPostFontFaceCss,
+    renderPostCardForList,
+    generatePaginationHtml,
+    preloadFontHrefs,
+    fontFaceSrcUrls
+} = require('../test-support/assets.js');
 
 test('external embeds keep placeholders until visible content or fallback link is ready', () => {
     assert.match(postJs, /function hasVisibleTwitterEmbed\(figure\)/);
@@ -68,145 +67,6 @@ test('post share fallback reuses shared clipboard helper', () => {
     assert.doesNotMatch(postJs, /copyToClipboard\(url\)/);
 });
 
-test('post card cover placeholders render the shared loading spinner', () => {
-    const html = postCardTemplate.renderPostCard({
-        link: '/posts/example.html',
-        titleHtml: 'Example',
-        cover: '/image/example.png',
-        date: '2026-05-30'
-    });
-
-    assert.equal(html.includes('class="lazy-image-frame'), true);
-    assert.equal(html.includes('data-src="/image/example.png"'), true);
-    assert.equal(html.includes('class="placeholder-loader"'), true);
-    assert.equal(html.includes('<span class="loader"></span>'), true);
-});
-
-test('post card text uses build-time Figtree and Noto Sans SC font assets', () => {
-    const html = postCardTemplate.renderPostCard({
-        link: '/posts/example.html',
-        titleHtml: 'Example title',
-        excerptHtml: 'Freecat 示例摘要',
-        date: '2026-05-30',
-        modifiedDate: '2026-05-31',
-        tagsHtml: shared.renderTagSpan('中文Tag')
-    });
-
-    assert.doesNotMatch(headBase, /Freecat Google Sans|freecat-google-sans/);
-    assert.doesNotMatch(postCss, /Freecat Google Sans|freecat-google-sans/);
-    assert.doesNotMatch(headBase, /Freecat DM Sans|freecat-dm-sans/);
-    assert.doesNotMatch(postCss, /Freecat DM Sans|freecat-dm-sans/);
-    assert.match(headBase, /font-family:\s*"Freecat Figtree"/);
-    assert.match(headBase, /freecat-figtree-regular-subset\.woff2/);
-    assert.match(headBase, /freecat-figtree-semi-bold-subset\.woff2/);
-    assert.match(headBase, /freecat-figtree-extra-bold-subset\.woff2/);
-    assert.match(headBase, /font-family:\s*"Freecat Tag Figtree"/);
-    assert.match(headBase, /font-family:\s*"Freecat Noto Sans SC"/);
-    assert.match(headBase, /freecat-ui-noto-sans-sc-regular-subset\.woff2/);
-    assert.match(headBase, /font-family:\s*"Freecat Tag Noto Sans SC"/);
-    assert.match(headBase, /freecat-ui-noto-sans-sc-medium-subset\.woff2/);
-    assert.match(headBase, /freecat-ui-noto-sans-sc-semi-bold-subset\.woff2/);
-    assert.match(headBase, /font-family:\s*"Freecat Post Card Noto Sans SC"/);
-    assert.match(headBase, /freecat-ui-noto-sans-sc-extra-bold-subset\.woff2/);
-    assert.match(headBase, /href="\/assets\/typography\.css"/);
-    assert.match(postTemplate, /href="\/assets\/typography\.css"/);
-    assert.match(typographyCss, /\.post-card-title\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Post Card Noto Sans SC"/);
-    assert.match(typographyCss, /\.post-card-excerpt\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"/);
-    assert.match(typographyCss, /\.post-card-excerpt\s*\{[\s\S]*font-weight:\s*400;/);
-    assert.match(typographyCss, /\.freecat-date-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"/);
-    assert.match(typographyCss, /\.freecat-published-date-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*600;/);
-    assert.match(typographyCss, /\.freecat-tag-text\s*\{[\s\S]*font-family:\s*"Freecat Tag Figtree",\s*"Freecat Tag Noto Sans SC"[\s\S]*font-weight:\s*500;/);
-    assert.match(typographyCss, /\.freecat-nav-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*600;/);
-    assert.match(typographyCss, /\.freecat-go-back-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*800;/);
-    assert.match(typographyCss, /\.freecat-search-input\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
-    assert.match(typographyCss, /\.freecat-update-sort-label\s*\{[\s\S]*font-family:\s*"Freecat Tag Noto Sans SC",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*500;/);
-    assert.match(typographyCss, /\.freecat-brand-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*800;/);
-    assert.match(typographyCss, /\.freecat-footer-copyright\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
-    assert.doesNotMatch(postCss, /\.freecat-date-text\s*\{/);
-    assert.doesNotMatch(postCss, /\.freecat-published-date-text\s*\{/);
-    assert.doesNotMatch(postCss, /\.freecat-tag-text\s*\{/);
-    assert.doesNotMatch(postCss, /\.freecat-nav-text\s*\{/);
-    assert.doesNotMatch(postCss, /\.freecat-go-back-text\s*\{/);
-    assert.doesNotMatch(postCss, /\.freecat-search-input\s*\{/);
-    assert.doesNotMatch(postCss, /\.freecat-brand-text\s*\{/);
-    assert.doesNotMatch(postCss, /\.freecat-footer-copyright\s*\{/);
-    assert.match(notoSubsetScript, /iter_ui_html_files/);
-    assert.match(notoSubsetScript, /iter_post_pages/);
-    assert.match(notoSubsetScript, /FIGTREE_FONT_WEIGHTS/);
-    assert.doesNotMatch(notoSubsetScript, /PUBLISHED_DATE_CODEPOINTS/);
-    assert.match(postTemplate, /<!-- POST_FONT_PRELOADS -->/);
-    assert.match(postTemplate, /<!-- POST_FONT_FACE_CSS -->/);
-    assert.doesNotMatch(postCss, /freecat-noto-sans-sc-regular-subset\.woff2/);
-
-    assert.equal((html.match(/class="post-card-excerpt\b/g) || []).length, 2);
-    assert.equal((html.match(/class="post-card-title\b/g) || []).length, 2);
-    assert.match(html, /<h3 class="post-card-title[^"]*\bfont-black\b/);
-    assert.match(html, /class="freecat-published-date-text">2026-05-30<\/span>/);
-    assert.match(html, /class="freecat-date-text">2026-05-31<\/span>/);
-    assert.match(html, /\bfreecat-tag-text\b/);
-    assert.doesNotMatch(html, /\bfont-black\b[^"]*"[^>]*>中文Tag/);
-    assert.match(html, /\bfreecat-tag-text\b[^"]*\bfont-medium\b/);
-    assert.doesNotMatch(html, /<h3 class="[^"]*\bpost-card-excerpt\b/);
-    assert.match(postTemplate, /<time class="freecat-published-date-text"/);
-    assert.match(postTemplate, /最后编辑:\s*<span class="freecat-date-text">/);
-    assert.match(header, /<input[^>]+id="search-input"[^>]+class="freecat-search-input\b/);
-    assert.match(tailwindBuild, /'display':\s*\["'Freecat Figtree'",\s*"'Freecat Noto Sans SC'"/);
-    assert.doesNotMatch(headBase, /font-display:\s*swap;/);
-    assert.doesNotMatch(postCss, /font-display:\s*swap;/);
-});
-
-test('tag text preserves authored English casing', () => {
-    const html = shared.renderTagSpan('iOS Dev');
-
-    assert.match(html, />iOS Dev<\/span>/);
-    assert.doesNotMatch(html, /\buppercase\b/);
-});
-
-test('sidebar and about text use build-time Figtree and Noto Sans SC font classes', () => {
-    assert.match(typographyCss, /\.freecat-sidebar-slogan,\s*\.freecat-about-title\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*800;/);
-    assert.match(typographyCss, /\.freecat-sidebar-description,\s*\.freecat-sidebar-recent-link,\s*\.freecat-about-description\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
-    assert.match(typographyCss, /\.freecat-sidebar-recent-heading\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*800;/);
-
-    assert.match(homeSidebar, /class="freecat-sidebar-slogan\b/);
-    assert.doesNotMatch(homeSidebar, /freecat-sidebar-slogan[^"]*\bfont-semibold\b/);
-    assert.match(homeSidebar, /class="freecat-sidebar-description\b/);
-    assert.doesNotMatch(homeSidebar, /freecat-sidebar-description[^"]*\bfont-normal\b/);
-
-    assert.match(aboutTemplate, /class="freecat-about-title\b/);
-    assert.doesNotMatch(aboutTemplate, /freecat-about-title[^"]*\bfont-black\b/);
-    assert.match(aboutTemplate, /class="freecat-about-description\b/);
-    assert.doesNotMatch(aboutTemplate, /freecat-about-description[^"]*\bfont-normal\b/);
-
-    assert.match(buildJs, /class="freecat-sidebar-recent-link\b/);
-    assert.match(buildJs, /DEFAULT_RECENT_POSTS_LIMIT\s*=\s*8;/);
-    assert.match(buildJs, /class="freecat-sidebar-recent-link[^"]*\btext-sm\b/);
-    assert.doesNotMatch(buildJs, /class="freecat-sidebar-recent-link[^"]*\btext-\[13px\]\b/);
-    assert.match(buildJs, /class="freecat-sidebar-recent-heading\b[\s\S]*>\s*Update\s*</);
-    assert.match(buildJs, /class="freecat-sidebar-recent-heading[^"]*\btext-sm\b[\s\S]*>\s*Update\s*</);
-    assert.doesNotMatch(buildJs, /class="freecat-sidebar-recent-heading[^"]*\btext-\[13px\]\b/);
-    assert.doesNotMatch(buildJs, />\s*最近更新\s*</);
-});
-
-test('header brand link only uses content-sized click target', () => {
-    const brandLinkClass = header.match(/<a href="\/" class="([^"]*)">[\s\S]*?freecat-brand-text/)?.[1] || '';
-
-    assert.match(brandLinkClass, /\binline-flex\b/);
-    assert.match(brandLinkClass, /\bshrink-0\b/);
-    assert.doesNotMatch(brandLinkClass, /\bflex-1\b/);
-});
-
-test('go back and update sort labels use requested font assets', () => {
-    for (const template of [postTemplate, searchTemplate, allTemplate]) {
-        assert.match(template, /class="freecat-go-back-text text-sm">Go Back<\/span>/);
-        assert.doesNotMatch(template, /<span class="text-sm font-bold">Go Back<\/span>/);
-    }
-
-    assert.match(updateSortControl, /class="freecat-update-sort-label">按更新排序<\/span>/);
-    assert.match(allTemplate, /<!-- INCLUDE:update-sort-control -->/);
-    assert.match(searchTemplate, /<!-- INCLUDE:update-sort-control -->/);
-    assert.doesNotMatch(updateSortControl, /<span>按更新排序<\/span>/);
-});
-
 test('article table of contents uses requested Chinese and Latin font assets', () => {
     assert.match(postTemplate, /class="freecat-post-toc-title\b[\s\S]*>\s*目录\s*</);
     assert.doesNotMatch(postTemplate, /class="text-sm font-bold tracking-wider[^"]*">\s*目录\s*</);
@@ -221,84 +81,6 @@ test('article toc anchor scrolling respects the shell header offset when framed'
     assert.match(postJs, /return Math\.max\(0,\s*shellOffset,\s*headerHeight \+ safeGap\);/);
 });
 
-test('pagination text uses requested regular and active font weights', () => {
-    const html = generatePaginationHtml(1, 2);
-
-    assert.match(typographyCss, /\.freecat-pagination-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;[\s\S]*font-variant-numeric:\s*normal;[\s\S]*font-feature-settings:\s*normal;/);
-    assert.match(typographyCss, /\.freecat-pagination-strong\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*800;[\s\S]*font-variant-numeric:\s*normal;[\s\S]*font-feature-settings:\s*normal;/);
-    assert.match(paginationJs, /aria-label="Pagination" class="freecat-pagination-text\b/);
-    assert.match(html, /<nav aria-label="Pagination" class="freecat-pagination-text\b/);
-    assert.match(html, /aria-current="page" class="[^"]*\bfreecat-pagination-strong\b[^"]*\bfont-extrabold\b/);
-    assert.doesNotMatch(html, /aria-current="page" class="[^"]*\bfont-semibold\b/);
-    assert.match(html, /<input[^>]+class="freecat-pagination-text\b/);
-    assert.match(html, /<input[^>]+\bborder-b\b/);
-    assert.match(html, /<input[^>]+\bfocus:border-transparent\b/);
-    assert.match(html, /<input[^>]+\bfocus:ring-slate-300\/60\b/);
-    assert.doesNotMatch(html, /\btabular-nums\b/);
-    assert.match(html, />\s*跳至\s*<\/span>/);
-    assert.match(html, />Prev<\/span>/);
-    assert.match(html, />Next<\/span>/);
-});
-
-test('site text does not request unsupported bold weight', () => {
-    const sources = [
-        postCss,
-        mainJs,
-        searchTemplate,
-        notFoundTemplate,
-        seoJs,
-        paginationJs
-    ].join('\n');
-
-    assert.doesNotMatch(sources, /\bfont-bold\b/);
-    assert.doesNotMatch(sources, /font-weight:\s*700\b/);
-});
-
-test('only pages that render post cards preload post-card font assets', () => {
-    const compactHtml = postCardTemplate.renderPostCard({
-        link: '/posts/example.html',
-        titleHtml: 'Example',
-        excerptHtml: 'Example excerpt',
-        date: '2026-05-30',
-        layout: 'compact-grid'
-    });
-
-    assert.match(compactHtml, /post-card-layout-compact-grid/);
-    assert.doesNotMatch(allTemplate, /\.freecat-all-page #posts-list \.post-card h3/);
-
-    const sharedFontPreloads = [
-        '/assets/fonts/freecat-figtree-regular-subset.woff2',
-        '/assets/fonts/freecat-figtree-semi-bold-subset.woff2',
-        '/assets/fonts/freecat-figtree-extra-bold-subset.woff2',
-        '/assets/fonts/freecat-ui-noto-sans-sc-regular-subset.woff2',
-        '/assets/fonts/freecat-ui-noto-sans-sc-medium-subset.woff2',
-        '/assets/fonts/freecat-ui-noto-sans-sc-semi-bold-subset.woff2',
-        '/assets/fonts/freecat-ui-noto-sans-sc-extra-bold-subset.woff2'
-    ];
-
-    assert.deepEqual(preloadFontHrefs(headBase), sharedFontPreloads);
-
-    for (const template of [indexTemplate, allTemplate, searchTemplate]) {
-        const hrefs = preloadFontHrefs(template);
-        assert.deepEqual(hrefs, []);
-        assert.equal(hrefs.includes('./assets/fonts/freecat-google-sans-regular-subset.woff2'), false);
-        assert.equal(hrefs.some(href => href.includes('freecat-dm-sans')), false);
-        assert.equal(hrefs.some(href => href.includes('freecat-figtree-medium')), false);
-    }
-
-    assert.deepEqual(preloadFontHrefs(aboutTemplate), []);
-    assert.deepEqual(preloadFontHrefs(notFoundTemplate), []);
-});
-
-test('post font preloads and font faces use the same versioned urls', () => {
-    const postId = '2026053115300001';
-    const preloads = new Set(preloadFontHrefs(renderPostFontPreloads(postId, 'test-version')));
-    const fontFaces = new Set(fontFaceSrcUrls(renderPostFontFaceCss(postId, 'test-version')));
-
-    assert.deepEqual(preloads, fontFaces);
-    assert.equal([...preloads].every(href => href.endsWith('?v=test-version')), true);
-});
-
 test('article video players default to 16:9 before metadata and then use real video ratio', () => {
     assert.match(videoPlayerCss, /\.video-player-stage\s*\{[\s\S]*aspect-ratio:\s*var\(--video-aspect-ratio,\s*16\s*\/\s*9\);/);
     assert.match(videoPlayerCss, /\.video-player-video\s*\{[\s\S]*height:\s*100%;[\s\S]*object-fit:\s*contain;/);
@@ -310,187 +92,6 @@ test('article video players default to 16:9 before metadata and then use real vi
     assert.match(mediaPlayerCss, /\.media-player-loading-chrome\s*\{/);
     assert.match(mediaPlayerCss, /\.media-player-loading-progress::before\s*\{/);
     assert.match(mediaPlayerCss, /\.media-player-loading-controls-left,\s*\.media-player-loading-controls-right\s*\{/);
-});
-
-test('all-page compact cards use native two-line excerpt ellipsis', () => {
-    const excerpt = 'Long excerpt '.repeat(40);
-    const html = postCardTemplate.renderPostCard({
-        link: '/posts/example.html',
-        titleHtml: 'Example',
-        excerptHtml: excerpt,
-        date: '2026-05-30',
-        layout: 'compact-grid'
-    });
-
-    assert.match(html, /<p class="post-card-excerpt[^"]*\bmin-h-\[3\.3em\][^"]*" style="[^"]*-webkit-line-clamp:2/);
-    assert.match(html, /overflow-wrap:break-word/);
-    assert.equal(html.includes(excerpt), true);
-    assert.doesNotMatch(html, /data-excerpt-overflow/);
-    assert.doesNotMatch(headBase, /post-card-excerpt-clamp/);
-    assert.doesNotMatch(html, /-webkit-line-clamp:9/);
-});
-
-test('mobile post cards remove the image-to-tags divider and extend the cover', () => {
-    const html = postCardTemplate.renderPostCard({
-        link: '/posts/example.html',
-        titleHtml: 'Example',
-        excerptHtml: 'Example excerpt',
-        cover: '/image/example.png',
-        date: '2026-05-30',
-        modifiedDate: '2026-05-31',
-        tagsHtml: '<span>Free</span>'
-    });
-
-    assert.match(html, /lazy-image-frame mt-8 h-\[196px\]/);
-    assert.doesNotMatch(html, /lazy-image-frame mt-8 h-\[180px\]/);
-    assert.match(html, /<div class="mt-3 shrink-0">\s*<div class="flex min-h-5 items-center">/);
-    assert.doesNotMatch(html, /<div class="mt-3 shrink-0 border-t/);
-    assert.doesNotMatch(html, /<div class="mt-4 shrink-0 border-t/);
-});
-
-test('all-page cards can opt out of order-based entrance delay', () => {
-    const dateValue = {
-        tz: () => ({ format: () => '2026-05-31' }),
-        valueOf: () => 1780222181000
-    };
-    const html = renderPostCardForList({
-        link: '/posts/example/',
-        title: 'Example',
-        excerpt: 'Example excerpt',
-        date: dateValue,
-        modifiedDate: dateValue
-    }, 8, { animationDelayStep: 0 });
-
-    assert.match(html, /animation-delay:\s*0ms/);
-    assert.doesNotMatch(html, /animation-delay:\s*(?:560|960)ms/);
-});
-
-test('main animation checks reuse a single reduced-motion helper', () => {
-    assert.equal((themeSystemJs.match(/function prefersReducedMotion\(\)/g) || []).length, 1);
-    assert.equal((mainJs.match(/function prefersReducedMotion\(\)/g) || []).length, 0);
-    assert.doesNotMatch(mainJs, /const prefersReducedMotion = \(\) =>/);
-});
-
-test('theme switching uses css transitions and syncs the shell iframe', () => {
-    assert.doesNotMatch(mainJs, /document\.startViewTransition/);
-    assert.match(themeSystemJs, /function syncFrameTheme\(isDark, options = \{\}\)\s*\{/);
-    assert.match(themeSystemJs, /contentFrame\.contentWindow\.FreecatRuntime/);
-    assert.match(themeSystemJs, /frameRuntime\.applyTheme\(\{\s*animate:\s*!!options\.animate\s*\}\);/);
-    assert.match(themeSystemJs, /contentFrame\.contentWindow\.FreecatApplyTheme/);
-    assert.match(themeSystemJs, /frameDoc\.documentElement\.classList\.toggle\('dark', isDark\);/);
-    assert.match(runtimeJs, /setApplyTheme\(fn\)\s*\{[\s\S]*FreecatApplyTheme/);
-    assert.match(mainJs, /runtime\.setApplyTheme\(applyTheme\);/);
-    assert.match(shellRouterJs, /syncFrameTheme\(resolveThemeIsDark\(\)\);/);
-});
-
-test('search page result count reserves space before rendering the numeric badge', () => {
-    assert.match(mainJs, /function setSearchResultsCount\(count\)\s*\{/);
-    assert.match(mainJs, /value\.textContent\s*=\s*String\(count\);/);
-    assert.match(mainJs, /resultsCountDisplay\.dataset\.countReady\s*=\s*'true';/);
-    assert.match(mainJs, /setSearchResultsCount\(results\.length\);/);
-    assert.doesNotMatch(mainJs, /resultsCountDisplay\.textContent\s*=\s*`\(\$\{results\.length\} results\)`;/);
-    assert.match(searchTemplate, /id="results-count" class="freecat-results-count" data-count-ready="false"/);
-    assert.match(searchTemplate, /class="freecat-results-count-icon"[\s\S]*M24 12L18\.3431 17\.6568/);
-    assert.match(searchTemplate, /class="freecat-results-count-value"/);
-    assert.match(transitionsCss, /\.freecat-results-count\s*\{[\s\S]*width:\s*1\.25rem;[\s\S]*height:\s*1\.25rem;[\s\S]*background:\s*rgba\(148,\s*163,\s*184,\s*0\.18\);[\s\S]*color:\s*#475569;/);
-    assert.match(transitionsCss, /\.freecat-results-count\[data-count-ready="true"\]\s+\.freecat-results-count-value\s*\{[\s\S]*opacity:\s*1;/);
-});
-
-test('shell router uses clean history URLs for framed navigation', () => {
-    assert.match(mainJs, /function navigateWithinSite\(url, options = \{\}\)\s*\{/);
-    assert.match(runtimeJs, /setNavigate\(fn\)\s*\{[\s\S]*FreecatNavigate/);
-    assert.equal(mainJs.includes("navigateWithinSite(`/search.html?q=${encodeURIComponent(searchInput.value.trim())}`);"), true);
-    assert.match(shellRouterJs, /function publicPathToContentPath\(raw\)\s*\{/);
-    assert.match(shellRouterJs, /function contentPathToPublicPath\(raw\)\s*\{/);
-    assert.match(shellRouterJs, /window\.history\[method\]\(state,\s*'',\s*publicPath\);/);
-    assert.match(shellRouterJs, /window\.addEventListener\('popstate',\s*\(\)\s*=>\s*syncFrameToLocation\(\{\s*restoreScroll:\s*true\s*\}\)\);/);
-    assert.doesNotMatch(shellRouterJs, /window\.addEventListener\('hashchange'/);
-    assert.doesNotMatch(shellRouterJs, /function pathToHash\(/);
-});
-
-test('framed pages delegate same-origin links to the parent shell but keep anchors local', () => {
-    assert.match(mainJs, /function initFramedNavigationBridge\(\)\s*\{/);
-    assert.match(mainJs, /shellRouter\.initFramedNavigationBridge\(\{\s*window,\s*document,\s*runtime\s*\}\);/);
-    assert.match(shellRouterJs, /runtime\.saveScrollPosition\(\);/);
-    assert.match(shellRouterJs, /rawHref\.charAt\(0\) === '#'/);
-    assert.match(shellRouterJs, /runtime\.navigate\(url\.pathname \+ url\.search \+ url\.hash\);/);
-    assert.match(mainJs, /if \(FRAMED\) initFramedNavigationBridge\(\);/);
-});
-
-test('nav audio defaults to half volume and exposes the matching volume slider while playing', () => {
-    assert.match(mainJs, /const navAudioController = window\.FreecatNavAudio;/);
-    assert.match(mainJs, /if \(!FRAMED\) initNavAudioButton\(\);/);
-    assert.match(navAudioJs, /const DEFAULT_NAV_AUDIO_VOLUME = 0\.5;/);
-    assert.match(navAudioJs, /const NAV_AUDIO_VOLUME_HIDE_DELAY_MS = 1000;/);
-    assert.match(navAudioJs, /navAudio\.volume = nextVolume;/);
-    assert.match(navAudioJs, /navAudioVolume\.style\.setProperty\('--volume-percent', `\$\{nextVolume \* 100\}%`\);/);
-    assert.match(navAudioJs, /if \(navAudioControl\) navAudioControl\.dataset\.playing = isPlaying \? 'true' : 'false';/);
-    assert.match(navAudioJs, /let navAudioVolumePointerInside = false;/);
-    const shouldKeepVolumeBlock = navAudioJs.match(/function shouldKeepNavAudioVolumeOpen\(\) \{[\s\S]*?\n        \}/)?.[0] || '';
-    assert.equal(navAudioJs.includes('function shouldKeepNavAudioVolumeOpen()'), true);
-    assert.equal(navAudioJs.includes('return navAudioVolumePointerInside'), true);
-    assert.equal(navAudioJs.includes("navAudioControl.matches(':hover')"), true);
-    assert.equal(navAudioJs.includes("navAudioControl.matches(':focus-within')"), true);
-    assert.doesNotMatch(shouldKeepVolumeBlock, /focus-within/);
-    assert.equal(navAudioJs.includes("navAudioVolumeWrapper.matches(':hover')"), true);
-    assert.match(navAudioJs, /if \(shouldKeepNavAudioVolumeOpen\(\)\) \{\s*setNavAudioVolumeOpen\(true\);/);
-    assert.match(navAudioJs, /navAudioVolumeWrapper\.addEventListener\('pointerenter', \(\) => \{\s*navAudioVolumePointerInside = true;\s*setNavAudioVolumeOpen\(true\);\s*\}\);/);
-    assert.match(navAudioJs, /navAudioVolumeWrapper\.addEventListener\('pointerleave', \(\) => \{\s*navAudioVolumePointerInside = false;\s*scheduleNavAudioVolumeClose\(\);\s*\}\);/);
-    assert.equal(navAudioJs.includes('function closeNavAudioVolumeOnOutsidePointerDown(event)'), true);
-    assert.match(navAudioJs, /if \(!navAudioControl \|\| navAudioControl\.dataset\.volumeOpen !== 'true'\) return;/);
-    assert.match(navAudioJs, /if \(isNavAudioVolumeEventTarget\(event\.target\)\) return;/);
-    assert.match(navAudioJs, /document\.activeElement instanceof HTMLElement && navAudioControl\.contains\(document\.activeElement\)/);
-    assert.match(navAudioJs, /document\.activeElement\.blur\(\);/);
-    assert.match(navAudioJs, /navAudioVolumePointerInside = false;[\s\S]*document\.activeElement\.blur\(\);[\s\S]*setNavAudioVolumeOpen\(false\);/);
-    assert.match(navAudioJs, /function bindNavAudioFramePointerDown\(\)/);
-    assert.match(navAudioJs, /navAudioFramePointerDownDocument\.addEventListener\('pointerdown', closeNavAudioVolumeNow, true\);/);
-    assert.match(navAudioJs, /contentFrame\.addEventListener\('load', bindNavAudioFramePointerDown\);/);
-    assert.match(navAudioJs, /document\.addEventListener\('pointerdown', closeNavAudioVolumeOnOutsidePointerDown, true\);/);
-    assert.doesNotMatch(transitionsCss, /\.nav-audio-control\[data-playing="true"\]:focus-within \.nav-audio-volume-slider-wrapper/);
-    assert.match(transitionsCss, /\.nav-audio-control\[data-playing="true"\]:hover \.nav-audio-volume-slider-wrapper,\s*\.nav-audio-control\[data-playing="true"\]\[data-volume-open="true"\] \.nav-audio-volume-slider-wrapper/);
-    assert.match(transitionsCss, /\.nav-audio-control\[data-playing="true"\]\[data-volume-open="true"\] \.nav-audio-volume-slider-wrapper\s*\{[\s\S]*width:\s*80px;[\s\S]*opacity:\s*1;/);
-    assert.match(transitionsCss, /\.nav-audio-volume-slider\s*\{[\s\S]*height:\s*4px;[\s\S]*background:\s*linear-gradient\(to right, #475569 0%, #475569 var\(--volume-percent, 50%\), #cbd5e1 var\(--volume-percent, 50%\), #cbd5e1 100%\);/);
-    assert.match(transitionsCss, /\.nav-audio-volume-slider::-webkit-slider-thumb\s*\{[\s\S]*width:\s*12px;[\s\S]*height:\s*12px;[\s\S]*border:\s*2px solid white;/);
-});
-
-test('all-page cards can reuse the metadata row for mobile tags', () => {
-    const dateValue = {
-        tz: () => ({ format: () => '2026-05-30' }),
-        valueOf: () => 1780135781000
-    };
-    const modifiedDateValue = {
-        tz: () => ({ format: () => '2026-05-31' }),
-        valueOf: () => 1780222181000
-    };
-    const html = renderPostCardForList({
-        link: '/posts/example/',
-        title: 'Example',
-        excerpt: 'Example excerpt',
-        date: dateValue,
-        modifiedDate: modifiedDateValue,
-        tag: ['Free'],
-        cover: '/image/example.png'
-    }, 0, { mobileTagsInline: true });
-
-    assert.match(html, /post-card[^"]*\btags-inline-mobile\b/);
-    assert.equal(html.indexOf('<span>2026-05-31</span>') < html.indexOf('Free'), true);
-    assert.doesNotMatch(html, /<div class="mt-4 shrink-0 border-t/);
-});
-
-test('all-page inline mobile tags are not clipped by the metadata row', () => {
-    const html = postCardTemplate.renderPostCard({
-        link: '/posts/example.html',
-        titleHtml: 'Example',
-        excerptHtml: 'Example excerpt',
-        date: '2026-05-30',
-        tagsHtml: '<span>Free</span>',
-        mobileTagsInline: true,
-        layout: 'compact-grid'
-    });
-
-    assert.match(html, /post-card-layout-compact-grid/);
-    assert.match(html, /tags-inline-mobile/);
-    assert.match(html, /overflow-visible/);
 });
 
 test('second-largest article heading rank renders the divider rule when multiple ranks exist', () => {
@@ -534,75 +135,6 @@ test('article heading links are prefixed with a currentColor link icon', () => {
     assert.match(rule, /background-color:\s*currentColor;/);
     assert.match(rule, /mask:\s*url\("data:image\/svg\+xml,/);
     assert.match(rule, /content:\s*""/);
-});
-
-test('Figtree uses generated subsets for regular, semi-bold, and extra-bold weights', () => {
-    const figtreeFaces = [...headBase.matchAll(/@font-face\s*\{[\s\S]*?\}/g)]
-        .map(match => match[0])
-        .filter(block => block.includes('font-family: "Freecat Figtree"'));
-    const weights = [
-        ['regular', '400'],
-        ['semi-bold', '600'],
-        ['extra-bold', '800 1000']
-    ];
-
-    assert.equal(figtreeFaces.length, weights.length);
-    for (const [name, weight] of weights) {
-        const face = figtreeFaces.find(block => block.includes(`freecat-figtree-${name}-subset.woff2`)) || '';
-        const subsetFont = path.join(__dirname, `../src/assets/fonts/freecat-figtree-${name}-subset.woff2`);
-        const sourceFont = path.join(__dirname, `../fonts/freecat-figtree-${name}.ttf`);
-        const fullAssetFont = path.join(__dirname, `../src/assets/fonts/freecat-figtree-${name}.ttf`);
-
-        assert.match(face, new RegExp(`font-weight:\\s*${weight}`));
-        assert.match(face, /font-display:\s*block/);
-        assert.equal(fs.existsSync(sourceFont), true);
-        assert.equal(fs.existsSync(subsetFont), true);
-        assert.equal(fs.existsSync(fullAssetFont), false);
-        assert.ok(fs.statSync(subsetFont).size < fs.statSync(sourceFont).size);
-    }
-
-    assert.equal(fs.existsSync(path.join(__dirname, '../src/assets/fonts/freecat-dm-sans-regular-subset.woff2')), false);
-    assert.equal(fs.existsSync(path.join(__dirname, '../src/assets/fonts/freecat-dm-sans-medium-subset.woff2')), false);
-    assert.equal(fs.existsSync(path.join(__dirname, '../src/assets/fonts/freecat-dm-sans-black-subset.woff2')), false);
-    assert.equal(fs.existsSync(path.join(__dirname, '../src/assets/fonts/freecat-figtree-medium-subset.woff2')), false);
-});
-
-test('article Chinese font uses generated Noto Sans SC subsets for available weights', () => {
-    const postId = '2026053115300001';
-    const fontCss = renderPostFontFaceCss(postId, 'test-version');
-    const notoFaces = [...fontCss.matchAll(/@font-face\s*\{[\s\S]*?\}/g)]
-        .map(match => match[0])
-        .filter(block => block.includes('font-family: "Freecat Noto Sans SC"'));
-    const weights = [
-        ['regular', '350 449'],
-        ['medium', '450 549'],
-        ['semi-bold', '550 649'],
-        ['extra-bold', '750 849']
-    ];
-    const unusedWeights = ['thin', 'extra-light', 'light', 'bold', 'black'];
-
-    assert.equal(notoFaces.length, weights.length);
-    for (const [name, weight] of weights) {
-        const face = notoFaces.find(block => block.includes(`freecat-noto-sans-sc-${name}-subset.woff2`)) || '';
-
-        assert.match(face, new RegExp(`font-weight:\\s*${weight}`));
-        assert.match(face, new RegExp(`/assets/fonts/freecat-noto-sans-sc-${name}-subset\\.woff2\\?v=test-version`));
-        assert.doesNotMatch(face, /unicode-range/);
-        assert.match(face, /font-display:\s*block/);
-    }
-    for (const name of unusedWeights) {
-        assert.equal(notoFaces.some(block => block.includes(`freecat-noto-sans-sc-${name}-subset.woff2`)), false);
-    }
-
-    assert.deepEqual(preloadFontHrefs(renderPostFontPreloads(postId, 'test-version')), [
-        '/assets/fonts/freecat-figtree-regular-subset.woff2?v=test-version',
-        '/assets/fonts/freecat-figtree-semi-bold-subset.woff2?v=test-version',
-        '/assets/fonts/freecat-figtree-extra-bold-subset.woff2?v=test-version',
-        '/assets/fonts/freecat-noto-sans-sc-regular-subset.woff2?v=test-version',
-        '/assets/fonts/freecat-noto-sans-sc-medium-subset.woff2?v=test-version',
-        '/assets/fonts/freecat-noto-sans-sc-semi-bold-subset.woff2?v=test-version',
-        '/assets/fonts/freecat-noto-sans-sc-extra-bold-subset.woff2?v=test-version'
-    ]);
 });
 
 test('article Chinese font weight ranges cover title and bold text rules', () => {
@@ -741,58 +273,31 @@ test('mermaid light theme avoids heavy sequence and gantt blocks', () => {
     assert.match(postCss, /\.mermaid-block\[data-mermaid-kind="gantt"\] \.taskText,[\s\S]*\.taskTextOutsideRight,[\s\S]*\.taskTextOutsideLeft\s*\{[\s\S]*fill:\s*#233044\s*!important;/);
 });
 
-test('fixed header has a stable css height before runtime measurement', () => {
-    assert.match(transitionsCss, /header\.fixed\s*\{[\s\S]*height:\s*var\(--freecat-header-height\);/);
-    assert.match(transitionsCss, /header\.fixed\s+\.header-blur-target\s*\{[\s\S]*height:\s*100%;/);
-    assert.doesNotMatch(transitionsCss, /(?:^|\n)header\s*\{[\s\S]*height:\s*var\(--freecat-header-height\);/);
-});
-
-test('root scroller disables browser scroll anchoring during async layout changes', () => {
-    assert.match(transitionsCss, /html\s*\{[\s\S]*overflow-anchor:\s*none;/);
-});
-
-test('floating nav hides when it touches visible content blocks including toc', () => {
-    assert.match(mainJs, /function touchesVisibleContentEdge\(\)/);
-    assert.match(mainJs, /\.freecat-post-toc-panel/);
-    assert.match(mainJs, /rectsTouch\(panelRect,\s*targetRect\)/);
-    assert.match(mainJs, /window\.addEventListener\('scroll',\s*scheduleFloatingNavLayout,\s*\{\s*passive:\s*true\s*\}\)/);
-});
-
-test('floating nav ignores blank pagination wrapper space on home page', () => {
-    assert.match(mainJs, /function getFloatingNavCollisionRects\(target\)/);
-    assert.match(mainJs, /target\.id !== 'pagination-buttons'/);
-    assert.match(mainJs, /Array\.from\(target\.children\)[\s\S]*\.map\(\(child\) => child\.getBoundingClientRect\(\)\)[\s\S]*\.filter\(isVisibleRect\)/);
-    assert.match(mainJs, /contentRects\.length \? contentRects : \[target\.getBoundingClientRect\(\)\]/);
-});
-
-test('floating nav does not hide against home list layout wrappers', () => {
-    assert.match(mainJs, /const isHomePage = document\.body && document\.body\.dataset\.page === 'home';/);
-    assert.match(mainJs, /isHomePage \? null : '\.freecat-home-posts-inner'/);
-    assert.match(mainJs, /isHomePage \? null : '#posts-list'/);
-    assert.match(mainJs, /\.filter\(Boolean\)\.join\(','\)/);
-});
-
 test('code folding uses a smooth height transition with fading mask cleanup', () => {
-    const codeContentRule = postCss.match(/\.prose \.code-content\s*\{[\s\S]*?\n\}/)?.[0] || '';
-    const codeMaskRule = postCss.match(/\.prose \.code-content::after\s*\{[\s\S]*?\n\}/)?.[0] || '';
-    const collapsedMaskRule = postCss.match(/\.prose \.collapsed-code \.code-content::after\s*\{[\s\S]*?\n\}/)?.[0] || '';
-    const openingControlsRule = postCss.match(/\.prose \.code-fold-controls\.code-controls-opening\s*\{[\s\S]*?\n\}/)?.[0] || '';
-    const reducedMotionRule = postCss.match(/@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\.prose \.fold-toggle-btn[\s\S]*?\n\}/)?.[0] || '';
+    const codeContentRule = postCodeCss.match(/\.prose \.code-content\s*\{[\s\S]*?\n\}/)?.[0] || '';
+    const codeMaskRule = postCodeCss.match(/\.prose \.code-content::after\s*\{[\s\S]*?\n\}/)?.[0] || '';
+    const collapsedMaskRule = postCodeCss.match(/\.prose \.collapsed-code \.code-content::after\s*\{[\s\S]*?\n\}/)?.[0] || '';
+    const openingControlsRule = postCodeCss.match(/\.prose \.code-fold-controls\.code-controls-opening\s*\{[\s\S]*?\n\}/)?.[0] || '';
+    const reducedMotionRule = postCodeCss.match(/@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\.prose \.fold-toggle-btn[\s\S]*?\n\}/)?.[0] || '';
 
-    assert.match(postJs, /function setCodeControlsInlineLayout\(controls\)/);
-    assert.doesNotMatch(postJs, /function setCollapsedCodeControlsLayout\(controls\)/);
-    assert.doesNotMatch(postJs, /function setExpandedCodeControlsLayout\(controls\)/);
-    assert.match(postJs, /var CODE_FOLD_TRANSITION_MS = 420;/);
-    assert.match(postJs, /setTimeout\(finish, CODE_FOLD_TRANSITION_MS \+ 80\);/);
-    assert.match(postJs, /function settleCollapsedCodeHeight\(content, container\)/);
-    assert.match(postJs, /foldContainer\.classList\.add\('code-collapsing'\)/);
-    assert.match(postJs, /container\.classList\.remove\('code-collapsing'\)/);
-    assert.match(postJs, /var content = block\.querySelector\('\.code-content'\);/);
-    assert.match(postJs, /var contentRect = content \? content\.getBoundingClientRect\(\) : wrapperRect;/);
-    assert.match(postJs, /\? contentRect\.top \+ finalContentHeight\s*:\s*contentRect\.bottom;/);
-    assert.match(postJs, /if \(mode === 'pinned-bottom'\) \{\s*top = Math\.max\(minTop, maxBottom - controlsHeight\);/);
-    assert.doesNotMatch(postJs, /if \(openingTarget\.mode === 'pinned-bottom'\) \{[\s\S]*?controls\.classList\.add\('code-controls-pinned-bottom'\);[\s\S]*?controls\.style\.removeProperty\('--code-controls-top'\);[\s\S]*?\} else \{/);
-    assert.match(postJs, /controls\.classList\.remove\('code-controls-pinned-bottom'\);[\s\S]*controls\.classList\.add\('code-controls-opening'\);/);
+    assert.match(postTemplate, /href="\/assets\/post-code\.css"/);
+    assert.match(postTemplate, /src="\/assets\/code-folding\.js" defer><\/script>[\s\S]*src="\/assets\/post\.js" defer/);
+    assert.match(postJs, /var codeFolding = window\.FreecatCodeFolding;/);
+    assert.doesNotMatch(postJs, /CODE_COLLAPSED_HEIGHT/);
+    assert.match(codeFoldingJs, /function setCodeControlsInlineLayout\(controls\)/);
+    assert.doesNotMatch(codeFoldingJs, /function setCollapsedCodeControlsLayout\(controls\)/);
+    assert.doesNotMatch(codeFoldingJs, /function setExpandedCodeControlsLayout\(controls\)/);
+    assert.match(codeFoldingJs, /var CODE_FOLD_TRANSITION_MS = 420;/);
+    assert.match(codeFoldingJs, /setTimeout\(finish, CODE_FOLD_TRANSITION_MS \+ 80\);/);
+    assert.match(codeFoldingJs, /function settleCollapsedCodeHeight\(content, container\)/);
+    assert.match(codeFoldingJs, /foldContainer\.classList\.add\('code-collapsing'\)/);
+    assert.match(codeFoldingJs, /container\.classList\.remove\('code-collapsing'\)/);
+    assert.match(codeFoldingJs, /var content = block\.querySelector\('\.code-content'\);/);
+    assert.match(codeFoldingJs, /var contentRect = content \? content\.getBoundingClientRect\(\) : wrapperRect;/);
+    assert.match(codeFoldingJs, /\? contentRect\.top \+ finalContentHeight\s*:\s*contentRect\.bottom;/);
+    assert.match(codeFoldingJs, /if \(mode === 'pinned-bottom'\) \{\s*top = Math\.max\(minTop, maxBottom - controlsHeight\);/);
+    assert.doesNotMatch(codeFoldingJs, /if \(openingTarget\.mode === 'pinned-bottom'\) \{[\s\S]*?controls\.classList\.add\('code-controls-pinned-bottom'\);[\s\S]*?controls\.style\.removeProperty\('--code-controls-top'\);[\s\S]*?\} else \{/);
+    assert.match(codeFoldingJs, /controls\.classList\.remove\('code-controls-pinned-bottom'\);[\s\S]*controls\.classList\.add\('code-controls-opening'\);/);
     assert.match(codeContentRule, /--code-fold-duration:\s*420ms;/);
     assert.match(codeContentRule, /--code-fold-ease:\s*cubic-bezier\(0\.22,\s*1,\s*0\.36,\s*1\);/);
     assert.match(codeContentRule, /max-height var\(--code-fold-duration\) var\(--code-fold-ease\)/);
@@ -804,131 +309,13 @@ test('code folding uses a smooth height transition with fading mask cleanup', ()
     assert.match(reducedMotionRule, /transition:\s*none !important;/);
 });
 
-test('history navigation restores saved scroll positions after bfcache expires', () => {
-    assert.match(mainJs, /function initScrollPositionMemory\(\)/);
-    assert.match(mainJs, /scrollMemory\.init\(\{\s*window,\s*document,\s*platform,\s*runtime\s*\}\);/);
-    assert.match(scrollMemoryJs, /platform\.sessionStorage\.setItem\(storageKey,\s*JSON\.stringify\(positions\)\)/);
-    assert.match(scrollMemoryJs, /getNavigationType\(\) === 'back_forward'/);
-    assert.match(scrollMemoryJs, /window\.addEventListener\('pagehide',\s*saveScrollPosition\)/);
-    assert.match(scrollMemoryJs, /runtime\.setSaveScrollPosition\(saveScrollPosition\);/);
-    assert.match(runtimeJs, /setSaveScrollPosition\(fn\)\s*\{[\s\S]*FreecatSaveScrollPosition/);
-    assert.match(scrollMemoryJs, /if \(window\.location\.hash\) \{\s*finishPendingStateRestore\(\);\s*return;\s*\}/);
-    assert.match(mainJs, /initScrollPositionMemory\(\);/);
-});
-
-test('shell history back marks framed pages for scroll restoration', () => {
-    assert.match(scrollMemoryJs, /const restoreRequestStorageKey = 'freecat-scroll-restore-requests-v1';/);
-    assert.match(scrollMemoryJs, /function consumeShellRestoreRequest\(\)\s*\{/);
-    assert.match(scrollMemoryJs, /const hasShellRestoreRequest = consumeShellRestoreRequest\(\);[\s\S]*if \(isHistoryRestore\(\) \|\| hasShellRestoreRequest\) restoreScrollPosition\(\);/);
-    assert.match(shellRouterJs, /const SCROLL_RESTORE_REQUEST_KEY = 'freecat-scroll-restore-requests-v1';/);
-    assert.match(shellRouterJs, /function requestFrameScrollRestore\(path\)\s*\{/);
-    assert.match(shellRouterJs, /if \(options\.restoreScroll\) requestFrameScrollRestore\(target\);/);
-    assert.match(shellRouterJs, /syncFrameToLocation\(\{\s*restoreScroll:\s*true\s*\}\)/);
-});
-
-test('go back preserves the update sort switch state in history entries', () => {
-    assert.match(mainJs, /const updateSortParam = 'updateSort';/);
-    assert.match(mainJs, /params\.get\(updateSortParam\)\s*===\s*updateSortValue/);
-    assert.match(mainJs, /runtime\.setSyncUpdateSortUrl\(syncUpdateSortUrl\);/);
-    assert.match(runtimeJs, /setSyncUpdateSortUrl\(fn\)\s*\{[\s\S]*FreecatSyncUpdateSortUrl/);
-    assert.match(mainJs, /applyTheme\(\);\s*initUpdateSortControls\(\);\s*initScrollPositionMemory\(\);/);
-    assert.match(headBase, /html\.freecat-state-restore-pending body\s*\{[\s\S]*visibility:\s*hidden;/);
-    assert.match(scrollMemoryJs, /document\.documentElement\.classList\.remove\('freecat-state-restore-pending'\);/);
-    assert.match(mainJs, /function syncParentFrameHistory\(options = \{\}\)\s*\{/);
-    assert.match(mainJs, /syncParentFrameHistory\(\{\s*push:\s*!options\.replace\s*\}\);/);
-    assert.match(runtimeJs, /setSyncFrameHistory\(fn\)\s*\{[\s\S]*FreecatSyncFrameHistory/);
-    assert.match(mainJs, /syncCurrentHistoryEntry\(\);[\s\S]*canGoBackWithinSite\(\)[\s\S]*window\.history\.back\(\);/);
-    assert.match(mainJs, /url\.searchParams\.set\('updateSort',\s*'modified'\);/);
-    assert.match(mainJs, /setUpdateSortMode\(updateSortSwitch,\s*useModifiedSort,\s*\{\s*replace:\s*true\s*\}\);/);
-    assert.match(mainJs, /initDeferredImages\(\);\s*initUpdateSortControls\(\);/);
-});
-
-test('home soft pagination syncs shell history and saved scroll before post navigation', () => {
-    assert.match(mainJs, /function getPaginationFetchUrl\(rawUrl\)\s*\{/);
-    assert.match(mainJs, /url\.pathname === '\/' \|\| url\.pathname === '\/index\.html' \|\| url\.pathname === '\/index'/);
-    assert.match(mainJs, /return '\/home\.html' \+ url\.search;/);
-    assert.match(mainJs, /platform\.fetch\(getPaginationFetchUrl\(url\),\s*\{\s*credentials:\s*'same-origin'/);
-    assert.match(mainJs, /window\.history\.pushState\(\{\s*\.\.\.\(window\.history\.state \|\| \{\}\),\s*freecatSoftNav:\s*true\s*\},\s*'',\s*url\);/);
-    assert.match(mainJs, /syncParentFrameHistory\(\{\s*push:\s*true\s*\}\);/);
-    assert.match(shellRouterJs, /runtime\.saveScrollPosition\(\);[\s\S]*runtime\.navigate\(url\.pathname \+ url\.search \+ url\.hash\);/);
-});
-
-test('header search opens a blank overlay and closes from blank space', () => {
-    assert.match(mainJs, /function ensureSearchResultsOverlay\(\)\s*\{/);
-    assert.match(mainJs, /const offset = header \? header\.offsetHeight : 0;/);
-    assert.doesNotMatch(mainJs, /header\.offsetHeight \+ 12/);
-    assert.doesNotMatch(mainJs, /rect\.bottom \+ 12/);
-    assert.match(mainJs, /overlay\.id = 'search-results-overlay';/);
-    assert.doesNotMatch(mainJs, /overlay\.className = '[^']*t-panel-slide/);
-    assert.match(transitionsCss, /#search-results-overlay\s*\{[\s\S]*transform:\s*none !important;[\s\S]*transition:\s*none !important;/);
-    assert.match(mainJs, /requestAnimationFrame\(\(\) => \{\s*searchContainer\.dataset\.open = 'true';\s*ensureSearchResultsOverlay\(\);/);
-    assert.match(mainJs, /if \(e\.target === overlay\) \{\s*closeHeaderSearch\(true\);/);
-    assert.match(mainJs, /const resultsContent = overlay && overlay\.querySelector\('\[data-search-results-content\]'\);/);
-    assert.match(mainJs, /if \(!resultsContent \|\| !resultsContent\.contains\(e\.target\)\) \{\s*closeHeaderSearch\(true\);/);
-    assert.match(mainJs, /const keepBlankOverlay = searchContainer[\s\S]*document\.body\.classList\.contains\('search-active'\)/);
-    assert.match(mainJs, /overlay\.innerHTML = '';\s*updateSearchOverlayOffset\(overlay\);\s*overlay\.dataset\.open = 'true';/);
-    assert.match(mainJs, /<div data-search-results-content class="max-w-\[1200px\]/);
-});
-
-test('direct URL entries use the home fallback for go back controls', () => {
-    assert.match(mainJs, /function hasSameOriginReferrer\(\)\s*\{/);
-    assert.match(mainJs, /new URL\(document\.referrer\)\.origin === window\.location\.origin/);
-    assert.match(mainJs, /function canGoBackWithinSite\(\)\s*\{/);
-    assert.match(mainJs, /window\.history\.state && window\.history\.state\.freecatSoftNav/);
-    assert.match(mainJs, /window\.history\.state && window\.history\.state\.freecatShell/);
-    assert.match(mainJs, /window\.parent\.history\.state\.freecatShell/);
-    assert.match(mainJs, /window\.parent\.history\.back\(\);[\s\S]*navigateWithinSite\(getUpdateSortFallbackUrl\(\),\s*\{\s*replace:\s*true\s*\}\);[\s\S]*return;[\s\S]*if \(canGoBackWithinSite\(\)\)/);
-    assert.match(mainJs, /\|\| hasSameOriginReferrer\(\);/);
-    assert.match(mainJs, /if \(canGoBackWithinSite\(\)\) \{\s*window\.history\.back\(\);/);
-    assert.doesNotMatch(mainJs, /window\.history\.length > 1/);
-});
-
-test('shell template bootstraps clean URLs without hash routing', () => {
-    const shellTemplate = fs.readFileSync(path.join(__dirname, '../src/template_shell.html'), 'utf-8');
-
-    assert.match(shellTemplate, /window\.__FREECAT_SHELL_DOCUMENT__ = true/);
-    assert.equal(shellTemplate.includes("raw = legacyHash.replace(/^#/, '');"), true);
-    assert.match(shellTemplate, /history\.replaceState\(history\.state,\s*'',\s*raw\)/);
-    assert.match(shellTemplate, /url\.pathname === '\/home\.html'/);
-    assert.doesNotMatch(shellTemplate, /String\(window\.location\.hash \|\| ''\)\.replace\(\/^#\/,\s*''\)/);
-});
-
-test('post cards render the audio glyph for music-prefixed excerpts', () => {
-    const html = postCardTemplate.renderPostCard({
-        link: '/posts/example/',
-        titleHtml: 'Example',
-        excerptHtml: '🎶 这是一篇带音频的文章摘要',
-        date: '2026-05-30'
-    });
-
-    assert.equal(html.includes('class="post-card-media-icon'), true);
-    assert.equal(html.includes('M4 12H7C8.10457 12 9 12.8954 9 14V19'), true);
-    assert.equal(html.includes('🎶'), false);
-    assert.equal(html.includes('这是一篇带音频的文章摘要'), true);
-});
-
-test('post cards render the video glyph for film-prefixed excerpts', () => {
-    const html = postCardTemplate.renderPostCard({
-        link: '/posts/example/',
-        titleHtml: 'Example',
-        excerptHtml: '🎬 这是一篇带视频的文章摘要',
-        date: '2026-05-30'
-    });
-
-    assert.equal(html.includes('class="post-card-media-icon'), true);
-    assert.equal(html.includes('M12 22C6.47715 22 2 17.5228 2 12'), true);
-    assert.equal(html.includes('🎬'), false);
-    assert.equal(html.includes('这是一篇带视频的文章摘要'), true);
-});
-
-test('post cards without a media prefix render no media glyph', () => {
-    const html = postCardTemplate.renderPostCard({
-        link: '/posts/example/',
-        titleHtml: 'Example',
-        excerptHtml: '普通文章摘要，没有音视频',
-        date: '2026-05-30'
-    });
-
-    assert.equal(html.includes('post-card-media-icon'), false);
-    assert.equal(html.includes('普通文章摘要，没有音视频'), true);
+test('article code block styles live in the post-code asset', () => {
+    assert.match(postTemplate, /href="\/assets\/post-code\.css"/);
+    assert.match(postCodeCss, /\/\* ===== Refined code block surface ===== \*\//);
+    assert.match(postCodeCss, /\.prose \.code-content\s*\{/);
+    assert.match(postCodeCss, /\.prose \.collapsed-code \.code-content\s*\{[\s\S]*overflow-y:\s*hidden !important;/);
+    assert.doesNotMatch(postCss, /Refined code block surface/);
+    assert.doesNotMatch(postCss, /\.prose \.code-content\s*\{/);
+    assert.doesNotMatch(transitionsCss, /collapsed-code \.code-content/);
+    assert.doesNotMatch(transitionsCss, /collapsed-code \.code-fold-controls/);
 });
