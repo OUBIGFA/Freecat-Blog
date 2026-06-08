@@ -3,6 +3,8 @@ const path = require('path');
 const { stripMarkdown } = require('../markdown.js');
 const seo = require('../seo.js');
 const shared = require('../../shared/shared.js');
+const { replacePlaceholders } = require('../template-engine.js');
+const { normalizePostTags } = require('../article-model.js');
 
 // 搜索索引每篇文章正文的截断字符数（够命中关键词，又不会让 index 文件爆炸）
 const SEARCH_CONTENT_MAX_CHARS = 1500;
@@ -26,7 +28,7 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir, recentPos
             excerpt: post.excerpt,
             preview: post.preview || post.excerpt,
             content: truncated,
-            tags: Array.isArray(post.tag) ? post.tag : (post.tag ? [post.tag] : []),
+            tags: normalizePostTags(post),
             link: shared.encodeSitePath(post.link),
             cover: post.cover,
             coverPlaceholder: post.coverPlaceholder,
@@ -91,9 +93,10 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir, recentPos
         image: seo.defaultImage(siteConfig, seoConfig),
         noindex: true
     });
-    fs.writeFileSync(path.join(outputDir, 'search.html'), template
-        .replace('<!-- SEARCH_SEO_HEAD -->', () => seoHead)
-        .replace('<!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->', () => recentPostsSidebarHtml || ''), 'utf-8');
+    fs.writeFileSync(path.join(outputDir, 'search.html'), replacePlaceholders(template, [
+        ['<!-- SEARCH_SEO_HEAD -->', seoHead],
+        ['<!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->', recentPostsSidebarHtml || '']
+    ]), 'utf-8');
     console.log('  Generated: search.html');
 }
 

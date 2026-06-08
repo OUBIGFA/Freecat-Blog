@@ -4,6 +4,8 @@ const shared = require('../../shared/shared.js');
 const postCardTemplate = require('../../shared/post-card-template.js');
 const { generatePaginationHtml } = require('../pagination.js');
 const seo = require('../seo.js');
+const { replacePlaceholders } = require('../template-engine.js');
+const { normalizePostTags } = require('../article-model.js');
 
 /**
  * 渲染分页首页（index.html + page/N/index.html）。
@@ -13,7 +15,7 @@ function getCardAnimationDelay(index, step = 120) {
 }
 
 function renderPostCardForList(post, index = 0, options = {}) {
-    const tags = Array.isArray(post.tag) ? post.tag : (post.tag ? [post.tag] : []);
+    const tags = normalizePostTags(post);
     // 首页 / 全部页 使用带 dark hover 的 tag 风格（与原有视觉一致）
     const tagsHtml = tags.map(t => shared.renderTagSpan(t, { darkHover: true })).join('');
     const animationDelayStep = Number.isFinite(Number(options.animationDelayStep))
@@ -76,14 +78,15 @@ function generateAll({ posts, template, postsPerPage, siteConfig, seoConfig, out
         });
         const jsonLd = page === 1 ? seo.renderWebsiteJsonLd({ siteConfig, seoConfig }) : '';
 
-        const outputHtml = template
-            .replace(/<title>[\s\S]*?<\/title>/, () => `<title>${shared.escapeHtml(title)}</title>`)
-            .replace('<!-- HOME_SEO_HEAD -->', () => seoHead)
-            .replace('<!-- HOME_JSONLD -->', () => jsonLd)
-            .replace('<!-- POSTS_LIST_PLACEHOLDER -->', () => postsHtml)
-            .replace('<!-- PAGINATION_BUTTONS_PLACEHOLDER -->', () => paginationBtns)
-            .replace('<!-- PAGINATION_PLACEHOLDER -->', () => '')
-            .replace('<!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->', () => recentPostsSidebarHtml || '');
+        const outputHtml = replacePlaceholders(template, [
+            [/<title>[\s\S]*?<\/title>/, `<title>${shared.escapeHtml(title)}</title>`],
+            ['<!-- HOME_SEO_HEAD -->', seoHead],
+            ['<!-- HOME_JSONLD -->', jsonLd],
+            ['<!-- POSTS_LIST_PLACEHOLDER -->', postsHtml],
+            ['<!-- PAGINATION_BUTTONS_PLACEHOLDER -->', paginationBtns],
+            ['<!-- PAGINATION_PLACEHOLDER -->', ''],
+            ['<!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->', recentPostsSidebarHtml || '']
+        ]);
 
         if (page === 1) {
             // 外壳占据 /（index.html）；首页文章列表输出到 /home.html，作为 iframe 默认内容，

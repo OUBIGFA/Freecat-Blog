@@ -140,66 +140,6 @@ article {
     font-family: "Freecat Figtree", "Freecat Noto Sans SC", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", sans-serif;
 }
 
-.freecat-date-text {
-    font-family: "Freecat Figtree", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-weight: 400;
-    font-synthesis-weight: none;
-}
-
-.freecat-published-date-text {
-    font-family: "Freecat Figtree", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-weight: 600;
-    font-synthesis-weight: none;
-}
-
-.freecat-tag-text {
-    font-family: "Freecat Tag Figtree", "Freecat Tag Noto Sans SC", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", sans-serif;
-    font-weight: 500;
-    font-synthesis-weight: none;
-}
-
-.freecat-nav-text {
-    font-family: "Freecat Figtree", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-weight: 600;
-    font-synthesis-weight: none;
-}
-
-.freecat-go-back-text {
-    font-family: "Freecat Figtree", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-weight: 800;
-    font-synthesis-weight: none;
-}
-
-.freecat-search-input {
-    font-family: "Freecat Figtree", "Freecat Noto Sans SC", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", sans-serif;
-    font-weight: 400;
-    font-synthesis-weight: none;
-}
-
-.freecat-brand-text {
-    font-family: "Freecat Figtree", "Freecat Noto Sans SC", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", sans-serif;
-    font-weight: 800;
-    font-synthesis-weight: none;
-}
-
-.freecat-footer-copyright {
-    font-family: "Freecat Figtree", "Freecat Noto Sans SC", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", sans-serif;
-    font-weight: 400;
-    font-synthesis-weight: none;
-}
-
-.freecat-post-toc-title {
-    font-family: "Freecat Tag Noto Sans SC", "Freecat Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", sans-serif;
-    font-weight: 500;
-    font-synthesis-weight: none;
-}
-
-#toc-container a {
-    font-family: "Freecat Figtree", "Freecat Noto Sans SC", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", sans-serif;
-    font-weight: 400;
-    font-synthesis-weight: none;
-}
-
 /* Soft line breaks keep normal line-height without extra spacing. */
 /* 软换行（Shift+Enter / <br>）不额外增加段落间距。 */
 .prose br {

@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const shared = require('../../shared/shared.js');
 const seo = require('../seo.js');
+const { replacePlaceholders } = require('../template-engine.js');
 
 /**
  * 生成外壳页 index.html（服务于 `/`）。
@@ -28,9 +29,10 @@ function generate({ template, siteConfig, seoConfig, outputDir }) {
     });
     const jsonLd = seo.renderWebsiteJsonLd({ siteConfig, seoConfig });
 
-    const html = template
-        .replace('<!-- SHELL_SEO_HEAD -->', () => seoHead)
-        .replace('<!-- SHELL_JSONLD -->', () => jsonLd);
+    const html = replacePlaceholders(template, [
+        ['<!-- SHELL_SEO_HEAD -->', seoHead],
+        ['<!-- SHELL_JSONLD -->', jsonLd]
+    ]);
 
     fs.writeFileSync(path.join(outputDir, 'index.html'), html, 'utf-8');
     console.log('  Generated: index.html (shell)');

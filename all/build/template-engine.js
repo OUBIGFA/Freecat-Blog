@@ -371,6 +371,13 @@ function replacePlaceholder(template, marker, value) {
     return template.replace(marker, () => literalValue);
 }
 
+function replacePlaceholders(template, replacements) {
+    return replacements.reduce((out, [marker, value]) => {
+        const resolvedValue = typeof value === 'function' ? value() : value;
+        return replacePlaceholder(out, marker, resolvedValue);
+    }, template);
+}
+
 function versionAssetUrls(html, assetVersion) {
     if (!assetVersion) return html;
     const encodedVersion = encodeURIComponent(String(assetVersion));
@@ -440,4 +447,4 @@ function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, s
     return { loadTemplate, applySiteConfig, generateSocialLinks: () => socialLinks, shared };
 }
 
-module.exports = { createEngine, autoLineBreak };
+module.exports = { createEngine, autoLineBreak, replacePlaceholder, replacePlaceholders };

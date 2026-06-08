@@ -63,12 +63,49 @@ function normalizeEmbedUrl(href) {
     return raw.startsWith('//') ? `https:${raw}` : raw;
 }
 
-// 视频直链识别：mp4/webm/ogv/mov/m4v/m3u8。
-// 故意避开 .ogg（归音频），与音频后缀零冲突。带 base 解析以忽略 query/hash。
-const VIDEO_EXTENSION_RE = /\.(?:mp4|webm|ogv|mov|m4v|m3u8)(?:$|[?#])/i;
-const VIDEO_EMOJI_RE = /\u{1f3ac}|\u{1f3a5}|\u{1f4f9}/u;
-const AUDIO_EXTENSION_RE = /\.(?:mp3|m4a|wav|ogg|aac|flac|opus)(?:$|[?#])/i;
-const AUDIO_EMOJI_RE = /\u{1f3b5}/u;
+const MEDIA_RULES = {
+    video: {
+        // 视频直链识别：mp4/webm/ogv/mov/m4v/m3u8。故意避开 .ogg（归音频）。
+        extensionRe: /\.(?:mp4|webm|ogv|mov|m4v|m3u8)(?:$|[?#])/i,
+        markerRe: /\u{1f3ac}|\u{1f3a5}|\u{1f4f9}/u,
+        markerGlobalRe: /\u{1f3ac}|\u{1f3a5}|\u{1f4f9}/gu
+    },
+    audio: {
+        extensionRe: /\.(?:mp3|m4a|wav|ogg|aac|flac|opus)(?:$|[?#])/i,
+        markerRe: /\u{1f3b5}/u,
+        markerGlobalRe: /\u{1f3b5}/gu
+    }
+};
+
+function mediaRule(kind) {
+    return MEDIA_RULES[kind] || MEDIA_RULES.video;
+}
+
+function hasMediaMarker(kind, text) {
+    return mediaRule(kind).markerRe.test(String(text || ''));
+}
+
+function cleanMediaTitle(kind, text) {
+    return String(text || '').replace(mediaRule(kind).markerGlobalRe, '').trim();
+}
+
+function pickMediaUrl(kind, href, { force = false } = {}) {
+    const raw = String(href || '').trim();
+    if (!raw) return '';
+    const { extensionRe } = mediaRule(kind);
+    if (/^(?:data|blob):/i.test(raw) && extensionRe.test(raw)) return raw;
+    const candidates = raw.split(/[\s<>]+/).map(part => part.trim()).filter(Boolean);
+    for (const candidate of candidates) {
+        try {
+            const url = new URL(candidate, 'https://example.com');
+            if (extensionRe.test(url.pathname)) return candidate;
+        } catch (err) {
+            if (extensionRe.test(candidate)) return candidate;
+        }
+    }
+    if (force) return candidates[0] || raw;
+    return '';
+}
 
 function normalizeMultilineVideoImages(content) {
     if (!content) return '';
@@ -80,32 +117,19 @@ function normalizeMultilineVideoImages(content) {
 }
 
 function hasVideoMarker(text) {
-    return VIDEO_EMOJI_RE.test(String(text || ''));
+    return hasMediaMarker('video', text);
 }
 
 function hasAudioMarker(text) {
-    return AUDIO_EMOJI_RE.test(String(text || ''));
+    return hasMediaMarker('audio', text);
 }
 
 function cleanAudioTitle(text) {
-    return String(text || '').replace(/\u{1f3b5}/gu, '').trim();
+    return cleanMediaTitle('audio', text);
 }
 
 function pickAudioUrl(href, { force = false } = {}) {
-    const raw = String(href || '').trim();
-    if (!raw) return '';
-    if (/^(?:data|blob):/i.test(raw) && AUDIO_EXTENSION_RE.test(raw)) return raw;
-    const candidates = raw.split(/[\s<>]+/).map(part => part.trim()).filter(Boolean);
-    for (const candidate of candidates) {
-        try {
-            const url = new URL(candidate, 'https://example.com');
-            if (AUDIO_EXTENSION_RE.test(url.pathname)) return candidate;
-        } catch (err) {
-            if (AUDIO_EXTENSION_RE.test(candidate)) return candidate;
-        }
-    }
-    if (force) return candidates[0] || raw;
-    return '';
+    return pickMediaUrl('audio', href, { force });
 }
 
 function isAudioUrl(href) {
@@ -151,20 +175,7 @@ function parseImageStyleAudioList(value) {
 }
 
 function pickVideoUrl(href, { force = false } = {}) {
-    const raw = String(href || '').trim();
-    if (!raw) return '';
-    if (/^(?:data|blob):/i.test(raw) && VIDEO_EXTENSION_RE.test(raw)) return raw;
-    const candidates = raw.split(/[\s<>]+/).map(part => part.trim()).filter(Boolean);
-    for (const candidate of candidates) {
-        try {
-            const url = new URL(candidate, 'https://example.com');
-            if (VIDEO_EXTENSION_RE.test(url.pathname)) return candidate;
-        } catch (err) {
-            if (VIDEO_EXTENSION_RE.test(candidate)) return candidate;
-        }
-    }
-    if (force) return candidates[0] || raw;
-    return '';
+    return pickMediaUrl('video', href, { force });
 }
 
 function isVideoUrl(href) {
@@ -284,7 +295,7 @@ function renderVideoEmbed(href, text, { force = false } = {}) {
     const src = pickVideoUrl(href, { force });
     if (!src) return '';
     const safeSrc = escapeHtml(src);
-    const safeTitle = escapeRenderedText(String(text || '').replace(/\u{1f3ac}|\u{1f3a5}|\u{1f4f9}/gu, '').trim());
+    const safeTitle = escapeRenderedText(cleanMediaTitle('video', text));
     const fallbackLabel = safeTitle || safeSrc;
     return `
     <figure class="video-player video-player-loading media-player-container" data-video-src="${safeSrc}" data-video-title="${safeTitle}">

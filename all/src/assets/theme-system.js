@@ -49,6 +49,11 @@
         function syncFrameTheme(isDark, options = {}) {
             if (!contentFrame || !contentFrame.contentWindow) return;
             try {
+                const frameRuntime = contentFrame.contentWindow.FreecatRuntime;
+                if (frameRuntime && typeof frameRuntime.applyTheme === 'function') {
+                    frameRuntime.applyTheme({ animate: !!options.animate });
+                    return;
+                }
                 const applyFrameTheme = contentFrame.contentWindow.FreecatApplyTheme;
                 if (typeof applyFrameTheme === 'function') {
                     applyFrameTheme({ animate: !!options.animate });

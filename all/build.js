@@ -159,7 +159,7 @@ try {
 // 这样客户端首次点击只需切换一个 CSS 类即可展开（零网络、零计算、实时响应）。
 // 不再首点拉取并解析整个 search-index.json。
 const tagMenuItemsHtml = shared.renderTagMenuItemsHtml(
-    shared.collectMenuTags((allPosts || []).map(post => ({ tags: post.tag })))
+    shared.collectMenuTags(allPosts || [])
 );
 
 // ===== 5. 模板引擎 =====

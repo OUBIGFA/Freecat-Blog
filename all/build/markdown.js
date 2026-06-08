@@ -178,18 +178,12 @@ function stripMarkdown(text) {
     const allLinksRegex = /!?\[([^\]]*?)\]\s*\([^\)]+?\)/gi;
     let hasAudio = false;
     let hasVideo = false;
-    const audioExtensions = ['.mp3', '.m4a', '.wav', '.ogg', '.aac', '.flac', '.opus'];
-    const videoExtensions = ['.mp4', '.webm', '.ogv', '.mov', '.m4v', '.m3u8'];
-
     clean = clean.replace(allLinksRegex, (match, label) => {
-        const urlLower = match.toLowerCase();
-        const hasAudioExt = audioExtensions.some(ext => urlLower.includes(ext));
-        if (label.includes('🎵') || hasAudioExt) {
+        if (hasAudioMarker(label) || isAudioUrl(match)) {
             hasAudio = true;
             return '';
         }
-        const hasVideoExt = videoExtensions.some(ext => urlLower.includes(ext));
-        if (/🎬|🎥|📹/.test(label) || hasVideoExt) {
+        if (hasVideoMarker(label) || isVideoUrl(match)) {
             hasVideo = true;
             return '';
         }

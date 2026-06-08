@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!shared) throw new Error('FreecatShared not loaded — ensure shared.js loads before main.js');
     const platform = window.FreecatPlatform;
     if (!platform) throw new Error('FreecatPlatform not loaded — ensure browser-platform.js loads before main.js');
+    const runtime = window.FreecatRuntime;
+    if (!runtime) throw new Error('FreecatRuntime not loaded - ensure runtime.js loads before main.js');
     const { escapeHtml, processTitleHtml, renderTagSpan, copyText } = shared;
 
     // ============================================================
@@ -57,6 +59,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function syncParentFrameHistory(options = {}) {
         if (!FRAMED) return;
         try {
+            const parentRuntime = window.parent && window.parent.FreecatRuntime;
+            if (parentRuntime && typeof parentRuntime.syncFrameHistory === 'function') {
+                parentRuntime.syncFrameHistory(options);
+                return;
+            }
             const syncParent = window.parent && window.parent.FreecatSyncFrameHistory;
             if (typeof syncParent === 'function') syncParent(options);
         } catch (err) {}
@@ -112,154 +119,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function initScrollPositionMemory() {
-        const storageKey = 'freecat-scroll-positions-v1';
-        const restoreRequestStorageKey = 'freecat-scroll-restore-requests-v1';
-        const maxEntries = 80;
-        const restoreTimeoutMs = 2500;
-        const restoreIntervalMs = 80;
-        let saveFrame = 0;
-        let restoreTimer = 0;
-
-        function finishPendingStateRestore() {
-            document.documentElement.classList.remove('freecat-state-restore-pending');
+        const scrollMemory = window.FreecatScrollMemory;
+        if (!scrollMemory || typeof scrollMemory.init !== 'function') {
+            throw new Error('FreecatScrollMemory not loaded - ensure scroll-memory.js loads before main.js');
         }
-
-        function getPageKey() {
-            return window.location.pathname + window.location.search;
-        }
-
-        function readPositions() {
-            try {
-                const raw = platform.sessionStorage.getItem(storageKey);
-                const parsed = raw ? JSON.parse(raw) : {};
-                return parsed && typeof parsed === 'object' ? parsed : {};
-            } catch (e) {
-                return {};
-            }
-        }
-
-        function writePositions(positions) {
-            try {
-                platform.sessionStorage.setItem(storageKey, JSON.stringify(positions));
-            } catch (e) {}
-        }
-
-        function consumeShellRestoreRequest() {
-            try {
-                const raw = platform.sessionStorage.getItem(restoreRequestStorageKey);
-                const requests = raw ? JSON.parse(raw) : {};
-                if (!requests || typeof requests !== 'object') return false;
-
-                const pageKey = getPageKey();
-                if (!requests[pageKey]) return false;
-
-                delete requests[pageKey];
-                if (Object.keys(requests).length) {
-                    platform.sessionStorage.setItem(restoreRequestStorageKey, JSON.stringify(requests));
-                } else {
-                    platform.sessionStorage.removeItem(restoreRequestStorageKey);
-                }
-                return true;
-            } catch (e) {
-                return false;
-            }
-        }
-
-        function prunePositions(positions) {
-            const entries = Object.entries(positions)
-                .filter(([, value]) => value && typeof value === 'object')
-                .sort((a, b) => (b[1].time || 0) - (a[1].time || 0));
-            return Object.fromEntries(entries.slice(0, maxEntries));
-        }
-
-        function saveScrollPosition() {
-            saveFrame = 0;
-            const positions = readPositions();
-            positions[getPageKey()] = {
-                x: window.scrollX || window.pageXOffset || 0,
-                y: window.scrollY || window.pageYOffset || 0,
-                time: Date.now()
-            };
-            writePositions(prunePositions(positions));
-        }
-
-        window.FreecatSaveScrollPosition = saveScrollPosition;
-
-        function scheduleSaveScrollPosition() {
-            if (saveFrame) return;
-            saveFrame = window.requestAnimationFrame(saveScrollPosition);
-        }
-
-        function getNavigationType() {
-            const entries = performance && performance.getEntriesByType
-                ? performance.getEntriesByType('navigation')
-                : null;
-            return entries && entries[0] && entries[0].type;
-        }
-
-        function isHistoryRestore(event) {
-            if (event && event.persisted) return true;
-            return getNavigationType() === 'back_forward';
-        }
-
-        function restoreScrollPosition() {
-            const saved = readPositions()[getPageKey()];
-            if (!saved || typeof saved.y !== 'number') {
-                finishPendingStateRestore();
-                return;
-            }
-            if (window.location.hash) {
-                finishPendingStateRestore();
-                return;
-            }
-
-            const start = Date.now();
-            const targetX = typeof saved.x === 'number' ? saved.x : 0;
-            const targetY = Math.max(0, saved.y);
-
-            function clampTargetY() {
-                const scrollingElement = document.scrollingElement || document.documentElement;
-                const maxY = scrollingElement
-                    ? Math.max(0, scrollingElement.scrollHeight - window.innerHeight)
-                    : targetY;
-                return Math.min(targetY, maxY);
-            }
-
-            function attemptRestore() {
-                window.scrollTo(targetX, clampTargetY());
-                const currentY = window.scrollY || window.pageYOffset || 0;
-                const reachedTarget = Math.abs(currentY - targetY) <= 2;
-                const timedOut = Date.now() - start >= restoreTimeoutMs;
-                if (reachedTarget || timedOut) {
-                    restoreTimer = 0;
-                    finishPendingStateRestore();
-                    return;
-                }
-                restoreTimer = window.setTimeout(attemptRestore, restoreIntervalMs);
-            }
-
-            if (restoreTimer) window.clearTimeout(restoreTimer);
-            requestAnimationFrame(attemptRestore);
-            window.addEventListener('load', attemptRestore, { once: true });
-            if (document.fonts && document.fonts.ready) document.fonts.ready.then(attemptRestore);
-        }
-
-        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-        const hasShellRestoreRequest = consumeShellRestoreRequest();
-        if (isHistoryRestore() || hasShellRestoreRequest) restoreScrollPosition();
-        else finishPendingStateRestore();
-
-        window.addEventListener('scroll', scheduleSaveScrollPosition, { passive: true });
-        window.addEventListener('pagehide', saveScrollPosition);
-        window.addEventListener('beforeunload', saveScrollPosition);
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'hidden') saveScrollPosition();
-        });
-        window.addEventListener('pageshow', (event) => {
-            const hasShellRestoreRequest = consumeShellRestoreRequest();
-            if (isHistoryRestore(event) || hasShellRestoreRequest) restoreScrollPosition();
-            else finishPendingStateRestore();
-        });
+        scrollMemory.init({ window, document, platform, runtime });
     }
 
     function initFloatingNavButtons() {
@@ -282,8 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function syncCurrentHistoryEntry() {
-            const sync = window.FreecatSyncUpdateSortUrl;
-            if (typeof sync === 'function') sync({ replace: true });
+            runtime.syncUpdateSortUrl({ replace: true });
         }
 
         function hasSameOriginReferrer() {
@@ -591,7 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
         getCssDurationMs
     });
     const { applyTheme, prefersReducedMotion, resolveThemeIsDark, syncFrameTheme } = themeSystem;
-    window.FreecatApplyTheme = applyTheme;
+    runtime.setApplyTheme(applyTheme);
 
     applyTheme();
     initUpdateSortControls();
@@ -819,17 +682,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const panelCloseMs = getCssDurationMs('--panel-close-dur', 350);
 
     function navigateWithinSite(url, options = {}) {
-        const navigate = window.FreecatNavigate;
-        if (typeof navigate === 'function') {
-            navigate(url, options);
-            return;
-        }
-        window.location.href = url;
+        runtime.navigate(url, options);
     }
 
     if (FRAMED) {
-        window.FreecatNavigate = function (targetHref, options = {}) {
+        runtime.setNavigate(function (targetHref, options = {}) {
             try {
+                const parentRuntime = window.parent && window.parent.FreecatRuntime;
+                if (parentRuntime && typeof parentRuntime.navigate === 'function') {
+                    parentRuntime.navigate(targetHref, options);
+                    return;
+                }
                 const parentNavigate = window.parent && window.parent.FreecatNavigate;
                 if (typeof parentNavigate === 'function') {
                     parentNavigate(targetHref, options);
@@ -837,7 +700,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (err) {}
             window.location.href = targetHref;
-        };
+        });
     }
     // 顶栏搜索的遮罩 / 输入框定位 / overlay 样式已挪到 transitions.css，
     // 这里不再运行时注入。
@@ -920,7 +783,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             syncParentFrameHistory({ push: !options.replace });
         };
-        window.FreecatSyncUpdateSortUrl = syncUpdateSortUrl;
+        runtime.setSyncUpdateSortUrl(syncUpdateSortUrl);
 
         const getListForSwitch = (updateSortSwitch) => {
             const explicitTarget = updateSortSwitch.closest('[data-update-sort-controls]')?.dataset.updateSortTarget;
@@ -1081,383 +944,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function initNavAudioButton() {
-        if (!navAudioToggle || !navAudio) return;
-
-        const STATE_KEY = 'freecat-nav-audio-state-v1';
-        const VOLUME_KEY = 'freecat-nav-audio-volume-v1';
-        const DEFAULT_NAV_AUDIO_VOLUME = 0.5;
-        const STATE_SAVE_INTERVAL_MS = 1500;
-        const NAV_AUDIO_VOLUME_HIDE_DELAY_MS = 1000;
-        const navAudioControl = document.getElementById('nav-audio-control');
-        const navAudioVolume = document.getElementById('nav-audio-volume');
-        const navAudioVolumeWrapper = navAudioVolume
-            ? navAudioVolume.closest('.nav-audio-volume-slider-wrapper')
-            : null;
-        const idleIcon = navAudioToggle.querySelector('.nav-audio-icon-idle');
-        const playingIcon = navAudioToggle.querySelector('.nav-audio-icon-playing');
-        const playlist = readNavAudioPlaylist();
-        const playlistKey = playlist.map(track => track.src).join('\n');
-        let currentIndex = 0;
-        let pendingSeekTime = null;
-        let requestedPlayback = false;
-        let lastStateSave = 0;
-        let currentVolume = readSavedNavAudioVolume();
-        let errorSkipTimer = 0;
-        let volumeHideTimer = 0;
-        let navAudioVolumePointerInside = false;
-        const failedTrackIndexes = new Set();
-
-        if (!playlist.length) return;
-
-        function readNavAudioPlaylist() {
-            const rawPlaylist = navAudioToggle.dataset.audioPlaylist || '';
-            if (rawPlaylist) {
-                try {
-                    const parsed = JSON.parse(rawPlaylist);
-                    if (Array.isArray(parsed)) {
-                        return parsed
-                            .map(track => ({
-                                src: String(track && track.src || '').trim(),
-                                title: String(track && track.title || 'Audio').trim() || 'Audio'
-                            }))
-                            .filter(track => track.src);
-                    }
-                } catch (err) {}
-            }
-
-            const fallbackSrc = String(navAudioToggle.dataset.audioSrc || navAudio.getAttribute('src') || '').trim();
-            if (!fallbackSrc) return [];
-            return [{
-                src: fallbackSrc,
-                title: String(navAudioToggle.dataset.audioTitle || navAudio.dataset.audioTitle || 'Audio').trim() || 'Audio'
-            }];
+        const navAudioController = window.FreecatNavAudio;
+        if (!navAudioController || typeof navAudioController.init !== 'function') {
+            throw new Error('FreecatNavAudio not loaded - ensure nav-audio.js loads before main.js');
         }
-
-        function clampTrackIndex(index) {
-            const value = Number(index);
-            if (!Number.isFinite(value) || value < 0) return 0;
-            return Math.min(playlist.length - 1, Math.floor(value));
-        }
-
-        function getSavedNavAudioState() {
-            try {
-                const raw = platform.sessionStorage.getItem(STATE_KEY);
-                const state = raw ? JSON.parse(raw) : null;
-                if (!state || state.playlistKey !== playlistKey) return null;
-                return state;
-            } catch (err) {
-                return null;
-            }
-        }
-
-        function readSavedNavAudioVolume() {
-            try {
-                const saved = platform.localStorage.getItem(VOLUME_KEY);
-                const volume = saved == null ? DEFAULT_NAV_AUDIO_VOLUME : Number(saved);
-                return Number.isFinite(volume) ? Math.max(0, Math.min(1, volume)) : DEFAULT_NAV_AUDIO_VOLUME;
-            } catch (err) {
-                return DEFAULT_NAV_AUDIO_VOLUME;
-            }
-        }
-
-        function saveNavAudioVolume(volume) {
-            try {
-                platform.localStorage.setItem(VOLUME_KEY, String(volume));
-            } catch (err) {}
-        }
-
-        function syncNavAudioVolumeUi(volume) {
-            const nextVolume = Math.max(0, Math.min(1, Number(volume) || 0));
-            navAudio.volume = nextVolume;
-            navAudio.muted = nextVolume === 0;
-            if (navAudioVolume) {
-                navAudioVolume.value = String(nextVolume);
-                navAudioVolume.style.setProperty('--volume-percent', `${nextVolume * 100}%`);
-            }
-        }
-
-        function setNavAudioVolumeOpen(open) {
-            if (!navAudioControl) return;
-            if (volumeHideTimer) {
-                window.clearTimeout(volumeHideTimer);
-                volumeHideTimer = 0;
-            }
-            const shouldOpen = open && requestedPlayback && !navAudio.ended;
-            navAudioControl.dataset.volumeOpen = shouldOpen ? 'true' : 'false';
-        }
-
-        function shouldKeepNavAudioVolumeOpen() {
-            return navAudioVolumePointerInside
-                || navAudioControl.matches(':hover')
-                || (navAudioVolumeWrapper && navAudioVolumeWrapper.matches(':hover'));
-        }
-
-        function scheduleNavAudioVolumeClose() {
-            if (!navAudioControl) return;
-            if (volumeHideTimer) window.clearTimeout(volumeHideTimer);
-            volumeHideTimer = window.setTimeout(() => {
-                volumeHideTimer = 0;
-                if (shouldKeepNavAudioVolumeOpen()) {
-                    setNavAudioVolumeOpen(true);
-                    return;
-                }
-                setNavAudioVolumeOpen(false);
-            }, NAV_AUDIO_VOLUME_HIDE_DELAY_MS);
-        }
-
-        function isNavAudioVolumeEventTarget(target) {
-            return target instanceof Node
-                && (
-                    navAudioControl.contains(target)
-                    || (navAudioVolumeWrapper && navAudioVolumeWrapper.contains(target))
-                );
-        }
-
-        function closeNavAudioVolumeNow() {
-            if (!navAudioControl || navAudioControl.dataset.volumeOpen !== 'true') return;
-            navAudioVolumePointerInside = false;
-            if (document.activeElement instanceof HTMLElement && navAudioControl.contains(document.activeElement)) {
-                document.activeElement.blur();
-            }
-            setNavAudioVolumeOpen(false);
-        }
-
-        function closeNavAudioVolumeOnOutsidePointerDown(event) {
-            if (!navAudioControl || navAudioControl.dataset.volumeOpen !== 'true') return;
-            if (isNavAudioVolumeEventTarget(event.target)) return;
-            closeNavAudioVolumeNow();
-        }
-
-        let navAudioFramePointerDownDocument = null;
-
-        function bindNavAudioFramePointerDown() {
-            if (!IS_SHELL || !contentFrame) return;
-            let frameDocument;
-            try {
-                frameDocument = contentFrame.contentDocument;
-            } catch (err) {
-                return;
-            }
-            if (!frameDocument || frameDocument === navAudioFramePointerDownDocument) return;
-            if (navAudioFramePointerDownDocument) {
-                navAudioFramePointerDownDocument.removeEventListener('pointerdown', closeNavAudioVolumeNow, true);
-            }
-            navAudioFramePointerDownDocument = frameDocument;
-            navAudioFramePointerDownDocument.addEventListener('pointerdown', closeNavAudioVolumeNow, true);
-        }
-
-        function getContinuousTime(state) {
-            if (!state) return 0;
-            const baseTime = Number(state.currentTime) || 0;
-            if (state.paused === true) return baseTime;
-            const updatedAt = Number(state.updatedAt) || Date.now();
-            return Math.max(0, baseTime + (Date.now() - updatedAt) / 1000);
-        }
-
-        function saveNavAudioState(force = false) {
-            const now = Date.now();
-            if (!force && now - lastStateSave < STATE_SAVE_INTERVAL_MS) return;
-            lastStateSave = now;
-            try {
-                platform.sessionStorage.setItem(STATE_KEY, JSON.stringify({
-                    playlistKey,
-                    index: currentIndex,
-                    currentTime: Number(navAudio.currentTime) || 0,
-                    paused: !requestedPlayback,
-                    updatedAt: now
-                }));
-            } catch (err) {}
-        }
-
-        function applyPendingSeek() {
-            if (pendingSeekTime === null) return;
-            try {
-                const duration = Number(navAudio.duration);
-                const maxTime = Number.isFinite(duration) && duration > 0
-                    ? Math.max(0, duration - 0.25)
-                    : pendingSeekTime;
-                navAudio.currentTime = Math.max(0, Math.min(pendingSeekTime, maxTime));
-                pendingSeekTime = null;
-            } catch (err) {}
-        }
-
-        function setNavAudioTrack(index, options = {}) {
-            currentIndex = clampTrackIndex(index);
-            const track = playlist[currentIndex];
-            if (!track) return;
-
-            navAudio.dataset.audioTitle = track.title;
-            navAudio.dataset.audioIndex = String(currentIndex);
-            navAudioToggle.dataset.audioSrc = track.src;
-            navAudioToggle.dataset.audioTitle = track.title;
-
-            if (navAudio.getAttribute('src') !== track.src) {
-                navAudio.setAttribute('src', track.src);
-                navAudio.load();
-            }
-
-            if (typeof options.currentTime === 'number' && options.currentTime >= 0) {
-                pendingSeekTime = options.currentTime;
-                applyPendingSeek();
-            } else {
-                pendingSeekTime = null;
-            }
-        }
-
-        function syncNavAudioState() {
-            const isPlaying = requestedPlayback && !navAudio.ended;
-            if (navAudioControl) navAudioControl.dataset.playing = isPlaying ? 'true' : 'false';
-            if (!isPlaying) {
-                setNavAudioVolumeOpen(false);
-            } else if (navAudioControl && (navAudioControl.matches(':hover') || navAudioControl.matches(':focus-within'))) {
-                setNavAudioVolumeOpen(true);
-            }
-            navAudioToggle.dataset.playing = isPlaying ? 'true' : 'false';
-            navAudioToggle.setAttribute('aria-pressed', isPlaying ? 'true' : 'false');
-            navAudioToggle.setAttribute('aria-label', isPlaying ? 'Pause audio' : 'Play audio');
-            if (idleIcon) idleIcon.classList.toggle('hidden', isPlaying);
-            if (playingIcon) playingIcon.classList.toggle('hidden', !isPlaying);
-        }
-
-        function playNavAudio() {
-            requestedPlayback = true;
-            syncNavAudioState();
-            saveNavAudioState(true);
-            const playResult = navAudio.play();
-            if (playResult && typeof playResult.catch === 'function') {
-                playResult.catch(handleNavAudioPlaybackFailure);
-            }
-        }
-
-        function stopNavAudioRequest() {
-            requestedPlayback = false;
-            syncNavAudioState();
-            saveNavAudioState(true);
-        }
-
-        function pauseNavAudio() {
-            requestedPlayback = false;
-            navAudio.pause();
-            syncNavAudioState();
-            saveNavAudioState(true);
-        }
-
-        function playNextNavAudioTrack() {
-            setNavAudioTrack((currentIndex + 1) % playlist.length, { currentTime: 0 });
-            playNavAudio();
-        }
-
-        function handleNavAudioPlaybackFailure(error) {
-            if (!requestedPlayback) {
-                syncNavAudioState();
-                return;
-            }
-            if (error && error.name === 'NotAllowedError') {
-                stopNavAudioRequest();
-                return;
-            }
-            if (errorSkipTimer) return;
-            errorSkipTimer = window.setTimeout(() => {
-                errorSkipTimer = 0;
-                failedTrackIndexes.add(currentIndex);
-                if (failedTrackIndexes.size >= playlist.length) {
-                    stopNavAudioRequest();
-                    return;
-                }
-                playNextNavAudioTrack();
-            }, 0);
-        }
-
-        const savedState = getSavedNavAudioState();
-        if (savedState) {
-            currentIndex = clampTrackIndex(savedState.index);
-            requestedPlayback = savedState.paused !== true;
-            setNavAudioTrack(currentIndex, { currentTime: getContinuousTime(savedState) });
-        } else {
-            setNavAudioTrack(0);
-        }
-
-        navAudioToggle.addEventListener('click', () => {
-            closeTagMenu();
-            closeHeaderSearch(true);
-            if (requestedPlayback) pauseNavAudio();
-            else {
-                failedTrackIndexes.clear();
-                playNavAudio();
-            }
+        navAudioController.init({
+            window,
+            document,
+            platform,
+            navAudioToggle,
+            navAudio,
+            isShell: IS_SHELL,
+            contentFrame,
+            closeTagMenu,
+            closeHeaderSearch
         });
-
-        if (navAudioVolume) {
-            navAudioVolume.addEventListener('click', (event) => {
-                event.stopPropagation();
-            });
-            navAudioVolume.addEventListener('input', (event) => {
-                currentVolume = Math.max(0, Math.min(1, Number(event.target.value) || 0));
-                syncNavAudioVolumeUi(currentVolume);
-                saveNavAudioVolume(currentVolume);
-                saveNavAudioState(true);
-            });
-        }
-
-        if (navAudioControl) {
-            navAudioControl.dataset.volumeOpen = 'false';
-            navAudioControl.addEventListener('pointerenter', () => setNavAudioVolumeOpen(true));
-            navAudioControl.addEventListener('pointerleave', scheduleNavAudioVolumeClose);
-            navAudioControl.addEventListener('focusin', () => setNavAudioVolumeOpen(true));
-            navAudioControl.addEventListener('focusout', scheduleNavAudioVolumeClose);
-        }
-
-        if (navAudioVolumeWrapper) {
-            navAudioVolumeWrapper.addEventListener('pointerenter', () => {
-                navAudioVolumePointerInside = true;
-                setNavAudioVolumeOpen(true);
-            });
-            navAudioVolumeWrapper.addEventListener('pointerleave', () => {
-                navAudioVolumePointerInside = false;
-                scheduleNavAudioVolumeClose();
-            });
-        }
-
-        document.addEventListener('pointerdown', closeNavAudioVolumeOnOutsidePointerDown, true);
-        if (IS_SHELL && contentFrame) {
-            contentFrame.addEventListener('load', bindNavAudioFramePointerDown);
-            bindNavAudioFramePointerDown();
-        }
-
-        navAudio.addEventListener('ended', () => {
-            if (requestedPlayback) {
-                playNextNavAudioTrack();
-                return;
-            }
-            syncNavAudioState();
-            saveNavAudioState(true);
-        });
-
-        navAudio.addEventListener('loadedmetadata', applyPendingSeek);
-        navAudio.addEventListener('durationchange', applyPendingSeek);
-        navAudio.addEventListener('error', () => handleNavAudioPlaybackFailure(navAudio.error));
-        navAudio.addEventListener('timeupdate', () => saveNavAudioState());
-        ['play', 'playing', 'pause', 'emptied'].forEach((eventName) => {
-            navAudio.addEventListener(eventName, () => {
-                if (eventName === 'playing') failedTrackIndexes.clear();
-                syncNavAudioState();
-                saveNavAudioState(eventName !== 'timeupdate');
-            });
-        });
-        window.addEventListener('pagehide', () => saveNavAudioState(true));
-        window.addEventListener('beforeunload', () => saveNavAudioState(true));
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'hidden') saveNavAudioState(true);
-        });
-
-        syncNavAudioVolumeUi(currentVolume);
-        syncNavAudioState();
-
-        if (requestedPlayback || (!savedState && navAudioToggle.dataset.audioAutoplay === 'true')) {
-            window.setTimeout(playNavAudio, 0);
-        }
     }
-
     if (tagMenuToggle && tagMenu) {
         tagMenuToggle.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -1496,236 +998,33 @@ document.addEventListener('DOMContentLoaded', () => {
     // （旧的全站软导航实现已整体移除：站内链接默认走真实导航，外壳模式下由本路由驱动 iframe。）
     // ============================================================
     function initFramedNavigationBridge() {
-        document.addEventListener('click', (event) => {
-            const link = event.target.closest && event.target.closest('a[href]');
-            if (!link || event.defaultPrevented) return;
-            if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-            if (link.target && link.target.toLowerCase() !== '_self') return;
-            if (link.hasAttribute('download')) return;
-
-            const rawHref = link.getAttribute('href') || '';
-            const url = new URL(link.href, window.location.href);
-            if (url.origin !== window.location.origin) return;
-            if (rawHref.charAt(0) === '#' && url.pathname === window.location.pathname && url.search === window.location.search) return;
-
-            event.preventDefault();
-            if (typeof window.FreecatSaveScrollPosition === 'function') window.FreecatSaveScrollPosition();
-            navigateWithinSite(url.pathname + url.search + url.hash);
-        });
+        const shellRouter = window.FreecatShellRouter;
+        if (!shellRouter || typeof shellRouter.initFramedNavigationBridge !== 'function') {
+            throw new Error('FreecatShellRouter not loaded - ensure shell-router.js loads before main.js');
+        }
+        shellRouter.initFramedNavigationBridge({ window, document, runtime });
     }
 
     function initShellRouter() {
-        const frame = contentFrame;
-        if (!frame) return;
-
-        const HOME_CONTENT = '/home.html';
-        const SCROLL_RESTORE_REQUEST_KEY = 'freecat-scroll-restore-requests-v1';
-        const headerEl = document.querySelector('header.fixed');
-
-        function getPublicLocation() {
-            return window.location.pathname + window.location.search + window.location.hash;
+        const shellRouter = window.FreecatShellRouter;
+        if (!shellRouter || typeof shellRouter.initShellRouter !== 'function') {
+            throw new Error('FreecatShellRouter not loaded - ensure shell-router.js loads before main.js');
         }
-
-        function parseSameOriginPath(raw, fallback = '/') {
-            const input = String(raw == null ? '' : raw).trim() || fallback;
-            let url;
-            try {
-                url = new URL(input, window.location.origin);
-            } catch (err) {
-                return fallback;
-            }
-            if (url.origin !== window.location.origin) return fallback;
-            if (!/^\/(?!\/)/.test(url.pathname)) return fallback;
-            return url.pathname + url.search + url.hash;
-        }
-
-        // 首页等价路径：兼容 Cloudflare Pages 的干净 URL。CF 会把 /home.html 308 重定向为
-        // /home、/index.html 为 /，若只认 /home.html 会把首页误判成普通内容页，导致 iframe
-        // 二次加载、地址栏被改写成 /home。这里把所有首页形式统一识别。
-        function isHomePathname(pathname) {
-            return pathname === '/' || pathname === '/index.html' || pathname === '/index'
-                || pathname === HOME_CONTENT || pathname === '/home';
-        }
-
-        function publicPathToContentPath(raw) {
-            const path = parseSameOriginPath(raw, '/');
-            const url = new URL(path, window.location.origin);
-            if (isHomePathname(url.pathname)) {
-                return HOME_CONTENT + url.search + url.hash;
-            }
-            return url.pathname + url.search + url.hash;
-        }
-
-        function contentPathToPublicPath(raw) {
-            const path = parseSameOriginPath(raw, HOME_CONTENT);
-            const url = new URL(path, window.location.origin);
-            if (isHomePathname(url.pathname)) {
-                return '/' + url.search + url.hash;
-            }
-            return url.pathname + url.search + url.hash;
-        }
-
-        function getFramePath() {
-            try {
-                const loc = frame.contentWindow.location;
-                // iframe 仍停在初始空文档（about:blank）时视为"未就绪"。否则会把顶层地址
-                // 误同步成 /blank，并触发对 src 正在加载内容的多余重新导航（二次加载）。
-                if (loc.protocol === 'about:' || loc.href === 'about:blank') return '';
-                return loc.pathname + loc.search + loc.hash;
-            } catch (err) {
-                return '';
-            }
-        }
-
-        function setFrameLocation(path) {
-            const target = publicPathToContentPath(path);
-            try {
-                frame.contentWindow.location.replace(target);
-            } catch (err) {
-                frame.src = target;
-            }
-        }
-
-        function getScrollRestorePageKey(raw) {
-            const path = parseSameOriginPath(raw, HOME_CONTENT);
-            const url = new URL(path, window.location.origin);
-            return url.pathname + url.search;
-        }
-
-        function requestFrameScrollRestore(path) {
-            try {
-                const raw = platform.sessionStorage.getItem(SCROLL_RESTORE_REQUEST_KEY);
-                const requests = raw ? JSON.parse(raw) : {};
-                const nextRequests = requests && typeof requests === 'object' ? requests : {};
-                nextRequests[getScrollRestorePageKey(path)] = Date.now();
-                platform.sessionStorage.setItem(SCROLL_RESTORE_REQUEST_KEY, JSON.stringify(nextRequests));
-            } catch (err) {}
-        }
-
-        function clearFrameScrollRestore(path) {
-            try {
-                const raw = platform.sessionStorage.getItem(SCROLL_RESTORE_REQUEST_KEY);
-                const requests = raw ? JSON.parse(raw) : {};
-                if (!requests || typeof requests !== 'object') return;
-                const pageKey = getScrollRestorePageKey(path);
-                if (!requests[pageKey]) return;
-                delete requests[pageKey];
-                if (Object.keys(requests).length) {
-                    platform.sessionStorage.setItem(SCROLL_RESTORE_REQUEST_KEY, JSON.stringify(requests));
-                } else {
-                    platform.sessionStorage.removeItem(SCROLL_RESTORE_REQUEST_KEY);
-                }
-            } catch (err) {}
-        }
-
-        function syncHistoryToFrame(options = {}) {
-            const framePath = getFramePath();
-            if (!framePath) return;
-            const publicPath = contentPathToPublicPath(framePath);
-            if (publicPath === getPublicLocation()) return;
-            const method = options.push ? 'pushState' : 'replaceState';
-            const state = { ...(window.history.state || {}), freecatShell: true };
-            window.history[method](state, '', publicPath);
-        }
-
-        function navigateShell(targetHref, options = {}) {
-            const contentPath = publicPathToContentPath(targetHref);
-            const publicPath = contentPathToPublicPath(contentPath);
-            const currentPublicPath = getPublicLocation();
-            const state = { ...(window.history.state || {}), freecatShell: true };
-            if (publicPath !== currentPublicPath) {
-                const method = options.replace ? 'replaceState' : 'pushState';
-                window.history[method](state, '', publicPath);
-            }
-            if (publicPathToContentPath(getFramePath()) !== contentPath) {
-                setFrameLocation(contentPath);
-            }
-        }
-
-        function syncFrameToLocation(options = {}) {
-            const framePath = getFramePath();
-            // iframe 还停在初始空文档时，交给它的 src 自然加载，别抢着重新导航（会造成二次加载）。
-            if (!framePath) return;
-            const target = publicPathToContentPath(getPublicLocation());
-            if (publicPathToContentPath(framePath) === target) return;
-            if (options.restoreScroll) requestFrameScrollRestore(target);
-            setFrameLocation(target);
-            if (options.restoreScroll) {
-                window.setTimeout(() => clearFrameScrollRestore(target), 15000);
-            }
-        }
-
-        // 按外壳顶栏实测高度，给 iframe 文档喂入上边距变量，避免正文被浮动顶栏遮挡
-        function syncFrameOffset() {
-            if (!headerEl) return;
-            let doc;
-            try { doc = frame.contentDocument; } catch (err) { return; }
-            if (!doc || !doc.documentElement) return;
-            const h = Math.ceil(headerEl.getBoundingClientRect().height);
-            const gap = window.innerWidth < 768 ? 16 : 24;
-            const rs = doc.documentElement.style;
-            rs.setProperty('--freecat-header-height', `${h}px`);
-            rs.setProperty('--freecat-header-safe-gap', `${gap}px`);
-            rs.setProperty('--freecat-page-top-offset', `${h + gap}px`);
-        }
-
-        // iframe 每次真实加载后：同步标题 / 地址栏干净路径 / 顶栏高度
-        function onFrameLoad() {
-            try {
-                const t = frame.contentDocument && frame.contentDocument.title;
-                if (t) document.title = t;
-            } catch (err) {}
-            syncFrameTheme(resolveThemeIsDark());
-            syncFrameOffset();
-            syncHistoryToFrame();
-        }
-
-        // 外壳顶栏里的站内 <a> 点击：阻止外壳自身导航（那会销毁音频），改为驱动 iframe。
-        // 标签项 <span onclick> 与搜索提交走 window.FreecatNavigate（下方定义），二者归一到 iframe。
-        function onShellLinkClick(event) {
-            const link = event.target.closest && event.target.closest('a[href]');
-            if (!link || event.defaultPrevented) return;
-            if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-            if (link.target && link.target.toLowerCase() !== '_self') return;
-            if (link.hasAttribute('download')) return;
-            const url = new URL(link.href, window.location.href);
-            if (url.origin !== window.location.origin) return;
-            event.preventDefault();
-            if (typeof closeHeaderSearch === 'function') closeHeaderSearch(true);
-            if (typeof closeTagMenu === 'function') closeTagMenu();
-            navigateShell(url.pathname + url.search + url.hash);
-        }
-
-        frame.addEventListener('load', onFrameLoad);
-        window.addEventListener('popstate', () => syncFrameToLocation({ restoreScroll: true }));
-        window.addEventListener('resize', syncFrameOffset);
-        if (headerEl && typeof ResizeObserver !== 'undefined') {
-            new ResizeObserver(syncFrameOffset).observe(headerEl);
-        }
-        document.addEventListener('click', onShellLinkClick);
-
-        // 顶栏搜索 / 标签 / Logo 复用既有 navigateWithinSite + shared.js 兜底：
-        // 在外壳里把 FreecatNavigate 接到干净 URL 路由；独立页缺失此值时自动走普通跳转。
-        window.FreecatNavigate = function (targetHref, options = {}) {
-            navigateShell(targetHref, options);
-        };
-        window.FreecatSyncFrameHistory = function (options = {}) {
-            syncHistoryToFrame(options);
-        };
-
-        // load 可能早于本脚本执行：若初始内容已就绪，补同步一次
-        try {
-            if (frame.contentDocument && frame.contentDocument.readyState === 'complete') onFrameLoad();
-            else {
-                syncFrameToLocation();
-                syncFrameOffset();
-            }
-        } catch (err) {}
+        shellRouter.initShellRouter({
+            window,
+            document,
+            platform,
+            runtime,
+            contentFrame,
+            closeHeaderSearch,
+            closeTagMenu,
+            resolveThemeIsDark,
+            syncFrameTheme
+        });
     }
 
     if (FRAMED) initFramedNavigationBridge();
     if (IS_SHELL) initShellRouter();
-
     // 搜索 UI 切换
     if (searchToggle && searchContainer && navLinks) {
         searchContainer.classList.add('t-panel-slide');

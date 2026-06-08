@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const shared = require('../../shared/shared.js');
 const { autoSpacing } = require('../markdown.js');
-const { autoLineBreak } = require('../template-engine.js');
+const { autoLineBreak, replacePlaceholders } = require('../template-engine.js');
 const seo = require('../seo.js');
 
 /**
@@ -30,12 +30,13 @@ function generate({ template, siteConfig, seoConfig, aboutConfig, outputDir }) {
     });
     const jsonLd = seo.renderAboutJsonLd({ siteConfig, seoConfig, aboutConfig, canonical });
 
-    const html = template
-        .replace('<!-- ABOUT_SEO_HEAD -->', () => seoHead)
-        .replace('<!-- ABOUT_JSONLD -->', () => jsonLd)
-        .replace(/<!-- ABOUT_HERO_TITLE -->/g, () => autoLineBreak(shared.escapeHtml(autoSpacing(finalTitle))))
-        .replace(/<!-- ABOUT_HERO_SUBTITLE -->/g, () => autoLineBreak(shared.escapeHtml(autoSpacing(finalSubtitle))))
-        .replace(/<!-- ABOUT_HERO_AVATAR -->/g, () => shared.escapeHtml(String(finalAvatar || '')));
+    const html = replacePlaceholders(template, [
+        ['<!-- ABOUT_SEO_HEAD -->', seoHead],
+        ['<!-- ABOUT_JSONLD -->', jsonLd],
+        [/<!-- ABOUT_HERO_TITLE -->/g, autoLineBreak(shared.escapeHtml(autoSpacing(finalTitle)))],
+        [/<!-- ABOUT_HERO_SUBTITLE -->/g, autoLineBreak(shared.escapeHtml(autoSpacing(finalSubtitle)))],
+        [/<!-- ABOUT_HERO_AVATAR -->/g, shared.escapeHtml(String(finalAvatar || ''))]
+    ]);
 
     fs.writeFileSync(path.join(outputDir, 'about.html'), html, 'utf-8');
     console.log('  Generated: about.html');

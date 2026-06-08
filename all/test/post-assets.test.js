@@ -6,11 +6,17 @@ const assert = require('node:assert/strict');
 const postJs = fs.readFileSync(path.join(__dirname, '../src/assets/post.js'), 'utf-8');
 const postCss = fs.readFileSync(path.join(__dirname, '../src/assets/post.css'), 'utf-8');
 const mainJs = fs.readFileSync(path.join(__dirname, '../src/assets/main.js'), 'utf-8');
+const runtimeJs = fs.readFileSync(path.join(__dirname, '../src/assets/runtime.js'), 'utf-8');
+const scrollMemoryJs = fs.readFileSync(path.join(__dirname, '../src/assets/scroll-memory.js'), 'utf-8');
+const navAudioJs = fs.readFileSync(path.join(__dirname, '../src/assets/nav-audio.js'), 'utf-8');
+const shellRouterJs = fs.readFileSync(path.join(__dirname, '../src/assets/shell-router.js'), 'utf-8');
+const typographyCss = fs.readFileSync(path.join(__dirname, '../src/assets/typography.css'), 'utf-8');
 const themeSystemJs = fs.readFileSync(path.join(__dirname, '../src/assets/theme-system.js'), 'utf-8');
 const postTemplate = fs.readFileSync(path.join(__dirname, '../src/template_post.html'), 'utf-8');
 const indexTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index.html'), 'utf-8');
 const searchTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index_search.html'), 'utf-8');
 const headBase = fs.readFileSync(path.join(__dirname, '../src/partials/head-base.html'), 'utf-8');
+const scriptsEnd = fs.readFileSync(path.join(__dirname, '../src/partials/scripts-end.html'), 'utf-8');
 const header = fs.readFileSync(path.join(__dirname, '../src/partials/header.html'), 'utf-8');
 const homeSidebar = fs.readFileSync(path.join(__dirname, '../src/partials/home-sidebar.html'), 'utf-8');
 const transitionsCss = fs.readFileSync(path.join(__dirname, '../src/assets/transitions.css'), 'utf-8');
@@ -102,26 +108,28 @@ test('post card text uses build-time Figtree and Noto Sans SC font assets', () =
     assert.match(headBase, /freecat-ui-noto-sans-sc-semi-bold-subset\.woff2/);
     assert.match(headBase, /font-family:\s*"Freecat Post Card Noto Sans SC"/);
     assert.match(headBase, /freecat-ui-noto-sans-sc-extra-bold-subset\.woff2/);
-    assert.match(headBase, /\.post-card-title\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Post Card Noto Sans SC"/);
-    assert.match(headBase, /\.post-card-excerpt\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"/);
-    assert.match(headBase, /\.post-card-excerpt\s*\{[\s\S]*font-weight:\s*400;/);
-    assert.match(headBase, /\.freecat-date-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"/);
-    assert.match(headBase, /\.freecat-published-date-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*600;/);
-    assert.match(headBase, /\.freecat-tag-text\s*\{[\s\S]*font-family:\s*"Freecat Tag Figtree",\s*"Freecat Tag Noto Sans SC"[\s\S]*font-weight:\s*500;/);
-    assert.match(headBase, /\.freecat-nav-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*600;/);
-    assert.match(headBase, /\.freecat-go-back-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*800;/);
-    assert.match(headBase, /\.freecat-search-input\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
-    assert.match(headBase, /\.freecat-update-sort-label\s*\{[\s\S]*font-family:\s*"Freecat Tag Noto Sans SC",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*500;/);
-    assert.match(headBase, /\.freecat-brand-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*800;/);
-    assert.match(headBase, /\.freecat-footer-copyright\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
-    assert.match(postCss, /\.freecat-date-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"/);
-    assert.match(postCss, /\.freecat-published-date-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*600;/);
-    assert.match(postCss, /\.freecat-tag-text\s*\{[\s\S]*font-family:\s*"Freecat Tag Figtree",\s*"Freecat Tag Noto Sans SC"[\s\S]*font-weight:\s*500;/);
-    assert.match(postCss, /\.freecat-nav-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*600;/);
-    assert.match(postCss, /\.freecat-go-back-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*800;/);
-    assert.match(postCss, /\.freecat-search-input\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
-    assert.match(postCss, /\.freecat-brand-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*800;/);
-    assert.match(postCss, /\.freecat-footer-copyright\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
+    assert.match(headBase, /href="\/assets\/typography\.css"/);
+    assert.match(postTemplate, /href="\/assets\/typography\.css"/);
+    assert.match(typographyCss, /\.post-card-title\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Post Card Noto Sans SC"/);
+    assert.match(typographyCss, /\.post-card-excerpt\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"/);
+    assert.match(typographyCss, /\.post-card-excerpt\s*\{[\s\S]*font-weight:\s*400;/);
+    assert.match(typographyCss, /\.freecat-date-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"/);
+    assert.match(typographyCss, /\.freecat-published-date-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*600;/);
+    assert.match(typographyCss, /\.freecat-tag-text\s*\{[\s\S]*font-family:\s*"Freecat Tag Figtree",\s*"Freecat Tag Noto Sans SC"[\s\S]*font-weight:\s*500;/);
+    assert.match(typographyCss, /\.freecat-nav-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*600;/);
+    assert.match(typographyCss, /\.freecat-go-back-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*800;/);
+    assert.match(typographyCss, /\.freecat-search-input\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
+    assert.match(typographyCss, /\.freecat-update-sort-label\s*\{[\s\S]*font-family:\s*"Freecat Tag Noto Sans SC",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*500;/);
+    assert.match(typographyCss, /\.freecat-brand-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*800;/);
+    assert.match(typographyCss, /\.freecat-footer-copyright\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
+    assert.doesNotMatch(postCss, /\.freecat-date-text\s*\{/);
+    assert.doesNotMatch(postCss, /\.freecat-published-date-text\s*\{/);
+    assert.doesNotMatch(postCss, /\.freecat-tag-text\s*\{/);
+    assert.doesNotMatch(postCss, /\.freecat-nav-text\s*\{/);
+    assert.doesNotMatch(postCss, /\.freecat-go-back-text\s*\{/);
+    assert.doesNotMatch(postCss, /\.freecat-search-input\s*\{/);
+    assert.doesNotMatch(postCss, /\.freecat-brand-text\s*\{/);
+    assert.doesNotMatch(postCss, /\.freecat-footer-copyright\s*\{/);
     assert.match(notoSubsetScript, /iter_ui_html_files/);
     assert.match(notoSubsetScript, /iter_post_pages/);
     assert.match(notoSubsetScript, /FIGTREE_FONT_WEIGHTS/);
@@ -155,9 +163,9 @@ test('tag text preserves authored English casing', () => {
 });
 
 test('sidebar and about text use build-time Figtree and Noto Sans SC font classes', () => {
-    assert.match(headBase, /\.freecat-sidebar-slogan,\s*\.freecat-about-title\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*800;/);
-    assert.match(headBase, /\.freecat-sidebar-description,\s*\.freecat-sidebar-recent-link,\s*\.freecat-about-description\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
-    assert.match(headBase, /\.freecat-sidebar-recent-heading\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*800;/);
+    assert.match(typographyCss, /\.freecat-sidebar-slogan,\s*\.freecat-about-title\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*800;/);
+    assert.match(typographyCss, /\.freecat-sidebar-description,\s*\.freecat-sidebar-recent-link,\s*\.freecat-about-description\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
+    assert.match(typographyCss, /\.freecat-sidebar-recent-heading\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*800;/);
 
     assert.match(homeSidebar, /class="freecat-sidebar-slogan\b/);
     assert.doesNotMatch(homeSidebar, /freecat-sidebar-slogan[^"]*\bfont-semibold\b/);
@@ -202,8 +210,8 @@ test('go back and update sort labels use requested font assets', () => {
 test('article table of contents uses requested Chinese and Latin font assets', () => {
     assert.match(postTemplate, /class="freecat-post-toc-title\b[\s\S]*>\s*目录\s*</);
     assert.doesNotMatch(postTemplate, /class="text-sm font-bold tracking-wider[^"]*">\s*目录\s*</);
-    assert.match(postCss, /\.freecat-post-toc-title\s*\{[\s\S]*font-family:\s*"Freecat Tag Noto Sans SC",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*500;/);
-    assert.match(postCss, /#toc-container a\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
+    assert.match(typographyCss, /\.freecat-post-toc-title\s*\{[\s\S]*font-family:\s*"Freecat Tag Noto Sans SC",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*500;/);
+    assert.match(typographyCss, /#toc-container a\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
 });
 
 test('article toc anchor scrolling respects the shell header offset when framed', () => {
@@ -216,8 +224,8 @@ test('article toc anchor scrolling respects the shell header offset when framed'
 test('pagination text uses requested regular and active font weights', () => {
     const html = generatePaginationHtml(1, 2);
 
-    assert.match(headBase, /\.freecat-pagination-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;[\s\S]*font-variant-numeric:\s*normal;[\s\S]*font-feature-settings:\s*normal;/);
-    assert.match(headBase, /\.freecat-pagination-strong\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*800;[\s\S]*font-variant-numeric:\s*normal;[\s\S]*font-feature-settings:\s*normal;/);
+    assert.match(typographyCss, /\.freecat-pagination-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;[\s\S]*font-variant-numeric:\s*normal;[\s\S]*font-feature-settings:\s*normal;/);
+    assert.match(typographyCss, /\.freecat-pagination-strong\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*800;[\s\S]*font-variant-numeric:\s*normal;[\s\S]*font-feature-settings:\s*normal;/);
     assert.match(paginationJs, /aria-label="Pagination" class="freecat-pagination-text\b/);
     assert.match(html, /<nav aria-label="Pagination" class="freecat-pagination-text\b/);
     assert.match(html, /aria-current="page" class="[^"]*\bfreecat-pagination-strong\b[^"]*\bfont-extrabold\b/);
@@ -366,10 +374,13 @@ test('main animation checks reuse a single reduced-motion helper', () => {
 test('theme switching uses css transitions and syncs the shell iframe', () => {
     assert.doesNotMatch(mainJs, /document\.startViewTransition/);
     assert.match(themeSystemJs, /function syncFrameTheme\(isDark, options = \{\}\)\s*\{/);
+    assert.match(themeSystemJs, /contentFrame\.contentWindow\.FreecatRuntime/);
+    assert.match(themeSystemJs, /frameRuntime\.applyTheme\(\{\s*animate:\s*!!options\.animate\s*\}\);/);
     assert.match(themeSystemJs, /contentFrame\.contentWindow\.FreecatApplyTheme/);
     assert.match(themeSystemJs, /frameDoc\.documentElement\.classList\.toggle\('dark', isDark\);/);
-    assert.match(mainJs, /window\.FreecatApplyTheme = applyTheme;/);
-    assert.match(mainJs, /syncFrameTheme\(resolveThemeIsDark\(\)\);/);
+    assert.match(runtimeJs, /setApplyTheme\(fn\)\s*\{[\s\S]*FreecatApplyTheme/);
+    assert.match(mainJs, /runtime\.setApplyTheme\(applyTheme\);/);
+    assert.match(shellRouterJs, /syncFrameTheme\(resolveThemeIsDark\(\)\);/);
 });
 
 test('search page result count reserves space before rendering the numeric badge', () => {
@@ -387,51 +398,54 @@ test('search page result count reserves space before rendering the numeric badge
 
 test('shell router uses clean history URLs for framed navigation', () => {
     assert.match(mainJs, /function navigateWithinSite\(url, options = \{\}\)\s*\{/);
-    assert.match(mainJs, /window\.FreecatNavigate = function \(targetHref, options = \{\}\)\s*\{/);
+    assert.match(runtimeJs, /setNavigate\(fn\)\s*\{[\s\S]*FreecatNavigate/);
     assert.equal(mainJs.includes("navigateWithinSite(`/search.html?q=${encodeURIComponent(searchInput.value.trim())}`);"), true);
-    assert.match(mainJs, /function publicPathToContentPath\(raw\)\s*\{/);
-    assert.match(mainJs, /function contentPathToPublicPath\(raw\)\s*\{/);
-    assert.match(mainJs, /window\.history\[method\]\(state,\s*'',\s*publicPath\);/);
-    assert.match(mainJs, /window\.addEventListener\('popstate',\s*\(\)\s*=>\s*syncFrameToLocation\(\{\s*restoreScroll:\s*true\s*\}\)\);/);
-    assert.doesNotMatch(mainJs, /window\.addEventListener\('hashchange'/);
-    assert.doesNotMatch(mainJs, /function pathToHash\(/);
+    assert.match(shellRouterJs, /function publicPathToContentPath\(raw\)\s*\{/);
+    assert.match(shellRouterJs, /function contentPathToPublicPath\(raw\)\s*\{/);
+    assert.match(shellRouterJs, /window\.history\[method\]\(state,\s*'',\s*publicPath\);/);
+    assert.match(shellRouterJs, /window\.addEventListener\('popstate',\s*\(\)\s*=>\s*syncFrameToLocation\(\{\s*restoreScroll:\s*true\s*\}\)\);/);
+    assert.doesNotMatch(shellRouterJs, /window\.addEventListener\('hashchange'/);
+    assert.doesNotMatch(shellRouterJs, /function pathToHash\(/);
 });
 
 test('framed pages delegate same-origin links to the parent shell but keep anchors local', () => {
     assert.match(mainJs, /function initFramedNavigationBridge\(\)\s*\{/);
-    assert.match(mainJs, /const parentNavigate = window\.parent && window\.parent\.FreecatNavigate;/);
-    assert.match(mainJs, /rawHref\.charAt\(0\) === '#'/);
-    assert.match(mainJs, /navigateWithinSite\(url\.pathname \+ url\.search \+ url\.hash\);/);
+    assert.match(mainJs, /shellRouter\.initFramedNavigationBridge\(\{\s*window,\s*document,\s*runtime\s*\}\);/);
+    assert.match(shellRouterJs, /runtime\.saveScrollPosition\(\);/);
+    assert.match(shellRouterJs, /rawHref\.charAt\(0\) === '#'/);
+    assert.match(shellRouterJs, /runtime\.navigate\(url\.pathname \+ url\.search \+ url\.hash\);/);
     assert.match(mainJs, /if \(FRAMED\) initFramedNavigationBridge\(\);/);
 });
 
 test('nav audio defaults to half volume and exposes the matching volume slider while playing', () => {
-    assert.match(mainJs, /const DEFAULT_NAV_AUDIO_VOLUME = 0\.5;/);
-    assert.match(mainJs, /const NAV_AUDIO_VOLUME_HIDE_DELAY_MS = 1000;/);
-    assert.match(mainJs, /navAudio\.volume = nextVolume;/);
-    assert.match(mainJs, /navAudioVolume\.style\.setProperty\('--volume-percent', `\$\{nextVolume \* 100\}%`\);/);
-    assert.match(mainJs, /if \(navAudioControl\) navAudioControl\.dataset\.playing = isPlaying \? 'true' : 'false';/);
-    assert.match(mainJs, /let navAudioVolumePointerInside = false;/);
-    const shouldKeepVolumeBlock = mainJs.match(/function shouldKeepNavAudioVolumeOpen\(\) \{[\s\S]*?\n        \}/)?.[0] || '';
-    assert.equal(mainJs.includes('function shouldKeepNavAudioVolumeOpen()'), true);
-    assert.equal(mainJs.includes('return navAudioVolumePointerInside'), true);
-    assert.equal(mainJs.includes("navAudioControl.matches(':hover')"), true);
-    assert.equal(mainJs.includes("navAudioControl.matches(':focus-within')"), true);
+    assert.match(mainJs, /const navAudioController = window\.FreecatNavAudio;/);
+    assert.match(mainJs, /if \(!FRAMED\) initNavAudioButton\(\);/);
+    assert.match(navAudioJs, /const DEFAULT_NAV_AUDIO_VOLUME = 0\.5;/);
+    assert.match(navAudioJs, /const NAV_AUDIO_VOLUME_HIDE_DELAY_MS = 1000;/);
+    assert.match(navAudioJs, /navAudio\.volume = nextVolume;/);
+    assert.match(navAudioJs, /navAudioVolume\.style\.setProperty\('--volume-percent', `\$\{nextVolume \* 100\}%`\);/);
+    assert.match(navAudioJs, /if \(navAudioControl\) navAudioControl\.dataset\.playing = isPlaying \? 'true' : 'false';/);
+    assert.match(navAudioJs, /let navAudioVolumePointerInside = false;/);
+    const shouldKeepVolumeBlock = navAudioJs.match(/function shouldKeepNavAudioVolumeOpen\(\) \{[\s\S]*?\n        \}/)?.[0] || '';
+    assert.equal(navAudioJs.includes('function shouldKeepNavAudioVolumeOpen()'), true);
+    assert.equal(navAudioJs.includes('return navAudioVolumePointerInside'), true);
+    assert.equal(navAudioJs.includes("navAudioControl.matches(':hover')"), true);
+    assert.equal(navAudioJs.includes("navAudioControl.matches(':focus-within')"), true);
     assert.doesNotMatch(shouldKeepVolumeBlock, /focus-within/);
-    assert.equal(mainJs.includes("navAudioVolumeWrapper.matches(':hover')"), true);
-    assert.match(mainJs, /if \(shouldKeepNavAudioVolumeOpen\(\)\) \{\s*setNavAudioVolumeOpen\(true\);/);
-    assert.match(mainJs, /navAudioVolumeWrapper\.addEventListener\('pointerenter', \(\) => \{\s*navAudioVolumePointerInside = true;\s*setNavAudioVolumeOpen\(true\);\s*\}\);/);
-    assert.match(mainJs, /navAudioVolumeWrapper\.addEventListener\('pointerleave', \(\) => \{\s*navAudioVolumePointerInside = false;\s*scheduleNavAudioVolumeClose\(\);\s*\}\);/);
-    assert.equal(mainJs.includes('function closeNavAudioVolumeOnOutsidePointerDown(event)'), true);
-    assert.match(mainJs, /if \(!navAudioControl \|\| navAudioControl\.dataset\.volumeOpen !== 'true'\) return;/);
-    assert.match(mainJs, /if \(isNavAudioVolumeEventTarget\(event\.target\)\) return;/);
-    assert.match(mainJs, /document\.activeElement instanceof HTMLElement && navAudioControl\.contains\(document\.activeElement\)/);
-    assert.match(mainJs, /document\.activeElement\.blur\(\);/);
-    assert.match(mainJs, /navAudioVolumePointerInside = false;[\s\S]*document\.activeElement\.blur\(\);[\s\S]*setNavAudioVolumeOpen\(false\);/);
-    assert.match(mainJs, /function bindNavAudioFramePointerDown\(\)/);
-    assert.match(mainJs, /navAudioFramePointerDownDocument\.addEventListener\('pointerdown', closeNavAudioVolumeNow, true\);/);
-    assert.match(mainJs, /contentFrame\.addEventListener\('load', bindNavAudioFramePointerDown\);/);
-    assert.match(mainJs, /document\.addEventListener\('pointerdown', closeNavAudioVolumeOnOutsidePointerDown, true\);/);
+    assert.equal(navAudioJs.includes("navAudioVolumeWrapper.matches(':hover')"), true);
+    assert.match(navAudioJs, /if \(shouldKeepNavAudioVolumeOpen\(\)\) \{\s*setNavAudioVolumeOpen\(true\);/);
+    assert.match(navAudioJs, /navAudioVolumeWrapper\.addEventListener\('pointerenter', \(\) => \{\s*navAudioVolumePointerInside = true;\s*setNavAudioVolumeOpen\(true\);\s*\}\);/);
+    assert.match(navAudioJs, /navAudioVolumeWrapper\.addEventListener\('pointerleave', \(\) => \{\s*navAudioVolumePointerInside = false;\s*scheduleNavAudioVolumeClose\(\);\s*\}\);/);
+    assert.equal(navAudioJs.includes('function closeNavAudioVolumeOnOutsidePointerDown(event)'), true);
+    assert.match(navAudioJs, /if \(!navAudioControl \|\| navAudioControl\.dataset\.volumeOpen !== 'true'\) return;/);
+    assert.match(navAudioJs, /if \(isNavAudioVolumeEventTarget\(event\.target\)\) return;/);
+    assert.match(navAudioJs, /document\.activeElement instanceof HTMLElement && navAudioControl\.contains\(document\.activeElement\)/);
+    assert.match(navAudioJs, /document\.activeElement\.blur\(\);/);
+    assert.match(navAudioJs, /navAudioVolumePointerInside = false;[\s\S]*document\.activeElement\.blur\(\);[\s\S]*setNavAudioVolumeOpen\(false\);/);
+    assert.match(navAudioJs, /function bindNavAudioFramePointerDown\(\)/);
+    assert.match(navAudioJs, /navAudioFramePointerDownDocument\.addEventListener\('pointerdown', closeNavAudioVolumeNow, true\);/);
+    assert.match(navAudioJs, /contentFrame\.addEventListener\('load', bindNavAudioFramePointerDown\);/);
+    assert.match(navAudioJs, /document\.addEventListener\('pointerdown', closeNavAudioVolumeOnOutsidePointerDown, true\);/);
     assert.doesNotMatch(transitionsCss, /\.nav-audio-control\[data-playing="true"\]:focus-within \.nav-audio-volume-slider-wrapper/);
     assert.match(transitionsCss, /\.nav-audio-control\[data-playing="true"\]:hover \.nav-audio-volume-slider-wrapper,\s*\.nav-audio-control\[data-playing="true"\]\[data-volume-open="true"\] \.nav-audio-volume-slider-wrapper/);
     assert.match(transitionsCss, /\.nav-audio-control\[data-playing="true"\]\[data-volume-open="true"\] \.nav-audio-volume-slider-wrapper\s*\{[\s\S]*width:\s*80px;[\s\S]*opacity:\s*1;/);
@@ -792,34 +806,37 @@ test('code folding uses a smooth height transition with fading mask cleanup', ()
 
 test('history navigation restores saved scroll positions after bfcache expires', () => {
     assert.match(mainJs, /function initScrollPositionMemory\(\)/);
-    assert.match(mainJs, /sessionStorage\.setItem\(storageKey,\s*JSON\.stringify\(positions\)\)/);
-    assert.match(mainJs, /getNavigationType\(\)\s*===\s*'back_forward'/);
-    assert.match(mainJs, /window\.addEventListener\('pagehide',\s*saveScrollPosition\)/);
-    assert.match(mainJs, /window\.FreecatSaveScrollPosition = saveScrollPosition;/);
-    assert.match(mainJs, /if \(window\.location\.hash\) \{\s*finishPendingStateRestore\(\);\s*return;\s*\}/);
+    assert.match(mainJs, /scrollMemory\.init\(\{\s*window,\s*document,\s*platform,\s*runtime\s*\}\);/);
+    assert.match(scrollMemoryJs, /platform\.sessionStorage\.setItem\(storageKey,\s*JSON\.stringify\(positions\)\)/);
+    assert.match(scrollMemoryJs, /getNavigationType\(\) === 'back_forward'/);
+    assert.match(scrollMemoryJs, /window\.addEventListener\('pagehide',\s*saveScrollPosition\)/);
+    assert.match(scrollMemoryJs, /runtime\.setSaveScrollPosition\(saveScrollPosition\);/);
+    assert.match(runtimeJs, /setSaveScrollPosition\(fn\)\s*\{[\s\S]*FreecatSaveScrollPosition/);
+    assert.match(scrollMemoryJs, /if \(window\.location\.hash\) \{\s*finishPendingStateRestore\(\);\s*return;\s*\}/);
     assert.match(mainJs, /initScrollPositionMemory\(\);/);
 });
 
 test('shell history back marks framed pages for scroll restoration', () => {
-    assert.match(mainJs, /const restoreRequestStorageKey = 'freecat-scroll-restore-requests-v1';/);
-    assert.match(mainJs, /function consumeShellRestoreRequest\(\)\s*\{/);
-    assert.match(mainJs, /const hasShellRestoreRequest = consumeShellRestoreRequest\(\);[\s\S]*if \(isHistoryRestore\(\) \|\| hasShellRestoreRequest\) restoreScrollPosition\(\);/);
-    assert.match(mainJs, /const SCROLL_RESTORE_REQUEST_KEY = 'freecat-scroll-restore-requests-v1';/);
-    assert.match(mainJs, /function requestFrameScrollRestore\(path\)\s*\{/);
-    assert.match(mainJs, /if \(options\.restoreScroll\) requestFrameScrollRestore\(target\);/);
-    assert.match(mainJs, /syncFrameToLocation\(\{\s*restoreScroll:\s*true\s*\}\)/);
+    assert.match(scrollMemoryJs, /const restoreRequestStorageKey = 'freecat-scroll-restore-requests-v1';/);
+    assert.match(scrollMemoryJs, /function consumeShellRestoreRequest\(\)\s*\{/);
+    assert.match(scrollMemoryJs, /const hasShellRestoreRequest = consumeShellRestoreRequest\(\);[\s\S]*if \(isHistoryRestore\(\) \|\| hasShellRestoreRequest\) restoreScrollPosition\(\);/);
+    assert.match(shellRouterJs, /const SCROLL_RESTORE_REQUEST_KEY = 'freecat-scroll-restore-requests-v1';/);
+    assert.match(shellRouterJs, /function requestFrameScrollRestore\(path\)\s*\{/);
+    assert.match(shellRouterJs, /if \(options\.restoreScroll\) requestFrameScrollRestore\(target\);/);
+    assert.match(shellRouterJs, /syncFrameToLocation\(\{\s*restoreScroll:\s*true\s*\}\)/);
 });
 
 test('go back preserves the update sort switch state in history entries', () => {
     assert.match(mainJs, /const updateSortParam = 'updateSort';/);
     assert.match(mainJs, /params\.get\(updateSortParam\)\s*===\s*updateSortValue/);
-    assert.match(mainJs, /window\.FreecatSyncUpdateSortUrl = syncUpdateSortUrl;/);
+    assert.match(mainJs, /runtime\.setSyncUpdateSortUrl\(syncUpdateSortUrl\);/);
+    assert.match(runtimeJs, /setSyncUpdateSortUrl\(fn\)\s*\{[\s\S]*FreecatSyncUpdateSortUrl/);
     assert.match(mainJs, /applyTheme\(\);\s*initUpdateSortControls\(\);\s*initScrollPositionMemory\(\);/);
     assert.match(headBase, /html\.freecat-state-restore-pending body\s*\{[\s\S]*visibility:\s*hidden;/);
-    assert.match(mainJs, /document\.documentElement\.classList\.remove\('freecat-state-restore-pending'\);/);
+    assert.match(scrollMemoryJs, /document\.documentElement\.classList\.remove\('freecat-state-restore-pending'\);/);
     assert.match(mainJs, /function syncParentFrameHistory\(options = \{\}\)\s*\{/);
     assert.match(mainJs, /syncParentFrameHistory\(\{\s*push:\s*!options\.replace\s*\}\);/);
-    assert.match(mainJs, /window\.FreecatSyncFrameHistory = function \(options = \{\}\) \{/);
+    assert.match(runtimeJs, /setSyncFrameHistory\(fn\)\s*\{[\s\S]*FreecatSyncFrameHistory/);
     assert.match(mainJs, /syncCurrentHistoryEntry\(\);[\s\S]*canGoBackWithinSite\(\)[\s\S]*window\.history\.back\(\);/);
     assert.match(mainJs, /url\.searchParams\.set\('updateSort',\s*'modified'\);/);
     assert.match(mainJs, /setUpdateSortMode\(updateSortSwitch,\s*useModifiedSort,\s*\{\s*replace:\s*true\s*\}\);/);
@@ -829,7 +846,7 @@ test('go back preserves the update sort switch state in history entries', () => 
 test('home soft pagination syncs shell history and saved scroll before post navigation', () => {
     assert.match(mainJs, /window\.history\.pushState\(\{\s*\.\.\.\(window\.history\.state \|\| \{\}\),\s*freecatSoftNav:\s*true\s*\},\s*'',\s*url\);/);
     assert.match(mainJs, /syncParentFrameHistory\(\{\s*push:\s*true\s*\}\);/);
-    assert.match(mainJs, /if \(typeof window\.FreecatSaveScrollPosition === 'function'\) window\.FreecatSaveScrollPosition\(\);[\s\S]*navigateWithinSite\(url\.pathname \+ url\.search \+ url\.hash\);/);
+    assert.match(shellRouterJs, /runtime\.saveScrollPosition\(\);[\s\S]*runtime\.navigate\(url\.pathname \+ url\.search \+ url\.hash\);/);
 });
 
 test('direct URL entries use the home fallback for go back controls', () => {

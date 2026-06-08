@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 
 const { createEngine } = require('../build/template-engine.js');
+const { normalizePostFrontmatter, normalizePostTags } = require('../build/article-model.js');
 const shared = require('../shared/shared.js');
 
 function preloadFontHrefs(source) {
@@ -90,19 +91,34 @@ test('content templates include the shell bootstrap for direct clean URLs', () =
     }
 });
 
-test('browser platform and theme modules load before main script', () => {
-    const html = createTestEngine('https://example.com').loadTemplate('template_index.html');
+test('browser platform and runtime modules load before main script', () => {
+    const engine = createTestEngine('https://example.com');
+    const pages = [
+        engine.loadTemplate('template_index.html'),
+        engine.loadTemplate('template_shell.html')
+    ];
+
+    for (const html of pages) {
     const sharedIndex = html.indexOf('/assets/shared.js');
     const platformIndex = html.indexOf('/assets/browser-platform.js');
+    const runtimeIndex = html.indexOf('/assets/runtime.js');
     const themeIndex = html.indexOf('/assets/theme-system.js');
     const lazyImageIndex = html.indexOf('/assets/lazy-images.js');
+    const scrollMemoryIndex = html.indexOf('/assets/scroll-memory.js');
+    const navAudioIndex = html.indexOf('/assets/nav-audio.js');
+    const shellRouterIndex = html.indexOf('/assets/shell-router.js');
     const mainIndex = html.indexOf('/assets/main.js');
 
     assert.ok(sharedIndex > -1);
     assert.ok(platformIndex > sharedIndex);
-    assert.ok(themeIndex > platformIndex);
+    assert.ok(runtimeIndex > platformIndex);
+    assert.ok(themeIndex > runtimeIndex);
     assert.ok(lazyImageIndex > themeIndex);
-    assert.ok(mainIndex > lazyImageIndex);
+    assert.ok(scrollMemoryIndex > lazyImageIndex);
+    assert.ok(navAudioIndex > scrollMemoryIndex);
+    assert.ok(shellRouterIndex > navAudioIndex);
+    assert.ok(mainIndex > shellRouterIndex);
+    }
 });
 
 test('shell template marks itself and keeps direct paths clean', () => {
@@ -128,6 +144,11 @@ test('root asset urls receive the build asset version', () => {
 
     assert.equal(html.includes('href="/assets/post.css?v=test-version"'), true);
     assert.equal(html.includes('href="/assets/tailwind.css?v=test-version"'), true);
+    assert.equal(html.includes('href="/assets/typography.css?v=test-version"'), true);
+    assert.equal(html.includes('src="/assets/runtime.js?v=test-version"'), true);
+    assert.equal(html.includes('src="/assets/scroll-memory.js?v=test-version"'), true);
+    assert.equal(html.includes('src="/assets/nav-audio.js?v=test-version"'), true);
+    assert.equal(html.includes('src="/assets/shell-router.js?v=test-version"'), true);
     assert.equal(html.includes('src="/assets/main.js?v=test-version"'), true);
 });
 
@@ -247,6 +268,23 @@ test('collectMenuTags puts English labels before Chinese labels when counts matc
 test('normalizeTagKey keeps tag matching consistent across menu and search page', () => {
     assert.equal(shared.normalizeTagKey('  JavaScript  '), 'javascript');
     assert.equal(shared.normalizeTagKey(null), '');
+});
+
+test('article frontmatter prefers standard tags while keeping legacy tag fallback', () => {
+    assert.deepEqual(normalizePostFrontmatter({
+        tags: ['Standard'],
+        tag: ['Legacy']
+    }).tags, ['Standard']);
+    assert.deepEqual(normalizePostFrontmatter({
+        tag: ['Legacy']
+    }).tags, ['Legacy']);
+    assert.deepEqual(normalizePostTags({
+        tags: ['Standard'],
+        tag: ['Legacy']
+    }), ['Standard']);
+    assert.deepEqual(normalizePostTags({
+        tag: ['Legacy']
+    }), ['Legacy']);
 });
 
 test('renderTagMenuItemsHtml escapes labels, encodes hrefs and renders counts', () => {

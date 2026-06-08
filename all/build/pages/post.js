@@ -6,6 +6,8 @@ const shared = require('../../shared/shared.js');
 const { autoSpacing, stripMarkdown } = require('../markdown.js');
 const { renderPostContent } = require('./post-content.js');
 const seo = require('../seo.js');
+const { replacePlaceholders } = require('../template-engine.js');
+const { normalizePostFrontmatter, normalizePostTags } = require('../article-model.js');
 
 const ARTICLE_EXTENSIONS = new Set(['.md', '.markdown', '.txt']);
 const MISSING_ARTICLE_SNAPSHOT_CODE = 'MISSING_GIT_DATE';
@@ -127,9 +129,9 @@ function loadPosts({ postsDir, gitDates, postDates, postIds, skipMissingGitDates
         const isMarkdown = ext === '.md' || ext === '.markdown';
         const hasMetadata = hasYamlFrontmatter(raw);
         const { data, content } = matter(raw);
-        const enableImageCaptions = data.show_image_captions === true || data.enable_image_captions === true || data.enableImageCaptions === true;
+        const frontmatter = normalizePostFrontmatter(data);
 
-        if (data.show === false) {
+        if (frontmatter.show === false) {
             console.log(`  跳过文章: ${file}`);
             return;
         }
@@ -152,18 +154,17 @@ function loadPosts({ postsDir, gitDates, postDates, postIds, skipMissingGitDates
         }
 
         const storedPublishDate = postDates && typeof postDates.get === 'function' ? postDates.get(file) : null;
-        const publishDate = data.date ? dayjs(data.date) : dayjs(storedPublishDate || storedModifiedDate || fs.statSync(filePath).birthtime);
+        const publishDate = frontmatter.date ? dayjs(frontmatter.date) : dayjs(storedPublishDate || storedModifiedDate || fs.statSync(filePath).birthtime);
 
         let modifiedDate;
-        if (data.updated) modifiedDate = dayjs(data.updated);
-        else if (data.date_updated) modifiedDate = dayjs(data.date_updated);
+        if (frontmatter.updated) modifiedDate = dayjs(frontmatter.updated);
         else modifiedDate = dayjs(storedModifiedDate);
 
         const cleanContent = stripMarkdown(content);
-        const previewRaw = data.description || cleanContent;
-        const excerptRaw = data.description || (cleanContent.slice(0, 160) + (cleanContent.length > 160 ? '...' : ''));
-        const titleRaw = (data.title && String(data.title).trim()) ? data.title : slug;
-        const faqItems = seo.normalizeFaq(data.faq);
+        const previewRaw = frontmatter.description || cleanContent;
+        const excerptRaw = frontmatter.description || (cleanContent.slice(0, 160) + (cleanContent.length > 160 ? '...' : ''));
+        const titleRaw = (frontmatter.title && String(frontmatter.title).trim()) ? frontmatter.title : slug;
+        const faqItems = seo.normalizeFaq(frontmatter.faq);
 
         posts.push({
             title: autoSpacing(titleRaw),
@@ -173,23 +174,24 @@ function loadPosts({ postsDir, gitDates, postDates, postIds, skipMissingGitDates
             modifiedDate,
             excerpt: autoSpacing(excerptRaw),
             preview: autoSpacing(previewRaw),
-            summary: data.summary ? autoSpacing(data.summary) : '',
-            cover: isMarkdown && hasMetadata ? (data.cover || '') : '',
-            coverPlaceholder: isMarkdown && hasMetadata && !data.cover,
+            summary: frontmatter.summary ? autoSpacing(frontmatter.summary) : '',
+            cover: isMarkdown && hasMetadata ? frontmatter.cover : '',
+            coverPlaceholder: isMarkdown && hasMetadata && !frontmatter.cover,
             // 可选 frontmatter：cover_width / cover_height（整数像素）
             // 给 <img> 写 width/height 属性，预留盒子，消除首屏 CLS。
-            coverWidth: parseInt(data.cover_width, 10) || 0,
-            coverHeight: parseInt(data.cover_height, 10) || 0,
-            tag: data.tag || data.tags || [],
+            coverWidth: frontmatter.coverWidth,
+            coverHeight: frontmatter.coverHeight,
+            tags: frontmatter.tags,
+            tag: frontmatter.tags,
             link: `/posts/${postId}`,
-            pinned: data.pinned === true,
-            enableImageCaptions,
-            author: data.author || '',
-            authorUrl: data.author_url || data.authorUrl || '',
-            noindex: data.noindex === true,
+            pinned: frontmatter.pinned,
+            enableImageCaptions: frontmatter.enableImageCaptions,
+            author: frontmatter.author,
+            authorUrl: frontmatter.authorUrl,
+            noindex: frontmatter.noindex,
             faq: faqItems,
             content,
-            rawTitle: data.title
+            rawTitle: frontmatter.title
         });
     });
 
@@ -209,7 +211,7 @@ function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = 
     const { html: finalContentHtml, toc } = renderPostContent({ post });
     const safeTitle = shared.escapeHtml(post.title);
 
-    const tags = Array.isArray(post.tag) ? post.tag : (post.tag ? [post.tag] : []);
+    const tags = normalizePostTags(post);
     const tagsHtml = tags.map(t => shared.renderTagSpan(t)).join('\n');
 
     const canonical = seo.pageUrl(siteConfig, post.link);
@@ -286,29 +288,30 @@ function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = 
     });
     const jsonLd = seo.renderArticleJsonLd({ post, siteConfig, seoConfig, canonical, ogImage, tags, faqItems: post.faq || [] });
 
-    const html = template
-        .replace(/<!-- TITLE_PLACEHOLDER -->/g, () => safeTitle)
-        .replace(/<!-- TITLE_H1_PLACEHOLDER -->/g, () => shared.processTitleHtml(safeTitle))
-        .replace('<!-- TAGS_PLACEHOLDER -->', () => tagsHtml)
-        .replace('<!-- DATE_PLACEHOLDER -->', () => post.date.tz('Asia/Shanghai').format('YYYY-MM-DD'))
-        .replace('<!-- DATE_ISO_PLACEHOLDER -->', () => post.date.toISOString())
-        .replace('<!-- MODIFIED_PLACEHOLDER -->', () => post.modifiedDate.tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm'))
-        .replace('<!-- CONTENT_PLACEHOLDER -->', () => finalContentHtml)
-        .replace('<!-- TOC_PLACEHOLDER -->', () => toc)
-        .replace('<!-- POST_SEO_HEAD -->', () => seoHead)
-        .replace('<!-- POST_HIGHLIGHT_CSS -->', () => highlightCss)
-        .replace('<!-- POST_KATEX_CSS -->', () => katexCss)
-        .replace('<!-- POST_FONT_PRELOADS -->', () => renderPostFontPreloads(post.postId, assetVersion))
-        .replace('<!-- POST_FONT_FACE_CSS -->', () => renderPostFontFaceCss(post.postId, assetVersion))
-        .replace('<!-- POST_HIGHLIGHT_JS -->', () => highlightJs)
-        .replace('<!-- POST_CHART_JS -->', () => [chartJs, embedJs].filter(Boolean).join('\n    '))
-        .replace('<!-- POST_MEDIA_CSS -->', () => mediaCss)
-        .replace('<!-- POST_MEDIA_JS -->', () => mediaJs)
-        .replace('<!-- POST_AUDIO_CSS -->', () => audioCss)
-        .replace('<!-- POST_AUDIO_JS -->', () => audioJs)
-        .replace('<!-- POST_VIDEO_CSS -->', () => videoCss)
-        .replace('<!-- POST_VIDEO_JS -->', () => videoJs)
-        .replace('<!-- POST_JSONLD -->', () => jsonLd);
+    const html = replacePlaceholders(template, [
+        [/<!-- TITLE_PLACEHOLDER -->/g, safeTitle],
+        [/<!-- TITLE_H1_PLACEHOLDER -->/g, shared.processTitleHtml(safeTitle)],
+        ['<!-- TAGS_PLACEHOLDER -->', tagsHtml],
+        ['<!-- DATE_PLACEHOLDER -->', post.date.tz('Asia/Shanghai').format('YYYY-MM-DD')],
+        ['<!-- DATE_ISO_PLACEHOLDER -->', post.date.toISOString()],
+        ['<!-- MODIFIED_PLACEHOLDER -->', post.modifiedDate.tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm')],
+        ['<!-- CONTENT_PLACEHOLDER -->', finalContentHtml],
+        ['<!-- TOC_PLACEHOLDER -->', toc],
+        ['<!-- POST_SEO_HEAD -->', seoHead],
+        ['<!-- POST_HIGHLIGHT_CSS -->', highlightCss],
+        ['<!-- POST_KATEX_CSS -->', katexCss],
+        ['<!-- POST_FONT_PRELOADS -->', renderPostFontPreloads(post.postId, assetVersion)],
+        ['<!-- POST_FONT_FACE_CSS -->', renderPostFontFaceCss(post.postId, assetVersion)],
+        ['<!-- POST_HIGHLIGHT_JS -->', highlightJs],
+        ['<!-- POST_CHART_JS -->', [chartJs, embedJs].filter(Boolean).join('\n    ')],
+        ['<!-- POST_MEDIA_CSS -->', mediaCss],
+        ['<!-- POST_MEDIA_JS -->', mediaJs],
+        ['<!-- POST_AUDIO_CSS -->', audioCss],
+        ['<!-- POST_AUDIO_JS -->', audioJs],
+        ['<!-- POST_VIDEO_CSS -->', videoCss],
+        ['<!-- POST_VIDEO_JS -->', videoJs],
+        ['<!-- POST_JSONLD -->', jsonLd]
+    ]);
 
     return removeEmptyTocAside(html, toc);
 }

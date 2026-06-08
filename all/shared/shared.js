@@ -115,7 +115,7 @@
     }
 
     // 聚合标签菜单数据：统计每个标签出现次数 + 未打标签数量，按「次数降序 → 英文优先 → 名称」排序。
-    // posts 每项读取 post.tags（搜索索引形态）；构建期可先映射成 { tags: post.tag }。
+    // posts 每项读取标准化后的 post.tags。
     // 构建期与浏览器期共用，保证顶栏标签菜单两端数据完全一致。
     function collectMenuTags(posts) {
         const tagsByKey = new Map();
