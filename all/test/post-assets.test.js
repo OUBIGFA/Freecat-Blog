@@ -844,9 +844,30 @@ test('go back preserves the update sort switch state in history entries', () => 
 });
 
 test('home soft pagination syncs shell history and saved scroll before post navigation', () => {
+    assert.match(mainJs, /function getPaginationFetchUrl\(rawUrl\)\s*\{/);
+    assert.match(mainJs, /url\.pathname === '\/' \|\| url\.pathname === '\/index\.html' \|\| url\.pathname === '\/index'/);
+    assert.match(mainJs, /return '\/home\.html' \+ url\.search;/);
+    assert.match(mainJs, /platform\.fetch\(getPaginationFetchUrl\(url\),\s*\{\s*credentials:\s*'same-origin'/);
     assert.match(mainJs, /window\.history\.pushState\(\{\s*\.\.\.\(window\.history\.state \|\| \{\}\),\s*freecatSoftNav:\s*true\s*\},\s*'',\s*url\);/);
     assert.match(mainJs, /syncParentFrameHistory\(\{\s*push:\s*true\s*\}\);/);
     assert.match(shellRouterJs, /runtime\.saveScrollPosition\(\);[\s\S]*runtime\.navigate\(url\.pathname \+ url\.search \+ url\.hash\);/);
+});
+
+test('header search opens a blank overlay and closes from blank space', () => {
+    assert.match(mainJs, /function ensureSearchResultsOverlay\(\)\s*\{/);
+    assert.match(mainJs, /const offset = header \? header\.offsetHeight : 0;/);
+    assert.doesNotMatch(mainJs, /header\.offsetHeight \+ 12/);
+    assert.doesNotMatch(mainJs, /rect\.bottom \+ 12/);
+    assert.match(mainJs, /overlay\.id = 'search-results-overlay';/);
+    assert.doesNotMatch(mainJs, /overlay\.className = '[^']*t-panel-slide/);
+    assert.match(transitionsCss, /#search-results-overlay\s*\{[\s\S]*transform:\s*none !important;[\s\S]*transition:\s*none !important;/);
+    assert.match(mainJs, /requestAnimationFrame\(\(\) => \{\s*searchContainer\.dataset\.open = 'true';\s*ensureSearchResultsOverlay\(\);/);
+    assert.match(mainJs, /if \(e\.target === overlay\) \{\s*closeHeaderSearch\(true\);/);
+    assert.match(mainJs, /const resultsContent = overlay && overlay\.querySelector\('\[data-search-results-content\]'\);/);
+    assert.match(mainJs, /if \(!resultsContent \|\| !resultsContent\.contains\(e\.target\)\) \{\s*closeHeaderSearch\(true\);/);
+    assert.match(mainJs, /const keepBlankOverlay = searchContainer[\s\S]*document\.body\.classList\.contains\('search-active'\)/);
+    assert.match(mainJs, /overlay\.innerHTML = '';\s*updateSearchOverlayOffset\(overlay\);\s*overlay\.dataset\.open = 'true';/);
+    assert.match(mainJs, /<div data-search-results-content class="max-w-\[1200px\]/);
 });
 
 test('direct URL entries use the home fallback for go back controls', () => {

@@ -968,6 +968,8 @@ html.freecat-framed header.fixed {
     position: fixed;
     inset-inline: 0;
     bottom: 0;
+    transform: none !important;
+    transition: none !important;
     backdrop-filter: blur(10px);
     background-color: rgba(255, 255, 255, 0.8) !important;
     overflow-y: auto;
