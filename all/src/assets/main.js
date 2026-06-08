@@ -920,7 +920,6 @@ document.addEventListener('DOMContentLoaded', () => {
             sortModifiedDate: post.sortModifiedDate,
             tagsHtml: generateTagsHtml(post.tags),
             cover: post.cover,
-            coverPlaceholder: post.coverPlaceholder,
             coverWidth: post.coverWidth,
             coverHeight: post.coverHeight,
             pinned: post.pinned,

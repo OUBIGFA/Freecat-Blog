@@ -34,7 +34,6 @@ function renderPostCardForList(post, index = 0, options = {}) {
         sortModifiedDate: post.modifiedDate.valueOf(),
         tagsHtml,
         cover: post.cover,
-        coverPlaceholder: post.coverPlaceholder,
         coverWidth: post.coverWidth,
         coverHeight: post.coverHeight,
         pinned: post.pinned,

@@ -66,8 +66,7 @@
         const tagsHtml = post.tagsHtml || '';
         const mobileTagsInline = post.mobileTagsInline === true;
         const cover = escapeHtml(post.cover || '');
-        const coverPlaceholder = post.coverPlaceholder === true;
-        const imageSrc = cover || (coverPlaceholder ? '/image/404.png' : '');
+        const imageSrc = cover;
         const pinned = !!post.pinned;
         const animationDelay = Math.max(0, Number(post.animationDelay) || 0);
         const titleText = plainTextFromHtml(titleHtml);
@@ -129,6 +128,8 @@
             : '';
 
         if (layout === 'compact-grid') {
+            const compactExcerptLines = imageMarkup ? 2 : 9;
+            const compactExcerptMinHeight = imageMarkup ? 'min-h-[3.3em]' : 'min-h-[12.995rem]';
             const compactImageHeight = mobileTagsInline
                 ? 'h-[clamp(11.25rem,14.5vw,13.25rem)] max-[480px]:h-[11.5rem]'
                 : 'h-[clamp(8.75rem,12vw,10.75rem)] max-[480px]:h-36';
@@ -154,7 +155,7 @@
                     </div>
                 </div>
                 <div class="mt-4 shrink-0">
-                    <p class="post-card-excerpt text-[#63718a] dark:text-gray-400 text-[14px] font-normal leading-[1.65] min-h-[3.3em]" style="${clampStyle(2, { overflowWrap: 'break-word' })}">${mediaIconHtml}${excerptBodyHtml}</p>
+                    <p class="post-card-excerpt text-[#63718a] dark:text-gray-400 text-[14px] font-normal leading-[1.65] ${compactExcerptMinHeight}" style="${clampStyle(compactExcerptLines, { overflowWrap: 'break-word' })}">${mediaIconHtml}${excerptBodyHtml}</p>
                 </div>
                 ${compactImageBlock}
                 ${mobileFooterTagsBlock}

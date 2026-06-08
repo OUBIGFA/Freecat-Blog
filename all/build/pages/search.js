@@ -31,7 +31,6 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir, recentPos
             tags: normalizePostTags(post),
             link: shared.encodeSitePath(post.link),
             cover: post.cover,
-            coverPlaceholder: post.coverPlaceholder,
             coverWidth: post.coverWidth || 0,
             coverHeight: post.coverHeight || 0,
             pinned: post.pinned,

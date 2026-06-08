@@ -62,6 +62,23 @@ test('post card cover placeholders render the shared loading spinner', () => {
     assert.equal(html.includes('<span class="loader"></span>'), true);
 });
 
+test('post cards omit image markup when no real cover is provided', () => {
+    const html = postCardTemplate.renderPostCard({
+        link: '/posts/example.html',
+        titleHtml: 'Example',
+        excerptHtml: 'Example excerpt',
+        date: '2026-05-30',
+        cover: '',
+        coverPlaceholder: true
+    });
+
+    assert.match(html, /class="post-card has-no-cover\b/);
+    assert.doesNotMatch(html, /<img\b/);
+    assert.doesNotMatch(html, /data-src="\/image\/404\.png"/);
+    assert.doesNotMatch(html, /lazy-image-frame mt-8/);
+    assert.doesNotMatch(html, /lazy-image-frame col-start-2 row-start-1/);
+});
+
 test('post card text uses build-time Figtree and Noto Sans SC font assets', () => {
     const html = postCardTemplate.renderPostCard({
         link: '/posts/example.html',
@@ -269,22 +286,33 @@ test('post font preloads and font faces use the same versioned urls', () => {
     assert.equal([...preloads].every(href => href.endsWith('?v=test-version')), true);
 });
 
-test('all-page compact cards use native two-line excerpt ellipsis', () => {
+test('all-page compact cards use native excerpt ellipsis by cover state', () => {
     const excerpt = 'Long excerpt '.repeat(40);
-    const html = postCardTemplate.renderPostCard({
+    const withCoverHtml = postCardTemplate.renderPostCard({
         link: '/posts/example.html',
         titleHtml: 'Example',
+        excerptHtml: excerpt,
+        date: '2026-05-30',
+        cover: '/image/example.png',
+        layout: 'compact-grid'
+    });
+    const withoutCoverHtml = postCardTemplate.renderPostCard({
+        link: '/posts/plain.html',
+        titleHtml: 'Plain',
         excerptHtml: excerpt,
         date: '2026-05-30',
         layout: 'compact-grid'
     });
 
-    assert.match(html, /<p class="post-card-excerpt[^"]*\bmin-h-\[3\.3em\][^"]*" style="[^"]*-webkit-line-clamp:2/);
-    assert.match(html, /overflow-wrap:break-word/);
-    assert.equal(html.includes(excerpt), true);
-    assert.doesNotMatch(html, /data-excerpt-overflow/);
+    assert.match(withCoverHtml, /<p class="post-card-excerpt[^"]*\bmin-h-\[3\.3em\][^"]*" style="[^"]*-webkit-line-clamp:2/);
+    assert.match(withoutCoverHtml, /<p class="post-card-excerpt[^"]*\bmin-h-\[12\.995rem\][^"]*" style="[^"]*-webkit-line-clamp:9/);
+    assert.match(withCoverHtml, /overflow-wrap:break-word/);
+    assert.match(withoutCoverHtml, /overflow-wrap:break-word/);
+    assert.equal(withCoverHtml.includes(excerpt), true);
+    assert.equal(withoutCoverHtml.includes(excerpt), true);
+    assert.doesNotMatch(withCoverHtml, /data-excerpt-overflow/);
+    assert.doesNotMatch(withoutCoverHtml, /data-excerpt-overflow/);
     assert.doesNotMatch(headBase, /post-card-excerpt-clamp/);
-    assert.doesNotMatch(html, /-webkit-line-clamp:9/);
 });
 
 test('mobile post cards remove the image-to-tags divider and extend the cover', () => {

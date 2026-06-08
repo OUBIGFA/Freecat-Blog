@@ -176,7 +176,6 @@ function loadPosts({ postsDir, gitDates, postDates, postIds, skipMissingGitDates
             preview: autoSpacing(previewRaw),
             summary: frontmatter.summary ? autoSpacing(frontmatter.summary) : '',
             cover: isMarkdown && hasMetadata ? frontmatter.cover : '',
-            coverPlaceholder: isMarkdown && hasMetadata && !frontmatter.cover,
             // 可选 frontmatter：cover_width / cover_height（整数像素）
             // 给 <img> 写 width/height 属性，预留盒子，消除首屏 CLS。
             coverWidth: frontmatter.coverWidth,
