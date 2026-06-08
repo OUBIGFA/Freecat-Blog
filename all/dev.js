@@ -19,6 +19,7 @@ const watchTargets = [
     path.join(root, '..', 'writing'),
     path.join(root, '..', 'Control'),
     path.join(root, 'src'),
+    path.join(root, 'shared'),
     path.join(root, 'build'),
     path.join(root, 'build.js')
 ];

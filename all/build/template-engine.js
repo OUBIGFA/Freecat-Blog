@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const shared = require('../src/assets/shared.js');
+const shared = require('../shared/shared.js');
 const seo = require('./seo.js');
 const { autoSpacing, parseImageStyleAudioList } = require('./markdown.js');
 const { SOCIAL_PLATFORM_ORDER } = require('./social-defaults.js');

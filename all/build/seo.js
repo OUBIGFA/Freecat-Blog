@@ -1,4 +1,4 @@
-const shared = require('../src/assets/shared.js');
+const shared = require('../shared/shared.js');
 const { stripMarkdown } = require('./markdown.js');
 
 function text(value) {

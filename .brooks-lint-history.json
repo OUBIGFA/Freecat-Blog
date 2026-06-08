@@ -1,0 +1,13 @@
+[
+  {
+    "date": "2026-06-08",
+    "mode": "Architecture Audit",
+    "score": 78,
+    "findings": {
+      "critical": 0,
+      "warning": 4,
+      "suggestion": 1
+    },
+    "scope": "entire project, focused on all/ excluding node_modules and dist"
+  }
+]

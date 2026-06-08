@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 
 const { createEngine } = require('../build/template-engine.js');
-const shared = require('../src/assets/shared.js');
+const shared = require('../shared/shared.js');
 
 function preloadFontHrefs(source) {
     return [...source.matchAll(/<link\s+rel="preload"\s+href="([^"]+)"\s+as="font"\s+type="font\/woff2"\s+crossorigin\s*\/?>/g)]
@@ -88,6 +88,21 @@ test('content templates include the shell bootstrap for direct clean URLs', () =
         assert.equal(html.includes('id="freecat-content-frame"'), true);
         assert.equal(html.includes('document.write(htmlText)'), true);
     }
+});
+
+test('browser platform and theme modules load before main script', () => {
+    const html = createTestEngine('https://example.com').loadTemplate('template_index.html');
+    const sharedIndex = html.indexOf('/assets/shared.js');
+    const platformIndex = html.indexOf('/assets/browser-platform.js');
+    const themeIndex = html.indexOf('/assets/theme-system.js');
+    const lazyImageIndex = html.indexOf('/assets/lazy-images.js');
+    const mainIndex = html.indexOf('/assets/main.js');
+
+    assert.ok(sharedIndex > -1);
+    assert.ok(platformIndex > sharedIndex);
+    assert.ok(themeIndex > platformIndex);
+    assert.ok(lazyImageIndex > themeIndex);
+    assert.ok(mainIndex > lazyImageIndex);
 });
 
 test('shell template marks itself and keeps direct paths clean', () => {

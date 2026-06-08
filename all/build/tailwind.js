@@ -3,6 +3,7 @@ const postcss = require('postcss');
 const tailwindcss = require('tailwindcss');
 const autoprefixer = require('autoprefixer');
 const cssnano = require('cssnano');
+const { TAILWIND_SAFELIST } = require('./tailwind-sources.js');
 
 /**
  * 构建期编译 Tailwind CSS。
@@ -53,12 +54,7 @@ async function buildTailwindCss({ contentGlobs, outputPath, minify = true }) {
         ],
         // 安全网：模板里有些动态拼接的 class 在不同地方组合，
         // 用 safelist 防止 JIT 漏识别。这里只保留确实会动态产生的少量类名。
-        safelist: [
-            'dark',
-            'animate-fade-in-up',
-            'delay-150',
-            'delay-300',
-        ],
+        safelist: TAILWIND_SAFELIST,
     };
 
     const plugins = [tailwindcss(config), autoprefixer()];

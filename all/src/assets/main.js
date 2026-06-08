@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
     const shared = window.FreecatShared;
     if (!shared) throw new Error('FreecatShared not loaded — ensure shared.js loads before main.js');
+    const platform = window.FreecatPlatform;
+    if (!platform) throw new Error('FreecatPlatform not loaded — ensure browser-platform.js loads before main.js');
     const { escapeHtml, processTitleHtml, renderTagSpan, copyText } = shared;
 
     // ============================================================
@@ -42,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
             checkbox.checked = false;
         });
     });
-    const themeToggleBtn = document.getElementById('theme-toggle');
     const html = document.documentElement;
 
     // 运行上下文判定（外壳 + iframe 架构）：
@@ -61,85 +62,19 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {}
     }
 
-    const imageFallback = '/image/404.png';
-    let deferredImageObserver = null;
-
-    function loadDeferredImage(img) {
-        const realSrc = img && img.dataset ? img.dataset.src : '';
-        if (!realSrc || img.dataset.imageLoadStarted === 'true') return;
-        img.dataset.imageLoadStarted = 'true';
-        img.dataset.imageObserved = 'false';
-
-        const probe = new Image();
-        probe.onload = () => {
-            img.src = realSrc;
-            img.classList.remove('post-image-placeholder');
-            img.classList.add('post-image-loaded');
-            img.removeAttribute('data-src');
-        };
-        probe.onerror = () => {
-            img.dataset.fallbackApplied = 'true';
-            img.classList.add('post-image-failed');
-            img.removeAttribute('data-src');
-        };
-        probe.src = realSrc;
+    const lazyImageFactory = window.FreecatLazyImages;
+    if (!lazyImageFactory || typeof lazyImageFactory.createLazyImageController !== 'function') {
+        throw new Error('FreecatLazyImages not loaded - ensure lazy-images.js loads before main.js');
     }
-
-    function getDeferredImageObserver() {
-        if (deferredImageObserver || !('IntersectionObserver' in window)) {
-            return deferredImageObserver;
-        }
-
-        deferredImageObserver = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-                if (!entry.isIntersecting) return;
-                deferredImageObserver.unobserve(entry.target);
-                loadDeferredImage(entry.target);
-            });
-        }, { rootMargin: '320px 0px' });
-
-        return deferredImageObserver;
-    }
-
-    function unobserveDeferredImages(root = document) {
-        if (!deferredImageObserver || !root) return;
-        const images = root.matches && root.matches('img[data-src]')
-            ? [root]
-            : Array.from(root.querySelectorAll ? root.querySelectorAll('img[data-src]') : []);
-        images.forEach((img) => {
-            deferredImageObserver.unobserve(img);
-            img.dataset.imageObserved = 'false';
-        });
-    }
-
-    function initDeferredImages() {
-        const images = Array.from(document.querySelectorAll('img[data-src]'))
-            .filter((img) => img.dataset.imageLoadStarted !== 'true' && img.dataset.imageObserved !== 'true');
-        if (!images.length) return;
-
-        if (!('IntersectionObserver' in window)) {
-            images.forEach(loadDeferredImage);
-            return;
-        }
-
-        const observer = getDeferredImageObserver();
-        images.forEach((img) => {
-            img.dataset.imageObserved = 'true';
-            observer.observe(img);
-        });
-    }
-
+    const lazyImages = lazyImageFactory.createLazyImageController({
+        document,
+        window,
+        Image,
+        fallback: '/image/404.png'
+    });
+    const { initDeferredImages, unobserveDeferredImages } = lazyImages;
+    lazyImages.installFallbackHandler();
     initDeferredImages();
-
-    document.addEventListener('error', (e) => {
-        const target = e.target;
-        if (!target || target.tagName !== 'IMG') return;
-        if (target.dataset.fallbackApplied === 'true') return;
-        if (target.src && target.src.indexOf(imageFallback) !== -1) return;
-        target.dataset.fallbackApplied = 'true';
-        target.removeAttribute('srcset');
-        target.src = imageFallback;
-    }, true);
 
     // ============================================================
     // [Feature] 全局动画样式 + 通用工具
@@ -195,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function readPositions() {
             try {
-                const raw = sessionStorage.getItem(storageKey);
+                const raw = platform.sessionStorage.getItem(storageKey);
                 const parsed = raw ? JSON.parse(raw) : {};
                 return parsed && typeof parsed === 'object' ? parsed : {};
             } catch (e) {
@@ -205,13 +140,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function writePositions(positions) {
             try {
-                sessionStorage.setItem(storageKey, JSON.stringify(positions));
+                platform.sessionStorage.setItem(storageKey, JSON.stringify(positions));
             } catch (e) {}
         }
 
         function consumeShellRestoreRequest() {
             try {
-                const raw = sessionStorage.getItem(restoreRequestStorageKey);
+                const raw = platform.sessionStorage.getItem(restoreRequestStorageKey);
                 const requests = raw ? JSON.parse(raw) : {};
                 if (!requests || typeof requests !== 'object') return false;
 
@@ -220,9 +155,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 delete requests[pageKey];
                 if (Object.keys(requests).length) {
-                    sessionStorage.setItem(restoreRequestStorageKey, JSON.stringify(requests));
+                    platform.sessionStorage.setItem(restoreRequestStorageKey, JSON.stringify(requests));
                 } else {
-                    sessionStorage.removeItem(restoreRequestStorageKey);
+                    platform.sessionStorage.removeItem(restoreRequestStorageKey);
                 }
                 return true;
             } catch (e) {
@@ -644,102 +579,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // (使用已声明的 themeToggleBtn 和 html)
 
 
-    const THEME_TRANSITION_CLASS = 'theme-transitioning';
-    let themeTransitionTimer = 0;
-
-    function prefersReducedMotion() {
-        return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const themeSystemFactory = window.FreecatThemeSystem;
+    if (!themeSystemFactory || typeof themeSystemFactory.createThemeSystem !== 'function') {
+        throw new Error('FreecatThemeSystem not loaded - ensure theme-system.js loads before main.js');
     }
-
-    function resolveThemeIsDark() {
-        const savedTheme = localStorage.getItem('theme');
-        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        return savedTheme === 'dark' || (!savedTheme && systemPrefersDark);
-    }
-
-    function setThemeState(isDark) {
-        if (isDark) {
-            html.classList.add('dark');
-        } else {
-            html.classList.remove('dark');
-        }
-        if (themeToggleBtn) {
-            themeToggleBtn.dataset.uiState = isDark ? 'dark' : 'light';
-        }
-
-        // 更新标签颜色
-        updateTagColors();
-    }
-
-    function syncFrameTheme(isDark, options = {}) {
-        if (!contentFrame || !contentFrame.contentWindow) return;
-        try {
-            const applyFrameTheme = contentFrame.contentWindow.FreecatApplyTheme;
-            if (typeof applyFrameTheme === 'function') {
-                applyFrameTheme({ animate: !!options.animate });
-                return;
-            }
-        } catch (err) {}
-
-        try {
-            const frameDoc = contentFrame.contentDocument;
-            if (!frameDoc || !frameDoc.documentElement) return;
-            frameDoc.documentElement.classList.toggle('dark', isDark);
-            const frameThemeToggle = frameDoc.getElementById('theme-toggle');
-            if (frameThemeToggle) frameThemeToggle.dataset.uiState = isDark ? 'dark' : 'light';
-        } catch (err) {}
-    }
-
-    function finishThemeTransition() {
-        window.clearTimeout(themeTransitionTimer);
-        themeTransitionTimer = 0;
-        html.classList.remove(THEME_TRANSITION_CLASS);
-    }
-
-    function startThemeTransition() {
-        html.classList.add(THEME_TRANSITION_CLASS);
-        window.clearTimeout(themeTransitionTimer);
-        themeTransitionTimer = window.setTimeout(
-            finishThemeTransition,
-            getCssDurationMs('--theme-transition-dur', 360) + 120
-        );
-    }
-
-
-    // 统一主题应用逻辑
-    function applyTheme(options = {}) {
-        const isDark = resolveThemeIsDark();
-        const shouldAnimate = !!options.animate && document.body && !prefersReducedMotion();
-
-        if (!shouldAnimate) {
-            setThemeState(isDark);
-            syncFrameTheme(isDark);
-            return;
-        }
-
-        startThemeTransition();
-        // 确保统一过渡类先生效，再切换深浅色，避免局部 transition 各走各的时长。
-        void html.offsetWidth;
-        setThemeState(isDark);
-        syncFrameTheme(isDark, { animate: true });
-    }
-
+    const themeSystem = themeSystemFactory.createThemeSystem({
+        document,
+        window,
+        platform,
+        contentFrame,
+        getCssDurationMs
+    });
+    const { applyTheme, prefersReducedMotion, resolveThemeIsDark, syncFrameTheme } = themeSystem;
     window.FreecatApplyTheme = applyTheme;
 
-    // 标签颜色更新函数
-    function updateTagColors() {
-        const isDark = html.classList.contains('dark');
-        document.querySelectorAll('.tag-span').forEach(tag => {
-            const bg = tag.getAttribute(isDark ? 'data-bg-dark' : 'data-bg-light');
-            const text = tag.getAttribute(isDark ? 'data-text-dark' : 'data-text-light');
-            if (bg && text) {
-                tag.style.background = bg;
-                tag.style.color = text;
-            }
-        });
-    }
-
-    // 初始执行
     applyTheme();
     initUpdateSortControls();
     initScrollPositionMemory();
@@ -755,15 +608,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 监听主题切换按钮
-    if (themeToggleBtn) {
-        themeToggleBtn.addEventListener('click', () => {
-            const willBeDark = !html.classList.contains('dark');
-            localStorage.setItem('theme', willBeDark ? 'dark' : 'light');
-            applyTheme({ animate: true });
-        });
-    }
+    themeSystem.bindThemeToggle();
 
-    // 核心：处理 bfcache (由于浏览器缓存页面，点击“后退”时可能不会重新触发 DOMContentLoaded)
     window.addEventListener('pageshow', (event) => {
         if (event.persisted) {
             applyTheme();
@@ -837,7 +683,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const ac = new AbortController();
             const timer = setTimeout(() => ac.abort(), PAGE_FETCH_TIMEOUT_MS);
-            const p = fetch(url, { credentials: 'same-origin', signal: ac.signal })
+            const p = platform.fetch(url, { credentials: 'same-origin', signal: ac.signal })
                 .then((r) => {
                     if (!r.ok) throw new Error('HTTP ' + r.status);
                     return r.text();
@@ -1000,7 +846,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadSearchIndex() {
         if (searchIndex) return searchIndex;
         try {
-            const response = await fetch('/search-index.json');
+            const response = await platform.fetch('/search-index.json');
             searchIndex = await response.json();
             return searchIndex;
         } catch (err) {
@@ -1012,7 +858,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadTagIndex() {
         if (tagIndex) return tagIndex;
         try {
-            const response = await fetch('/tag-index.json');
+            const response = await platform.fetch('/tag-index.json');
             tagIndex = await response.json();
             return tagIndex;
         } catch (err) {
@@ -1295,7 +1141,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function getSavedNavAudioState() {
             try {
-                const raw = sessionStorage.getItem(STATE_KEY);
+                const raw = platform.sessionStorage.getItem(STATE_KEY);
                 const state = raw ? JSON.parse(raw) : null;
                 if (!state || state.playlistKey !== playlistKey) return null;
                 return state;
@@ -1306,7 +1152,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function readSavedNavAudioVolume() {
             try {
-                const saved = localStorage.getItem(VOLUME_KEY);
+                const saved = platform.localStorage.getItem(VOLUME_KEY);
                 const volume = saved == null ? DEFAULT_NAV_AUDIO_VOLUME : Number(saved);
                 return Number.isFinite(volume) ? Math.max(0, Math.min(1, volume)) : DEFAULT_NAV_AUDIO_VOLUME;
             } catch (err) {
@@ -1316,7 +1162,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function saveNavAudioVolume(volume) {
             try {
-                localStorage.setItem(VOLUME_KEY, String(volume));
+                platform.localStorage.setItem(VOLUME_KEY, String(volume));
             } catch (err) {}
         }
 
@@ -1413,7 +1259,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!force && now - lastStateSave < STATE_SAVE_INTERVAL_MS) return;
             lastStateSave = now;
             try {
-                sessionStorage.setItem(STATE_KEY, JSON.stringify({
+                platform.sessionStorage.setItem(STATE_KEY, JSON.stringify({
                     playlistKey,
                     index: currentIndex,
                     currentTime: Number(navAudio.currentTime) || 0,
@@ -1748,26 +1594,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function requestFrameScrollRestore(path) {
             try {
-                const raw = sessionStorage.getItem(SCROLL_RESTORE_REQUEST_KEY);
+                const raw = platform.sessionStorage.getItem(SCROLL_RESTORE_REQUEST_KEY);
                 const requests = raw ? JSON.parse(raw) : {};
                 const nextRequests = requests && typeof requests === 'object' ? requests : {};
                 nextRequests[getScrollRestorePageKey(path)] = Date.now();
-                sessionStorage.setItem(SCROLL_RESTORE_REQUEST_KEY, JSON.stringify(nextRequests));
+                platform.sessionStorage.setItem(SCROLL_RESTORE_REQUEST_KEY, JSON.stringify(nextRequests));
             } catch (err) {}
         }
 
         function clearFrameScrollRestore(path) {
             try {
-                const raw = sessionStorage.getItem(SCROLL_RESTORE_REQUEST_KEY);
+                const raw = platform.sessionStorage.getItem(SCROLL_RESTORE_REQUEST_KEY);
                 const requests = raw ? JSON.parse(raw) : {};
                 if (!requests || typeof requests !== 'object') return;
                 const pageKey = getScrollRestorePageKey(path);
                 if (!requests[pageKey]) return;
                 delete requests[pageKey];
                 if (Object.keys(requests).length) {
-                    sessionStorage.setItem(SCROLL_RESTORE_REQUEST_KEY, JSON.stringify(requests));
+                    platform.sessionStorage.setItem(SCROLL_RESTORE_REQUEST_KEY, JSON.stringify(requests));
                 } else {
-                    sessionStorage.removeItem(SCROLL_RESTORE_REQUEST_KEY);
+                    platform.sessionStorage.removeItem(SCROLL_RESTORE_REQUEST_KEY);
                 }
             } catch (err) {}
         }
@@ -2293,7 +2139,7 @@ document.addEventListener('DOMContentLoaded', () => {
             startAvatarShadowAnimation();
         };
 
-        if (window.matchMedia('(min-width: 768px)').matches) {
+        if (platform.mediaQuery('(min-width: 768px)')) {
             avatarTriggerArea.addEventListener('mousemove', handleMove);
             avatarTriggerArea.addEventListener('mouseleave', handleReset);
         }

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const shared = require('../../src/assets/shared.js');
-const postCardTemplate = require('../../src/assets/post-card-template.js');
+const shared = require('../../shared/shared.js');
+const postCardTemplate = require('../../shared/post-card-template.js');
 const { generatePaginationHtml } = require('../pagination.js');
 const seo = require('../seo.js');
 

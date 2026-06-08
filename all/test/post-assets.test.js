@@ -6,6 +6,7 @@ const assert = require('node:assert/strict');
 const postJs = fs.readFileSync(path.join(__dirname, '../src/assets/post.js'), 'utf-8');
 const postCss = fs.readFileSync(path.join(__dirname, '../src/assets/post.css'), 'utf-8');
 const mainJs = fs.readFileSync(path.join(__dirname, '../src/assets/main.js'), 'utf-8');
+const themeSystemJs = fs.readFileSync(path.join(__dirname, '../src/assets/theme-system.js'), 'utf-8');
 const postTemplate = fs.readFileSync(path.join(__dirname, '../src/template_post.html'), 'utf-8');
 const indexTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index.html'), 'utf-8');
 const searchTemplate = fs.readFileSync(path.join(__dirname, '../src/template_index_search.html'), 'utf-8');
@@ -26,8 +27,8 @@ const mediaPlayerJs = fs.readFileSync(path.join(__dirname, '../src/assets/media-
 const mediaPlayerCss = fs.readFileSync(path.join(__dirname, '../src/assets/media-player.css'), 'utf-8');
 const videoPlayerJs = fs.readFileSync(path.join(__dirname, '../src/assets/video-player.js'), 'utf-8');
 const videoPlayerCss = fs.readFileSync(path.join(__dirname, '../src/assets/video-player.css'), 'utf-8');
-const shared = require('../src/assets/shared.js');
-const postCardTemplate = require('../src/assets/post-card-template.js');
+const shared = require('../shared/shared.js');
+const postCardTemplate = require('../shared/post-card-template.js');
 const { renderPostFontPreloads, renderPostFontFaceCss } = require('../build/pages/post.js');
 const { renderPostCardForList } = require('../build/pages/index.js');
 const { generatePaginationHtml } = require('../build/pagination.js');
@@ -357,15 +358,16 @@ test('all-page cards can opt out of order-based entrance delay', () => {
 });
 
 test('main animation checks reuse a single reduced-motion helper', () => {
-    assert.equal((mainJs.match(/function prefersReducedMotion\(\)/g) || []).length, 1);
+    assert.equal((themeSystemJs.match(/function prefersReducedMotion\(\)/g) || []).length, 1);
+    assert.equal((mainJs.match(/function prefersReducedMotion\(\)/g) || []).length, 0);
     assert.doesNotMatch(mainJs, /const prefersReducedMotion = \(\) =>/);
 });
 
 test('theme switching uses css transitions and syncs the shell iframe', () => {
     assert.doesNotMatch(mainJs, /document\.startViewTransition/);
-    assert.match(mainJs, /function syncFrameTheme\(isDark, options = \{\}\)\s*\{/);
-    assert.match(mainJs, /contentFrame\.contentWindow\.FreecatApplyTheme/);
-    assert.match(mainJs, /frameDoc\.documentElement\.classList\.toggle\('dark', isDark\);/);
+    assert.match(themeSystemJs, /function syncFrameTheme\(isDark, options = \{\}\)\s*\{/);
+    assert.match(themeSystemJs, /contentFrame\.contentWindow\.FreecatApplyTheme/);
+    assert.match(themeSystemJs, /frameDoc\.documentElement\.classList\.toggle\('dark', isDark\);/);
     assert.match(mainJs, /window\.FreecatApplyTheme = applyTheme;/);
     assert.match(mainJs, /syncFrameTheme\(resolveThemeIsDark\(\)\);/);
 });

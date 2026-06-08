@@ -24,10 +24,11 @@ const gitDatesModule = require('./build/git-dates.js');
 const { loadConfig } = require('./build/config.js');
 const { SOCIAL_DEFAULTS } = require('./build/social-defaults.js');
 const { createEngine } = require('./build/template-engine.js');
-const shared = require('./src/assets/shared.js');
+const shared = require('./shared/shared.js');
 const { copyDir, ensureCleanDir } = require('./build/fs-utils.js');
 const { buildArticleFontSubset } = require('./build/fonts.js');
 const { buildTailwindCss } = require('./build/tailwind.js');
+const { getTailwindContentGlobs } = require('./build/tailwind-sources.js');
 const { minifyDist } = require('./build/minify.js');
 const postPage = require('./build/pages/post.js');
 const indexPage = require('./build/pages/index.js');
@@ -52,10 +53,12 @@ const DEFAULT_RECENT_POSTS_LIMIT = 8;
 const DIRS = {
     posts: path.join(__dirname, '..', 'writing'),
     assets: path.join(__dirname, 'src', 'assets'),
+    shared: path.join(__dirname, 'shared'),
     images: path.join(__dirname, 'image'),
     output: path.join(__dirname, 'dist'),
     templates: path.join(__dirname, 'src'),
     partials: path.join(__dirname, 'src', 'partials'),
+    build: path.join(__dirname, 'build'),
     control: path.join(__dirname, '..', 'Control')
 };
 
@@ -245,6 +248,7 @@ buildArticleFontSubset({ rootDir: __dirname });
 
 console.log('📦 Moving assets and configs...');
 if (fs.existsSync(DIRS.assets)) copyDir(DIRS.assets, path.join(DIRS.output, 'assets'), { ignore: ['posts'] });
+if (fs.existsSync(DIRS.shared)) copyDir(DIRS.shared, path.join(DIRS.output, 'assets'));
 if (fs.existsSync(DIRS.images)) copyDir(DIRS.images, path.join(DIRS.output, 'image'));
 
 // ===== 7. 复制部署平台配置 (_headers / vercel.json) =====
@@ -257,11 +261,7 @@ for (const name of deployConfigs) {
 // ===== 8. 编译 Tailwind（必须最后做，扫描的是已生成的 dist HTML + 拼装 HTML 字符串的 build/ JS）=====
 console.log('🎨 Compiling Tailwind CSS...');
 buildTailwindCss({
-    contentGlobs: [
-        path.join(DIRS.output, '**/*.html'),
-        path.join(DIRS.assets, '**/*.{html,js,css}'),
-        path.join(__dirname, 'build', '**/*.js')
-    ],
+    contentGlobs: getTailwindContentGlobs(DIRS),
     outputPath: path.join(DIRS.output, 'assets', 'tailwind.css'),
     minify: true
 }).then(async ({ size }) => {
