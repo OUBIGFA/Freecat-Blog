@@ -242,8 +242,8 @@ generateLlmsTxt({ posts: allPosts, siteConfig, seoConfig, outputDir: DIRS.output
 generateFeed({ posts: allPosts, siteConfig, seoConfig, outputDir: DIRS.output });
 generateOpenSearchXml({ siteConfig, seoConfig, outputDir: DIRS.output });
 
-// ===== 6.5 基于生成后的文章页刷新中文字体子集，再搬运静态资源 =====
-console.log('🔤 Generating article font subset...');
+// ===== 6.5 检查已生成的字体子集，再搬运静态资源 =====
+console.log('🔤 Checking generated font subsets...');
 buildArticleFontSubset({ rootDir: __dirname });
 
 console.log('📦 Moving assets and configs...');

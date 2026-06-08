@@ -61,8 +61,8 @@ function installFontTools(rootDir) {
     ]);
 }
 
-function useExistingSubsetIfAvailable(rootDir, output) {
-    const expectedSubsets = [
+function expectedFontSubsets(rootDir) {
+    const subsets = [
         ...[
             'regular',
             'medium',
@@ -77,17 +77,42 @@ function useExistingSubsetIfAvailable(rootDir, output) {
     ];
 
     for (const weight of ['regular', 'medium', 'semi-bold', 'extra-bold']) {
-        expectedSubsets.push(path.join(rootDir, 'src', 'assets', 'fonts', `freecat-noto-sans-sc-${weight}-subset.woff2`));
+        subsets.push(path.join(rootDir, 'src', 'assets', 'fonts', `freecat-noto-sans-sc-${weight}-subset.woff2`));
     }
 
-    if (!expectedSubsets.every(file => fs.existsSync(file))) return false;
+    return subsets;
+}
 
-    console.warn('⚠️ Could not refresh the generated font subsets. Using the existing generated subsets instead.');
+function missingFontSubsets(rootDir) {
+    return expectedFontSubsets(rootDir).filter(file => !fs.existsSync(file));
+}
+
+function validateExistingFontSubsets(rootDir) {
+    const missing = missingFontSubsets(rootDir);
+    if (missing.length === 0) return;
+
+    throw new Error(
+        'Missing generated font subset files. ' +
+        'Run npm run fonts:subset to refresh them:\n' +
+        missing.map(file => `- ${path.relative(rootDir, file)}`).join('\n')
+    );
+}
+
+function useExistingSubsetIfAvailable(rootDir, output) {
+    if (missingFontSubsets(rootDir).length > 0) return false;
+
+    console.warn('Could not refresh the generated font subsets. Using the existing generated subsets instead.');
     if (output) console.warn(output);
     return true;
 }
 
-function buildArticleFontSubset({ rootDir }) {
+function buildArticleFontSubset({ rootDir, refresh = false }) {
+    if (!refresh) {
+        validateExistingFontSubsets(rootDir);
+        console.log('   Generated font subsets are present; skipping refresh.');
+        return;
+    }
+
     const scriptPath = path.join(rootDir, 'tools', 'generate-noto-subset.py');
     const venvPython = fontToolsPython(rootDir);
     let activePython = fs.existsSync(venvPython) ? venvPython : SYSTEM_PYTHON;
@@ -126,7 +151,7 @@ function buildArticleFontSubset({ rootDir }) {
 }
 
 if (require.main === module) {
-    buildArticleFontSubset({ rootDir: path.resolve(__dirname, '..') });
+    buildArticleFontSubset({ rootDir: path.resolve(__dirname, '..'), refresh: true });
 }
 
-module.exports = { buildArticleFontSubset };
+module.exports = { buildArticleFontSubset, expectedFontSubsets, validateExistingFontSubsets };
