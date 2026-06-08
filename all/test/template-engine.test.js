@@ -291,6 +291,12 @@ test('article frontmatter prefers standard tags while keeping legacy tag fallbac
     }), ['Legacy']);
 });
 
+test('article copy content frontmatter defaults off and only enables when explicit', () => {
+    assert.equal(normalizePostFrontmatter({}).allowCopyContent, false);
+    assert.equal(normalizePostFrontmatter({ copy_content: false }).allowCopyContent, false);
+    assert.equal(normalizePostFrontmatter({ copy_content: true }).allowCopyContent, true);
+});
+
 test('renderTagMenuItemsHtml escapes labels, encodes hrefs and renders counts', () => {
     const html = shared.renderTagMenuItemsHtml(shared.collectMenuTags([
         { tags: ['<b>x</b>'] }

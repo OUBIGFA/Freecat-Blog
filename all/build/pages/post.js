@@ -8,6 +8,7 @@ const { renderPostContent } = require('./post-content.js');
 const seo = require('../seo.js');
 const { replacePlaceholders } = require('../template-engine.js');
 const { normalizePostFrontmatter, normalizePostTags } = require('../article-model.js');
+const { renderCopyButton } = require('../copy-button.js');
 const {
     contentFileSlug,
     isContentFile,
@@ -183,6 +184,7 @@ function loadPosts({ postsDir, gitDates, postDates, postIds, skipMissingGitDates
             tag: frontmatter.tags,
             link: `/posts/${postId}`,
             pinned: frontmatter.pinned,
+            allowCopyContent: frontmatter.allowCopyContent,
             enableImageCaptions: frontmatter.enableImageCaptions,
             author: frontmatter.author,
             authorUrl: frontmatter.authorUrl,
@@ -211,6 +213,17 @@ function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = 
 
     const tags = normalizePostTags(post);
     const tagsHtml = tags.map(t => shared.renderTagSpan(t)).join('\n');
+    const copyContentButton = post.allowCopyContent
+        ? renderCopyButton({
+            className: 'freecat-post-copy-btn',
+            inputAttrs: ' data-copy-source="#freecat-article-copy-source" data-copy-target="#freecat-article-body"',
+            ariaLabel: '复制正文',
+            title: '复制正文'
+        })
+        : '';
+    const copyContentSource = post.allowCopyContent
+        ? `<script type="application/json" id="freecat-article-copy-source">${JSON.stringify(String(post.content || ''))}</script>`
+        : '';
 
     const canonical = seo.pageUrl(siteConfig, post.link);
     const rawCover = String(post.cover || '');
@@ -293,6 +306,8 @@ function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = 
         ['<!-- DATE_PLACEHOLDER -->', post.date.tz('Asia/Shanghai').format('YYYY-MM-DD')],
         ['<!-- DATE_ISO_PLACEHOLDER -->', post.date.toISOString()],
         ['<!-- MODIFIED_PLACEHOLDER -->', post.modifiedDate.tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm')],
+        ['<!-- POST_COPY_BUTTON_PLACEHOLDER -->', copyContentButton],
+        ['<!-- POST_COPY_SOURCE_PLACEHOLDER -->', copyContentSource],
         ['<!-- CONTENT_PLACEHOLDER -->', finalContentHtml],
         ['<!-- TOC_PLACEHOLDER -->', toc],
         ['<!-- POST_SEO_HEAD -->', seoHead],

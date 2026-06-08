@@ -33,6 +33,7 @@ function normalizePostFrontmatter(data = {}) {
         coverHeight: toInteger(data.cover_height),
         tags: normalizeTags(firstDefined(data.tags, data.tag, [])),
         pinned: data.pinned === true,
+        allowCopyContent: data.copy_content === true,
         author: data.author || '',
         authorUrl: firstDefined(data.author_url, data.authorUrl, ''),
         noindex: data.noindex === true,

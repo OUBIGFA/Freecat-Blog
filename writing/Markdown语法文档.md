@@ -16,6 +16,8 @@ pinned: false
 _07: 🔹 置顶文章：是否将此文章固定在首页顶部
 show: true
 _08: 🔹 显示文章：是否在全站展示此文章
+copy_content: false
+_09: 🔹 允许复制正文：是否在文章页显示复制正文按钮
 ---
 # 欢迎使用 `Arya` 在线 Markdown 编辑器
 

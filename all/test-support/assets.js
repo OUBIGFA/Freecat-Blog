@@ -63,6 +63,7 @@ module.exports = {
     postCardTemplate: require(path.join(projectRoot, 'shared', 'post-card-template.js')),
     renderPostFontPreloads: require(path.join(projectRoot, 'build', 'pages', 'post.js')).renderPostFontPreloads,
     renderPostFontFaceCss: require(path.join(projectRoot, 'build', 'pages', 'post.js')).renderPostFontFaceCss,
+    renderCopyButton: require(path.join(projectRoot, 'build', 'copy-button.js')).renderCopyButton,
     renderPostCardForList: require(path.join(projectRoot, 'build', 'pages', 'index.js')).renderPostCardForList,
     generatePaginationHtml: require(path.join(projectRoot, 'build', 'pagination.js')).generatePaginationHtml,
     preloadFontHrefs,

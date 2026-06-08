@@ -142,6 +142,15 @@ test('fixed header has a stable css height before runtime measurement', () => {
     assert.doesNotMatch(transitionsCss, /(?:^|\n)header\s*\{[\s\S]*height:\s*var\(--freecat-header-height\);/);
 });
 
+test('header offset sync ignores impossible measured heights', () => {
+    assert.match(mainJs, /function normalizeHeaderHeight\(measuredHeight\)\s*\{/);
+    assert.match(mainJs, /height <= 120 \? height : fallbackHeight/);
+    assert.match(mainJs, /const fallbackHeight = window\.innerWidth < 768 \? 61 : 73;/);
+    assert.match(shellRouterJs, /function normalizeHeaderHeight\(measuredHeight\)\s*\{/);
+    assert.match(shellRouterJs, /height <= 120 \? height : fallbackHeight/);
+    assert.match(shellRouterJs, /const h = normalizeHeaderHeight\(Math\.ceil\(headerEl\.getBoundingClientRect\(\)\.height\)\);/);
+});
+
 test('root scroller disables browser scroll anchoring during async layout changes', () => {
     assert.match(transitionsCss, /html\s*\{[\s\S]*overflow-anchor:\s*none;/);
 });
@@ -263,6 +272,8 @@ test('main delegates copy and floating navigation to focused assets', () => {
     assert.match(mainJs, /window\.FreecatFloatingNav/);
     assert.doesNotMatch(mainJs, /copy-checkbox/);
     assert.doesNotMatch(mainJs, /function touchesVisibleContentEdge/);
-    assert.match(codeCopyJs, /copyText\(code\)\.then/);
+    assert.match(codeCopyJs, /checkbox\.getAttribute\('data-copy-source'\)/);
+    assert.match(codeCopyJs, /checkbox\.getAttribute\('data-copy-target'\)/);
+    assert.match(codeCopyJs, /textFromSource\(checkbox\) \|\| textFromTarget\(checkbox\) \|\| textFromCodeBlock\(checkbox\)/);
     assert.match(floatingNavJs, /function touchesVisibleContentEdge\(\)/);
 });

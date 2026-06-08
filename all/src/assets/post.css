@@ -26,6 +26,11 @@
     opacity: 0.62;
 }
 
+.freecat-post-copy-btn {
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
 .copy-btn-container:hover {
     --color: var(--code-text, #263241);
     opacity: 1;

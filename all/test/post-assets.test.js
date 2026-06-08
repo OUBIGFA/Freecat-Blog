@@ -40,6 +40,7 @@ const {
     videoPlayerCss,
     shared,
     postCardTemplate,
+    renderCopyButton,
     renderPostFontPreloads,
     renderPostFontFaceCss,
     renderPostCardForList,
@@ -65,6 +66,28 @@ test('external embeds keep placeholders until visible content or fallback link i
 test('post share fallback reuses shared clipboard helper', () => {
     assert.match(postJs, /shared\.copyText\(url\)\.then/);
     assert.doesNotMatch(postJs, /copyToClipboard\(url\)/);
+});
+
+test('article body copy button reuses the code copy control', () => {
+    const copyButton = renderCopyButton({
+        className: 'freecat-post-copy-btn',
+        inputAttrs: ' data-copy-source="#freecat-article-copy-source" data-copy-target="#freecat-article-body"',
+        ariaLabel: '复制正文',
+        title: '复制正文'
+    });
+
+    assert.match(postTemplate, /<!-- POST_COPY_BUTTON_PLACEHOLDER -->/);
+    assert.match(postTemplate, /<!-- POST_COPY_SOURCE_PLACEHOLDER -->/);
+    assert.match(postTemplate, /id="freecat-article-body"/);
+    assert.match(postCss, /\.freecat-post-copy-btn\s*\{[\s\S]*margin-left:\s*auto;/);
+    assert.match(copyButton, /class="t-btn-icon copy-btn-container freecat-post-copy-btn"/);
+    assert.match(copyButton, /data-copy-source="#freecat-article-copy-source"/);
+    assert.match(copyButton, /data-copy-target="#freecat-article-body"/);
+    assert.match(copyButton, /class="copy-checkbox"/);
+    assert.match(codeCopyJs, /function textFromSource\(checkbox\)/);
+    assert.match(codeCopyJs, /JSON\.parse\(target\.textContent/);
+    assert.match(codeCopyJs, /function textFromTarget\(checkbox\)/);
+    assert.match(codeCopyJs, /function textFromCodeBlock\(checkbox\)/);
 });
 
 test('article table of contents uses requested Chinese and Latin font assets', () => {

@@ -142,35 +142,40 @@
                             <h1 class="post-title tracking-tight text-[#1e293b] dark:text-slate-200">
                                 <!-- TITLE_H1_PLACEHOLDER -->
                             </h1>
-                            <div class="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
-                                <div class="flex items-center gap-2">
-                                    <svg class="text-[18px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                        fill="currentColor" width="1em" height="1em">
-                                        <path
-                                            d="M7 3V1H9V3H15V1H17V3H21C21.5523 3 22 3.44772 22 4V9H20V5H17V7H15V5H9V7H7V5H4V19H10V21H3C2.44772 21 2 20.5523 2 20V4C2 3.44772 2.44772 3 3 3H7ZM17 12C14.7909 12 13 13.7909 13 16C13 18.2091 14.7909 20 17 20C19.2091 20 21 18.2091 21 16C21 13.7909 19.2091 12 17 12ZM11 16C11 12.6863 13.6863 10 17 10C20.3137 10 23 12.6863 23 16C23 19.3137 20.3137 22 17 22C13.6863 22 11 19.3137 11 16ZM16 13V16.4142L18.2929 18.7071L19.7071 17.2929L18 15.5858V13H16Z">
-                                        </path>
-                                    </svg>
-                                    <time class="freecat-published-date-text" datetime="<!-- DATE_ISO_PLACEHOLDER -->"><!-- DATE_PLACEHOLDER --></time>
+                            <div class="flex w-full items-center justify-between gap-4 text-sm text-slate-500 dark:text-slate-400">
+                                <div class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="text-[18px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                            fill="currentColor" width="1em" height="1em">
+                                            <path
+                                                d="M7 3V1H9V3H15V1H17V3H21C21.5523 3 22 3.44772 22 4V9H20V5H17V7H15V5H9V7H7V5H4V19H10V21H3C2.44772 21 2 20.5523 2 20V4C2 3.44772 2.44772 3 3 3H7ZM17 12C14.7909 12 13 13.7909 13 16C13 18.2091 14.7909 20 17 20C19.2091 20 21 18.2091 21 16C21 13.7909 19.2091 12 17 12ZM11 16C11 12.6863 13.6863 10 17 10C20.3137 10 23 12.6863 23 16C23 19.3137 20.3137 22 17 22C13.6863 22 11 19.3137 11 16ZM16 13V16.4142L18.2929 18.7071L19.7071 17.2929L18 15.5858V13H16Z">
+                                            </path>
+                                        </svg>
+                                        <time class="freecat-published-date-text" datetime="<!-- DATE_ISO_PLACEHOLDER -->"><!-- DATE_PLACEHOLDER --></time>
+                                    </div>
+                                    <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></span>
+                                    <div class="flex items-center gap-2">
+                                        <svg class="text-[18px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                            fill="currentColor" width="1em" height="1em">
+                                            <path
+                                                d="M6.93912 14.0328C6.7072 14.6563 6.51032 15.2331 6.33421 15.8155C7.29345 15.1189 8.43544 14.6767 9.75193 14.5121C12.2652 14.198 14.4976 12.5385 15.6279 10.4537L14.1721 8.99888L15.5848 7.58417C15.9185 7.25004 16.2521 6.91614 16.5858 6.58248C17.0151 6.15312 17.5 5.35849 18.0129 4.2149C12.4197 5.08182 8.99484 8.50647 6.93912 14.0328ZM17 8.99739L18 9.99669C17 12.9967 14 15.9967 10 16.4967C7.33146 16.8303 5.66421 18.6636 4.99824 21.9967H3C4 15.9967 6 1.99669 21 1.99669C20.0009 4.99402 19.0018 6.99313 18.0027 7.99402C17.6662 8.33049 17.3331 8.66382 17 8.99739Z">
+                                            </path>
+                                        </svg>
+                                        <span>最后编辑: <span class="freecat-date-text"><!-- MODIFIED_PLACEHOLDER --></span></span>
+                                    </div>
                                 </div>
-                                <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></span>
-                                <div class="flex items-center gap-2">
-                                    <svg class="text-[18px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                        fill="currentColor" width="1em" height="1em">
-                                        <path
-                                            d="M6.93912 14.0328C6.7072 14.6563 6.51032 15.2331 6.33421 15.8155C7.29345 15.1189 8.43544 14.6767 9.75193 14.5121C12.2652 14.198 14.4976 12.5385 15.6279 10.4537L14.1721 8.99888L15.5848 7.58417C15.9185 7.25004 16.2521 6.91614 16.5858 6.58248C17.0151 6.15312 17.5 5.35849 18.0129 4.2149C12.4197 5.08182 8.99484 8.50647 6.93912 14.0328ZM17 8.99739L18 9.99669C17 12.9967 14 15.9967 10 16.4967C7.33146 16.8303 5.66421 18.6636 4.99824 21.9967H3C4 15.9967 6 1.99669 21 1.99669C20.0009 4.99402 19.0018 6.99313 18.0027 7.99402C17.6662 8.33049 17.3331 8.66382 17 8.99739Z">
-                                        </path>
-                                    </svg>
-                                    <span>最后编辑: <span class="freecat-date-text"><!-- MODIFIED_PLACEHOLDER --></span></span>
-                                </div>
+                                <!-- POST_COPY_BUTTON_PLACEHOLDER -->
                             </div>
                             <!-- 粗横线分隔线 -->
                             <div class="w-full h-1 bg-slate-200 dark:bg-slate-700 rounded-full mt-6"></div>
                         </header>
 
                         <div
+                            id="freecat-article-body"
                             class="prose prose-2xl dark:prose-invert !mt-0 max-w-none prose-p:text-slate-600 dark:prose-p:text-slate-300 prose-headings:text-[#1e293b] dark:prose-headings:text-slate-400 prose-a:text-primary prose-a:underline prose-a:underline-offset-4 hover:prose-a:text-blue-500">
                             <!-- CONTENT_PLACEHOLDER -->
                         </div>
+                        <!-- POST_COPY_SOURCE_PLACEHOLDER -->
 
                         <!-- Share Button
                              mt 与父容器 pb-36 / lg:pb-48 保持同值 → 按钮在

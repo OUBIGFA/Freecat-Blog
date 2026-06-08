@@ -16,6 +16,8 @@ pinned: true
 _07: 🔹 置顶文章：是否将此文章固定在首页顶部
 show: true
 _08: 🔹 显示文章：是否在全站展示此文章
+copy_content: false
+_09: 🔹 允许复制正文：是否在文章页显示复制正文按钮
 ---
 
 Freecat Blog 是一套面向新手的个人博客模板。本地写 Markdown，把改动同步到 GitHub，Cloudflare Pages 或 Vercel 会自动发布成网站。
@@ -336,6 +338,7 @@ show_image_captions: true
 description: 这里写文章摘要
 pinned: false
 show: true
+copy_content: false
 ---
 
 这里开始写正文。
@@ -353,6 +356,7 @@ show: true
 | `description`         | 文章摘要，留空则自动截取     |
 | `pinned`              | 是否置顶             |
 | `show`                | 是否在网站上展示         |
+| `copy_content`        | 是否允许复制正文         |
 
 ***
 

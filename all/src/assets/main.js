@@ -112,13 +112,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // 安全间距与 transitions.css 中 --freecat-header-safe-gap 的下限保持一致：
     // 移动端 ≥16px，桌面 ≥24px，避免 hero 内容紧贴顶栏。
     // ============================================================
+    function normalizeHeaderHeight(measuredHeight) {
+        const fallbackHeight = window.innerWidth < 768 ? 61 : 73;
+        const height = Number(measuredHeight);
+        return Number.isFinite(height) && height > 0 && height <= 120 ? height : fallbackHeight;
+    }
+
     function updateContentTopOffset() {
         // 内容页被嵌入 iframe 时，自身顶栏已隐藏，上边距改由外壳按其顶栏实测高度喂入，
         // 这里直接跳过，避免用 0 高度的隐藏顶栏把外壳喂的值覆盖掉。
         if (FRAMED) return;
         const header = document.querySelector('header.fixed');
         if (!header) return;
-        const headerHeight = Math.ceil(header.getBoundingClientRect().height);
+        const headerHeight = normalizeHeaderHeight(Math.ceil(header.getBoundingClientRect().height));
         const extraGap = window.innerWidth < 768 ? 16 : 24;
         const topOffset = `${headerHeight + extraGap}px`;
         const rootStyle = document.documentElement.style;

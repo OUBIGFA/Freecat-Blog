@@ -133,6 +133,12 @@
             } catch (err) {}
         }
 
+        function normalizeHeaderHeight(measuredHeight) {
+            const fallbackHeight = window.innerWidth < 768 ? 61 : 73;
+            const height = Number(measuredHeight);
+            return Number.isFinite(height) && height > 0 && height <= 120 ? height : fallbackHeight;
+        }
+
         function syncHistoryToFrame(options = {}) {
             const framePath = getFramePath();
             if (!framePath) return;
@@ -174,7 +180,7 @@
             let doc;
             try { doc = frame.contentDocument; } catch (err) { return; }
             if (!doc || !doc.documentElement) return;
-            const h = Math.ceil(headerEl.getBoundingClientRect().height);
+            const h = normalizeHeaderHeight(Math.ceil(headerEl.getBoundingClientRect().height));
             const gap = window.innerWidth < 768 ? 16 : 24;
             const rs = doc.documentElement.style;
             rs.setProperty('--freecat-header-height', `${h}px`);
