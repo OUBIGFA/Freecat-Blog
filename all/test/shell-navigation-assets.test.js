@@ -83,6 +83,7 @@ test('shell router uses clean history URLs for framed navigation', () => {
     assert.match(mainJs, /function navigateWithinSite\(url, options = \{\}\)\s*\{/);
     assert.match(runtimeJs, /setNavigate\(fn\)\s*\{[\s\S]*FreecatNavigate/);
     assert.equal(mainJs.includes("navigateWithinSite(`/search.html?q=${encodeURIComponent(searchInput.value.trim())}`);"), true);
+    assert.match(mainJs, /if \(e\.key === 'Enter' && searchInput\.value\.trim\(\)\) \{[\s\S]*?e\.preventDefault\(\);[\s\S]*?navigateWithinSite\(`\/search\.html\?q=\$\{encodeURIComponent\(searchInput\.value\.trim\(\)\)\}`\);[\s\S]*?closeHeaderSearch\(true\);[\s\S]*?\}/);
     assert.match(shellRouterJs, /function publicPathToContentPath\(raw\)\s*\{/);
     assert.match(shellRouterJs, /function contentPathToPublicPath\(raw\)\s*\{/);
     assert.match(shellRouterJs, /window\.history\[method\]\(state,\s*'',\s*publicPath\);/);
@@ -233,7 +234,7 @@ test('header search opens a blank overlay and closes from blank space', () => {
     assert.match(mainJs, /overlay\.id = 'search-results-overlay';/);
     assert.doesNotMatch(mainJs, /overlay\.className = '[^']*t-panel-slide/);
     assert.match(transitionsCss, /#search-results-overlay\s*\{[\s\S]*transform:\s*none !important;[\s\S]*transition:\s*none !important;/);
-    assert.match(mainJs, /requestAnimationFrame\(\(\) => \{\s*searchContainer\.dataset\.open = 'true';\s*ensureSearchResultsOverlay\(\);/);
+    assert.match(mainJs, /requestAnimationFrame\(\(\) => \{\s*if \(!searchContainer\.classList\.contains\('flex'\) \|\| !document\.body\.classList\.contains\('search-active'\)\) return;\s*searchContainer\.dataset\.open = 'true';\s*ensureSearchResultsOverlay\(\);/);
     assert.match(mainJs, /if \(e\.target === overlay\) \{\s*closeHeaderSearch\(true\);/);
     assert.match(mainJs, /const resultsContent = overlay && overlay\.querySelector\('\[data-search-results-content\]'\);/);
     assert.match(mainJs, /if \(!resultsContent \|\| !resultsContent\.contains\(e\.target\)\) \{\s*closeHeaderSearch\(true\);/);

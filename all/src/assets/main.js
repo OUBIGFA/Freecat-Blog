@@ -826,6 +826,7 @@ document.addEventListener('DOMContentLoaded', () => {
             searchToggle.dataset.uiState = 'active';
             document.body.classList.add('search-active');
             requestAnimationFrame(() => {
+                if (!searchContainer.classList.contains('flex') || !document.body.classList.contains('search-active')) return;
                 searchContainer.dataset.open = 'true';
                 ensureSearchResultsOverlay();
             });
@@ -865,7 +866,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             // 按 Enter 跳转到搜索页
             if (e.key === 'Enter' && searchInput.value.trim()) {
+                e.preventDefault();
                 navigateWithinSite(`/search.html?q=${encodeURIComponent(searchInput.value.trim())}`);
+                closeHeaderSearch(true);
             }
         });
 

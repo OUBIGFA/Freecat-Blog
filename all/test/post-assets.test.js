@@ -90,6 +90,13 @@ test('article body copy button reuses the code copy control', () => {
     assert.match(codeCopyJs, /function textFromCodeBlock\(checkbox\)/);
 });
 
+test('copy button success state reuses the search count slide motion pattern', () => {
+    assert.match(postCss, /\.copy-btn-container \.clipboard\s*\{[\s\S]*transform:\s*translateY\(0\) scale\(1\);[\s\S]*transform 180ms ease-out/);
+    assert.match(postCss, /\.copy-btn-container \.clipboard-check\s*\{[\s\S]*transform:\s*translateY\(0\.25rem\) scale\(0\.96\);[\s\S]*transform 180ms ease-out/);
+    assert.match(postCss, /\.copy-btn-container input:checked~\.clipboard\s*\{[\s\S]*opacity:\s*0;[\s\S]*transform:\s*translateY\(-0\.25rem\) scale\(0\.94\);/);
+    assert.match(postCss, /\.copy-btn-container input:checked~\.clipboard-check\s*\{[\s\S]*opacity:\s*1;[\s\S]*transform:\s*translateY\(0\) scale\(1\);/);
+});
+
 test('article table of contents uses requested Chinese and Latin font assets', () => {
     assert.match(postTemplate, /class="freecat-post-toc-title\b[\s\S]*>\s*目录\s*</);
     assert.doesNotMatch(postTemplate, /class="text-sm font-bold tracking-wider[^"]*">\s*目录\s*</);

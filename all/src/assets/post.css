@@ -45,8 +45,10 @@
 .copy-btn-container .clipboard {
     position: absolute;
     opacity: 1;
+    transform: translateY(0) scale(1);
     transition:
         opacity 180ms ease-out,
+        transform 180ms ease-out,
         color var(--t-btn-dur, 280ms) var(--t-btn-ease, ease-out);
 }
 
@@ -54,16 +56,21 @@
     position: absolute;
     fill: #2f9e6d;
     opacity: 0;
-    transition: opacity 180ms ease-out;
+    transform: translateY(0.25rem) scale(0.96);
+    transition:
+        opacity 180ms ease-out,
+        transform 180ms ease-out;
 }
 
 /* ------ On check event ------ */
 .copy-btn-container input:checked~.clipboard {
     opacity: 0;
+    transform: translateY(-0.25rem) scale(0.94);
 }
 
 .copy-btn-container input:checked~.clipboard-check {
     opacity: 1;
+    transform: translateY(0) scale(1);
 }
 
 /* ------ Hide the default checkbox ------ */
