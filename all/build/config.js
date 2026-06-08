@@ -1,16 +1,17 @@
 const fs = require('fs');
 const path = require('path');
 const matter = require('gray-matter');
+const { isContentFile } = require('./content-files.js');
 
 /**
- * 在 Control 目录中按关键字查找配置文件。返回第一个文件名（小写）含关键字且以 .md 结尾的文件路径。
+ * 在 Control 目录中按关键字查找配置文件。返回第一个文件名含关键字且格式可识别的文件路径。
  * 找不到时返回 null（调用方决定使用默认值）。
  */
 function findConfigPath(controlDir, keyword) {
     if (!fs.existsSync(controlDir)) return null;
     const files = fs.readdirSync(controlDir);
     const match = files.find(f =>
-        f.toLowerCase().includes(keyword.toLowerCase()) && f.endsWith('.md')
+        f.toLowerCase().includes(keyword.toLowerCase()) && isContentFile(f)
     );
     return match ? path.join(controlDir, match) : null;
 }
@@ -80,4 +81,4 @@ function loadConfig(controlDir, keyword, label, defaults) {
     return result;
 }
 
-module.exports = { loadConfig };
+module.exports = { loadConfig, findConfigPath };

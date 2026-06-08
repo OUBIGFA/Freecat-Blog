@@ -815,8 +815,8 @@ body.search-active {
 }
 
 body.search-active .page-blur-target {
-    filter: blur(4px);
-    opacity: 0.22;
+    filter: none;
+    opacity: 1;
     pointer-events: none;
     transition:
         filter var(--page-slide-dur) var(--page-slide-ease),
@@ -828,18 +828,21 @@ body.search-active .page-blur-target::before {
     content: '';
     position: fixed;
     inset: 0;
-    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.62) 0%, rgba(255, 255, 255, 0.94) 100%);
+    background: #fff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
     pointer-events: none;
     z-index: 1;
 }
 
 .dark body.search-active .page-blur-target::before,
 .dark.search-active .page-blur-target::before {
-    background: radial-gradient(ellipse at center, rgba(8, 12, 20, 0.5) 0%, rgba(8, 12, 20, 0.82) 100%);
+    background: #0b0f1a;
 }
 
 #search-results-overlay {
-    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
     overflow-y: auto;
     pointer-events: auto;
     transition:
@@ -926,8 +929,8 @@ html.freecat-framed header.fixed {
 }
 
 .search-active .page-blur-target {
-    filter: blur(4px);
-    opacity: 0.18;
+    filter: none;
+    opacity: 1;
     pointer-events: none;
     transition: filter 0.2s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
     position: relative;
@@ -940,21 +943,15 @@ html.freecat-framed header.fixed {
     top: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(
-        ellipse at center,
-        rgba(255, 255, 255, 0.65) 0%,
-        rgba(255, 255, 255, 0.95) 100%
-    );
+    background: #fff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
     pointer-events: none;
     z-index: 1;
 }
 
 .dark .search-active .page-blur-target::before {
-    background: radial-gradient(
-        ellipse at center,
-        rgba(0, 0, 0, 0.45) 0%,
-        rgba(0, 0, 0, 0.8) 100%
-    );
+    background: #0b0f1a;
 }
 
 .search-active .header-blur-target {
@@ -970,11 +967,12 @@ html.freecat-framed header.fixed {
     bottom: 0;
     transform: none !important;
     transition: none !important;
-    backdrop-filter: blur(10px);
-    background-color: rgba(255, 255, 255, 0.8) !important;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background-color: #fff !important;
     overflow-y: auto;
     pointer-events: auto;
 }
 .dark #search-results-overlay {
-    background-color: rgba(11, 15, 26, 0.8) !important;
+    background-color: #0b0f1a !important;
 }

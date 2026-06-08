@@ -85,6 +85,29 @@ test('snapshot post id controls the public post link instead of the filename', (
     assert.equal(post.link, '/posts/2026053115300001');
 });
 
+test('article loader recognizes robust content filenames and extensions', (t) => {
+    mockArticleFiles(t, {
+        'combined.name.with.embedded.md.md': article({ title: 'Nested Markdown Name' }),
+        'Uppercase Format.MARKDOWN': article({ title: 'Uppercase Format' }),
+        'Plain Text Post.text': article({ title: 'Plain Text Post' }),
+        'Ignored.docx': article({ title: 'Ignored' })
+    });
+
+    const posts = loadMockPosts({
+        postIds: {
+            'combined.name.with.embedded.md.md': '2026053115300001',
+            'Uppercase Format.MARKDOWN': '2026053115300002',
+            'Plain Text Post.text': '2026053115300003'
+        }
+    });
+
+    assert.deepEqual(posts.map(post => post.slug).sort(), [
+        'Plain Text Post',
+        'Uppercase Format',
+        'combined.name.with.embedded.md'
+    ]);
+});
+
 test('renaming a file does not change the fixed public post link', (t) => {
     let files = {
         'Original Title.md': article()

@@ -8,16 +8,16 @@ const { renderPostContent } = require('./post-content.js');
 const seo = require('../seo.js');
 const { replacePlaceholders } = require('../template-engine.js');
 const { normalizePostFrontmatter, normalizePostTags } = require('../article-model.js');
+const {
+    contentFileSlug,
+    isContentFile,
+    isMarkdownContentFile
+} = require('../content-files.js');
 
-const ARTICLE_EXTENSIONS = new Set(['.md', '.markdown', '.txt']);
 const MISSING_ARTICLE_SNAPSHOT_CODE = 'MISSING_GIT_DATE';
 
-function isArticleFile(file) {
-    return ARTICLE_EXTENSIONS.has(path.extname(file).toLowerCase());
-}
-
 function fileSlug(file) {
-    return path.basename(file, path.extname(file));
+    return contentFileSlug(file);
 }
 
 function readPostId(postIds, file) {
@@ -117,7 +117,7 @@ function renderPostFontFaceCss(postId, assetVersion = '') {
  * 跳过 frontmatter 标记 show: false 的文件。已按"置顶在前 + 时间倒序"排序。
  */
 function loadPosts({ postsDir, gitDates, postDates, postIds, skipMissingGitDates = false }) {
-    const postFiles = fs.readdirSync(postsDir).filter(isArticleFile);
+    const postFiles = fs.readdirSync(postsDir).filter(isContentFile);
     const posts = [];
     const seenPostIds = new Map();
 
@@ -125,8 +125,7 @@ function loadPosts({ postsDir, gitDates, postDates, postIds, skipMissingGitDates
         const filePath = path.join(postsDir, file);
         const raw = fs.readFileSync(filePath, 'utf-8');
         const slug = fileSlug(file);
-        const ext = path.extname(file).toLowerCase();
-        const isMarkdown = ext === '.md' || ext === '.markdown';
+        const isMarkdown = isMarkdownContentFile(file);
         const hasMetadata = hasYamlFrontmatter(raw);
         const { data, content } = matter(raw);
         const frontmatter = normalizePostFrontmatter(data);

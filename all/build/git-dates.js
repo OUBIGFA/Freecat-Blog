@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const { isContentFile } = require('./content-files.js');
 
 const MISSING_GIT_DATE_CODE = 'MISSING_GIT_DATE';
 
@@ -33,8 +34,7 @@ function normalizeDateMap(raw) {
 }
 
 function listPostFiles(postsDir) {
-    const articleExtensions = new Set(['.md', '.markdown', '.txt']);
-    return fs.readdirSync(postsDir).filter(file => articleExtensions.has(path.extname(file).toLowerCase()));
+    return fs.readdirSync(postsDir).filter(isContentFile);
 }
 
 function hasConflictMarkers(text) {
@@ -301,6 +301,7 @@ function collectPublishDates({ repoRoot, postsDir, existing = {} }) {
 module.exports = {
     collectPublishDates,
     collectFromGit,
+    listPostFiles,
     loadSnapshot,
     MISSING_GIT_DATE_CODE,
 };

@@ -30,7 +30,8 @@ FIGTREE_TEXT_SOURCES = [
     ROOT / "dist",
 ]
 
-TEXT_FILE_EXTENSIONS = {".html", ".js", ".md", ".txt"}
+CONTENT_FILE_EXTENSIONS = {".md", ".markdown", ".mdown", ".mkd", ".mkdn", ".txt", ".text"}
+TEXT_FILE_EXTENSIONS = {".html", ".js", *CONTENT_FILE_EXTENSIONS}
 
 
 def iter_text_files(path):
