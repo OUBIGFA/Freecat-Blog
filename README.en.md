@@ -222,6 +222,9 @@ Cloudflare Pages is the recommended option. The key is filling in the build sett
 > The most common mistake: set output directory to `dist`, not `all/dist`, because the root directory is already `all`.
 
 1. Click `Save and Deploy` and wait 1-3 minutes.
+
+> In the Cloudflare Pages project settings, enable `Build cache（构建缓存）`. Freecat Blog stores generated font subsets in the build cache. When your articles do not introduce new characters, later deployments reuse that cache and skip font generation. The first deployment, a cache clear, or newly added characters may still generate fonts once.
+
 2. When the build finishes, open the default URL from Cloudflare, such as `xxx.pages.dev`.
 
 ![Cloudflare step 6](all/image/Tutorial/06.png)
@@ -247,6 +250,8 @@ If you already use Vercel, you can choose it directly.
 | Build Command | `npm run build` |
 | Output Directory | `dist` |
 | Node Version | `20` |
+
+Vercel restores its build cache automatically. Freecat Blog reuses the font subset cache from it; when your articles do not introduce new characters, later deployments skip font generation. Do not clear the Build Cache in project settings unless you intentionally want to force regeneration.
 
 1. Click `Deploy`.
 

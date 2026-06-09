@@ -239,6 +239,8 @@ Freecat Blog 也内置了搜索优化支持：可生成 Sitemap、RSS、llms.txt
 
 填好点 `Save and Deploy`，等构建跑完。一般 1-3 分钟。
 
+> 建议在 Cloudflare Pages 项目设置里启用 `Build cache（构建缓存）`。Freecat Blog 会把云端生成过的字体子集保存到构建缓存里；文章没有新增字符时，后续部署会直接复用，不会每次重新生成字体集。首次部署、清空缓存或文章新增字符时，字体集仍会自动生成一次。
+
 ### 第 3 步：访问默认网址
 
 构建完成后，Cloudflare 会给你一个 `xxx.pages.dev` 形式的默认网址。打开能看到博客页面，就说明部署成功。
@@ -308,6 +310,8 @@ Freecat Blog 也内置了搜索优化支持：可生成 Sitemap、RSS、llms.txt
 | Node Version（如能设置） | `20`            |
 
 输出目录填 `dist`，别写成 `all/dist`。
+
+Vercel 会自动恢复构建缓存。Freecat Blog 会复用其中的字体子集缓存；文章没有新增字符时，后续部署会跳过字体生成。除非你确实想强制重新生成，否则不要在项目设置里主动清空 Build Cache。
 
 ### 第 3 步：部署并访问
 

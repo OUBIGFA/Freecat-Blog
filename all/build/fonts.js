@@ -59,6 +59,65 @@ function fontSubsetManifestFile(rootDir) {
     return path.join(rootDir, 'build', 'font-subsets-manifest.json');
 }
 
+function fontSubsetCacheDir(rootDir) {
+    return path.join(rootDir, 'node_modules', '.cache', 'freecat-font-subsets');
+}
+
+function cachedFontSubsetManifestFile(rootDir) {
+    return path.join(fontSubsetCacheDir(rootDir), 'font-subsets-manifest.json');
+}
+
+function cachedFontSubsetFile(rootDir, familyPrefix, weightName) {
+    return path.join(fontSubsetCacheDir(rootDir), 'fonts', `${familyPrefix}-${weightName}-subset.woff2`);
+}
+
+function copyFileIfExists(source, target) {
+    if (!fs.existsSync(source)) return false;
+    try {
+        fs.mkdirSync(path.dirname(target), { recursive: true });
+        fs.copyFileSync(source, target);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+function restoreCachedFontSubsets(rootDir) {
+    const manifestRestored = copyFileIfExists(cachedFontSubsetManifestFile(rootDir), fontSubsetManifestFile(rootDir));
+    let fontsRestored = 0;
+
+    for (const family of FONT_FAMILIES) {
+        for (const [name] of family.weights) {
+            const outputFile = path.join(rootDir, 'src', 'assets', 'fonts', `${family.prefix}-${name}-subset.woff2`);
+            if (copyFileIfExists(cachedFontSubsetFile(rootDir, family.prefix, name), outputFile)) {
+                fontsRestored++;
+            }
+        }
+    }
+
+    if (manifestRestored || fontsRestored > 0) {
+        console.log(`   Restored cached font subsets: ${fontsRestored} file(s).`);
+    }
+}
+
+function saveCachedFontSubsets(rootDir) {
+    const manifestSaved = copyFileIfExists(fontSubsetManifestFile(rootDir), cachedFontSubsetManifestFile(rootDir));
+    let fontsSaved = 0;
+
+    for (const family of FONT_FAMILIES) {
+        for (const [name] of family.weights) {
+            const outputFile = path.join(rootDir, 'src', 'assets', 'fonts', `${family.prefix}-${name}-subset.woff2`);
+            if (copyFileIfExists(outputFile, cachedFontSubsetFile(rootDir, family.prefix, name))) {
+                fontsSaved++;
+            }
+        }
+    }
+
+    if (manifestSaved || fontsSaved > 0) {
+        console.log(`   Saved cached font subsets: ${fontsSaved} file(s).`);
+    }
+}
+
 function decodeBasicHtmlEntities(text) {
     const named = {
         amp: '&',
@@ -325,9 +384,12 @@ function buildArticleFontSubset({ rootDir, refresh = false }) {
         return;
     }
 
+    restoreCachedFontSubsets(rootDir);
+
     const refreshPlan = fontSubsetRefreshPlan(rootDir);
     if (refreshPlan.reusable) {
         console.log('   Font subset manifest covers the current text; skipping refresh.');
+        saveCachedFontSubsets(rootDir);
         return;
     }
     if (refreshPlan.targets && refreshPlan.targets.length > 0) {
@@ -346,6 +408,7 @@ function buildArticleFontSubset({ rootDir, refresh = false }) {
     if (result.status === 0) {
         process.stdout.write(result.stdout);
         if (result.stderr) process.stderr.write(result.stderr);
+        saveCachedFontSubsets(rootDir);
         return;
     }
 
@@ -358,6 +421,7 @@ function buildArticleFontSubset({ rootDir, refresh = false }) {
             if (result.status === 0) {
                 process.stdout.write(result.stdout);
                 if (result.stderr) process.stderr.write(result.stderr);
+                saveCachedFontSubsets(rootDir);
                 return;
             }
         } else if (useExistingSubsetIfAvailable(rootDir, commandOutput(installResult))) {

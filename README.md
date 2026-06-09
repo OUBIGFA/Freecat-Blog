@@ -244,6 +244,9 @@ Cloudflare Pages 是推荐方案，构建参数要填对。
 > 最常踩的坑是输出目录写成 `all/dist`。正确写 `dist`，因为根目录已经切到 `all` 了。
 
 1. 点 `Save and Deploy`，等 1-3 分钟。
+
+> 建议在 Cloudflare Pages 项目设置里启用 `Build cache（构建缓存）`。Freecat Blog 会把云端生成过的字体子集保存到构建缓存里，文章没有新增字符时，后续部署会直接复用，避免每次重新生成字体集。首次部署、清空缓存或文章新增字符时，字体集仍会自动生成一次。
+
 2. 构建完成后，打开 Cloudflare 给的默认网址，例如 `xxx.pages.dev`。
 
 ![Cloudflare step 6](all/image/Tutorial/06.png)
@@ -270,6 +273,8 @@ Cloudflare Pages 是推荐方案，构建参数要填对。
 | Build Command    | `npm run build` |
 | Output Directory | `dist`          |
 | Node Version     | `20`            |
+
+Vercel 会自动恢复构建缓存。Freecat Blog 会复用其中的字体子集缓存；如果文章没有新增字符，后续部署会跳过字体生成。不要在项目设置里主动清空 Build Cache，除非你确实想强制重新生成。
 
 1. 点 `Deploy`。
 
