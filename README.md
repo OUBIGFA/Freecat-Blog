@@ -245,7 +245,7 @@ Cloudflare Pages 是推荐方案，构建参数要填对。
 
 1. 点 `Save and Deploy`，等 1-3 分钟。
 
-> 建议在 Cloudflare Pages 项目设置里启用 `Build cache（构建缓存）`。Freecat Blog 会把云端生成过的字体子集保存到构建缓存里，文章没有新增字符时，后续部署会直接复用，避免每次重新生成字体集。首次部署、清空缓存或文章新增字符时，字体集仍会自动生成一次。
+> 请先确认 GitHub Actions 已启用。Freecat Blog 会通过文章快照工作流更新字体子集并提交到仓库；文章没有新增字符时，Cloudflare 构建会直接跳过字体生成。`Build cache（构建缓存）` 可以开启，但不要把它当作跳过字体生成的唯一依据。
 
 2. 构建完成后，打开 Cloudflare 给的默认网址，例如 `xxx.pages.dev`。
 
@@ -505,7 +505,7 @@ Freecat Blog 会持续修 bug、加功能、优化样式。仓库自带一个 Gi
 
 * 会同步：`all/`、`README.md`、`README.en.md`
 
-* 会保留：`all/git-dates.json`
+* 会保留：`all/git-dates.json`、`all/build/font-subsets-manifest.json`、`all/src/assets/fonts/`
 
 * 不会动：`Control/`、`writing/`、`.github/`、`.gitignore`
 

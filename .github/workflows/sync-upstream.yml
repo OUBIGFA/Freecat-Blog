@@ -49,12 +49,60 @@ jobs:
         run: |
           # 按上游提交逐个同步模板文件, 让下游仓库的文件历史能看到真实来源。
           # 同步范围: all/、README.md、README.en.md
-          # 排除 all/git-dates.json, 保留本仓库自己的版本。
+          # 排除文章快照和字体子集, 保留本仓库自己的版本。
           set -eu
           export LC_ALL=C.UTF-8
           export LANG=C.UTF-8
 
           paths=(all/ README.md README.en.md)
+          generated_state_dir=
+          generated_state_id=0
+
+          save_local_generated_state() {
+            generated_state_id=$((generated_state_id + 1))
+            generated_state_dir="${RUNNER_TEMP:-/tmp}/freecat-generated-state-${generated_state_id}"
+            mkdir -p "$generated_state_dir"
+
+            if [ -f all/git-dates.json ]; then
+              mkdir -p "$generated_state_dir/all"
+              cp all/git-dates.json "$generated_state_dir/all/git-dates.json"
+            fi
+
+            if [ -f all/build/font-subsets-manifest.json ]; then
+              mkdir -p "$generated_state_dir/all/build"
+              cp all/build/font-subsets-manifest.json "$generated_state_dir/all/build/font-subsets-manifest.json"
+            fi
+
+            if [ -d all/src/assets/fonts ]; then
+              mkdir -p "$generated_state_dir/all/src/assets"
+              cp -R all/src/assets/fonts "$generated_state_dir/all/src/assets/fonts"
+            fi
+          }
+
+          restore_local_generated_state() {
+            if [ -f "$generated_state_dir/all/git-dates.json" ]; then
+              mkdir -p all
+              cp "$generated_state_dir/all/git-dates.json" all/git-dates.json
+            else
+              git rm -f --ignore-unmatch all/git-dates.json
+            fi
+
+            if [ -f "$generated_state_dir/all/build/font-subsets-manifest.json" ]; then
+              mkdir -p all/build
+              cp "$generated_state_dir/all/build/font-subsets-manifest.json" all/build/font-subsets-manifest.json
+            else
+              git rm -f --ignore-unmatch all/build/font-subsets-manifest.json
+            fi
+
+            if [ -d "$generated_state_dir/all/src/assets/fonts" ]; then
+              mkdir -p all/src/assets
+              mkdir -p all/src/assets/fonts
+              cp -R "$generated_state_dir/all/src/assets/fonts/." all/src/assets/fonts/
+            else
+              git rm -rf --ignore-unmatch all/src/assets/fonts
+            fi
+          }
+
           restore_template_paths() {
             local commit="$1"
 
@@ -77,21 +125,9 @@ jobs:
           if [ -z "$last_synced" ]; then
             echo "No previous upstream marker found. Migrating to upstream sync markers."
 
-            if [ -f all/git-dates.json ]; then
-              cp all/git-dates.json /tmp/freecat-git-dates.json
-              has_local_git_dates=true
-            else
-              has_local_git_dates=false
-            fi
-
+            save_local_generated_state
             restore_template_paths "$upstream_head"
-
-            if [ "$has_local_git_dates" = "true" ]; then
-              mkdir -p all
-              mv /tmp/freecat-git-dates.json all/git-dates.json
-            else
-              git rm -f --ignore-unmatch all/git-dates.json
-            fi
+            restore_local_generated_state
 
             git add -A all/ README.md README.en.md
             if git diff --cached --quiet -- all/ README.md README.en.md; then
@@ -127,21 +163,9 @@ jobs:
             echo "Replaying upstream commit $commit"
             last_replayed=$commit
 
-            if [ -f all/git-dates.json ]; then
-              cp all/git-dates.json /tmp/freecat-git-dates.json
-              has_local_git_dates=true
-            else
-              has_local_git_dates=false
-            fi
-
+            save_local_generated_state
             restore_template_paths "$commit"
-
-            if [ "$has_local_git_dates" = "true" ]; then
-              mkdir -p all
-              mv /tmp/freecat-git-dates.json all/git-dates.json
-            else
-              git rm -f --ignore-unmatch all/git-dates.json
-            fi
+            restore_local_generated_state
 
             git add -A all/ README.md README.en.md
             if git diff --cached --quiet -- all/ README.md README.en.md; then

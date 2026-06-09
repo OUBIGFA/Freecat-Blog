@@ -6,8 +6,12 @@ on:
       - main
     paths:
       - 'writing/**'
+      - 'Control/**'
       - 'all/extract-git-dates.js'
       - 'all/build/git-dates.js'
+      - 'all/build/fonts.js'
+      - 'all/tools/generate-noto-subset.py'
+      - 'all/fonts/**'
       - '.github/workflows/update-git-dates.yml'
   workflow_dispatch:
 
@@ -35,6 +39,15 @@ jobs:
           cache: npm
           cache-dependency-path: all/package-lock.json
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          cache: pip
+
+      - name: Install font tools
+        run: python -m pip install --disable-pip-version-check fonttools brotli
+
       - name: Install dependencies
         working-directory: all
         run: npm ci
@@ -46,21 +59,32 @@ jobs:
         working-directory: all
         run: npm run extract-dates
 
-      - name: Commit updated snapshots
+      - name: Generate font subsets
+        working-directory: all
+        run: npm run build
+
+      - name: Commit updated generated files
         run: |
-          if git diff --quiet -- all/git-dates.json; then
-            echo "Article snapshots are already up to date."
+          generated_paths=(
+            all/git-dates.json
+            all/build/font-subsets-manifest.json
+            all/src/assets/fonts
+          )
+
+          if git diff --quiet -- "${generated_paths[@]}"; then
+            echo "Article snapshots and font subsets are already up to date."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add all/git-dates.json
-          git commit -m "chore: update article snapshots"
+          git add "${generated_paths[@]}"
+          git commit -m "chore: update article snapshots and font subsets"
           git pull --rebase origin main
           (cd all && npm run extract-dates)
-          if ! git diff --quiet -- all/git-dates.json; then
-            git add all/git-dates.json
+          (cd all && npm run build)
+          if ! git diff --quiet -- "${generated_paths[@]}"; then
+            git add "${generated_paths[@]}"
             git commit --amend --no-edit
           fi
           git push

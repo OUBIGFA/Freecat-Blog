@@ -223,7 +223,7 @@ Cloudflare Pages is the recommended option. The key is filling in the build sett
 
 1. Click `Save and Deploy` and wait 1-3 minutes.
 
-> In the Cloudflare Pages project settings, enable `Build cache（构建缓存）`. Freecat Blog stores generated font subsets in the build cache. When your articles do not introduce new characters, later deployments reuse that cache and skip font generation. The first deployment, a cache clear, or newly added characters may still generate fonts once.
+> Make sure GitHub Actions is enabled first. Freecat Blog updates font subsets in the article snapshot workflow and commits them to your repository; when your articles do not introduce new characters, Cloudflare builds skip font generation. You can still enable `Build cache（构建缓存）`, but do not rely on it as the only way to skip font generation.
 
 2. When the build finishes, open the default URL from Cloudflare, such as `xxx.pages.dev`.
 
@@ -476,7 +476,7 @@ Important: whether you created your repository with GitHub Importer or by forkin
 Sync scope:
 
 - Synced: `all/`, `README.md`, `README.en.md`
-- Preserved: `all/git-dates.json`
+- Preserved: `all/git-dates.json`, `all/build/font-subsets-manifest.json`, `all/src/assets/fonts/`
 - Not touched: `Control/`, `writing/`, `.github/`, `.gitignore`
 
 Your own articles and site settings will not be overwritten by template updates.
