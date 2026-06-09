@@ -14,6 +14,8 @@ test('article snapshot workflow commits generated font subsets', () => {
 
     assert.match(workflow, /Generate font subsets/);
     assert.match(workflow, /npm run build/);
+    assert.match(workflow, /python -m pip install --disable-pip-version-check fonttools brotli/);
+    assert.doesNotMatch(workflow, /cache:\s*pip/);
     assert.match(workflow, /all\/build\/font-subsets-manifest\.json/);
     assert.match(workflow, /all\/src\/assets\/fonts/);
     assert.match(workflow, /chore: update article snapshots and font subsets/);
