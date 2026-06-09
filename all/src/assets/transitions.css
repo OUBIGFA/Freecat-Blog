@@ -904,6 +904,30 @@ header.fixed .header-blur-target {
     height: 100%;
 }
 
+@media (max-width: 767px) {
+    header.fixed {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    header.fixed .header-blur-target {
+        gap: 0.5rem;
+    }
+
+    header.fixed .header-blur-target > a:first-child {
+        flex: 1 1 auto;
+        max-width: none;
+        min-width: 0;
+        gap: 0.5rem;
+    }
+
+    header.fixed .header-blur-target > div:first-of-type {
+        flex: 0 0 auto;
+        gap: 0.375rem;
+        min-width: 0;
+    }
+}
+
 /* 外壳 + iframe 架构：内容页被嵌入 iframe（html.freecat-framed）时隐藏其自带顶栏，
    顶栏由常驻外壳统一提供；正文上边距仍走 --freecat-page-top-offset（默认值已接近真实高度，
    外壳再按实测顶栏高度精修），故隐藏顶栏不影响正文位置。 */

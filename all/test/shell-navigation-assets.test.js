@@ -143,6 +143,12 @@ test('fixed header has a stable css height before runtime measurement', () => {
     assert.doesNotMatch(transitionsCss, /(?:^|\n)header\s*\{[\s\S]*height:\s*var\(--freecat-header-height\);/);
 });
 
+test('mobile fixed header lets the brand title shrink before nav buttons overflow', () => {
+    assert.match(transitionsCss, /@media \(max-width:\s*767px\)\s*\{[\s\S]*header\.fixed\s*\{[\s\S]*padding-left:\s*0\.5rem\s*!important;[\s\S]*padding-right:\s*0\.5rem\s*!important;/);
+    assert.match(transitionsCss, /header\.fixed\s+\.header-blur-target\s*>\s*a:first-child\s*\{[\s\S]*flex:\s*1 1 auto;[\s\S]*max-width:\s*none;[\s\S]*min-width:\s*0;/);
+    assert.match(transitionsCss, /header\.fixed\s+\.header-blur-target\s*>\s*div:first-of-type\s*\{[\s\S]*flex:\s*0 0 auto;[\s\S]*gap:\s*0\.375rem;/);
+});
+
 test('header offset sync ignores impossible measured heights', () => {
     assert.match(mainJs, /function normalizeHeaderHeight\(measuredHeight\)\s*\{/);
     assert.match(mainJs, /height <= 120 \? height : fallbackHeight/);
