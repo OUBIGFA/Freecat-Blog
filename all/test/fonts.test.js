@@ -415,3 +415,110 @@ test('font subset refresh reuses restored build cache before spawning Python', (
         delete require.cache[require.resolve(modulePath)];
     }
 });
+
+test('Cloudflare font subset cache uses npm cache outside node_modules', () => {
+    const asciiCoverage = Array.from({ length: 95 }, (_, index) => index + 32);
+    const manifest = expectedManifest('unused', asciiCoverage);
+    const modulePath = path.join(__dirname, '../build/fonts.js');
+    const rootDir = path.join('X:', 'freecat');
+    const npmCacheDir = path.join(rootDir, '.npm-cache');
+    const originalSpawnSync = childProcess.spawnSync;
+    const originalExistsSync = fs.existsSync;
+    const originalReadFileSync = fs.readFileSync;
+    const originalReaddirSync = fs.readdirSync;
+    const originalCopyFileSync = fs.copyFileSync;
+    const originalMkdirSync = fs.mkdirSync;
+    const originalLog = console.log;
+    const originalCfPages = process.env.CF_PAGES;
+    const originalNpmCache = process.env.npm_config_cache;
+    const calls = [];
+    const copied = [];
+
+    function normalized(file) {
+        return String(file).replace(/\\/g, '/');
+    }
+
+    function dirent(name, type) {
+        return {
+            name,
+            isDirectory: () => type === 'dir',
+            isFile: () => type === 'file'
+        };
+    }
+
+    delete require.cache[require.resolve(modulePath)];
+    process.env.CF_PAGES = '1';
+    process.env.npm_config_cache = npmCacheDir;
+    childProcess.spawnSync = (...args) => {
+        calls.push(args);
+        return { status: 0, stdout: '', stderr: '' };
+    };
+    fs.existsSync = (file) => {
+        const current = normalized(file);
+        if (current.includes('/.npm-cache/freecat-blog/freecat-font-subsets/font-subsets-manifest.json')) return true;
+        if (current.includes('/.npm-cache/freecat-blog/freecat-font-subsets/fonts/') && current.endsWith('-subset.woff2')) return true;
+        if (current.includes('/build/font-subsets-manifest.json')) return true;
+        if (current.includes('/src/assets/fonts/') && current.endsWith('-subset.woff2')) return true;
+        if (current.includes('/fonts/') && /\.(woff2|ttf)$/.test(current)) return true;
+        if (current === normalized(path.join(rootDir, 'dist'))) return true;
+        if (current === normalized(path.join(rootDir, 'dist', 'posts'))) return true;
+        if (current === normalized(path.join(rootDir, 'src'))) return true;
+        if (current === normalized(path.join(rootDir, 'build'))) return true;
+        if (current === normalized(path.join(rootDir, '..', 'writing'))) return true;
+        if (current === normalized(path.join(rootDir, '..', 'Control'))) return true;
+        return originalExistsSync(file);
+    };
+    fs.readdirSync = (dir, options) => {
+        const current = normalized(dir);
+        if (options && options.withFileTypes) {
+            if (current === normalized(path.join(rootDir, 'dist'))) return [dirent('index.html', 'file'), dirent('posts', 'dir')];
+            if (current === normalized(path.join(rootDir, 'dist', 'posts'))) return [];
+            if (
+                current === normalized(path.join(rootDir, 'src')) ||
+                current === normalized(path.join(rootDir, 'build')) ||
+                current === normalized(path.join(rootDir, '..', 'writing')) ||
+                current === normalized(path.join(rootDir, '..', 'Control'))
+            ) return [];
+        }
+        return originalReaddirSync(dir, options);
+    };
+    fs.readFileSync = (file, encoding) => {
+        const current = normalized(file);
+        if (current.includes('/build/font-subsets-manifest.json')) return manifest;
+        if (current.includes('/fonts/') && /\.(woff2|ttf)$/.test(current)) return Buffer.from('font-source');
+        if (current.endsWith('/dist/index.html')) return '<html><body>Plain ASCII</body></html>';
+        return originalReadFileSync(file, encoding);
+    };
+    fs.copyFileSync = (source, target) => {
+        copied.push([normalized(source), normalized(target)]);
+    };
+    fs.mkdirSync = () => {};
+    console.log = () => {};
+
+    try {
+        const { buildArticleFontSubset } = require(modulePath);
+        assert.doesNotThrow(() => buildArticleFontSubset({ rootDir, refresh: true }));
+        assert.equal(calls.length, 0);
+        assert.equal(copied.some(([source]) => source.includes('/.npm-cache/freecat-blog/freecat-font-subsets/')), true);
+        assert.equal(copied.some(([source]) => source.includes('/node_modules/.cache/freecat-font-subsets/')), false);
+    } finally {
+        childProcess.spawnSync = originalSpawnSync;
+        fs.existsSync = originalExistsSync;
+        fs.readFileSync = originalReadFileSync;
+        fs.readdirSync = originalReaddirSync;
+        fs.copyFileSync = originalCopyFileSync;
+        fs.mkdirSync = originalMkdirSync;
+        console.log = originalLog;
+        if (originalCfPages === undefined) {
+            delete process.env.CF_PAGES;
+        } else {
+            process.env.CF_PAGES = originalCfPages;
+        }
+        if (originalNpmCache === undefined) {
+            delete process.env.npm_config_cache;
+        } else {
+            process.env.npm_config_cache = originalNpmCache;
+        }
+        delete require.cache[require.resolve(modulePath)];
+    }
+});
