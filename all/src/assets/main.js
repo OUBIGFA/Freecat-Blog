@@ -732,6 +732,29 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => tagMenu.classList.remove('is-closing'), dropdownCloseMs);
     }
 
+    let headerFramePointerDownDocument = null;
+
+    function closeHeaderPanelsFromFramePointerDown() {
+        closeTagMenu();
+        closeHeaderSearch(true);
+    }
+
+    function bindHeaderFramePointerDown() {
+        if (!IS_SHELL || !contentFrame) return;
+        let frameDocument;
+        try {
+            frameDocument = contentFrame.contentDocument;
+        } catch (err) {
+            return;
+        }
+        if (!frameDocument || frameDocument === headerFramePointerDownDocument) return;
+        if (headerFramePointerDownDocument) {
+            headerFramePointerDownDocument.removeEventListener('pointerdown', closeHeaderPanelsFromFramePointerDown, true);
+        }
+        headerFramePointerDownDocument = frameDocument;
+        headerFramePointerDownDocument.addEventListener('pointerdown', closeHeaderPanelsFromFramePointerDown, true);
+    }
+
     function initNavAudioButton() {
         const navAudioController = window.FreecatNavAudio;
         if (!navAudioController || typeof navAudioController.init !== 'function') {
@@ -775,6 +798,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeTagMenu();
         });
+    }
+
+    if (IS_SHELL && contentFrame) {
+        contentFrame.addEventListener('load', bindHeaderFramePointerDown);
+        bindHeaderFramePointerDown();
     }
 
     // 顶栏音频播放器只在外壳 / 独立页运行；内容页被嵌入 iframe 时由外壳统一承载，

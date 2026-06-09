@@ -137,6 +137,27 @@ test('nav audio defaults to half volume and exposes the matching volume slider w
     assert.match(transitionsCss, /\.nav-audio-volume-slider::-webkit-slider-thumb\s*\{[\s\S]*width:\s*12px;[\s\S]*height:\s*12px;[\s\S]*border:\s*2px solid white;/);
 });
 
+test('header tag menu closes on pointerdown inside the shell iframe', () => {
+    assert.match(mainJs, /function closeHeaderPanelsFromFramePointerDown\(\)\s*\{[\s\S]*closeTagMenu\(\);[\s\S]*closeHeaderSearch\(true\);[\s\S]*\}/);
+    assert.match(mainJs, /function bindHeaderFramePointerDown\(\)\s*\{/);
+    assert.match(mainJs, /headerFramePointerDownDocument\.addEventListener\('pointerdown', closeHeaderPanelsFromFramePointerDown, true\);/);
+    assert.match(mainJs, /contentFrame\.addEventListener\('load', bindHeaderFramePointerDown\);/);
+    assert.match(mainJs, /if \(IS_SHELL && contentFrame\) \{[\s\S]*bindHeaderFramePointerDown\(\);[\s\S]*\}/);
+});
+
+test('header tag menu uses a restrained close feedback', () => {
+    assert.match(transitionsCss, /\.tag-menu-panel\.is-closing\s*\{[\s\S]*transform:\s*translateY\(-2px\) scale\(var\(--dropdown-closing-scale\)\);[\s\S]*filter:\s*blur\(0\.35px\);/);
+    assert.match(transitionsCss, /\.tag-menu-panel\.is-closing\s*\{[\s\S]*filter var\(--dropdown-close-dur\) ease-out;/);
+    assert.match(transitionsCss, /\.tag-menu-panel\.is-closing \.tag-menu-item\s*\{[\s\S]*opacity:\s*0;[\s\S]*transform:\s*translateY\(-2px\);[\s\S]*opacity 90ms ease-out,/);
+});
+
+test('header tag menu item feedback stays light and responsive', () => {
+    assert.match(transitionsCss, /\.tag-menu-panel\.is-open \.tag-menu-item\s*\{[\s\S]*background-color 220ms cubic-bezier\(0\.22, 1, 0\.36, 1\),[\s\S]*transition-delay:[\s\S]*0ms,[\s\S]*0ms,[\s\S]*0ms;/);
+    assert.match(transitionsCss, /\.tag-menu-panel\.is-open \.tag-menu-item:hover,[\s\S]*\.tag-menu-panel\.is-open \.tag-menu-item:focus-visible\s*\{[\s\S]*background-color:\s*rgba\(148, 163, 184, 0\.1\);/);
+    assert.match(transitionsCss, /\.dark \.tag-menu-panel\.is-open \.tag-menu-item:hover,[\s\S]*\.dark \.tag-menu-panel\.is-open \.tag-menu-item:focus-visible\s*\{[\s\S]*background-color:\s*rgba\(148, 163, 184, 0\.12\);/);
+    assert.doesNotMatch(transitionsCss, /\.tag-menu-item:hover[\s\S]*slate-800/);
+});
+
 test('fixed header has a stable css height before runtime measurement', () => {
     assert.match(transitionsCss, /header\.fixed\s*\{[\s\S]*height:\s*var\(--freecat-header-height\);/);
     assert.match(transitionsCss, /header\.fixed\s+\.header-blur-target\s*\{[\s\S]*height:\s*100%;/);

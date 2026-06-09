@@ -751,24 +751,69 @@ html.theme-transitioning body *::after {
     max-width: calc(100vw - 2rem);
 }
 
+.tag-menu-panel.is-closing {
+    transform: translateY(-2px) scale(var(--dropdown-closing-scale));
+    filter: blur(0.35px);
+    transition:
+        transform var(--dropdown-close-dur) var(--dropdown-ease),
+        opacity var(--dropdown-close-dur) var(--dropdown-ease),
+        filter var(--dropdown-close-dur) ease-out;
+}
+
 .tag-menu-items {
     scrollbar-width: thin;
 }
 
 .tag-menu-item {
     opacity: 0;
-    transform: translateY(-4px);
+    transform: translateY(-3px);
+    background-color: transparent;
 }
 
 .tag-menu-panel.is-open .tag-menu-item {
     opacity: 1;
     transform: translateY(0);
     transition:
-        opacity 180ms var(--dropdown-ease),
-        transform 180ms var(--dropdown-ease),
-        background-color 150ms ease,
-        color 150ms ease;
-    transition-delay: calc(var(--tag-menu-index) * 18ms);
+        opacity 220ms var(--dropdown-ease),
+        transform 220ms var(--dropdown-ease),
+        background-color 220ms cubic-bezier(0.22, 1, 0.36, 1),
+        color 220ms cubic-bezier(0.22, 1, 0.36, 1),
+        filter 220ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay:
+        calc(var(--tag-menu-index) * 14ms),
+        calc(var(--tag-menu-index) * 14ms),
+        0ms,
+        0ms,
+        0ms;
+}
+
+.tag-menu-panel.is-open .tag-menu-item:hover,
+.tag-menu-panel.is-open .tag-menu-item:focus-visible {
+    background-color: rgba(148, 163, 184, 0.1);
+    color: #334155;
+}
+
+.tag-menu-panel.is-open .tag-menu-item:active {
+    background-color: rgba(148, 163, 184, 0.14);
+    filter: saturate(0.96);
+}
+
+.dark .tag-menu-panel.is-open .tag-menu-item:hover,
+.dark .tag-menu-panel.is-open .tag-menu-item:focus-visible {
+    background-color: rgba(148, 163, 184, 0.12);
+    color: #e2e8f0;
+}
+
+.dark .tag-menu-panel.is-open .tag-menu-item:active {
+    background-color: rgba(148, 163, 184, 0.16);
+}
+
+.tag-menu-panel.is-closing .tag-menu-item {
+    opacity: 0;
+    transform: translateY(-2px);
+    transition:
+        opacity 90ms ease-out,
+        transform 90ms ease-out;
 }
 
 @media (max-width: 767px) {

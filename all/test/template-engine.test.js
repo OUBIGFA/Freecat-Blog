@@ -303,6 +303,9 @@ test('renderTagMenuItemsHtml escapes labels, encodes hrefs and renders counts', 
     ]));
 
     assert.equal(html.includes('class="tag-menu-item'), true);
+    assert.equal(html.includes('hover:bg-slate-100'), false);
+    assert.equal(html.includes('dark:hover:bg-slate-800'), false);
+    assert.equal(html.includes('duration-150'), false);
     assert.equal(html.includes('--tag-menu-index:0;'), true);
     assert.equal(html.includes('<b>x</b>'), false);              // 标签文本被转义
     assert.equal(html.includes('&lt;b&gt;x&lt;/b&gt;'), true);

@@ -164,7 +164,7 @@
                 : '/search.html?tag=' + encodeURIComponent(tag.label);
             return (
                 '<a role="menuitem" href="' + href + '" ' +
-                'class="tag-menu-item flex items-center justify-between gap-3 rounded-[4px] px-3 py-2 text-sm font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-400 dark:text-slate-200 dark:hover:bg-slate-800" ' +
+                'class="tag-menu-item flex items-center justify-between gap-3 rounded-[4px] px-3 py-2 text-sm font-medium text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-400 dark:text-slate-200" ' +
                 'style="--tag-menu-index:' + index + ';">' +
                 '<span class="freecat-tag-text min-w-0 truncate">' + escapeHtml(tag.label) + '</span>' +
                 '<span class="shrink-0 rounded-[4px] px-2 py-0.5 text-[11px] font-semibold" style="background:' + colors.bg + ';color:' + colors.text + ';">' + tag.count + '</span>' +
