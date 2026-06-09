@@ -11,7 +11,7 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir }) {
     console.log('📋 Generating all articles page...');
     const html = posts
         .map((post, index) => renderPostCardForList(post, index, {
-            animationDelayStep: 70,
+            animationDelayStep: 50,
             mobileTagsInline: true,
             layout: 'compact-grid'
         }))

@@ -15,7 +15,7 @@ test('production build refreshes font subsets after pages are generated', () => 
 test('font subset refresh checks the manifest before spawning Python', () => {
     const fontsJs = fs.readFileSync(path.join(__dirname, '..', 'build', 'fonts.js'), 'utf-8');
     const cacheCheckIndex = fontsJs.indexOf('fontSubsetRefreshPlan(rootDir)');
-    const spawnIndex = fontsJs.indexOf('runPythonExecutable(activePython, rootDir, [scriptPath])');
+    const spawnIndex = fontsJs.indexOf('runPythonExecutable(activePython, rootDir, scriptArgs)');
 
     assert.notEqual(cacheCheckIndex, -1);
     assert.notEqual(spawnIndex, -1);
@@ -307,12 +307,17 @@ test('font subset refresh skips Python when the manifest covers current text', (
     });
 });
 
-test('font subset refresh runs Python when current text has new characters', () => {
+test('font subset refresh only asks Python to rebuild stale subsets', () => {
     const asciiCoverage = Array.from({ length: 95 }, (_, index) => index + 32);
     const manifest = expectedManifest('unused', asciiCoverage);
 
     withFontSubsetFileMocks('<html><body>新增汉字</body></html>', manifest, ({ buildArticleFontSubset, rootDir, calls }) => {
         assert.doesNotThrow(() => buildArticleFontSubset({ rootDir, refresh: true }));
         assert.equal(calls.length, 1);
+        const args = calls[0][1];
+        assert.equal(args.filter(arg => arg === '--target').length, 11);
+        assert.equal(args.includes('freecat-figtree:regular'), true);
+        assert.equal(args.includes('freecat-ui-noto-sans-sc:regular'), true);
+        assert.equal(args.includes('freecat-noto-sans-sc:regular'), true);
     });
 });

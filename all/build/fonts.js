@@ -179,9 +179,19 @@ function fontSubsetRefreshPlan(rootDir) {
     const manifest = readFontSubsetManifest(rootDir);
     const requestedByFamily = requestedCodepointsByFamily(rootDir);
     const stale = [];
+    const targets = [];
+
+    function markStale(family, weightName, reason) {
+        stale.push(weightName ? `${family.prefix} ${weightName}: ${reason}` : `${family.prefix}: ${reason}`);
+        if (weightName) targets.push(`${family.prefix}:${weightName}`);
+    }
 
     if (!manifest || manifest.version !== CACHE_VERSION) {
-        return { reusable: false, stale: ['missing manifest'] };
+        return {
+            reusable: false,
+            stale: ['missing manifest'],
+            targets: FONT_FAMILIES.flatMap(family => family.weights.map(([name]) => `${family.prefix}:${name}`))
+        };
     }
 
     for (const family of FONT_FAMILIES) {
@@ -189,6 +199,7 @@ function fontSubsetRefreshPlan(rootDir) {
         const requested = codepointsToSortedArray(requestedByFamily[family.prefix] || new Set());
         if (!familyManifest || !familyManifest.subsets) {
             stale.push(`${family.prefix}: missing family manifest`);
+            targets.push(...family.weights.map(([name]) => `${family.prefix}:${name}`));
             continue;
         }
 
@@ -197,28 +208,28 @@ function fontSubsetRefreshPlan(rootDir) {
             const sourceFile = path.join(rootDir, 'fonts', sourceName);
             const entry = familyManifest.subsets[name];
             if (!entry) {
-                stale.push(`${family.prefix} ${name}: missing manifest entry`);
+                markStale(family, name, 'missing manifest entry');
                 continue;
             }
             if (!fs.existsSync(outputFile)) {
-                stale.push(`${family.prefix} ${name}: missing output`);
+                markStale(family, name, 'missing output');
                 continue;
             }
             if (!fs.existsSync(sourceFile)) {
-                stale.push(`${family.prefix} ${name}: missing source`);
+                markStale(family, name, 'missing source');
                 continue;
             }
             if (entry.sourceSha256 !== sha256File(sourceFile)) {
-                stale.push(`${family.prefix} ${name}: source changed`);
+                markStale(family, name, 'source changed');
                 continue;
             }
             if (!subsetEntryCoversRequest(entry, requested)) {
-                stale.push(`${family.prefix} ${name}: new characters`);
+                markStale(family, name, 'new characters');
             }
         }
     }
 
-    return { reusable: stale.length === 0, stale };
+    return { reusable: stale.length === 0, stale, targets };
 }
 
 function runPythonExecutable(executable, rootDir, args) {
@@ -319,11 +330,18 @@ function buildArticleFontSubset({ rootDir, refresh = false }) {
         console.log('   Font subset manifest covers the current text; skipping refresh.');
         return;
     }
+    if (refreshPlan.targets && refreshPlan.targets.length > 0) {
+        console.log(`   Refreshing ${refreshPlan.targets.length} stale font subset(s).`);
+    }
 
     const scriptPath = path.join(rootDir, 'tools', 'generate-noto-subset.py');
+    const scriptArgs = [
+        scriptPath,
+        ...(refreshPlan.targets || []).flatMap(target => ['--target', target])
+    ];
     const venvPython = fontToolsPython(rootDir);
     let activePython = fs.existsSync(venvPython) ? venvPython : SYSTEM_PYTHON;
-    let result = runPythonExecutable(activePython, rootDir, [scriptPath]);
+    let result = runPythonExecutable(activePython, rootDir, scriptArgs);
 
     if (result.status === 0) {
         process.stdout.write(result.stdout);
@@ -336,7 +354,7 @@ function buildArticleFontSubset({ rootDir, refresh = false }) {
         const installResult = installFontTools(rootDir);
         if (installResult.status === 0) {
             activePython = fontToolsPython(rootDir);
-            result = runPythonExecutable(activePython, rootDir, [scriptPath]);
+            result = runPythonExecutable(activePython, rootDir, scriptArgs);
             if (result.status === 0) {
                 process.stdout.write(result.stdout);
                 if (result.stderr) process.stderr.write(result.stderr);

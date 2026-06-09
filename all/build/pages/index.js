@@ -10,7 +10,7 @@ const { normalizePostTags } = require('../article-model.js');
 /**
  * 渲染分页首页（index.html + page/N/index.html）。
  */
-function getCardAnimationDelay(index, step = 120) {
+function getCardAnimationDelay(index, step = 50) {
     return Math.min(index, 10) * step;
 }
 
@@ -20,7 +20,7 @@ function renderPostCardForList(post, index = 0, options = {}) {
     const tagsHtml = tags.map(t => shared.renderTagSpan(t, { darkHover: true })).join('');
     const animationDelayStep = Number.isFinite(Number(options.animationDelayStep))
         ? Number(options.animationDelayStep)
-        : 120;
+        : 50;
 
     return postCardTemplate.renderPostCard({
         link: post.link,

@@ -1,4 +1,5 @@
 from pathlib import Path
+import argparse
 import hashlib
 import html as html_lib
 import json
@@ -158,7 +159,20 @@ def build_noto_family(prefix, requested, output_dir, font_weights=None):
     return coverage
 
 
-def build_figtree_family():
+def selected_weights(font_weights, prefix, targets):
+    if not targets:
+        return font_weights
+    names = targets.get(prefix)
+    if not names:
+        return []
+    return [item for item in font_weights if item[0] in names]
+
+
+def build_figtree_family(targets=None):
+    font_weights = selected_weights(FIGTREE_FONT_WEIGHTS, "freecat-figtree", targets)
+    if not font_weights:
+        return None
+
     requested = collect_codepoints(
         (file_path for source in FIGTREE_TEXT_SOURCES for file_path in iter_text_files(source)),
         include_ascii=True,
@@ -166,7 +180,7 @@ def build_figtree_family():
     )
 
     coverage = []
-    for name, weight, source_font in FIGTREE_FONT_WEIGHTS:
+    for name, weight, source_font in font_weights:
         coverage.append(build_subset("freecat-figtree", name, weight, source_font, requested, OUTPUT_DIR))
 
     supported = sorted(set().union(*(set(item[0]) for item in coverage)))
@@ -177,9 +191,13 @@ def build_figtree_family():
     return family_manifest("freecat-figtree", requested, coverage)
 
 
-def build_ui_noto_family():
+def build_ui_noto_family(targets=None):
+    font_weights = selected_weights(NOTO_FONT_WEIGHTS, "freecat-ui-noto-sans-sc", targets)
+    if not font_weights:
+        return None
+
     requested = collect_codepoints(iter_ui_html_files(), include_ascii=False, visual_html=True)
-    coverage = build_noto_family("freecat-ui-noto-sans-sc", requested, OUTPUT_DIR)
+    coverage = build_noto_family("freecat-ui-noto-sans-sc", requested, OUTPUT_DIR, font_weights=font_weights)
     supported = sorted(set().union(*(set(item[0]) for item in coverage)))
     unsupported = sorted(requested - set(supported))
     print(f"UI Noto Sans SC requested characters: {len(requested)}")
@@ -188,14 +206,18 @@ def build_ui_noto_family():
     return family_manifest("freecat-ui-noto-sans-sc", requested, coverage)
 
 
-def build_article_noto_family():
+def build_article_noto_family(targets=None):
+    font_weights = selected_weights(NOTO_FONT_WEIGHTS, "freecat-noto-sans-sc", targets)
+    if not font_weights:
+        return None
+
     pages = list(iter_post_pages())
     all_requested = set()
     for page in pages:
         requested = collect_codepoints([page], include_ascii=False, visual_html=True)
         all_requested.update(requested)
 
-    coverage = build_noto_family("freecat-noto-sans-sc", all_requested, OUTPUT_DIR)
+    coverage = build_noto_family("freecat-noto-sans-sc", all_requested, OUTPUT_DIR, font_weights=font_weights)
     supported = sorted(set().union(*(set(item[0]) for item in coverage)))
     unsupported = sorted(all_requested - set(supported))
     print(f"Article Noto Sans SC pages: {len(pages)}")
@@ -223,14 +245,55 @@ def family_manifest(prefix, requested, coverage):
     }
 
 
+def read_existing_manifest():
+    if not MANIFEST_PATH.exists():
+        return {"version": MANIFEST_VERSION, "families": {}}
+    try:
+        return json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {"version": MANIFEST_VERSION, "families": {}}
+
+
+def merge_family_manifest(existing_family, partial_family):
+    if not existing_family:
+        return partial_family
+    merged = {
+        "requested": partial_family["requested"],
+        "subsets": dict(existing_family.get("subsets", {})),
+    }
+    merged["subsets"].update(partial_family["subsets"])
+    return merged
+
+
+def parse_targets(raw_targets):
+    if not raw_targets:
+        return None
+
+    targets = {}
+    for raw_target in raw_targets:
+        if ":" not in raw_target:
+            raise ValueError(f"Invalid target {raw_target!r}; expected family:weight")
+        family, weight = raw_target.split(":", 1)
+        targets.setdefault(family, set()).add(weight)
+    return targets
+
+
 def main():
-    families = {}
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--target", action="append", default=[])
+    args = parser.parse_args()
+    targets = parse_targets(args.target)
+
+    existing = read_existing_manifest()
+    families = dict(existing.get("families", {}))
     for prefix, manifest in [
-        ("freecat-figtree", build_figtree_family()),
-        ("freecat-ui-noto-sans-sc", build_ui_noto_family()),
-        ("freecat-noto-sans-sc", build_article_noto_family()),
+        ("freecat-figtree", build_figtree_family(targets)),
+        ("freecat-ui-noto-sans-sc", build_ui_noto_family(targets)),
+        ("freecat-noto-sans-sc", build_article_noto_family(targets)),
     ]:
-        families[prefix] = manifest
+        if manifest is None:
+            continue
+        families[prefix] = merge_family_manifest(families.get(prefix), manifest)
 
     MANIFEST_PATH.write_text(
         json.dumps({

@@ -634,6 +634,14 @@ html.theme-transitioning body *::after {
     will-change: opacity, transform;
 }
 
+.delay-50 {
+    animation-delay: 50ms;
+}
+
+.delay-100 {
+    animation-delay: 100ms;
+}
+
 .delay-150 {
     animation-delay: 150ms;
 }
@@ -644,7 +652,7 @@ html.theme-transitioning body *::after {
 
 .freecat-about-social > a {
     animation: fadeInUp var(--post-card-enter-dur) var(--post-card-enter-ease) both;
-    animation-delay: calc(450ms + (var(--freecat-social-index, 0) * 70ms));
+    animation-delay: calc(380ms + (var(--freecat-social-index, 0) * 50ms));
     opacity: 0;
     transform-origin: center top;
     transition:

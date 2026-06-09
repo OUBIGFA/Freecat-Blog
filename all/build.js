@@ -190,9 +190,9 @@ if (siteConfig.show_recent_posts === true) {
         .sort((a, b) => b.modifiedDate.valueOf() - a.modifiedDate.valueOf())
         .slice(0, DEFAULT_RECENT_POSTS_LIMIT);
 
-    // 入场动画延迟：h3 450ms 起步（接续 hero 阶梯 0→150→300），每条 li 再加 75ms
-    const HEADING_DELAY = 450;
-    const ITEM_DELAY_STEP = 75;
+    // 入场动画延迟：Update 紧接 hero 阶梯后轻微错峰，避免列表出场拖沓。
+    const HEADING_DELAY = 380;
+    const ITEM_DELAY_STEP = 50;
 
     const itemsHtml = recentPosts.map((post, i) => {
         const safeTitle = engine.shared.escapeHtml(post.title);

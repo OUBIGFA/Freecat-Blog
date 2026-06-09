@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //     已迁移到 src/assets/transitions.css，由 head-base.html 静态加载。
     //     这里仅保留运行时工具函数。
     // ============================================================
-    function applyStaggeredAnimations(selector, delayStep = 120, options = {}) {
+    function applyStaggeredAnimations(selector, delayStep = 50, options = {}) {
         const elements = document.querySelectorAll(selector);
         const replay = options.replay !== false;
         elements.forEach((el, index) => {
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function getStaggerDelayMs(index, delayStep = 120) {
+    function getStaggerDelayMs(index, delayStep = 50) {
         return Math.min(index, 10) * delayStep;
     }
 
@@ -234,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
     scheduleHomeSidebarFooterAvoid();
     // Apply staggered animation to existing post cards on load
     if (document.getElementById('posts-list')) {
-        applyStaggeredAnimations('.post-card', 120, { replay: false });
+        applyStaggeredAnimations('.post-card', 50, { replay: false });
     }
 
     // 监听主题切换按钮
@@ -565,7 +565,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (explicitTarget) return document.querySelector(explicitTarget);
             return document.getElementById('posts-list') || document.getElementById('search-results');
         };
-        const getCardDelay = (index) => `${Math.min(index, 10) * 70}ms`;
+        const getCardDelay = (index) => `${Math.min(index, 10) * 50}ms`;
         const setUpdateSortMode = (updateSortSwitch, useModifiedSort, options = {}) => {
             const list = getListForSwitch(updateSortSwitch);
             const mode = useModifiedSort ? 'modified' : 'date';
