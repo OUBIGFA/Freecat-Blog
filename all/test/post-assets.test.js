@@ -200,6 +200,26 @@ test('article headings keep peer spacing after standalone post images', () => {
     assert.match(postCss, /\.prose :where\([^)]*figure\.post-image[^)]*\)\+\.article-heading-depth-2,\s*\.prose \.markdown-gap\+\.article-heading-depth-2[\s\S]*margin-block-start:\s*var\(--article-space-heading-peer-2\)\s*!important;/);
 });
 
+test('article heading spacing covers media embeds and link cards', () => {
+    const resetRule = postCss.match(/\.prose p,[\s\S]*?\{\s*margin:\s*0\s*!important;\s*\}/)?.[0] || '';
+    const flowRule = postCss.match(/\.prose :is\([^{}]*figure\.external-embed[\s\S]*?margin-block-start:\s*var\(--article-space-flow\)\s*!important;\s*\}/)?.[0] || '';
+    const headingContentRule = postCss.match(/\.prose \.article-heading-depth-1\+:is\([^{}]*figure\.external-embed[\s\S]*?margin-block-start:\s*var\(--article-space-heading-to-content\)\s*!important;\s*\}/)?.[0] || '';
+    const headingPeerRule = postCss.match(/\.prose :where\([^{}]*figure\.external-embed[\s\S]*?\)\+\.article-heading-depth-2,[\s\S]*?margin-block-start:\s*var\(--article-space-heading-peer-2\)\s*!important;\s*\}/)?.[0] || '';
+
+    for (const selector of [
+        '.relative.w-full.inline-block',
+        'figure.post-image',
+        'figure.external-embed',
+        '.media-player-container'
+    ]) {
+        assert.equal(resetRule.includes(selector), true);
+        assert.equal(flowRule.includes(selector), true);
+        assert.equal(headingContentRule.includes(selector), true);
+        assert.equal(headingPeerRule.includes(selector), true);
+    }
+    assert.doesNotMatch(headingContentRule, /\+:where\(/);
+});
+
 test('markdown horizontal rules render as thick article dividers', () => {
     const hrBlocks = postCss.match(/(?:\.dark )?\.prose>hr\s*\{[^}]*\}/g) || [];
 

@@ -242,9 +242,9 @@ generateLlmsTxt({ posts: allPosts, siteConfig, seoConfig, outputDir: DIRS.output
 generateFeed({ posts: allPosts, siteConfig, seoConfig, outputDir: DIRS.output });
 generateOpenSearchXml({ siteConfig, seoConfig, outputDir: DIRS.output });
 
-// ===== 6.5 检查已生成的字体子集，再搬运静态资源 =====
-console.log('🔤 Checking generated font subsets...');
-buildArticleFontSubset({ rootDir: __dirname });
+// ===== 6.5 刷新字体子集，再搬运静态资源 =====
+console.log('🔤 Refreshing generated font subsets...');
+buildArticleFontSubset({ rootDir: __dirname, refresh: true });
 
 console.log('📦 Moving assets and configs...');
 if (fs.existsSync(DIRS.assets)) copyDir(DIRS.assets, path.join(DIRS.output, 'assets'), { ignore: ['posts'] });

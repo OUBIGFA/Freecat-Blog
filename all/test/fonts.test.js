@@ -4,6 +4,13 @@ const assert = require('node:assert/strict');
 const childProcess = require('node:child_process');
 const fs = require('node:fs');
 
+test('production build refreshes font subsets after pages are generated', () => {
+    const buildJs = fs.readFileSync(path.join(__dirname, '..', 'build.js'), 'utf-8');
+
+    assert.match(buildJs, /buildArticleFontSubset\(\{\s*rootDir:\s*__dirname,\s*refresh:\s*true\s*\}\);/);
+    assert.doesNotMatch(buildJs, /Checking generated font subsets/);
+});
+
 test('font subset build validates existing files without refreshing by default', () => {
     const modulePath = path.join(__dirname, '../build/fonts.js');
     const rootDir = path.join(__dirname, '..');
