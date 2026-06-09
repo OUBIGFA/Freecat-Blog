@@ -11,6 +11,18 @@ test('production build refreshes font subsets after pages are generated', () => 
     assert.doesNotMatch(buildJs, /Checking generated font subsets/);
 });
 
+test('font subset refresh checks the input cache before spawning Python', () => {
+    const fontsJs = fs.readFileSync(path.join(__dirname, '..', 'build', 'fonts.js'), 'utf-8');
+    const cacheCheckIndex = fontsJs.indexOf('canReuseFontSubsetCache(rootDir, inputSignature)');
+    const spawnIndex = fontsJs.indexOf('runPythonExecutable(activePython, rootDir, [scriptPath])');
+
+    assert.notEqual(cacheCheckIndex, -1);
+    assert.notEqual(spawnIndex, -1);
+    assert.ok(cacheCheckIndex < spawnIndex);
+    assert.match(fontsJs, /Font subset inputs are unchanged; skipping refresh/);
+    assert.match(fontsJs, /writeFontSubsetCache\(rootDir,\s*inputSignature\);/);
+});
+
 test('font subset build validates existing files without refreshing by default', () => {
     const modulePath = path.join(__dirname, '../build/fonts.js');
     const rootDir = path.join(__dirname, '..');
