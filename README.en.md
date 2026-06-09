@@ -223,7 +223,7 @@ Cloudflare Pages is the recommended option. The key is filling in the build sett
 
 1. Click `Save and Deploy` and wait 1-3 minutes.
 
-> Make sure GitHub Actions is enabled first. Freecat Blog updates font subsets in the article snapshot workflow and commits them to your repository; when your articles do not introduce new characters, Cloudflare builds skip font generation. You can still enable `Build cache（构建缓存）`, but do not rely on it as the only way to skip font generation.
+> Make sure GitHub Actions is enabled first. Cloudflare builds do not generate font subsets on the fly; when articles introduce new characters, the article snapshot workflow commits the font update and triggers the next deployment. You can still enable `Build cache（构建缓存）`, but do not rely on it as the only way to skip font generation.
 
 2. When the build finishes, open the default URL from Cloudflare, such as `xxx.pages.dev`.
 

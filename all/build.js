@@ -243,8 +243,15 @@ generateFeed({ posts: allPosts, siteConfig, seoConfig, outputDir: DIRS.output })
 generateOpenSearchXml({ siteConfig, seoConfig, outputDir: DIRS.output });
 
 // ===== 6.5 刷新字体子集，再搬运静态资源 =====
-console.log('🔤 Refreshing generated font subsets...');
-buildArticleFontSubset({ rootDir: __dirname, refresh: true });
+const refreshGeneratedFontSubsets = process.env.CF_PAGES !== '1';
+console.log(refreshGeneratedFontSubsets
+    ? '🔤 Refreshing generated font subsets...'
+    : '🔤 Checking committed font subsets...');
+buildArticleFontSubset({
+    rootDir: __dirname,
+    refresh: refreshGeneratedFontSubsets,
+    checkCoverage: !refreshGeneratedFontSubsets
+});
 
 console.log('📦 Moving assets and configs...');
 if (fs.existsSync(DIRS.assets)) copyDir(DIRS.assets, path.join(DIRS.output, 'assets'), { ignore: ['posts'] });

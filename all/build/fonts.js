@@ -377,10 +377,25 @@ function useExistingSubsetIfAvailable(rootDir, output) {
     return true;
 }
 
-function buildArticleFontSubset({ rootDir, refresh = false }) {
+function formatFontSubsetRefreshReasons(stale) {
+    return `${stale.slice(0, 3).join('; ')}${stale.length > 3 ? '; ...' : ''}`;
+}
+
+function buildArticleFontSubset({ rootDir, refresh = false, checkCoverage = false }) {
     if (!refresh) {
         validateExistingFontSubsets(rootDir);
-        console.log('   Generated font subsets are present; skipping refresh.');
+        if (checkCoverage) {
+            const refreshPlan = fontSubsetRefreshPlan(rootDir);
+            if (refreshPlan.reusable) {
+                console.log('   Font subset manifest covers the current text; skipping refresh.');
+            } else {
+                console.warn(`   Committed font subsets need refresh for ${refreshPlan.targets.length} subset(s); using them for this build.`);
+                console.warn('   GitHub Actions will refresh and commit the font subsets for the next deployment.');
+                console.warn(`   Font subset refresh reason(s): ${formatFontSubsetRefreshReasons(refreshPlan.stale)}`);
+            }
+        } else {
+            console.log('   Generated font subsets are present; skipping refresh.');
+        }
         return;
     }
 
@@ -394,7 +409,7 @@ function buildArticleFontSubset({ rootDir, refresh = false }) {
     }
     if (refreshPlan.targets && refreshPlan.targets.length > 0) {
         console.log(`   Refreshing ${refreshPlan.targets.length} stale font subset(s).`);
-        console.log(`   Font subset refresh reason(s): ${refreshPlan.stale.slice(0, 3).join('; ')}${refreshPlan.stale.length > 3 ? '; ...' : ''}`);
+        console.log(`   Font subset refresh reason(s): ${formatFontSubsetRefreshReasons(refreshPlan.stale)}`);
     }
 
     const scriptPath = path.join(rootDir, 'tools', 'generate-noto-subset.py');
