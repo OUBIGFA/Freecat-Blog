@@ -239,7 +239,7 @@ Freecat Blog 也内置了搜索优化支持：可生成 Sitemap、RSS、llms.txt
 
 填好点 `Save and Deploy`，等构建跑完。一般 1-3 分钟。
 
-> 请先确认 GitHub Actions 已启用。Cloudflare 构建不会现场生成字体子集；如果文章新增字符，文章快照工作流会另外提交字体更新并触发下一次部署。`Build cache（构建缓存）` 可以开启，但不要把它当作跳过字体生成的唯一依据。
+> 建议在 Cloudflare Pages 项目设置里启用 `Build cache（构建缓存）`。Cloudflare 会在构建时按需生成字体子集；首次部署、清空缓存或文章新增字符时，字体集可能会重新生成，构建时间会更久一些。
 
 ### 第 3 步：访问默认网址
 

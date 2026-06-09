@@ -9,16 +9,18 @@ function readWorkflow(name) {
     return fs.readFileSync(path.join(repoRoot, '.github', 'workflows', name), 'utf-8');
 }
 
-test('article snapshot workflow commits generated font subsets', () => {
+test('article snapshot workflow only commits article dates', () => {
     const workflow = readWorkflow('update-git-dates.yml');
 
-    assert.match(workflow, /Generate font subsets/);
-    assert.match(workflow, /npm run build/);
-    assert.match(workflow, /python -m pip install --disable-pip-version-check fonttools brotli/);
+    assert.match(workflow, /Generate article snapshots/);
+    assert.match(workflow, /git add all\/git-dates\.json/);
+    assert.match(workflow, /chore: update article snapshots/);
+    assert.doesNotMatch(workflow, /Generate font subsets/);
+    assert.doesNotMatch(workflow, /npm run build/);
+    assert.doesNotMatch(workflow, /python -m pip install --disable-pip-version-check fonttools brotli/);
     assert.doesNotMatch(workflow, /cache:\s*pip/);
-    assert.match(workflow, /all\/build\/font-subsets-manifest\.json/);
-    assert.match(workflow, /all\/src\/assets\/fonts/);
-    assert.match(workflow, /chore: update article snapshots and font subsets/);
+    assert.doesNotMatch(workflow, /all\/build\/font-subsets-manifest\.json/);
+    assert.doesNotMatch(workflow, /all\/src\/assets\/fonts/);
 });
 
 test('upstream sync preserves local generated font subsets', () => {

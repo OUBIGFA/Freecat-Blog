@@ -223,7 +223,7 @@ Cloudflare Pages is the recommended option. The key is filling in the build sett
 
 1. Click `Save and Deploy` and wait 1-3 minutes.
 
-> Make sure GitHub Actions is enabled first. Cloudflare builds do not generate font subsets on the fly; when articles introduce new characters, the article snapshot workflow commits the font update and triggers the next deployment. You can still enable `Build cache（构建缓存）`, but do not rely on it as the only way to skip font generation.
+> In the Cloudflare Pages project settings, enable `Build cache（构建缓存）`. Cloudflare generates font subsets during builds when needed; the first deployment, a cache clear, or newly added characters may generate fonts again and take longer.
 
 2. When the build finishes, open the default URL from Cloudflare, such as `xxx.pages.dev`.
 

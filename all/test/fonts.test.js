@@ -5,13 +5,11 @@ const childProcess = require('node:child_process');
 const fs = require('node:fs');
 const crypto = require('node:crypto');
 
-test('production build refreshes font subsets after pages are generated outside Cloudflare Pages', () => {
+test('production build refreshes font subsets after pages are generated', () => {
     const buildJs = fs.readFileSync(path.join(__dirname, '..', 'build.js'), 'utf-8');
 
-    assert.match(buildJs, /process\.env\.CF_PAGES !== '1'/);
-    assert.match(buildJs, /refresh:\s*refreshGeneratedFontSubsets/);
-    assert.match(buildJs, /checkCoverage:\s*!refreshGeneratedFontSubsets/);
-    assert.match(buildJs, /Checking committed font subsets/);
+    assert.match(buildJs, /buildArticleFontSubset\(\{\s*rootDir:\s*__dirname,\s*refresh:\s*true\s*\}\);/);
+    assert.doesNotMatch(buildJs, /Checking committed font subsets/);
 });
 
 test('font subset refresh checks the manifest before spawning Python', () => {
@@ -222,10 +220,8 @@ function withFontSubsetFileMocks(html, manifest, callback) {
     const originalReadFileSync = fs.readFileSync;
     const originalReaddirSync = fs.readdirSync;
     const originalLog = console.log;
-    const originalWarn = console.warn;
     const calls = [];
     const logs = [];
-    const warnings = [];
 
     function normalized(file) {
         return String(file).replace(/\\/g, '/');
@@ -283,18 +279,16 @@ function withFontSubsetFileMocks(html, manifest, callback) {
         return originalReadFileSync(file, encoding);
     };
     console.log = (message) => logs.push(String(message));
-    console.warn = (message) => warnings.push(String(message));
 
     try {
         const { buildArticleFontSubset } = require(modulePath);
-        callback({ buildArticleFontSubset, rootDir, calls, logs, warnings });
+        callback({ buildArticleFontSubset, rootDir, calls, logs });
     } finally {
         childProcess.spawnSync = originalSpawnSync;
         fs.existsSync = originalExistsSync;
         fs.readFileSync = originalReadFileSync;
         fs.readdirSync = originalReaddirSync;
         console.log = originalLog;
-        console.warn = originalWarn;
         delete require.cache[require.resolve(modulePath)];
     }
 }
@@ -325,24 +319,6 @@ test('font subset refresh only asks Python to rebuild stale subsets', () => {
         assert.equal(args.includes('freecat-figtree:regular'), true);
         assert.equal(args.includes('freecat-ui-noto-sans-sc:regular'), true);
         assert.equal(args.includes('freecat-noto-sans-sc:regular'), true);
-    });
-});
-
-test('font subset coverage check reports stale committed subsets without spawning Python', () => {
-    const asciiCoverage = Array.from({ length: 95 }, (_, index) => index + 32);
-    const manifest = expectedManifest('unused', asciiCoverage);
-
-    withFontSubsetFileMocks('<html><body>新增汉字</body></html>', manifest, ({ buildArticleFontSubset, rootDir, calls, warnings }) => {
-        assert.doesNotThrow(() => buildArticleFontSubset({ rootDir, checkCoverage: true }));
-        assert.equal(calls.length, 0);
-        assert.equal(
-            warnings.some(message => message.includes('Committed font subsets need refresh')),
-            true
-        );
-        assert.equal(
-            warnings.some(message => message.includes('GitHub Actions will refresh')),
-            true
-        );
     });
 });
 

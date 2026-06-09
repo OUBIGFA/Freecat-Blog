@@ -245,7 +245,7 @@ Cloudflare Pages 是推荐方案，构建参数要填对。
 
 1. 点 `Save and Deploy`，等 1-3 分钟。
 
-> 请先确认 GitHub Actions 已启用。Cloudflare 构建不会现场生成字体子集；如果文章新增字符，文章快照工作流会另外提交字体更新并触发下一次部署。`Build cache（构建缓存）` 可以开启，但不要把它当作跳过字体生成的唯一依据。
+> 建议在 Cloudflare Pages 项目设置里启用 `Build cache（构建缓存）`。Cloudflare 会在构建时按需生成字体子集；首次部署、清空缓存或文章新增字符时，字体集可能会重新生成，构建时间会更久一些。
 
 2. 构建完成后，打开 Cloudflare 给的默认网址，例如 `xxx.pages.dev`。
 

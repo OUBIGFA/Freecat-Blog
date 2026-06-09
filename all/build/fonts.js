@@ -381,21 +381,10 @@ function formatFontSubsetRefreshReasons(stale) {
     return `${stale.slice(0, 3).join('; ')}${stale.length > 3 ? '; ...' : ''}`;
 }
 
-function buildArticleFontSubset({ rootDir, refresh = false, checkCoverage = false }) {
+function buildArticleFontSubset({ rootDir, refresh = false }) {
     if (!refresh) {
         validateExistingFontSubsets(rootDir);
-        if (checkCoverage) {
-            const refreshPlan = fontSubsetRefreshPlan(rootDir);
-            if (refreshPlan.reusable) {
-                console.log('   Font subset manifest covers the current text; skipping refresh.');
-            } else {
-                console.warn(`   Committed font subsets need refresh for ${refreshPlan.targets.length} subset(s); using them for this build.`);
-                console.warn('   GitHub Actions will refresh and commit the font subsets for the next deployment.');
-                console.warn(`   Font subset refresh reason(s): ${formatFontSubsetRefreshReasons(refreshPlan.stale)}`);
-            }
-        } else {
-            console.log('   Generated font subsets are present; skipping refresh.');
-        }
+        console.log('   Generated font subsets are present; skipping refresh.');
         return;
     }
 
