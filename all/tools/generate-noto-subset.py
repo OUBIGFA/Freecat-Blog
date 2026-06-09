@@ -1,5 +1,7 @@
 from pathlib import Path
+import hashlib
 import html as html_lib
+import json
 import re
 
 from fontTools import subset
@@ -9,6 +11,8 @@ from fontTools.ttLib import TTFont
 ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = ROOT.parent
 OUTPUT_DIR = ROOT / "src" / "assets" / "fonts"
+MANIFEST_PATH = ROOT / "build" / "font-subsets-manifest.json"
+MANIFEST_VERSION = 2
 
 NOTO_FONT_WEIGHTS = [
     ("regular", 400, ROOT / "fonts" / "freecat-noto-sans-sc-regular.woff2"),
@@ -73,6 +77,18 @@ def collect_codepoints(files, include_ascii=False, visual_html=False):
     return codepoints
 
 
+def relative_path(path):
+    return path.relative_to(ROOT).as_posix()
+
+
+def sha256_file(path):
+    digest = hashlib.sha256()
+    with path.open("rb") as file:
+        for chunk in iter(lambda: file.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def iter_ui_html_files():
     dist_dir = ROOT / "dist"
     if not dist_dir.exists():
@@ -111,7 +127,7 @@ def build_subset(prefix, name, weight, source_font, requested, output_dir):
         output_cmap = set(TTFont(str(output_font)).getBestCmap().keys())
         if set(supported).issubset(output_cmap):
             print(f"{prefix} {weight} {name}: reused {output_font.stat().st_size} bytes")
-            return supported, unsupported, output_font
+            return supported, unsupported, output_font, source_font
 
     args = [
         str(source_font),
@@ -131,7 +147,7 @@ def build_subset(prefix, name, weight, source_font, requested, output_dir):
         raise RuntimeError(f"{prefix} {name} subset is missing supported characters: {sample}")
 
     print(f"{prefix} {weight} {name}: {output_font.stat().st_size} bytes")
-    return supported, unsupported, output_font
+    return supported, unsupported, output_font, source_font
 
 
 def build_noto_family(prefix, requested, output_dir, font_weights=None):
@@ -158,6 +174,7 @@ def build_figtree_family():
     print(f"Figtree requested characters: {len(requested)}")
     print(f"Figtree covered by source fonts: {len(supported)}")
     print(f"Figtree unsupported by source fonts: {len(unsupported)}")
+    return family_manifest("freecat-figtree", requested, coverage)
 
 
 def build_ui_noto_family():
@@ -168,6 +185,7 @@ def build_ui_noto_family():
     print(f"UI Noto Sans SC requested characters: {len(requested)}")
     print(f"UI Noto Sans SC covered by source fonts: {len(supported)}")
     print(f"UI Noto Sans SC unsupported by source fonts: {len(unsupported)}")
+    return family_manifest("freecat-ui-noto-sans-sc", requested, coverage)
 
 
 def build_article_noto_family():
@@ -184,12 +202,44 @@ def build_article_noto_family():
     print(f"Article Noto Sans SC requested characters: {len(all_requested)}")
     print(f"Article Noto Sans SC covered by source fonts: {len(supported)}")
     print(f"Article Noto Sans SC unsupported by source fonts: {len(unsupported)}")
+    return family_manifest("freecat-noto-sans-sc", all_requested, coverage)
+
+
+def family_manifest(prefix, requested, coverage):
+    subsets = {}
+    for supported, unsupported, output_font, source_font in coverage:
+        name = output_font.name.removeprefix(f"{prefix}-").removesuffix("-subset.woff2")
+        subsets[name] = {
+            "source": relative_path(source_font),
+            "sourceSha256": sha256_file(source_font),
+            "output": relative_path(output_font),
+            "supported": sorted(supported),
+            "unsupported": sorted(unsupported),
+        }
+
+    return {
+        "requested": sorted(requested),
+        "subsets": subsets,
+    }
 
 
 def main():
-    build_figtree_family()
-    build_ui_noto_family()
-    build_article_noto_family()
+    families = {}
+    for prefix, manifest in [
+        ("freecat-figtree", build_figtree_family()),
+        ("freecat-ui-noto-sans-sc", build_ui_noto_family()),
+        ("freecat-noto-sans-sc", build_article_noto_family()),
+    ]:
+        families[prefix] = manifest
+
+    MANIFEST_PATH.write_text(
+        json.dumps({
+            "version": MANIFEST_VERSION,
+            "families": families,
+        }, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    print(f"Font subset manifest: {relative_path(MANIFEST_PATH)}")
 
 
 if __name__ == "__main__":
