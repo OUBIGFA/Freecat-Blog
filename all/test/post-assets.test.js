@@ -33,7 +33,6 @@ const {
     paginationJs,
     seoJs,
     tailwindBuild,
-    notoSubsetScript,
     mediaPlayerJs,
     mediaPlayerCss,
     videoPlayerJs,

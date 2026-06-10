@@ -3,6 +3,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const childProcess = require('node:child_process');
 const fs = require('node:fs');
+const os = require('node:os');
 const crypto = require('node:crypto');
 
 test('production build refreshes font subsets after pages are generated', () => {
@@ -12,14 +13,14 @@ test('production build refreshes font subsets after pages are generated', () => 
     assert.doesNotMatch(buildJs, /Checking committed font subsets/);
 });
 
-test('font subset refresh checks the manifest before spawning Python', () => {
+test('font subset refresh checks the manifest before running the subsetter', () => {
     const fontsJs = fs.readFileSync(path.join(__dirname, '..', 'build', 'fonts.js'), 'utf-8');
     const cacheCheckIndex = fontsJs.indexOf('fontSubsetRefreshPlan(rootDir)');
-    const spawnIndex = fontsJs.indexOf('runPythonExecutable(activePython, rootDir, scriptArgs)');
+    const runIndex = fontsJs.indexOf('runFontSubsetter(rootDir, refreshPlan.targets)');
 
     assert.notEqual(cacheCheckIndex, -1);
-    assert.notEqual(spawnIndex, -1);
-    assert.ok(cacheCheckIndex < spawnIndex);
+    assert.notEqual(runIndex, -1);
+    assert.ok(cacheCheckIndex < runIndex);
     assert.match(fontsJs, /Font subset manifest covers the current text; skipping refresh/);
     assert.doesNotMatch(fontsJs, /fontSubsetInputSignature/);
 });
@@ -94,7 +95,7 @@ test('font subset build reports missing generated files in default mode', () => 
     }
 });
 
-test('font subset refresh falls back to the existing subset when fontTools is unavailable', () => {
+test('font subset refresh falls back to the existing subsets when the subsetter fails', () => {
     const modulePath = path.join(__dirname, '../build/fonts.js');
     const originalSpawnSync = childProcess.spawnSync;
     const originalExistsSync = fs.existsSync;
@@ -106,7 +107,7 @@ test('font subset refresh falls back to the existing subset when fontTools is un
     childProcess.spawnSync = () => ({
         status: 1,
         stdout: '',
-        stderr: 'ModuleNotFoundError: No module named \'fontTools\''
+        stderr: "Error: Cannot find module 'subset-font'"
     });
     fs.existsSync = (file) => {
         const normalized = String(file).replace(/\\/g, '/');
@@ -135,57 +136,6 @@ test('font subset refresh falls back to the existing subset when fontTools is un
     }
 });
 
-test('font subset build installs fontTools in a local venv when system Python is managed', () => {
-    const modulePath = path.join(__dirname, '../build/fonts.js');
-    const rootDir = path.join(__dirname, '..');
-    const originalSpawnSync = childProcess.spawnSync;
-    const originalExistsSync = require('node:fs').existsSync;
-    const originalMkdirSync = require('node:fs').mkdirSync;
-    const originalLog = console.log;
-    const calls = [];
-    const logs = [];
-
-    delete require.cache[require.resolve(modulePath)];
-    require('node:fs').existsSync = (file) => {
-        if (String(file).replace(/\\/g, '/').includes('/build/font-subsets-manifest.json')) return false;
-        if (String(file).includes('freecat-fonttools-venv')) return false;
-        return originalExistsSync(file);
-    };
-    require('node:fs').mkdirSync = () => {};
-    childProcess.spawnSync = (command, args) => {
-        calls.push({ command: String(command), args });
-        if (calls.length === 1) {
-            return {
-                status: 1,
-                stdout: '',
-                stderr: 'ModuleNotFoundError: No module named \'fontTools\''
-            };
-        }
-        return { status: 0, stdout: '', stderr: '' };
-    };
-    console.log = (message) => logs.push(String(message));
-
-    try {
-        const { buildArticleFontSubset } = require(modulePath);
-        assert.doesNotThrow(() => buildArticleFontSubset({ rootDir, refresh: true }));
-
-        const pipInstall = calls.find(call => call.args.includes('pip') && call.args.includes('install'));
-        assert.ok(pipInstall, 'expected fontTools install command');
-        assert.equal(pipInstall.args.includes('--user'), false);
-        assert.equal(pipInstall.command.includes('freecat-fonttools-venv'), true);
-        assert.equal(
-            logs.some(message => message.includes('local build environment')),
-            true
-        );
-    } finally {
-        childProcess.spawnSync = originalSpawnSync;
-        require('node:fs').existsSync = originalExistsSync;
-        require('node:fs').mkdirSync = originalMkdirSync;
-        console.log = originalLog;
-        delete require.cache[require.resolve(modulePath)];
-    }
-});
-
 test('font caches always live in node_modules/.cache regardless of build platform', () => {
     const modulePath = path.join(__dirname, '../build/fonts.js');
     const rootDir = path.join('X:', 'freecat');
@@ -198,14 +148,10 @@ test('font caches always live in node_modules/.cache regardless of build platfor
     process.env.npm_config_cache = path.join('X:', 'cloudflare', '.npm');
 
     try {
-        const { fontSubsetCacheDir, fontToolsVenvDir } = require(modulePath);
+        const { fontSubsetCacheDir } = require(modulePath);
         assert.equal(
             fontSubsetCacheDir(rootDir),
             path.join(rootDir, 'node_modules', '.cache', 'freecat-font-subsets')
-        );
-        assert.equal(
-            fontToolsVenvDir(rootDir),
-            path.join(rootDir, 'node_modules', '.cache', 'freecat-fonttools-venv')
         );
     } finally {
         if (previousCfPages === undefined) delete process.env.CF_PAGES;
@@ -323,7 +269,7 @@ function withFontSubsetFileMocks(html, manifest, callback) {
     }
 }
 
-test('font subset refresh skips Python when the manifest covers current text', () => {
+test('font subset refresh skips the subsetter when the manifest covers current text', () => {
     const asciiCoverage = Array.from({ length: 95 }, (_, index) => index + 32);
     const manifest = expectedManifest('unused', asciiCoverage);
 
@@ -337,7 +283,7 @@ test('font subset refresh skips Python when the manifest covers current text', (
     });
 });
 
-test('font subset refresh only asks Python to rebuild stale subsets', () => {
+test('font subset refresh only asks the subsetter to rebuild stale subsets', () => {
     const asciiCoverage = Array.from({ length: 95 }, (_, index) => index + 32);
     const manifest = expectedManifest('unused', asciiCoverage);
 
@@ -345,6 +291,7 @@ test('font subset refresh only asks Python to rebuild stale subsets', () => {
         assert.doesNotThrow(() => buildArticleFontSubset({ rootDir, refresh: true }));
         assert.equal(calls.length, 1);
         const args = calls[0][1];
+        assert.match(String(args[0]).replace(/\\/g, '/'), /\/build\/font-subsetter\.js$/);
         assert.equal(args.filter(arg => arg === '--target').length, 11);
         assert.equal(args.includes('freecat-figtree:regular'), true);
         assert.equal(args.includes('freecat-ui-noto-sans-sc:regular'), true);
@@ -352,7 +299,7 @@ test('font subset refresh only asks Python to rebuild stale subsets', () => {
     });
 });
 
-test('font subset refresh reuses restored build cache before spawning Python', () => {
+test('font subset refresh reuses restored build cache before running the subsetter', () => {
     const asciiCoverage = Array.from({ length: 95 }, (_, index) => index + 32);
     const manifest = expectedManifest('unused', asciiCoverage);
     const modulePath = path.join(__dirname, '../build/fonts.js');
@@ -443,5 +390,45 @@ test('font subset refresh reuses restored build cache before spawning Python', (
         fs.mkdirSync = originalMkdirSync;
         console.log = originalLog;
         delete require.cache[require.resolve(modulePath)];
+    }
+});
+
+test('font subsetter generates woff2 subsets that cover the requested text', async () => {
+    const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'freecat-font-subsetter-'));
+    const originalLog = console.log;
+    console.log = () => {};
+
+    try {
+        const rootDir = path.join(sandbox, 'all');
+        fs.mkdirSync(path.join(rootDir, 'fonts'), { recursive: true });
+        fs.mkdirSync(path.join(rootDir, 'dist'), { recursive: true });
+        fs.copyFileSync(
+            path.join(__dirname, '..', 'fonts', 'freecat-figtree-regular.ttf'),
+            path.join(rootDir, 'fonts', 'freecat-figtree-regular.ttf')
+        );
+        fs.writeFileSync(path.join(rootDir, 'dist', 'index.html'), '<html><body>Subset OK 123</body></html>', 'utf-8');
+
+        const { generateFontSubsets } = require('../build/font-subsetter.js');
+        await generateFontSubsets({ rootDir, targets: { 'freecat-figtree': new Set(['regular']) } });
+
+        const outputFile = path.join(rootDir, 'src', 'assets', 'fonts', 'freecat-figtree-regular-subset.woff2');
+        assert.ok(fs.existsSync(outputFile), 'expected the generated subset file to exist');
+
+        const fontkit = require('fontkit');
+        const subsetCmap = new Set(fontkit.create(fs.readFileSync(outputFile)).characterSet);
+        for (const char of 'Subset OK 123') {
+            assert.ok(subsetCmap.has(char.codePointAt(0)), `expected the subset to keep a glyph for "${char}"`);
+        }
+
+        const manifest = JSON.parse(fs.readFileSync(path.join(rootDir, 'build', 'font-subsets-manifest.json'), 'utf-8'));
+        assert.equal(manifest.version, 2);
+        const entry = manifest.families['freecat-figtree'].subsets.regular;
+        assert.equal(entry.source, 'fonts/freecat-figtree-regular.ttf');
+        assert.equal(entry.output, 'src/assets/fonts/freecat-figtree-regular-subset.woff2');
+        assert.ok(entry.supported.includes('S'.codePointAt(0)));
+        assert.equal(typeof entry.sourceSha256, 'string');
+    } finally {
+        console.log = originalLog;
+        fs.rmSync(sandbox, { recursive: true, force: true });
     }
 });

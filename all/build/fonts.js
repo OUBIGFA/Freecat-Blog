@@ -3,35 +3,37 @@ const fs = require('fs');
 const crypto = require('crypto');
 const { spawnSync } = require('child_process');
 
-const SYSTEM_PYTHON = process.env.PYTHON || 'python';
 const CACHE_VERSION = 2;
 const TEXT_INPUT_EXTENSIONS = new Set(['.html', '.js', '.md', '.markdown', '.mdown', '.mkd', '.mkdn', '.txt', '.text']);
 
 const NOTO_FONT_WEIGHTS = [
-    ['regular', 'freecat-noto-sans-sc-regular.woff2'],
-    ['medium', 'freecat-noto-sans-sc-medium.ttf'],
-    ['semi-bold', 'freecat-noto-sans-sc-semi-bold.ttf'],
-    ['extra-bold', 'freecat-noto-sans-sc-extra-bold.ttf']
+    ['regular', 400, 'freecat-noto-sans-sc-regular.woff2'],
+    ['medium', 500, 'freecat-noto-sans-sc-medium.ttf'],
+    ['semi-bold', 600, 'freecat-noto-sans-sc-semi-bold.ttf'],
+    ['extra-bold', 800, 'freecat-noto-sans-sc-extra-bold.ttf']
 ];
 const FIGTREE_FONT_WEIGHTS = [
-    ['regular', 'freecat-figtree-regular.ttf'],
-    ['semi-bold', 'freecat-figtree-semi-bold.ttf'],
-    ['extra-bold', 'freecat-figtree-extra-bold.ttf']
+    ['regular', 400, 'freecat-figtree-regular.ttf'],
+    ['semi-bold', 600, 'freecat-figtree-semi-bold.ttf'],
+    ['extra-bold', 800, 'freecat-figtree-extra-bold.ttf']
 ];
 const FONT_FAMILIES = [
     {
         key: 'figtree',
         prefix: 'freecat-figtree',
+        label: 'Figtree',
         weights: FIGTREE_FONT_WEIGHTS
     },
     {
         key: 'uiNotoSansSc',
         prefix: 'freecat-ui-noto-sans-sc',
+        label: 'UI Noto Sans SC',
         weights: NOTO_FONT_WEIGHTS
     },
     {
         key: 'articleNotoSansSc',
         prefix: 'freecat-noto-sans-sc',
+        label: 'Article Noto Sans SC',
         weights: NOTO_FONT_WEIGHTS
     }
 ];
@@ -61,6 +63,7 @@ function fontSubsetManifestFile(rootDir) {
 
 // Cloudflare Pages 的构建缓存只保留包管理器自身的缓存与特定框架的产物目录，
 // 无法持久化自定义目录；该缓存仅对会保留 node_modules 的平台（如 Vercel）和本地构建生效。
+// 字体子集工具链本身（subset-font / fontkit）走 npm 依赖，因此能命中 Cloudflare 的依赖缓存。
 function fontSubsetCacheDir(rootDir) {
     return path.join(rootDir, 'node_modules', '.cache', 'freecat-font-subsets');
 }
@@ -264,7 +267,7 @@ function fontSubsetRefreshPlan(rootDir) {
             continue;
         }
 
-        for (const [name, sourceName] of family.weights) {
+        for (const [name, , sourceName] of family.weights) {
             const outputFile = path.join(rootDir, 'src', 'assets', 'fonts', `${family.prefix}-${name}-subset.woff2`);
             const sourceFile = path.join(rootDir, 'fonts', sourceName);
             const entry = familyManifest.subsets[name];
@@ -293,61 +296,18 @@ function fontSubsetRefreshPlan(rootDir) {
     return { reusable: stale.length === 0, stale, targets };
 }
 
-function runPythonExecutable(executable, rootDir, args) {
-    return spawnSync(executable, args, {
+function runFontSubsetter(rootDir, targets) {
+    const scriptPath = path.join(rootDir, 'build', 'font-subsetter.js');
+    const scriptArgs = [scriptPath, ...(targets || []).flatMap(target => ['--target', target])];
+    return spawnSync(process.execPath, scriptArgs, {
         cwd: rootDir,
         encoding: 'utf-8',
-        stdio: 'pipe',
-        env: {
-            ...process.env,
-            PYTHONIOENCODING: 'utf-8'
-        }
+        stdio: 'pipe'
     });
-}
-
-function runSystemPython(rootDir, args) {
-    return runPythonExecutable(SYSTEM_PYTHON, rootDir, args);
 }
 
 function commandOutput(result) {
     return [result.stdout, result.stderr].filter(Boolean).join('\n').trim();
-}
-
-function isMissingFontTools(result) {
-    return /No module named ['"]fontTools['"]/.test(commandOutput(result));
-}
-
-function fontToolsVenvDir(rootDir) {
-    return path.join(rootDir, 'node_modules', '.cache', 'freecat-fonttools-venv');
-}
-
-function fontToolsPython(rootDir) {
-    const venvDir = fontToolsVenvDir(rootDir);
-    return process.platform === 'win32'
-        ? path.join(venvDir, 'Scripts', 'python.exe')
-        : path.join(venvDir, 'bin', 'python');
-}
-
-function installFontTools(rootDir) {
-    const venvDir = fontToolsVenvDir(rootDir);
-    const cacheDir = path.dirname(venvDir);
-    const venvPython = fontToolsPython(rootDir);
-
-    fs.mkdirSync(cacheDir, { recursive: true });
-    if (!fs.existsSync(venvPython)) {
-        const createResult = runSystemPython(rootDir, ['-m', 'venv', venvDir]);
-        if (createResult.status !== 0) return createResult;
-    }
-
-    return runPythonExecutable(venvPython, rootDir, [
-        '-m',
-        'pip',
-        'install',
-        '--disable-pip-version-check',
-        '--no-input',
-        'fonttools',
-        'brotli'
-    ]);
 }
 
 function expectedFontSubsets(rootDir) {
@@ -403,15 +363,7 @@ function buildArticleFontSubset({ rootDir, refresh = false }) {
         console.log(`   Font subset refresh reason(s): ${formatFontSubsetRefreshReasons(refreshPlan.stale)}`);
     }
 
-    const scriptPath = path.join(rootDir, 'tools', 'generate-noto-subset.py');
-    const scriptArgs = [
-        scriptPath,
-        ...(refreshPlan.targets || []).flatMap(target => ['--target', target])
-    ];
-    const venvPython = fontToolsPython(rootDir);
-    let activePython = fs.existsSync(venvPython) ? venvPython : SYSTEM_PYTHON;
-    let result = runPythonExecutable(activePython, rootDir, scriptArgs);
-
+    const result = runFontSubsetter(rootDir, refreshPlan.targets);
     if (result.status === 0) {
         process.stdout.write(result.stdout);
         if (result.stderr) process.stderr.write(result.stderr);
@@ -419,29 +371,12 @@ function buildArticleFontSubset({ rootDir, refresh = false }) {
         return;
     }
 
-    if (isMissingFontTools(result)) {
-        console.log('   Python fontTools is missing; installing it into the local build environment...');
-        const installResult = installFontTools(rootDir);
-        if (installResult.status === 0) {
-            activePython = fontToolsPython(rootDir);
-            result = runPythonExecutable(activePython, rootDir, scriptArgs);
-            if (result.status === 0) {
-                process.stdout.write(result.stdout);
-                if (result.stderr) process.stderr.write(result.stderr);
-                saveCachedFontSubsets(rootDir);
-                return;
-            }
-        } else if (useExistingSubsetIfAvailable(rootDir, commandOutput(installResult))) {
-            return;
-        }
-    }
-
     const output = commandOutput(result);
     if (useExistingSubsetIfAvailable(rootDir, output)) return;
 
     throw new Error(
-        'Could not generate the article Chinese font subset. ' +
-        'Install Python fontTools and brotli, then run npm run fonts:subset.\n' +
+        'Could not generate the font subsets. ' +
+        'Run npm install to restore build dependencies, then npm run fonts:subset.\n' +
         output
     );
 }
@@ -456,5 +391,10 @@ module.exports = {
     validateExistingFontSubsets,
     fontSubsetRefreshPlan,
     fontSubsetCacheDir,
-    fontToolsVenvDir
+    CACHE_VERSION,
+    FONT_FAMILIES,
+    fontSubsetManifestFile,
+    iterPostPages,
+    requestedCodepointsByFamily,
+    sha256File
 };

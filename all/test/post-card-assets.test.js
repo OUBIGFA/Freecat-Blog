@@ -33,7 +33,7 @@ const {
     paginationJs,
     seoJs,
     tailwindBuild,
-    notoSubsetScript,
+    fontsJs,
     mediaPlayerJs,
     mediaPlayerCss,
     videoPlayerJs,
@@ -136,10 +136,10 @@ test('post card text uses build-time Figtree and Noto Sans SC font assets', () =
     assert.doesNotMatch(postCss, /\.freecat-search-input\s*\{/);
     assert.doesNotMatch(postCss, /\.freecat-brand-text\s*\{/);
     assert.doesNotMatch(postCss, /\.freecat-footer-copyright\s*\{/);
-    assert.match(notoSubsetScript, /iter_ui_html_files/);
-    assert.match(notoSubsetScript, /iter_post_pages/);
-    assert.match(notoSubsetScript, /FIGTREE_FONT_WEIGHTS/);
-    assert.doesNotMatch(notoSubsetScript, /PUBLISHED_DATE_CODEPOINTS/);
+    assert.match(fontsJs, /iterUiHtmlFiles/);
+    assert.match(fontsJs, /iterPostPages/);
+    assert.match(fontsJs, /FIGTREE_FONT_WEIGHTS/);
+    assert.doesNotMatch(fontsJs, /PUBLISHED_DATE_CODEPOINTS/);
     assert.match(postTemplate, /<!-- POST_FONT_PRELOADS -->/);
     assert.match(postTemplate, /<!-- POST_FONT_FACE_CSS -->/);
     assert.doesNotMatch(postCss, /freecat-noto-sans-sc-regular-subset\.woff2/);

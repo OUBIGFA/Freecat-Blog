@@ -224,7 +224,7 @@ Cloudflare Pages is the recommended option. The key is filling in the build sett
 
 1. Click `Save and Deploy` and wait 1-3 minutes.
 
-> In the Cloudflare Pages project settings, enable `Build cache` to speed up dependency installs. Note that Cloudflare's build cache does not keep font subsets: builds reuse the subsets committed in the repository when they cover the current text, and regenerate them (which takes longer) when articles add new characters. To keep deployments fast, run `npm run build` locally and commit the refreshed font subsets.
+> In the Cloudflare Pages project settings, enable `Build cache`. The font subsetting toolchain is now pure npm dependencies, so installs finish in seconds once the dependency cache warms up; builds reuse the subsets committed in the repository when they cover the current text, and regenerating them after articles add new characters only takes seconds — no Python environment required.
 
 2. When the build finishes, open the default URL from Cloudflare, such as `xxx.pages.dev`.
 
