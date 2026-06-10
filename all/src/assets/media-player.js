@@ -77,7 +77,7 @@
                 <div class="media-controls-right ${kind}-controls-right">
                     <div class="media-speed-control ${kind}-speed-control">
                         <button class="media-speed-btn ${kind}-speed-btn" aria-label="Playback speed">1.0x</button>
-                        <div class="media-speed-dropdown ${kind}-speed-dropdown t-dropdown" data-origin="bottom-right">
+                        <div class="media-speed-dropdown ${kind}-speed-dropdown t-dropdown" data-origin="bottom-center">
                             ${renderSpeedOptions(kind)}
                         </div>
                     </div>

@@ -106,7 +106,7 @@ test('getPostsByTag reads the tag index and sorts the resulting posts', () => {
 
 test('renderSearchResultCards renders escaped post-card markup with staggered delays', () => {
     const html = searchCore.renderSearchResultCards([
-        { title: 'Hello <b>World</b>', excerpt: 'safe & sound', tags: ['Tech'], date: '2026-01-01', link: '/posts/a/' },
+        { title: 'Hello <b>World</b>', excerpt: 'safe & sound', tags: ['Tech'], date: '2026-01-01', link: '/posts/a/', cover: '/image/example.png' },
         { title: 'Second', excerpt: 'two', tags: [], date: '2026-02-01', link: '/posts/b/' }
     ]);
 
@@ -117,6 +117,8 @@ test('renderSearchResultCards renders escaped post-card markup with staggered de
     assert.match(html, /animation-delay:\s*0ms/, 'first card starts immediately');
     assert.match(html, /animation-delay:\s*50ms/, 'second card is staggered by 50ms');
     assert.match(html, /freecat-tag-text/, 'tags render through shared.renderTagSpan');
+    assert.match(html, /post-card[^"]*\btags-inline-mobile\b/, 'search results use the all-page mobile tag placement');
+    assert.match(html, /lazy-image-frame mt-4 h-\[clamp\(11\.25rem,14\.5vw,13\.25rem\)\] max-\[480px\]:h-\[11\.5rem\]/, 'search results use the all-page mobile cover height');
 });
 
 test('getStaggerDelayMs grows per index and clamps at the 10th element', () => {

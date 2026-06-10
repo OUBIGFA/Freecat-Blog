@@ -21,6 +21,9 @@
     if (!postCardTemplate || typeof postCardTemplate.renderPostCard !== 'function') {
         throw new Error('PostCardTemplate not loaded — ensure post-card-template.js loads before search-core.js');
     }
+    if (!postCardTemplate.ALL_PAGE_MOBILE_CARD_OPTIONS) {
+        throw new Error('PostCardTemplate missing all-page mobile card options');
+    }
     const { escapeHtml, processTitleHtml, renderTagSpan, normalizeTagKey } = shared;
 
     // 列表入场动画的错峰延迟（与 main.js applyStaggeredAnimations 共用同一决策）。
@@ -99,6 +102,7 @@
     }
 
     function buildSearchResultCardData(post, index, options = {}) {
+        const cardOptions = { ...options };
         return {
             link: post.link,
             titleHtml: processTitleHtml(escapeHtml(post.title)),
@@ -113,7 +117,8 @@
             coverHeight: post.coverHeight,
             pinned: post.pinned,
             animationDelay: getStaggerDelayMs(index),
-            layout: options.layout
+            mobileTagsInline: postCardTemplate.ALL_PAGE_MOBILE_CARD_OPTIONS.mobileTagsInline,
+            layout: cardOptions.layout
         };
     }
 

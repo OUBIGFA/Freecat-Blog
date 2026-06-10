@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { renderPostCardForList } = require('./index.js');
+const postCardTemplate = require('../../shared/post-card-template.js');
 const seo = require('../seo.js');
 const { replacePlaceholders } = require('../template-engine.js');
 
@@ -11,8 +12,8 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir }) {
     console.log('📋 Generating all articles page...');
     const html = posts
         .map((post, index) => renderPostCardForList(post, index, {
+            ...postCardTemplate.ALL_PAGE_MOBILE_CARD_OPTIONS,
             animationDelayStep: 50,
-            mobileTagsInline: true,
             layout: 'compact-grid'
         }))
         .join('');

@@ -26,6 +26,21 @@
     font-synthesis-weight: none;
 }
 
+.tags-fit {
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.tags-fit-inner {
+    width: max-content;
+    max-width: none;
+    transform-origin: left center;
+}
+
+.tags-fit-inner .freecat-tag-text {
+    flex: 0 0 auto;
+}
+
 .freecat-nav-text {
     font-family: "Freecat Figtree", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     font-weight: 600;

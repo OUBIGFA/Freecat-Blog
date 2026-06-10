@@ -116,14 +116,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function fitTagRows() {
         const containers = document.querySelectorAll('.tags-fit');
         containers.forEach(container => {
-            container.style.transform = 'none';
-            container.style.transformOrigin = 'left center';
-            container.style.willChange = 'transform';
+            const inner = container.querySelector('.tags-fit-inner') || container;
+            container.style.width = '';
+            inner.style.transform = 'none';
+            inner.style.transformOrigin = 'left center';
+            inner.style.willChange = 'transform';
             const available = container.clientWidth;
-            const scroll = container.scrollWidth;
+            const scroll = inner.scrollWidth;
             if (available > 0 && scroll > available) {
                 const scale = Math.max(0.1, available / scroll);
-                container.style.transform = `scale(${scale})`;
+                inner.style.transform = `scale(${scale})`;
             }
         });
     }
@@ -271,6 +273,8 @@ document.addEventListener('DOMContentLoaded', () => {
     avatarShadowModule.init({ window, document, platform });
 
     fitTagRows();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTagRows);
+    window.addEventListener('resize', fitTagRows, { passive: true });
 
     // Apply staggered animation to existing post cards on load
     if (document.getElementById('posts-list')) {

@@ -220,7 +220,7 @@
             }
 
             .freecat-home-posts {
-                padding: 0 clamp(20px, 5vw, 40px) 48px;
+                padding: 0 0.875rem 48px;
             }
 
             body:not([data-page="home"]) .freecat-home-sidebar {
@@ -229,6 +229,13 @@
 
             body:not([data-page="home"]) .freecat-home-posts {
                 padding-top: calc(var(--freecat-page-top-offset, 96px) + 12px);
+            }
+
+            .freecat-home-posts #posts-list,
+            .freecat-home-posts #search-results {
+                display: grid;
+                grid-template-columns: 1fr;
+                row-gap: 1.25rem;
             }
 
             .freecat-home-sidebar-recent {

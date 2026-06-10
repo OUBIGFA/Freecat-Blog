@@ -6,6 +6,7 @@ const { generatePaginationHtml } = require('../pagination.js');
 const seo = require('../seo.js');
 const { replacePlaceholders } = require('../template-engine.js');
 const { normalizePostTags } = require('../article-model.js');
+const { ALL_PAGE_MOBILE_CARD_OPTIONS } = postCardTemplate;
 
 /**
  * 渲染分页首页（index.html + page/N/index.html）。
@@ -15,11 +16,12 @@ function getCardAnimationDelay(index, step = 50) {
 }
 
 function renderPostCardForList(post, index = 0, options = {}) {
+    const cardOptions = { ...options };
     const tags = normalizePostTags(post);
     // 首页 / 全部页 使用带 dark hover 的 tag 风格（与原有视觉一致）
     const tagsHtml = tags.map(t => shared.renderTagSpan(t, { darkHover: true })).join('');
-    const animationDelayStep = Number.isFinite(Number(options.animationDelayStep))
-        ? Number(options.animationDelayStep)
+    const animationDelayStep = Number.isFinite(Number(cardOptions.animationDelayStep))
+        ? Number(cardOptions.animationDelayStep)
         : 50;
 
     return postCardTemplate.renderPostCard({
@@ -38,8 +40,8 @@ function renderPostCardForList(post, index = 0, options = {}) {
         coverHeight: post.coverHeight,
         pinned: post.pinned,
         animationDelay: getCardAnimationDelay(index, animationDelayStep),
-        mobileTagsInline: options.mobileTagsInline === true,
-        layout: options.layout
+        mobileTagsInline: ALL_PAGE_MOBILE_CARD_OPTIONS.mobileTagsInline,
+        layout: cardOptions.layout
     });
 }
 

@@ -461,15 +461,15 @@
 .media-speed-dropdown {
     position: absolute;
     bottom: calc(100% + 0.5rem);
-    right: 0;
+    left: 50%;
     background: white;
     border: 1px solid #cbd5e1;
     border-radius: 6px;
     overflow: hidden;
     opacity: 0;
     pointer-events: none;
-    transform: scale(0.97);
-    transform-origin: bottom right;
+    transform: translateX(-50%) scale(0.97);
+    transform-origin: bottom center;
     transition:
         transform 250ms cubic-bezier(0.22, 1, 0.36, 1),
         opacity 250ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -485,13 +485,13 @@
 .media-speed-dropdown.is-open {
     opacity: 1;
     pointer-events: auto;
-    transform: scale(1);
+    transform: translateX(-50%) scale(1);
 }
 
 .media-speed-dropdown.is-closing {
     opacity: 0;
     pointer-events: none;
-    transform: scale(0.99);
+    transform: translateX(-50%) scale(0.99);
     transition:
         transform 150ms cubic-bezier(0.22, 1, 0.36, 1),
         opacity 150ms cubic-bezier(0.22, 1, 0.36, 1);

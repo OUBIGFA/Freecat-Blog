@@ -72,7 +72,7 @@ test('post cards omit image markup when no real cover is provided', () => {
         coverPlaceholder: true
     });
 
-    assert.match(html, /class="post-card has-no-cover\b/);
+    assert.match(html, /class="post-card post-card-layout-compact-grid has-no-cover\b/);
     assert.doesNotMatch(html, /<img\b/);
     assert.doesNotMatch(html, /data-src="\/image\/404\.png"/);
     assert.doesNotMatch(html, /lazy-image-frame mt-8/);
@@ -113,6 +113,15 @@ test('post card text uses build-time Figtree and Noto Sans SC font assets', () =
     assert.match(typographyCss, /\.freecat-date-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"/);
     assert.match(typographyCss, /\.freecat-published-date-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*600;/);
     assert.match(typographyCss, /\.freecat-tag-text\s*\{[\s\S]*font-family:\s*"Freecat Tag Figtree",\s*"Freecat Tag Noto Sans SC"[\s\S]*font-weight:\s*500;/);
+    assert.match(typographyCss, /\.tags-fit\s*\{[\s\S]*max-width:\s*100%;[\s\S]*overflow:\s*hidden;/);
+    assert.match(typographyCss, /\.tags-fit-inner\s*\{[\s\S]*width:\s*max-content;[\s\S]*transform-origin:\s*left center;/);
+    assert.match(typographyCss, /\.tags-fit-inner \.freecat-tag-text\s*\{[\s\S]*flex:\s*0 0 auto;/);
+    assert.match(mainJs, /const inner = container\.querySelector\('\.tags-fit-inner'\) \|\| container;/);
+    assert.match(mainJs, /container\.style\.width = '';/);
+    assert.match(mainJs, /const available = container\.clientWidth;/);
+    assert.match(mainJs, /inner\.style\.transform = `scale\(\$\{scale\}\)`;/);
+    assert.match(mainJs, /window\.addEventListener\('resize',\s*fitTagRows,\s*\{\s*passive:\s*true\s*\}\);/);
+    assert.match(readProjectFile('shared', 'post-card-template.js'), /flex-nowrap items-center gap-x-3\.5/);
     assert.match(typographyCss, /\.freecat-nav-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*600;/);
     assert.match(typographyCss, /\.freecat-go-back-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*800;/);
     assert.match(typographyCss, /\.freecat-search-input\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
@@ -207,6 +216,52 @@ test('go back and update sort labels use requested font assets', () => {
     assert.match(transitionsCss, /@media \(max-width: 480px\)\s*\{[\s\S]*\.freecat-list-toolbar \[data-update-sort-controls\]\s*\{[\s\S]*flex-wrap:\s*nowrap\s*!important;/);
     assert.doesNotMatch(allTemplate, /\.freecat-all-page \[data-all-toolbar\]\s*\{/);
     assert.doesNotMatch(updateSortControl, /<span>按更新排序<\/span>/);
+});
+
+test('default mobile post cards use the all-page card shell', () => {
+    const dateValue = {
+        tz: () => ({ format: () => '2026-05-30' }),
+        valueOf: () => 1780135781000
+    };
+    const modifiedDateValue = {
+        tz: () => ({ format: () => '2026-05-31' }),
+        valueOf: () => 1780222181000
+    };
+    const html = renderPostCardForList({
+        link: '/posts/example.html',
+        title: 'Example',
+        excerpt: 'Example excerpt',
+        cover: '/image/example.png',
+        date: dateValue,
+        modifiedDate: modifiedDateValue,
+        tag: ['Free']
+    });
+
+    assert.match(html, /class="post-card post-card-layout-compact-grid has-cover tags-inline-mobile animate-fade-in-up block h-full min-w-0 lg:mb-10/);
+    assert.match(html, /post-card[^"]*\btags-inline-mobile\b/);
+    assert.equal(html.indexOf('<span>2026-05-31</span>') < html.indexOf('Free'), true);
+    assert.match(html, /lazy-image-frame mt-4 h-\[clamp\(11\.25rem,14\.5vw,13\.25rem\)\] max-\[480px\]:h-\[11\.5rem\]/);
+    assert.doesNotMatch(html, /\bmb-8\b/);
+    assert.doesNotMatch(html, /\bmd:mb-10\b/);
+});
+
+test('home and search mobile lists use the all-page single-column card gap', () => {
+    const homeLayoutStyle = readProjectFile('src/partials/home-layout-style.html');
+
+    assert.match(homeLayoutStyle, /\.freecat-home-posts\s*\{[\s\S]*padding:\s*0 0\.875rem 48px;/);
+    assert.match(homeLayoutStyle, /\.freecat-home-posts #posts-list,\s*\.freecat-home-posts #search-results\s*\{[\s\S]*display:\s*grid;[\s\S]*grid-template-columns:\s*1fr;[\s\S]*row-gap:\s*1\.25rem;/);
+});
+
+test('home, all and search cards share the all-page mobile card contract', () => {
+    assert.deepEqual(postCardTemplate.ALL_PAGE_MOBILE_CARD_OPTIONS, {
+        mobileTagsInline: true
+    });
+    assert.match(readProjectFile('build', 'pages', 'index.js'), /const \{ ALL_PAGE_MOBILE_CARD_OPTIONS \} = postCardTemplate;/);
+    assert.match(readProjectFile('build', 'pages', 'index.js'), /mobileTagsInline:\s*ALL_PAGE_MOBILE_CARD_OPTIONS\.mobileTagsInline/);
+    assert.match(readProjectFile('build', 'pages', 'all.js'), /\.\.\.postCardTemplate\.ALL_PAGE_MOBILE_CARD_OPTIONS/);
+    assert.match(readProjectFile('src', 'assets', 'search-core.js'), /postCardTemplate\.ALL_PAGE_MOBILE_CARD_OPTIONS/);
+    assert.doesNotMatch(readProjectFile('src', 'assets', 'search-core.js'), /ALL_PAGE_MOBILE_CARD_OPTIONS\s*\|\|/);
+    assert.match(readProjectFile('shared', 'post-card-template.js'), /function renderAllPageMobileCardInner/);
 });
 
 test('pagination text uses requested regular and active font weights', () => {
@@ -320,7 +375,7 @@ test('all-page compact cards use native excerpt ellipsis by cover state', () => 
     assert.doesNotMatch(headBase, /post-card-excerpt-clamp/);
 });
 
-test('mobile post cards remove the image-to-tags divider and extend the cover', () => {
+test('mobile post cards reuse the all-page compact layout', () => {
     const html = postCardTemplate.renderPostCard({
         link: '/posts/example.html',
         titleHtml: 'Example',
@@ -331,9 +386,11 @@ test('mobile post cards remove the image-to-tags divider and extend the cover', 
         tagsHtml: '<span>Free</span>'
     });
 
-    assert.match(html, /lazy-image-frame mt-8 h-\[196px\]/);
-    assert.doesNotMatch(html, /lazy-image-frame mt-8 h-\[180px\]/);
-    assert.match(html, /<div class="mt-3 shrink-0">\s*<div class="flex min-h-5 items-center">/);
+    assert.match(html, /<div class="relative flex h-full min-h-0\s+flex-col rounded-lg bg-white[\s\S]*\blg:hidden\b/);
+    assert.match(html, /lazy-image-frame mt-4 h-\[clamp\(11\.25rem,14\.5vw,13\.25rem\)\] max-\[480px\]:h-\[11\.5rem\]/);
+    assert.doesNotMatch(html, /lazy-image-frame mt-8 h-\[196px\]/);
+    assert.doesNotMatch(html, /<div class="mt-3 shrink-0">\s*<div class="flex min-h-5 items-center">/);
+    assert.match(html, /post-card[^"]*\btags-inline-mobile\b/);
     assert.doesNotMatch(html, /<div class="mt-3 shrink-0 border-t/);
     assert.doesNotMatch(html, /<div class="mt-4 shrink-0 border-t/);
 });
@@ -355,7 +412,7 @@ test('all-page cards can opt out of order-based entrance delay', () => {
     assert.doesNotMatch(html, /animation-delay:\s*(?:560|960)ms/);
 });
 
-test('all-page cards can reuse the metadata row for mobile tags', () => {
+test('list cards always use the shared all-page mobile tag row', () => {
     const dateValue = {
         tz: () => ({ format: () => '2026-05-30' }),
         valueOf: () => 1780135781000
@@ -372,7 +429,7 @@ test('all-page cards can reuse the metadata row for mobile tags', () => {
         modifiedDate: modifiedDateValue,
         tag: ['Free'],
         cover: '/image/example.png'
-    }, 0, { mobileTagsInline: true });
+    });
 
     assert.match(html, /post-card[^"]*\btags-inline-mobile\b/);
     assert.equal(html.indexOf('<span>2026-05-31</span>') < html.indexOf('Free'), true);
