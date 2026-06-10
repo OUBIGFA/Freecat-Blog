@@ -245,6 +245,37 @@ test('default mobile post cards use the all-page card shell', () => {
     assert.doesNotMatch(html, /\bmd:mb-10\b/);
 });
 
+test('pinned post cards render the pin badge in every card layout', () => {
+    const defaultHtml = postCardTemplate.renderPostCard({
+        link: '/posts/pinned.html',
+        titleHtml: 'Pinned',
+        excerptHtml: 'Pinned excerpt',
+        date: '2026-05-30',
+        pinned: true
+    });
+    const compactHtml = postCardTemplate.renderPostCard({
+        link: '/posts/pinned.html',
+        titleHtml: 'Pinned',
+        excerptHtml: 'Pinned excerpt',
+        date: '2026-05-30',
+        pinned: true,
+        layout: 'compact-grid'
+    });
+    const normalHtml = postCardTemplate.renderPostCard({
+        link: '/posts/normal.html',
+        titleHtml: 'Normal',
+        excerptHtml: 'Normal excerpt',
+        date: '2026-05-30',
+        pinned: false
+    });
+
+    assert.equal((defaultHtml.match(/post-card-pinned-badge/g) || []).length, 2);
+    assert.match(defaultHtml, /lg:hidden[\s\S]*post-card-pinned-badge[\s\S]*lg:block[\s\S]*post-card-pinned-badge/);
+    assert.equal((compactHtml.match(/post-card-pinned-badge/g) || []).length, 1);
+    assert.equal(compactHtml.includes('data-sort-pinned="1"'), true);
+    assert.equal(normalHtml.includes('post-card-pinned-badge'), false);
+});
+
 test('home and search mobile lists use the all-page single-column card gap', () => {
     const homeLayoutStyle = readProjectFile('src/partials/home-layout-style.html');
 

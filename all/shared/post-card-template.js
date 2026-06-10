@@ -97,8 +97,8 @@
             : '';
 
         const pinnedBadge = pinned
-            ? `<div class="absolute -top-2 -left-2 md:-top-3 md:-left-3 z-10 flex items-center justify-center w-7 h-7 md:w-[34px] md:h-[34px] rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-white">
-                <svg class="text-sm md:text-[17px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M22.3126 10.1753L20.8984 11.5895L20.1913 10.8824L15.9486 15.125L15.2415 18.6606L13.8273 20.0748L9.58466 15.8321L4.63492 20.7819L3.2207 19.3677L8.17045 14.4179L3.92781 10.1753L5.34202 8.76107L8.87756 8.05396L13.1202 3.81132L12.4131 3.10422L13.8273 1.69L22.3126 10.1753Z"></path></svg>
+            ? `<div class="post-card-pinned-badge absolute -top-2 -left-2 md:-top-3 md:-left-3 z-10 flex items-center justify-center w-7 h-7 md:w-[34px] md:h-[34px] rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-white">
+                <svg class="text-sm md:text-[17px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em" aria-hidden="true"><path d="M22.3126 10.1753L20.8984 11.5895L20.1913 10.8824L15.9486 15.125L15.2415 18.6606L13.8273 20.0748L9.58466 15.8321L4.63492 20.7819L3.2207 19.3677L8.17045 14.4179L3.92781 10.1753L5.34202 8.76107L8.87756 8.05396L13.1202 3.81132L12.4131 3.10422L13.8273 1.69L22.3126 10.1753Z"></path></svg>
                </div>`
             : '';
 
@@ -172,6 +172,7 @@
         <a href="${link}" class="post-card post-card-layout-compact-grid ${imageMarkup ? 'has-cover' : 'has-no-cover'} ${mobileTagsInline ? 'tags-inline-mobile' : ''} animate-fade-in-up block h-full min-w-0 lg:mb-10 group cursor-pointer" style="animation-delay: ${animationDelay}ms" data-sort-date="${sortDate}" data-sort-modified="${sortModifiedDate}" data-sort-pinned="${pinned ? '1' : '0'}">
             ${renderAllPageMobileCardInner('lg:hidden')}
             <div class="relative hidden shadow-none lg:block lg:rounded-2xl lg:bg-white dark:lg:bg-card-dark lg:h-[390px] lg:px-16 lg:py-12 lg:group-hover:shadow-2xl lg:group-hover:shadow-gray-400/20 dark:lg:group-hover:shadow-black/40">
+                ${pinnedBadge}
                 <div class="hidden h-full min-w-0 ${imageMarkup ? 'grid-cols-[minmax(0,1fr)_minmax(360px,43%)]' : 'grid-cols-1'} grid-rows-[1fr_auto] gap-x-14 lg:grid">
                     <div class="row-start-1 flex min-h-0 flex-col">
                         <h3 class="post-card-title text-[#1e293b] dark:text-slate-200 text-[34px] font-black leading-tight" style="${clampStyle(2)}">${titleHtml}</h3>
