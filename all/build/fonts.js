@@ -59,8 +59,29 @@ function fontSubsetManifestFile(rootDir) {
     return path.join(rootDir, 'build', 'font-subsets-manifest.json');
 }
 
+function isCloudflarePagesBuild() {
+    return process.env.CF_PAGES === '1' || process.env.CF_PAGES === 'true';
+}
+
+function platformCacheRoot(rootDir) {
+    if (!isCloudflarePagesBuild()) return path.join(rootDir, 'node_modules', '.cache');
+
+    const npmCache = process.env.npm_config_cache || process.env.NPM_CONFIG_CACHE;
+    if (npmCache) return npmCache;
+
+    const homeDir = process.env.HOME || process.env.USERPROFILE;
+    return homeDir ? path.join(homeDir, '.npm') : path.join(rootDir, 'node_modules', '.cache');
+}
+
+function freecatBuildCacheDir(rootDir) {
+    return path.join(platformCacheRoot(rootDir), 'freecat-build-cache');
+}
+
 function fontSubsetCacheDir(rootDir) {
-    return path.join(rootDir, 'node_modules', '.cache', 'freecat-font-subsets');
+    if (!isCloudflarePagesBuild()) {
+        return path.join(rootDir, 'node_modules', '.cache', 'freecat-font-subsets');
+    }
+    return path.join(freecatBuildCacheDir(rootDir), 'font-subsets');
 }
 
 function cachedFontSubsetManifestFile(rootDir) {
@@ -316,7 +337,10 @@ function isMissingFontTools(result) {
 }
 
 function fontToolsVenvDir(rootDir) {
-    return path.join(rootDir, 'node_modules', '.cache', 'freecat-fonttools-venv');
+    if (!isCloudflarePagesBuild()) {
+        return path.join(rootDir, 'node_modules', '.cache', 'freecat-fonttools-venv');
+    }
+    return path.join(freecatBuildCacheDir(rootDir), 'fonttools-venv');
 }
 
 function fontToolsPython(rootDir) {
@@ -452,5 +476,7 @@ module.exports = {
     buildArticleFontSubset,
     expectedFontSubsets,
     validateExistingFontSubsets,
-    fontSubsetRefreshPlan
+    fontSubsetRefreshPlan,
+    fontSubsetCacheDir,
+    fontToolsVenvDir
 };
