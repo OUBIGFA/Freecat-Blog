@@ -47,9 +47,8 @@
         observeMermaidThemeChanges();
     }
 
-    function renderMermaidBlocks() {
-        var blocks = Array.prototype.slice.call(document.querySelectorAll('.mermaid-block .mermaid'));
-        if (!blocks.length) return;
+    // 把 base64 源码还原进各 mermaid 块，并给容器标注图类型；返回待渲染块列表。
+    function prepareMermaidBlocks(blocks) {
         var mermaidBlocks = [];
         blocks.forEach(function (block) {
             var source = decodeBase64Utf8(block.getAttribute('data-mermaid-source'));
@@ -62,6 +61,47 @@
             }
             mermaidBlocks.push(block);
         });
+        return mermaidBlocks;
+    }
+
+    function buildMermaidConfig() {
+        return {
+            startOnLoad: false,
+            securityLevel: 'loose',
+            theme: 'base',
+            themeVariables: getMermaidThemeVariables(),
+            flowchart: {
+                htmlLabels: true,
+                useMaxWidth: false,
+                nodeSpacing: 34,
+                rankSpacing: 48,
+                curve: 'basis'
+            },
+            sequence: {
+                showSequenceNumbers: true,
+                actorMargin: 64,
+                messageMargin: 44,
+                boxMargin: 10,
+                noteMargin: 10,
+                mirrorActors: true
+            },
+            gantt: {
+                useMaxWidth: false,
+                axisFormat: '%m-%d',
+                topPadding: 48,
+                leftPadding: 96,
+                gridLineStartPadding: 24,
+                fontSize: 12,
+                barHeight: 18,
+                barGap: 6
+            }
+        };
+    }
+
+    function renderMermaidBlocks() {
+        var blocks = Array.prototype.slice.call(document.querySelectorAll('.mermaid-block .mermaid'));
+        if (!blocks.length) return;
+        var mermaidBlocks = prepareMermaidBlocks(blocks);
         if (!mermaidBlocks.length) return;
         if (!window.mermaid) {
             mermaidBlocks.forEach(function (block) {
@@ -77,37 +117,7 @@
         mermaidRenderState.pending = false;
 
         try {
-            window.mermaid.initialize({
-                startOnLoad: false,
-                securityLevel: 'loose',
-                theme: 'base',
-                themeVariables: getMermaidThemeVariables(),
-                flowchart: {
-                    htmlLabels: true,
-                    useMaxWidth: false,
-                    nodeSpacing: 34,
-                    rankSpacing: 48,
-                    curve: 'basis'
-                },
-                sequence: {
-                    showSequenceNumbers: true,
-                    actorMargin: 64,
-                    messageMargin: 44,
-                    boxMargin: 10,
-                    noteMargin: 10,
-                    mirrorActors: true
-                },
-                gantt: {
-                    useMaxWidth: false,
-                    axisFormat: '%m-%d',
-                    topPadding: 48,
-                    leftPadding: 96,
-                    gridLineStartPadding: 24,
-                    fontSize: 12,
-                    barHeight: 18,
-                    barGap: 6
-                }
-            });
+            window.mermaid.initialize(buildMermaidConfig());
             var result = window.mermaid.run({ nodes: mermaidBlocks });
             var finish = function () {
                 polishMermaidSvg(mermaidBlocks);

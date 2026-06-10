@@ -1,3 +1,6 @@
+// HTML 转义统一复用 shared/shared.js，构建期与浏览器期同源，避免转义规则漂移。
+const { escapeHtml } = require('../../shared/shared.js');
+
 function normalizeImageHref(href) {
     const raw = String(href || '').trim();
     if (!raw) return '';
@@ -8,15 +11,6 @@ function normalizeImageHref(href) {
     if (imagePathMatch) return `/image/${imagePathMatch[1]}`;
 
     return raw;
-}
-
-function escapeHtml(value) {
-    return String(value || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
 }
 
 function decodeBasicHtmlEntities(value) {

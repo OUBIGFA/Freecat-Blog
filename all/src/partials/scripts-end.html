@@ -1,13 +1,25 @@
-<!-- partials/scripts-end.html · 非 post 模板共用的页脚 script 引用。 -->
+<!-- partials/scripts-end.html · 全站统一的页脚 script 引用与加载顺序（唯一声明处）。
+     template_post.html 通过 INCLUDE:scripts-end 复用本清单，post 专属脚本在其后追加。
+     顺序约束：
+       1. shared.js 必须最先（所有模块依赖 FreecatShared）；
+       2. post-card-template.js 先于 search-core.js（后者工厂参数依赖前者）；
+       3. main.js 必须最后（composition root，校验并装配以上全部模块）。 -->
 <script src="/assets/shared.js" defer></script>
 <script src="/assets/browser-platform.js" defer></script>
 <script src="/assets/runtime.js" defer></script>
 <script src="/assets/theme-system.js" defer></script>
 <script src="/assets/lazy-images.js" defer></script>
 <script src="/assets/post-card-template.js" defer></script>
+<script src="/assets/search-core.js" defer></script>
 <script src="/assets/scroll-memory.js" defer></script>
 <script src="/assets/nav-audio.js" defer></script>
 <script src="/assets/shell-router.js" defer></script>
 <script src="/assets/code-copy.js" defer></script>
 <script src="/assets/floating-nav.js" defer></script>
+<script src="/assets/layout-metrics.js" defer></script>
+<script src="/assets/seamless-pagination.js" defer></script>
+<script src="/assets/update-sort.js" defer></script>
+<script src="/assets/header-search.js" defer></script>
+<script src="/assets/search-page.js" defer></script>
+<script src="/assets/avatar-shadow.js" defer></script>
 <script src="/assets/main.js" defer></script>

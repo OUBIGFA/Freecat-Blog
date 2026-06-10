@@ -256,20 +256,22 @@ function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = 
     const mediaCss = needsMediaPlayer
         ? '<link rel="stylesheet" href="/assets/media-player.css" />'
         : '';
+    // 播放器三件套改为 defer：保证在 deferred 的 shared.js 之后按文档顺序执行
+    //（media-player.js 依赖 FreecatShared，audio/video-player.js 依赖 FreecatMediaPlayer）。
     const mediaJs = needsMediaPlayer
-        ? '<script src="/assets/media-player.js"></script>'
+        ? '<script src="/assets/media-player.js" defer></script>'
         : '';
     const audioCss = needsAudioPlayer
         ? '<link rel="stylesheet" href="/assets/audio-player.css" />'
         : '';
     const audioJs = needsAudioPlayer
-        ? '<script src="/assets/audio-player.js"></script>'
+        ? '<script src="/assets/audio-player.js" defer></script>'
         : '';
     const videoCss = needsVideoPlayer
         ? '<link rel="stylesheet" href="/assets/video-player.css" />'
         : '';
     const videoJs = needsVideoPlayer
-        ? '<script src="/assets/video-player.js"></script>'
+        ? '<script src="/assets/video-player.js" defer></script>'
         : '';
     const embedJs = needsTwitterEmbed
         ? '<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>'

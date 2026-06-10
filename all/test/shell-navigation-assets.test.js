@@ -3,49 +3,24 @@ const assert = require('node:assert/strict');
 const {
     fs,
     path,
-    readProjectFile,
-    postJs,
-    postCss,
-    postCodeCss,
     mainJs,
-    codeCopyJs,
-    codeFoldingJs,
     floatingNavJs,
     runtimeJs,
     scrollMemoryJs,
     navAudioJs,
     shellRouterJs,
-    typographyCss,
     themeSystemJs,
+    headerSearchJs,
+    searchPageJs,
+    seamlessPaginationJs,
+    updateSortJs,
+    layoutMetricsJs,
     postTemplate,
-    indexTemplate,
     searchTemplate,
     headBase,
     scriptsEnd,
-    header,
-    homeSidebar,
     transitionsCss,
-    allTemplate,
-    updateSortControl,
-    aboutTemplate,
-    notFoundTemplate,
-    buildJs,
-    paginationJs,
-    seoJs,
-    tailwindBuild,
-    notoSubsetScript,
-    mediaPlayerJs,
-    mediaPlayerCss,
-    videoPlayerJs,
-    videoPlayerCss,
-    shared,
-    postCardTemplate,
-    renderPostFontPreloads,
-    renderPostFontFaceCss,
-    renderPostCardForList,
-    generatePaginationHtml,
-    preloadFontHrefs,
-    fontFaceSrcUrls
+    codeCopyJs
 } = require('../test-support/assets.js');
 
 test('main animation checks reuse a single reduced-motion helper', () => {
@@ -67,11 +42,11 @@ test('theme switching uses css transitions and syncs the shell iframe', () => {
 });
 
 test('search page result count reserves space before rendering the numeric badge', () => {
-    assert.match(mainJs, /function setSearchResultsCount\(count\)\s*\{/);
-    assert.match(mainJs, /value\.textContent\s*=\s*String\(count\);/);
-    assert.match(mainJs, /resultsCountDisplay\.dataset\.countReady\s*=\s*'true';/);
-    assert.match(mainJs, /setSearchResultsCount\(results\.length\);/);
-    assert.doesNotMatch(mainJs, /resultsCountDisplay\.textContent\s*=\s*`\(\$\{results\.length\} results\)`;/);
+    assert.match(searchPageJs, /function setSearchResultsCount\(count\)\s*\{/, 'search-page.js owns the results-count badge');
+    assert.match(searchPageJs, /value\.textContent\s*=\s*String\(count\);/, 'count writes into the reserved value span');
+    assert.match(searchPageJs, /resultsCountDisplay\.dataset\.countReady\s*=\s*'true';/, 'countReady flips after the number is set');
+    assert.match(searchPageJs, /setSearchResultsCount\(results\.length\);/, 'badge updates from real result counts');
+    assert.doesNotMatch(searchPageJs, /resultsCountDisplay\.textContent\s*=\s*`\(\$\{results\.length\} results\)`;/, 'no legacy "(N results)" text format');
     assert.match(searchTemplate, /id="results-count" class="freecat-results-count" data-count-ready="false"/);
     assert.match(searchTemplate, /class="freecat-results-count-icon"[\s\S]*M24 12L18\.3431 17\.6568/);
     assert.match(searchTemplate, /class="freecat-results-count-value"/);
@@ -80,10 +55,10 @@ test('search page result count reserves space before rendering the numeric badge
 });
 
 test('shell router uses clean history URLs for framed navigation', () => {
-    assert.match(mainJs, /function navigateWithinSite\(url, options = \{\}\)\s*\{/);
+    assert.match(mainJs, /function navigateWithinSite\(url, options = \{\}\)\s*\{/, 'main.js owns the navigateWithinSite entry point');
     assert.match(runtimeJs, /setNavigate\(fn\)\s*\{[\s\S]*FreecatNavigate/);
-    assert.equal(mainJs.includes("navigateWithinSite(`/search.html?q=${encodeURIComponent(searchInput.value.trim())}`);"), true);
-    assert.match(mainJs, /if \(e\.key === 'Enter' && searchInput\.value\.trim\(\)\) \{[\s\S]*?e\.preventDefault\(\);[\s\S]*?navigateWithinSite\(`\/search\.html\?q=\$\{encodeURIComponent\(searchInput\.value\.trim\(\)\)\}`\);[\s\S]*?closeHeaderSearch\(true\);[\s\S]*?\}/);
+    assert.equal(headerSearchJs.includes("navigateWithinSite(`/search.html?q=${encodeURIComponent(searchInput.value.trim())}`);"), true, 'header search Enter key routes through navigateWithinSite');
+    assert.match(headerSearchJs, /if \(e\.key === 'Enter' && searchInput\.value\.trim\(\)\) \{[\s\S]*?e\.preventDefault\(\);[\s\S]*?navigateWithinSite\(`\/search\.html\?q=\$\{encodeURIComponent\(searchInput\.value\.trim\(\)\)\}`\);[\s\S]*?closeHeaderSearch\(true\);[\s\S]*?\}/, 'Enter closes the panel after navigating');
     assert.match(shellRouterJs, /function publicPathToContentPath\(raw\)\s*\{/);
     assert.match(shellRouterJs, /function contentPathToPublicPath\(raw\)\s*\{/);
     assert.match(shellRouterJs, /const SHELL_HISTORY_INDEX_KEY = 'freecatShellIndex';/);
@@ -105,8 +80,8 @@ test('framed pages delegate same-origin links to the parent shell but keep ancho
 });
 
 test('nav audio defaults to half volume and exposes the matching volume slider while playing', () => {
-    assert.match(mainJs, /const navAudioController = window\.FreecatNavAudio;/);
-    assert.match(mainJs, /if \(!FRAMED\) initNavAudioButton\(\);/);
+    assert.match(mainJs, /const navAudioController = window\.FreecatNavAudio;/, 'main.js wires nav audio explicitly');
+    assert.match(mainJs, /if \(!FRAMED\) \{[\s\S]*?navAudioController\.init\(\{/, 'framed content pages skip the nav audio player');
     assert.match(navAudioJs, /const DEFAULT_NAV_AUDIO_VOLUME = 0\.5;/);
     assert.match(navAudioJs, /const NAV_AUDIO_VOLUME_HIDE_DELAY_MS = 1000;/);
     assert.match(navAudioJs, /navAudio\.volume = nextVolume;/);
@@ -141,11 +116,11 @@ test('nav audio defaults to half volume and exposes the matching volume slider w
 });
 
 test('header tag menu closes on pointerdown inside the shell iframe', () => {
-    assert.match(mainJs, /function closeHeaderPanelsFromFramePointerDown\(\)\s*\{[\s\S]*closeTagMenu\(\);[\s\S]*closeHeaderSearch\(true\);[\s\S]*\}/);
-    assert.match(mainJs, /function bindHeaderFramePointerDown\(\)\s*\{/);
-    assert.match(mainJs, /headerFramePointerDownDocument\.addEventListener\('pointerdown', closeHeaderPanelsFromFramePointerDown, true\);/);
-    assert.match(mainJs, /contentFrame\.addEventListener\('load', bindHeaderFramePointerDown\);/);
-    assert.match(mainJs, /if \(IS_SHELL && contentFrame\) \{[\s\S]*bindHeaderFramePointerDown\(\);[\s\S]*\}/);
+    assert.match(headerSearchJs, /function closeHeaderPanelsFromFramePointerDown\(\)\s*\{[\s\S]*closeTagMenu\(\);[\s\S]*closeHeaderSearch\(true\);[\s\S]*\}/, 'iframe pointerdown collapses both header panels');
+    assert.match(headerSearchJs, /function bindHeaderFramePointerDown\(\)\s*\{/, 'header-search.js owns the frame pointerdown binding');
+    assert.match(headerSearchJs, /headerFramePointerDownDocument\.addEventListener\('pointerdown', closeHeaderPanelsFromFramePointerDown, true\);/, 'binds in capture phase on the frame document');
+    assert.match(headerSearchJs, /contentFrame\.addEventListener\('load', bindHeaderFramePointerDown\);/, 'rebinds after every frame navigation');
+    assert.match(headerSearchJs, /if \(isShell && contentFrame\) \{[\s\S]*bindHeaderFramePointerDown\(\);[\s\S]*\}/, 'binding only runs in the shell document');
 });
 
 test('header tag menu uses a restrained close feedback', () => {
@@ -174,9 +149,9 @@ test('mobile fixed header lets the brand title shrink before nav buttons overflo
 });
 
 test('header offset sync ignores impossible measured heights', () => {
-    assert.match(mainJs, /function normalizeHeaderHeight\(measuredHeight\)\s*\{/);
-    assert.match(mainJs, /height <= 120 \? height : fallbackHeight/);
-    assert.match(mainJs, /const fallbackHeight = window\.innerWidth < 768 \? 61 : 73;/);
+    assert.match(layoutMetricsJs, /function normalizeHeaderHeight\(measuredHeight\)\s*\{/, 'layout-metrics.js owns header height normalization');
+    assert.match(layoutMetricsJs, /height <= 120 \? height : fallbackHeight/, 'measured heights above 120px fall back');
+    assert.match(layoutMetricsJs, /const fallbackHeight = win\.innerWidth < 768 \? 61 : 73;/, 'fallback heights differ between mobile and desktop');
     assert.match(shellRouterJs, /function normalizeHeaderHeight\(measuredHeight\)\s*\{/);
     assert.match(shellRouterJs, /height <= 120 \? height : fallbackHeight/);
     assert.match(shellRouterJs, /const h = normalizeHeaderHeight\(Math\.ceil\(headerEl\.getBoundingClientRect\(\)\.height\)\);/);
@@ -208,15 +183,13 @@ test('floating nav does not hide against home list layout wrappers', () => {
 });
 
 test('history navigation restores saved scroll positions after bfcache expires', () => {
-    assert.match(mainJs, /function initScrollPositionMemory\(\)/);
-    assert.match(mainJs, /scrollMemory\.init\(\{\s*window,\s*document,\s*platform,\s*runtime\s*\}\);/);
+    assert.match(mainJs, /scrollMemory\.init\(\{\s*window,\s*document,\s*platform,\s*runtime\s*\}\);/, 'main.js wires scroll memory with explicit deps');
     assert.match(scrollMemoryJs, /platform\.sessionStorage\.setItem\(storageKey,\s*JSON\.stringify\(positions\)\)/);
     assert.match(scrollMemoryJs, /getNavigationType\(\) === 'back_forward'/);
     assert.match(scrollMemoryJs, /window\.addEventListener\('pagehide',\s*saveScrollPosition\)/);
     assert.match(scrollMemoryJs, /runtime\.setSaveScrollPosition\(saveScrollPosition\);/);
     assert.match(runtimeJs, /setSaveScrollPosition\(fn\)\s*\{[\s\S]*FreecatSaveScrollPosition/);
     assert.match(scrollMemoryJs, /if \(window\.location\.hash\) \{\s*return;\s*\}/);
-    assert.match(mainJs, /initScrollPositionMemory\(\);/);
 });
 
 test('shell history back marks framed pages for scroll restoration', () => {
@@ -232,47 +205,47 @@ test('shell history back marks framed pages for scroll restoration', () => {
 });
 
 test('go back preserves the update sort switch state in history entries', () => {
-    assert.match(mainJs, /const updateSortParam = 'updateSort';/);
-    assert.match(mainJs, /params\.get\(updateSortParam\)\s*===\s*updateSortValue/);
-    assert.match(mainJs, /runtime\.setSyncUpdateSortUrl\(syncUpdateSortUrl\);/);
+    assert.match(updateSortJs, /const updateSortParam = 'updateSort';/, 'update-sort.js owns the URL parameter');
+    assert.match(updateSortJs, /params\.get\(updateSortParam\)\s*===\s*updateSortValue/, 'switch state restores from the URL');
+    assert.match(updateSortJs, /runtime\.setSyncUpdateSortUrl\(syncUpdateSortUrl\);/, 'URL sync is exposed through the runtime bridge');
     assert.match(runtimeJs, /setSyncUpdateSortUrl\(fn\)\s*\{[\s\S]*FreecatSyncUpdateSortUrl/);
-    assert.match(mainJs, /applyTheme\(\);\s*initUpdateSortControls\(\);\s*initScrollPositionMemory\(\);/);
+    assert.match(mainJs, /applyTheme\(\);[\s\S]*?initUpdateSortControls\(\);[\s\S]*?scrollMemory\.init\(/, 'theme applies before sort controls and scroll memory init');
     assert.doesNotMatch(headBase, /freecat-state-restore-pending/);
     assert.doesNotMatch(postTemplate, /freecat-state-restore-pending/);
-    assert.match(mainJs, /function syncParentFrameHistory\(options = \{\}\)\s*\{/);
-    assert.match(mainJs, /syncParentFrameHistory\(\{\s*push:\s*!options\.replace\s*\}\);/);
+    assert.match(mainJs, /function syncParentFrameHistory\(options = \{\}\)\s*\{/, 'main.js owns the parent-frame history bridge');
+    assert.match(updateSortJs, /syncParentFrameHistory\(\{\s*push:\s*!options\.replace\s*\}\);/, 'sort toggles sync the shell history');
     assert.match(runtimeJs, /setSyncFrameHistory\(fn\)\s*\{[\s\S]*FreecatSyncFrameHistory/);
     assert.match(floatingNavJs, /syncCurrentHistoryEntry\(\);[\s\S]*canGoBackWithinSite\(\)[\s\S]*window\.history\.back\(\);/);
     assert.match(floatingNavJs, /url\.searchParams\.set\('updateSort',\s*'modified'\);/);
-    assert.match(mainJs, /setUpdateSortMode\(updateSortSwitch,\s*useModifiedSort,\s*\{\s*replace:\s*true\s*\}\);/);
-    assert.match(mainJs, /initDeferredImages\(\);\s*initUpdateSortControls\(\);/);
+    assert.match(updateSortJs, /setUpdateSortMode\(updateSortSwitch,\s*useModifiedSort,\s*\{\s*replace:\s*true\s*\}\);/, 'manual toggles replace instead of pushing history');
+    assert.match(searchPageJs, /initDeferredImages\(\);\s*initUpdateSortControls\(\);/, 'search page re-binds sort controls after rendering results');
 });
 
 test('home soft pagination syncs shell history and saved scroll before post navigation', () => {
-    assert.match(mainJs, /function getPaginationFetchUrl\(rawUrl\)\s*\{/);
-    assert.match(mainJs, /url\.pathname === '\/' \|\| url\.pathname === '\/index\.html' \|\| url\.pathname === '\/index'/);
-    assert.match(mainJs, /return '\/home\.html' \+ url\.search;/);
-    assert.match(mainJs, /platform\.fetch\(getPaginationFetchUrl\(url\),\s*\{\s*credentials:\s*'same-origin'/);
-    assert.match(mainJs, /window\.history\.pushState\(\{\s*\.\.\.\(window\.history\.state \|\| \{\}\),\s*freecatSoftNav:\s*true\s*\},\s*'',\s*url\);/);
-    assert.match(mainJs, /syncParentFrameHistory\(\{\s*push:\s*true\s*\}\);/);
+    assert.match(seamlessPaginationJs, /function getPaginationFetchUrl\(rawUrl\)\s*\{/, 'seamless-pagination.js owns the fetch URL mapping');
+    assert.match(seamlessPaginationJs, /url\.pathname === '\/' \|\| url\.pathname === '\/index\.html' \|\| url\.pathname === '\/index'/, 'home aliases map to home.html');
+    assert.match(seamlessPaginationJs, /return '\/home\.html' \+ url\.search;/, 'home content is fetched from /home.html');
+    assert.match(seamlessPaginationJs, /platform\.fetch\(getPaginationFetchUrl\(url\),\s*\{\s*credentials:\s*'same-origin'/, 'page fetches keep same-origin credentials');
+    assert.match(seamlessPaginationJs, /win\.history\.pushState\(\{\s*\.\.\.\(win\.history\.state \|\| \{\}\),\s*freecatSoftNav:\s*true\s*\},\s*'',\s*url\);/, 'soft navigation marks history entries');
+    assert.match(seamlessPaginationJs, /syncParentFrameHistory\(\{\s*push:\s*true\s*\}\);/, 'pagination pushes into the shell history');
     assert.match(shellRouterJs, /runtime\.saveScrollPosition\(\);[\s\S]*runtime\.navigate\(url\.pathname \+ url\.search \+ url\.hash\);/);
 });
 
 test('header search opens a blank overlay and closes from blank space', () => {
-    assert.match(mainJs, /function ensureSearchResultsOverlay\(\)\s*\{/);
-    assert.match(mainJs, /const offset = header \? header\.offsetHeight : 0;/);
-    assert.doesNotMatch(mainJs, /header\.offsetHeight \+ 12/);
-    assert.doesNotMatch(mainJs, /rect\.bottom \+ 12/);
-    assert.match(mainJs, /overlay\.id = 'search-results-overlay';/);
-    assert.doesNotMatch(mainJs, /overlay\.className = '[^']*t-panel-slide/);
+    assert.match(headerSearchJs, /function ensureSearchResultsOverlay\(\)\s*\{/, 'header-search.js owns the results overlay');
+    assert.match(headerSearchJs, /const offset = header \? header\.offsetHeight : 0;/, 'overlay sits flush under the header');
+    assert.doesNotMatch(headerSearchJs, /header\.offsetHeight \+ 12/);
+    assert.doesNotMatch(headerSearchJs, /rect\.bottom \+ 12/);
+    assert.match(headerSearchJs, /overlay\.id = 'search-results-overlay';/);
+    assert.doesNotMatch(headerSearchJs, /overlay\.className = '[^']*t-panel-slide/, 'overlay never slides as a panel');
     assert.match(transitionsCss, /#search-results-overlay\s*\{[\s\S]*transform:\s*none !important;[\s\S]*transition:\s*none !important;/);
-    assert.match(mainJs, /requestAnimationFrame\(\(\) => \{\s*if \(!searchContainer\.classList\.contains\('flex'\) \|\| !document\.body\.classList\.contains\('search-active'\)\) return;\s*searchContainer\.dataset\.open = 'true';\s*ensureSearchResultsOverlay\(\);/);
-    assert.match(mainJs, /if \(e\.target === overlay\) \{\s*closeHeaderSearch\(true\);/);
-    assert.match(mainJs, /const resultsContent = overlay && overlay\.querySelector\('\[data-search-results-content\]'\);/);
-    assert.match(mainJs, /if \(!resultsContent \|\| !resultsContent\.contains\(e\.target\)\) \{\s*closeHeaderSearch\(true\);/);
-    assert.match(mainJs, /const keepBlankOverlay = searchContainer[\s\S]*document\.body\.classList\.contains\('search-active'\)/);
-    assert.match(mainJs, /overlay\.innerHTML = '';\s*updateSearchOverlayOffset\(overlay\);\s*overlay\.dataset\.open = 'true';/);
-    assert.match(mainJs, /<div data-search-results-content class="max-w-\[1200px\]/);
+    assert.match(headerSearchJs, /requestAnimationFrame\(\(\) => \{\s*if \(!searchContainer\.classList\.contains\('flex'\) \|\| !doc\.body\.classList\.contains\('search-active'\)\) return;\s*searchContainer\.dataset\.open = 'true';\s*ensureSearchResultsOverlay\(\);/, 'blank overlay appears as soon as search opens');
+    assert.match(headerSearchJs, /if \(e\.target === overlay\) \{\s*closeHeaderSearch\(true\);/, 'clicking the blank overlay closes search');
+    assert.match(headerSearchJs, /const resultsContent = overlay && overlay\.querySelector\('\[data-search-results-content\]'\);/);
+    assert.match(headerSearchJs, /if \(!resultsContent \|\| !resultsContent\.contains\(e\.target\)\) \{\s*closeHeaderSearch\(true\);/);
+    assert.match(headerSearchJs, /const keepBlankOverlay = searchContainer[\s\S]*doc\.body\.classList\.contains\('search-active'\)/);
+    assert.match(headerSearchJs, /overlay\.innerHTML = '';\s*updateSearchOverlayOffset\(overlay\);\s*overlay\.dataset\.open = 'true';/);
+    assert.match(headerSearchJs, /<div data-search-results-content class="max-w-\[1200px\]/);
 });
 
 test('direct URL entries use the home fallback for go back controls', () => {
@@ -299,12 +272,13 @@ test('shell template bootstraps clean URLs without hash routing', () => {
 });
 
 test('main delegates copy and floating navigation to focused assets', () => {
-    assert.match(scriptsEnd, /src="\/assets\/code-copy\.js" defer><\/script>[\s\S]*src="\/assets\/floating-nav\.js" defer><\/script>[\s\S]*src="\/assets\/main\.js" defer/);
-    assert.match(postTemplate, /src="\/assets\/code-copy\.js" defer><\/script>[\s\S]*src="\/assets\/floating-nav\.js" defer><\/script>[\s\S]*src="\/assets\/main\.js" defer/);
-    assert.match(mainJs, /window\.FreecatCodeCopy/);
-    assert.match(mainJs, /window\.FreecatFloatingNav/);
-    assert.doesNotMatch(mainJs, /copy-checkbox/);
-    assert.doesNotMatch(mainJs, /function touchesVisibleContentEdge/);
+    assert.match(scriptsEnd, /src="\/assets\/code-copy\.js" defer><\/script>[\s\S]*src="\/assets\/floating-nav\.js" defer><\/script>[\s\S]*src="\/assets\/main\.js" defer/, 'script order keeps main.js last');
+    assert.match(postTemplate, /<!-- INCLUDE:scripts-end -->/, 'post template reuses the single script list partial');
+    assert.doesNotMatch(postTemplate, /src="\/assets\/main\.js"/, 'post template must not duplicate the shared script list');
+    assert.match(mainJs, /requireGlobal\('FreecatCodeCopy'/, 'main.js fails fast when code-copy.js is missing');
+    assert.match(mainJs, /requireGlobal\('FreecatFloatingNav'/, 'main.js fails fast when floating-nav.js is missing');
+    assert.doesNotMatch(mainJs, /copy-checkbox/, 'copy控件实现不再出现在 main.js');
+    assert.doesNotMatch(mainJs, /function touchesVisibleContentEdge/, 'floating nav 实现不再出现在 main.js');
     assert.match(codeCopyJs, /checkbox\.getAttribute\('data-copy-source'\)/);
     assert.match(codeCopyJs, /checkbox\.getAttribute\('data-copy-target'\)/);
     assert.match(codeCopyJs, /textFromSource\(checkbox\) \|\| textFromTarget\(checkbox\) \|\| textFromCodeBlock\(checkbox\)/);

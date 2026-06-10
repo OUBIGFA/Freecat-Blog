@@ -8,18 +8,14 @@
         const shared = require('./shared.js');
         module.exports = factory(shared);
     } else {
-        root.PostCardTemplate = factory(root.FreecatShared || {});
+        root.PostCardTemplate = factory(root.FreecatShared);
     }
 }(typeof self !== 'undefined' ? self : this, function (shared) {
-    const escapeHtml = (shared && shared.escapeHtml) || function (text) {
-        if (text == null) return '';
-        return String(text)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-    };
+    // 不做运行时回退：shared 缺失说明加载顺序被破坏，应早失败（与 main.js 约定一致）。
+    if (!shared || typeof shared.escapeHtml !== 'function') {
+        throw new Error('FreecatShared not loaded — ensure shared.js loads before post-card-template.js');
+    }
+    const { escapeHtml, encodeSitePath } = shared;
 
     const clampStyle = (lines, options = {}) => {
         const overflowWrap = options.overflowWrap || 'anywhere';
@@ -53,7 +49,6 @@
     }
 
     function renderPostCard(post) {
-        const encodeSitePath = (shared && shared.encodeSitePath) || function (url) { return url; };
         const layout = post.layout || 'default';
         const link = escapeHtml(encodeSitePath(post.link || '#'));
         const titleHtml = post.titleHtml || '';
