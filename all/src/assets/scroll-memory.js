@@ -5,7 +5,7 @@
         root.FreecatScrollMemory = factory();
     }
 }(typeof self !== 'undefined' ? self : this, function () {
-    function init({ window, document, platform, runtime }) {
+    function init({ window, document, platform, runtime, shared }) {
         const storageKey = 'freecat-scroll-positions-v1';
         const restoreRequestStorageKey = 'freecat-scroll-restore-requests-v1';
         const maxEntries = 80;
@@ -17,8 +17,10 @@
         // pagehide）一旦写回存储，会污染下一次加载要恢复的目标值。
         let restoreInProgress = false;
 
+        // key 必须与外壳 shell-router 写恢复请求时一致，统一走 shared 的
+        // 平台无关规范化（Cloudflare Pages 会把 /home.html 重定向成 /home）。
         function getPageKey() {
-            return window.location.pathname + window.location.search;
+            return shared.normalizeScrollPageKey(window.location.pathname, window.location.search);
         }
 
         function readPositions() {

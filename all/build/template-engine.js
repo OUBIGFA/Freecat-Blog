@@ -45,7 +45,8 @@ function generateThemeScript(siteConfig) {
             var navEntries = performance && performance.getEntriesByType ? performance.getEntriesByType('navigation') : null;
             var navType = navEntries && navEntries[0] && navEntries[0].type;
             var hasAnchorTarget = window.location.hash && window.location.hash.length > 1;
-            var shellRestorePageKey = window.location.pathname + window.location.search;
+            var normalizeScrollPageKey = ${shared.normalizeScrollPageKey.toString()};
+            var shellRestorePageKey = normalizeScrollPageKey(window.location.pathname, window.location.search);
             var shellRestoreRequests = null;
             try {
                 shellRestoreRequests = JSON.parse(sessionStorage.getItem('freecat-scroll-restore-requests-v1') || '{}');

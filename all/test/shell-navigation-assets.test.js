@@ -61,11 +61,10 @@ test('shell router uses clean history URLs for framed navigation', () => {
     assert.match(headerSearchJs, /if \(e\.key === 'Enter' && searchInput\.value\.trim\(\)\) \{[\s\S]*?e\.preventDefault\(\);[\s\S]*?navigateWithinSite\(`\/search\.html\?q=\$\{encodeURIComponent\(searchInput\.value\.trim\(\)\)\}`\);[\s\S]*?closeHeaderSearch\(true\);[\s\S]*?\}/, 'Enter closes the panel after navigating');
     assert.match(shellRouterJs, /function publicPathToContentPath\(raw\)\s*\{/);
     assert.match(shellRouterJs, /function contentPathToPublicPath\(raw\)\s*\{/);
-    assert.match(shellRouterJs, /const SHELL_HISTORY_INDEX_KEY = 'freecatShellIndex';/);
     assert.match(shellRouterJs, /function ensureShellHistoryState\(\)\s*\{/);
-    assert.match(shellRouterJs, /window\.history\[method\]\(state,\s*'',\s*publicPath\);/);
-    assert.match(shellRouterJs, /const historyDelta = nextIndex == null \? 0 : nextIndex - shellHistoryIndex;/);
-    assert.match(shellRouterJs, /syncFrameToLocation\(\{\s*restoreScroll:\s*true,\s*historyDelta\s*\}\);/);
+    assert.match(shellRouterJs, /frame\.contentWindow\.location\.replace\(target\);/, 'iframe navigations replace, never add joint history entries');
+    assert.match(shellRouterJs, /window\.history\[method\]\(shellState\(window\.history\.state\),\s*'',\s*publicPath\);/);
+    assert.match(shellRouterJs, /syncFrameToLocation\(\{\s*restoreScroll:\s*true\s*\}\);/);
     assert.doesNotMatch(shellRouterJs, /window\.addEventListener\('hashchange'/);
     assert.doesNotMatch(shellRouterJs, /function pathToHash\(/);
 });
@@ -183,7 +182,7 @@ test('floating nav does not hide against home list layout wrappers', () => {
 });
 
 test('history navigation restores saved scroll positions after bfcache expires', () => {
-    assert.match(mainJs, /scrollMemory\.init\(\{\s*window,\s*document,\s*platform,\s*runtime\s*\}\);/, 'main.js wires scroll memory with explicit deps');
+    assert.match(mainJs, /scrollMemory\.init\(\{\s*window,\s*document,\s*platform,\s*runtime,\s*shared\s*\}\);/, 'main.js wires scroll memory with explicit deps');
     assert.match(scrollMemoryJs, /platform\.sessionStorage\.setItem\(storageKey,\s*JSON\.stringify\(positions\)\)/);
     assert.match(scrollMemoryJs, /getNavigationType\(\) === 'back_forward'/);
     assert.match(scrollMemoryJs, /window\.addEventListener\('pagehide',\s*saveScrollPosition\)/);
@@ -194,14 +193,23 @@ test('history navigation restores saved scroll positions after bfcache expires',
 
 test('shell history back marks framed pages for scroll restoration', () => {
     assert.match(scrollMemoryJs, /const restoreRequestStorageKey = 'freecat-scroll-restore-requests-v1';/);
-    assert.match(scrollMemoryJs, /function consumeShellRestoreRequest\(\)\s*\{/);
-    assert.match(scrollMemoryJs, /const hasShellRestoreRequest = consumeShellRestoreRequest\(\);[\s\S]*if \(isHistoryRestore\(\) \|\| hasShellRestoreRequest\) restoreScrollPosition\(\);/);
+    assert.match(scrollMemoryJs, /function hasShellRestoreRequest\(\)\s*\{/);
+    assert.match(scrollMemoryJs, /if \(isHistoryRestore\(\) \|\| hasShellRestoreRequest\(\)\) restoreScrollPosition\(\);/);
+    assert.match(scrollMemoryJs, /if \(isHistoryRestore\(event\) \|\| hasShellRestoreRequest\(\)\) restoreScrollPosition\(\);/, 'pageshow re-checks the restore request');
     assert.match(shellRouterJs, /const SCROLL_RESTORE_REQUEST_KEY = 'freecat-scroll-restore-requests-v1';/);
     assert.match(shellRouterJs, /function requestFrameScrollRestore\(path\)\s*\{/);
-    assert.match(shellRouterJs, /if \(options\.restoreScroll\) requestFrameScrollRestore\(target\);/);
-    assert.match(shellRouterJs, /function traverseFrameHistory\(delta,\s*target\)\s*\{/);
-    assert.match(shellRouterJs, /frame\.contentWindow\.history\.go\(delta\);/);
-    assert.match(shellRouterJs, /if \(options\.restoreScroll && traverseFrameHistory\(options\.historyDelta,\s*target\)\) return;/);
+    assert.match(shellRouterJs, /if \(options\.restoreScroll\) \{[\s\S]*?requestFrameScrollRestore\(target\);[\s\S]*?clearFrameScrollRestore\(target\)[\s\S]*?\}/);
+    assert.match(shellRouterJs, /window\.addEventListener\('popstate', \(\) => \{\s*syncFrameToLocation\(\{\s*restoreScroll:\s*true\s*\}\);\s*\}\);/);
+});
+
+test('scroll restore keys stay platform independent across shell, frame and head guard', () => {
+    // Cloudflare Pages 会把 *.html 308 重定向成无后缀路径（/home.html → /home），
+    // 三个消费方必须共用 shared.normalizeScrollPageKey，否则恢复请求 key 与
+    // iframe 实际地址对不上，返回首页会被重置回顶部。
+    assert.match(scrollMemoryJs, /return shared\.normalizeScrollPageKey\(window\.location\.pathname, window\.location\.search\);/, 'frame pages derive scroll keys from the shared normalizer');
+    assert.match(shellRouterJs, /return shared\.normalizeScrollPageKey\(url\.pathname, url\.search\);/, 'shell restore requests derive keys from the shared normalizer');
+    assert.match(shellRouterJs, /initShellRouter\(\{\s*window,\s*document,\s*platform,\s*runtime,\s*shared,/, 'shell router declares the shared dependency');
+    assert.match(mainJs, /shellRouter\.initShellRouter\(\{\s*window,\s*document,\s*platform,\s*runtime,\s*shared,/, 'main.js injects shared into the shell router');
 });
 
 test('go back preserves the update sort switch state in history entries', () => {
@@ -226,7 +234,8 @@ test('home soft pagination syncs shell history and saved scroll before post navi
     assert.match(seamlessPaginationJs, /url\.pathname === '\/' \|\| url\.pathname === '\/index\.html' \|\| url\.pathname === '\/index'/, 'home aliases map to home.html');
     assert.match(seamlessPaginationJs, /return '\/home\.html' \+ url\.search;/, 'home content is fetched from /home.html');
     assert.match(seamlessPaginationJs, /platform\.fetch\(getPaginationFetchUrl\(url\),\s*\{\s*credentials:\s*'same-origin'/, 'page fetches keep same-origin credentials');
-    assert.match(seamlessPaginationJs, /win\.history\.pushState\(\{\s*\.\.\.\(win\.history\.state \|\| \{\}\),\s*freecatSoftNav:\s*true\s*\},\s*'',\s*url\);/, 'soft navigation marks history entries');
+    assert.match(seamlessPaginationJs, /const method = framed \? 'replaceState' : 'pushState';/, 'framed pagination replaces instead of pushing iframe history');
+    assert.match(seamlessPaginationJs, /win\.history\[method\]\(\{\s*\.\.\.\(win\.history\.state \|\| \{\}\),\s*freecatSoftNav:\s*true\s*\},\s*'',\s*url\);/, 'soft navigation marks history entries');
     assert.match(seamlessPaginationJs, /syncParentFrameHistory\(\{\s*push:\s*true\s*\}\);/, 'pagination pushes into the shell history');
     assert.match(shellRouterJs, /runtime\.saveScrollPosition\(\);[\s\S]*runtime\.navigate\(url\.pathname \+ url\.search \+ url\.hash\);/);
 });

@@ -29,6 +29,7 @@
         document,
         platform,
         runtime,
+        shared,
         contentFrame,
         closeHeaderSearch,
         closeTagMenu,
@@ -115,10 +116,13 @@
             }
         }
 
+        // 恢复请求的 key 必须与 iframe 实际加载后的地址一致。Cloudflare Pages
+        // 会把 /home.html 308 重定向成 /home，所以 key 统一走 shared 的
+        // 平台无关规范化，与 scroll-memory / 内联初始滚动守卫保持同一契约。
         function getScrollRestorePageKey(raw) {
             const path = parseSameOriginPath(raw, HOME_CONTENT);
             const url = new URL(path, window.location.origin);
-            return url.pathname + url.search;
+            return shared.normalizeScrollPageKey(url.pathname, url.search);
         }
 
         function requestFrameScrollRestore(path) {

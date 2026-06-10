@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const initUpdateSortControls = updateSort.initUpdateSortControls;
     initUpdateSortControls();
 
-    scrollMemory.init({ window, document, platform, runtime });
+    scrollMemory.init({ window, document, platform, runtime, shared });
 
     const layoutMetrics = layoutMetricsModule.init({ window, document, framed: FRAMED });
 
@@ -239,6 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document,
             platform,
             runtime,
+            shared,
             contentFrame,
             closeHeaderSearch,
             closeTagMenu,

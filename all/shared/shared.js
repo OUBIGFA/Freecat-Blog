@@ -110,6 +110,26 @@
         return String(tag == null ? '' : tag).trim().toLowerCase();
     }
 
+    // 滚动位置与滚动恢复请求共用的页面 key。
+    // 同一逻辑页面在不同托管平台会有不同 pathname：Cloudflare Pages 会把
+    // *.html 308 重定向成无后缀路径（/home.html → /home），Vercel 则按原样返回。
+    // 外壳写恢复请求、iframe 内存取滚动位置、页面首部的初始滚动守卫三方
+    // 必须使用同一个平台无关 key，否则返回时恢复请求与实际地址对不上。
+    // 此函数会被 build/template-engine.js 以 toString() 内联进页面首部脚本，
+    // 必须保持 ES5、自包含（不引用本模块其它函数）、函数体内不写注释。
+    function normalizeScrollPageKey(pathname, search) {
+        var path = String(pathname == null ? '' : pathname);
+        var query = String(search == null ? '' : search);
+        if (path === '/' || path === '/index' || path === '/index.html' || path === '/home' || path === '/home.html') {
+            path = '/';
+        } else if (path.length > 11 && path.slice(-11) === '/index.html') {
+            path = path.slice(0, -10);
+        } else if (path.length > 5 && path.slice(-5) === '.html') {
+            path = path.slice(0, -5);
+        }
+        return path + query;
+    }
+
     function getTagSortGroup(label) {
         return /^[A-Za-z]/.test(String(label || '').trim()) ? 0 : 1;
     }
@@ -204,6 +224,7 @@
         processTitleHtml,
         renderTagSpan,
         normalizeTagKey,
+        normalizeScrollPageKey,
         collectMenuTags,
         renderTagMenuItemsHtml,
         copyText
