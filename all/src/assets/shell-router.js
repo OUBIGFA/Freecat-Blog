@@ -40,7 +40,10 @@
 
         const HOME_CONTENT = '/home.html';
         const SCROLL_RESTORE_REQUEST_KEY = 'freecat-scroll-restore-requests-v1';
+        const SHELL_HISTORY_INDEX_KEY = 'freecatShellIndex';
         const headerEl = document.querySelector('header.fixed');
+        let shellHistoryIndex = 0;
+        let pendingFrameTraversal = null;
 
         function getPublicLocation() {
             return window.location.pathname + window.location.search + window.location.hash;
@@ -92,12 +95,61 @@
             }
         }
 
-        function setFrameLocation(path) {
+        function getShellHistoryIndex(state) {
+            const index = state && state[SHELL_HISTORY_INDEX_KEY];
+            return Number.isInteger(index) && index >= 0 ? index : null;
+        }
+
+        function shellState(baseState, index) {
+            return { ...(baseState || {}), freecatShell: true, [SHELL_HISTORY_INDEX_KEY]: index };
+        }
+
+        function ensureShellHistoryState() {
+            const currentState = window.history.state || {};
+            const currentIndex = getShellHistoryIndex(currentState);
+            shellHistoryIndex = currentIndex == null ? 0 : currentIndex;
+            if (!currentState.freecatShell || currentIndex == null) {
+                window.history.replaceState(shellState(currentState, shellHistoryIndex), '', getPublicLocation());
+            }
+        }
+
+        function clearPendingFrameTraversal() {
+            if (!pendingFrameTraversal) return;
+            window.clearTimeout(pendingFrameTraversal.timer);
+            pendingFrameTraversal = null;
+        }
+
+        function setFrameLocation(path, options = {}) {
             const target = publicPathToContentPath(path);
             try {
-                frame.contentWindow.location.replace(target);
+                if (options.replace) {
+                    frame.contentWindow.location.replace(target);
+                } else {
+                    frame.contentWindow.location.assign(target);
+                }
             } catch (err) {
                 frame.src = target;
+            }
+        }
+
+        function traverseFrameHistory(delta, target) {
+            if (!Number.isInteger(delta) || delta === 0) return false;
+            try {
+                frame.contentWindow.history.go(delta);
+                clearPendingFrameTraversal();
+                pendingFrameTraversal = {
+                    target,
+                    timer: window.setTimeout(() => {
+                        if (publicPathToContentPath(getFramePath()) !== target) {
+                            setFrameLocation(target, { replace: true });
+                        }
+                        clearPendingFrameTraversal();
+                    }, 1200)
+                };
+                return true;
+            } catch (err) {
+                clearPendingFrameTraversal();
+                return false;
             }
         }
 
@@ -145,21 +197,26 @@
             const publicPath = contentPathToPublicPath(framePath);
             if (publicPath === getPublicLocation()) return;
             const method = options.push ? 'pushState' : 'replaceState';
-            const state = { ...(window.history.state || {}), freecatShell: true };
+            const nextIndex = options.push ? shellHistoryIndex + 1 : shellHistoryIndex;
+            const state = shellState(window.history.state || {}, nextIndex);
             window.history[method](state, '', publicPath);
+            shellHistoryIndex = nextIndex;
         }
 
         function navigateShell(targetHref, options = {}) {
             const contentPath = publicPathToContentPath(targetHref);
             const publicPath = contentPathToPublicPath(contentPath);
             const currentPublicPath = getPublicLocation();
-            const state = { ...(window.history.state || {}), freecatShell: true };
+            const shouldPush = publicPath !== currentPublicPath && !options.replace;
+            const nextIndex = shouldPush ? shellHistoryIndex + 1 : shellHistoryIndex;
+            const state = shellState(window.history.state || {}, nextIndex);
             if (publicPath !== currentPublicPath) {
                 const method = options.replace ? 'replaceState' : 'pushState';
                 window.history[method](state, '', publicPath);
+                shellHistoryIndex = nextIndex;
             }
             if (publicPathToContentPath(getFramePath()) !== contentPath) {
-                setFrameLocation(contentPath);
+                setFrameLocation(contentPath, { replace: !!options.replace });
             }
         }
 
@@ -169,10 +226,11 @@
             const target = publicPathToContentPath(getPublicLocation());
             if (publicPathToContentPath(framePath) === target) return;
             if (options.restoreScroll) requestFrameScrollRestore(target);
-            setFrameLocation(target);
             if (options.restoreScroll) {
                 window.setTimeout(() => clearFrameScrollRestore(target), 15000);
             }
+            if (options.restoreScroll && traverseFrameHistory(options.historyDelta, target)) return;
+            setFrameLocation(target, { replace: true });
         }
 
         function syncFrameOffset() {
@@ -189,6 +247,14 @@
         }
 
         function onFrameLoad() {
+            if (pendingFrameTraversal) {
+                const target = pendingFrameTraversal.target;
+                clearPendingFrameTraversal();
+                if (publicPathToContentPath(getFramePath()) !== target) {
+                    setFrameLocation(target, { replace: true });
+                    return;
+                }
+            }
             try {
                 const t = frame.contentDocument && frame.contentDocument.title;
                 if (t) document.title = t;
@@ -213,7 +279,13 @@
         }
 
         frame.addEventListener('load', onFrameLoad);
-        window.addEventListener('popstate', () => syncFrameToLocation({ restoreScroll: true }));
+        ensureShellHistoryState();
+        window.addEventListener('popstate', (event) => {
+            const nextIndex = getShellHistoryIndex(event.state);
+            const historyDelta = nextIndex == null ? 0 : nextIndex - shellHistoryIndex;
+            if (nextIndex != null) shellHistoryIndex = nextIndex;
+            syncFrameToLocation({ restoreScroll: true, historyDelta });
+        });
         window.addEventListener('resize', syncFrameOffset);
         if (headerEl && typeof ResizeObserver !== 'undefined') {
             new ResizeObserver(syncFrameOffset).observe(headerEl);

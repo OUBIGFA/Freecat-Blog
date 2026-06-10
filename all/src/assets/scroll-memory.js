@@ -14,10 +14,6 @@
         let saveFrame = 0;
         let restoreTimer = 0;
 
-        function finishPendingStateRestore() {
-            document.documentElement.classList.remove('freecat-state-restore-pending');
-        }
-
         function getPageKey() {
             return window.location.pathname + window.location.search;
         }
@@ -99,11 +95,9 @@
         function restoreScrollPosition() {
             const saved = readPositions()[getPageKey()];
             if (!saved || typeof saved.y !== 'number') {
-                finishPendingStateRestore();
                 return;
             }
             if (window.location.hash) {
-                finishPendingStateRestore();
                 return;
             }
 
@@ -126,7 +120,6 @@
                 const timedOut = Date.now() - start >= restoreTimeoutMs;
                 if (reachedTarget || timedOut) {
                     restoreTimer = 0;
-                    finishPendingStateRestore();
                     return;
                 }
                 restoreTimer = window.setTimeout(attemptRestore, restoreIntervalMs);
@@ -141,7 +134,6 @@
         if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
         const hasShellRestoreRequest = consumeShellRestoreRequest();
         if (isHistoryRestore() || hasShellRestoreRequest) restoreScrollPosition();
-        else finishPendingStateRestore();
 
         window.addEventListener('scroll', scheduleSaveScrollPosition, { passive: true });
         window.addEventListener('pagehide', saveScrollPosition);

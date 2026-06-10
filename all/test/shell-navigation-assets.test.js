@@ -86,8 +86,11 @@ test('shell router uses clean history URLs for framed navigation', () => {
     assert.match(mainJs, /if \(e\.key === 'Enter' && searchInput\.value\.trim\(\)\) \{[\s\S]*?e\.preventDefault\(\);[\s\S]*?navigateWithinSite\(`\/search\.html\?q=\$\{encodeURIComponent\(searchInput\.value\.trim\(\)\)\}`\);[\s\S]*?closeHeaderSearch\(true\);[\s\S]*?\}/);
     assert.match(shellRouterJs, /function publicPathToContentPath\(raw\)\s*\{/);
     assert.match(shellRouterJs, /function contentPathToPublicPath\(raw\)\s*\{/);
+    assert.match(shellRouterJs, /const SHELL_HISTORY_INDEX_KEY = 'freecatShellIndex';/);
+    assert.match(shellRouterJs, /function ensureShellHistoryState\(\)\s*\{/);
     assert.match(shellRouterJs, /window\.history\[method\]\(state,\s*'',\s*publicPath\);/);
-    assert.match(shellRouterJs, /window\.addEventListener\('popstate',\s*\(\)\s*=>\s*syncFrameToLocation\(\{\s*restoreScroll:\s*true\s*\}\)\);/);
+    assert.match(shellRouterJs, /const historyDelta = nextIndex == null \? 0 : nextIndex - shellHistoryIndex;/);
+    assert.match(shellRouterJs, /syncFrameToLocation\(\{\s*restoreScroll:\s*true,\s*historyDelta\s*\}\);/);
     assert.doesNotMatch(shellRouterJs, /window\.addEventListener\('hashchange'/);
     assert.doesNotMatch(shellRouterJs, /function pathToHash\(/);
 });
@@ -212,7 +215,7 @@ test('history navigation restores saved scroll positions after bfcache expires',
     assert.match(scrollMemoryJs, /window\.addEventListener\('pagehide',\s*saveScrollPosition\)/);
     assert.match(scrollMemoryJs, /runtime\.setSaveScrollPosition\(saveScrollPosition\);/);
     assert.match(runtimeJs, /setSaveScrollPosition\(fn\)\s*\{[\s\S]*FreecatSaveScrollPosition/);
-    assert.match(scrollMemoryJs, /if \(window\.location\.hash\) \{\s*finishPendingStateRestore\(\);\s*return;\s*\}/);
+    assert.match(scrollMemoryJs, /if \(window\.location\.hash\) \{\s*return;\s*\}/);
     assert.match(mainJs, /initScrollPositionMemory\(\);/);
 });
 
@@ -223,7 +226,9 @@ test('shell history back marks framed pages for scroll restoration', () => {
     assert.match(shellRouterJs, /const SCROLL_RESTORE_REQUEST_KEY = 'freecat-scroll-restore-requests-v1';/);
     assert.match(shellRouterJs, /function requestFrameScrollRestore\(path\)\s*\{/);
     assert.match(shellRouterJs, /if \(options\.restoreScroll\) requestFrameScrollRestore\(target\);/);
-    assert.match(shellRouterJs, /syncFrameToLocation\(\{\s*restoreScroll:\s*true\s*\}\)/);
+    assert.match(shellRouterJs, /function traverseFrameHistory\(delta,\s*target\)\s*\{/);
+    assert.match(shellRouterJs, /frame\.contentWindow\.history\.go\(delta\);/);
+    assert.match(shellRouterJs, /if \(options\.restoreScroll && traverseFrameHistory\(options\.historyDelta,\s*target\)\) return;/);
 });
 
 test('go back preserves the update sort switch state in history entries', () => {
@@ -232,8 +237,8 @@ test('go back preserves the update sort switch state in history entries', () => 
     assert.match(mainJs, /runtime\.setSyncUpdateSortUrl\(syncUpdateSortUrl\);/);
     assert.match(runtimeJs, /setSyncUpdateSortUrl\(fn\)\s*\{[\s\S]*FreecatSyncUpdateSortUrl/);
     assert.match(mainJs, /applyTheme\(\);\s*initUpdateSortControls\(\);\s*initScrollPositionMemory\(\);/);
-    assert.match(headBase, /html\.freecat-state-restore-pending body\s*\{[\s\S]*visibility:\s*hidden;/);
-    assert.match(scrollMemoryJs, /document\.documentElement\.classList\.remove\('freecat-state-restore-pending'\);/);
+    assert.doesNotMatch(headBase, /freecat-state-restore-pending/);
+    assert.doesNotMatch(postTemplate, /freecat-state-restore-pending/);
     assert.match(mainJs, /function syncParentFrameHistory\(options = \{\}\)\s*\{/);
     assert.match(mainJs, /syncParentFrameHistory\(\{\s*push:\s*!options\.replace\s*\}\);/);
     assert.match(runtimeJs, /setSyncFrameHistory\(fn\)\s*\{[\s\S]*FreecatSyncFrameHistory/);
