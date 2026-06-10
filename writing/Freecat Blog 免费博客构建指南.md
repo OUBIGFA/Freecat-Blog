@@ -240,7 +240,7 @@ Freecat Blog 也内置了搜索优化支持：可生成 Sitemap、RSS、llms.txt
 
 填好点 `Save and Deploy`，等构建跑完。一般 1-3 分钟。
 
-> 建议在 Cloudflare Pages 项目设置里启用 `Build cache（构建缓存）`。Cloudflare 会在构建时按需生成字体子集；首次部署、清空缓存或文章新增字符时，字体集可能会重新生成，构建时间会更久一些。
+> 建议在 Cloudflare Pages 项目设置里启用 `Build cache（构建缓存）`，可以加快依赖安装。但 Cloudflare 的构建缓存不会保留字体子集：仓库自带的字体子集能覆盖当前文章字符时会直接复用；文章新增字符后，构建会重新生成字体集，时间更久。想保持快速部署，可在本地跑一次 `npm run build` 并把更新后的字体子集一起提交。
 
 ### 第 3 步：访问默认网址
 

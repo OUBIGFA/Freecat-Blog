@@ -59,29 +59,10 @@ function fontSubsetManifestFile(rootDir) {
     return path.join(rootDir, 'build', 'font-subsets-manifest.json');
 }
 
-function isCloudflarePagesBuild() {
-    return process.env.CF_PAGES === '1' || process.env.CF_PAGES === 'true';
-}
-
-function platformCacheRoot(rootDir) {
-    if (!isCloudflarePagesBuild()) return path.join(rootDir, 'node_modules', '.cache');
-
-    const npmCache = process.env.npm_config_cache || process.env.NPM_CONFIG_CACHE;
-    if (npmCache) return npmCache;
-
-    const homeDir = process.env.HOME || process.env.USERPROFILE;
-    return homeDir ? path.join(homeDir, '.npm') : path.join(rootDir, 'node_modules', '.cache');
-}
-
-function freecatBuildCacheDir(rootDir) {
-    return path.join(platformCacheRoot(rootDir), 'freecat-build-cache');
-}
-
+// Cloudflare Pages 的构建缓存只保留包管理器自身的缓存与特定框架的产物目录，
+// 无法持久化自定义目录；该缓存仅对会保留 node_modules 的平台（如 Vercel）和本地构建生效。
 function fontSubsetCacheDir(rootDir) {
-    if (!isCloudflarePagesBuild()) {
-        return path.join(rootDir, 'node_modules', '.cache', 'freecat-font-subsets');
-    }
-    return path.join(freecatBuildCacheDir(rootDir), 'font-subsets');
+    return path.join(rootDir, 'node_modules', '.cache', 'freecat-font-subsets');
 }
 
 function cachedFontSubsetManifestFile(rootDir) {
@@ -337,10 +318,7 @@ function isMissingFontTools(result) {
 }
 
 function fontToolsVenvDir(rootDir) {
-    if (!isCloudflarePagesBuild()) {
-        return path.join(rootDir, 'node_modules', '.cache', 'freecat-fonttools-venv');
-    }
-    return path.join(freecatBuildCacheDir(rootDir), 'fonttools-venv');
+    return path.join(rootDir, 'node_modules', '.cache', 'freecat-fonttools-venv');
 }
 
 function fontToolsPython(rootDir) {

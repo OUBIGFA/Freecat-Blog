@@ -186,51 +186,16 @@ test('font subset build installs fontTools in a local venv when system Python is
     }
 });
 
-test('Cloudflare Pages stores font caches inside the npm cache directory', () => {
+test('font caches always live in node_modules/.cache regardless of build platform', () => {
     const modulePath = path.join(__dirname, '../build/fonts.js');
     const rootDir = path.join('X:', 'freecat');
     const previousCfPages = process.env.CF_PAGES;
     const previousNpmCache = process.env.npm_config_cache;
-    const previousUpperNpmCache = process.env.NPM_CONFIG_CACHE;
 
     delete require.cache[require.resolve(modulePath)];
+    // Cloudflare Pages 无法持久化自定义缓存目录，缓存路径不得因 CF_PAGES 而改变。
     process.env.CF_PAGES = '1';
-    const npmCache = path.join('X:', 'cloudflare', '.npm');
-    delete process.env.npm_config_cache;
-    process.env.NPM_CONFIG_CACHE = npmCache;
-
-    try {
-        const { fontSubsetCacheDir, fontToolsVenvDir } = require(modulePath);
-        assert.equal(
-            fontSubsetCacheDir(rootDir),
-            path.join(npmCache, 'freecat-build-cache', 'font-subsets')
-        );
-        assert.equal(
-            fontToolsVenvDir(rootDir),
-            path.join(npmCache, 'freecat-build-cache', 'fonttools-venv')
-        );
-    } finally {
-        if (previousCfPages === undefined) delete process.env.CF_PAGES;
-        else process.env.CF_PAGES = previousCfPages;
-        if (previousNpmCache === undefined) delete process.env.npm_config_cache;
-        else process.env.npm_config_cache = previousNpmCache;
-        if (previousUpperNpmCache === undefined) delete process.env.NPM_CONFIG_CACHE;
-        else process.env.NPM_CONFIG_CACHE = previousUpperNpmCache;
-        delete require.cache[require.resolve(modulePath)];
-    }
-});
-
-test('Vercel keeps the existing node_modules cache paths', () => {
-    const modulePath = path.join(__dirname, '../build/fonts.js');
-    const rootDir = path.join('X:', 'freecat');
-    const previousCfPages = process.env.CF_PAGES;
-    const previousVercel = process.env.VERCEL;
-    const previousNpmCache = process.env.npm_config_cache;
-
-    delete require.cache[require.resolve(modulePath)];
-    delete process.env.CF_PAGES;
-    process.env.VERCEL = '1';
-    process.env.npm_config_cache = path.join('X:', 'vercel', '.npm');
+    process.env.npm_config_cache = path.join('X:', 'cloudflare', '.npm');
 
     try {
         const { fontSubsetCacheDir, fontToolsVenvDir } = require(modulePath);
@@ -245,8 +210,6 @@ test('Vercel keeps the existing node_modules cache paths', () => {
     } finally {
         if (previousCfPages === undefined) delete process.env.CF_PAGES;
         else process.env.CF_PAGES = previousCfPages;
-        if (previousVercel === undefined) delete process.env.VERCEL;
-        else process.env.VERCEL = previousVercel;
         if (previousNpmCache === undefined) delete process.env.npm_config_cache;
         else process.env.npm_config_cache = previousNpmCache;
         delete require.cache[require.resolve(modulePath)];
