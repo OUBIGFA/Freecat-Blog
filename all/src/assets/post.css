@@ -129,10 +129,10 @@
 /* Post Title Responsive Styles */
 .post-title {
     color: #1e293b !important;
-    line-height: 1.4 !important;
+    line-height: 1.36 !important;
     margin-top: 1.25rem !important;
-    margin-bottom: 2rem !important;
-    font-size: 2.3rem !important;
+    margin-bottom: 1.5rem !important;
+    font-size: 1.75rem !important;
     font-weight: 600 !important;
 }
 
@@ -140,6 +140,7 @@
     .post-title {
         margin-bottom: 3.5rem !important;
         font-size: 2.5rem !important;
+        line-height: 1.4 !important;
     }
 }
 
@@ -958,8 +959,8 @@ article {
 
 /* ===== Article Reading Hierarchy Override ===== */
 .prose {
-    --article-body-size: 1.15rem;
-    --article-line-height: 1.86;
+    --article-body-size: 1.0625rem;
+    --article-line-height: 1.82;
     --article-rhythm: calc(var(--article-body-size) * var(--article-line-height));
     --article-heading-rule: #d8e0eb;
     --article-space-tight: 0.42rem;
@@ -973,12 +974,12 @@ article {
     --article-space-heading-peer-5: 2.5rem;
     --article-space-heading-peer-6: 2.28rem;
     --article-space-divider: 80px;
-    --article-heading-h1: calc(var(--article-body-size) * 2.36);
-    --article-heading-h2: calc(var(--article-body-size) * 1.92);
-    --article-heading-h3: calc(var(--article-body-size) * 1.62);
-    --article-heading-h4: calc(var(--article-body-size) * 1.42);
-    --article-heading-h5: calc(var(--article-body-size) * 1.3);
-    --article-heading-h6: calc(var(--article-body-size) * 1.2);
+    --article-heading-h1: calc(var(--article-body-size) * 1.72);
+    --article-heading-h2: calc(var(--article-body-size) * 1.52);
+    --article-heading-h3: calc(var(--article-body-size) * 1.34);
+    --article-heading-h4: calc(var(--article-body-size) * 1.22);
+    --article-heading-h5: calc(var(--article-body-size) * 1.14);
+    --article-heading-h6: calc(var(--article-body-size) * 1.08);
     font-size: var(--article-body-size) !important;
     line-height: var(--article-line-height) !important;
     color: #1e293b !important;
@@ -991,6 +992,12 @@ article {
     .prose {
         --article-body-size: 1.1875rem;
         --article-line-height: 1.9;
+        --article-heading-h1: calc(var(--article-body-size) * 2.36);
+        --article-heading-h2: calc(var(--article-body-size) * 1.92);
+        --article-heading-h3: calc(var(--article-body-size) * 1.62);
+        --article-heading-h4: calc(var(--article-body-size) * 1.42);
+        --article-heading-h5: calc(var(--article-body-size) * 1.3);
+        --article-heading-h6: calc(var(--article-body-size) * 1.2);
     }
 }
 

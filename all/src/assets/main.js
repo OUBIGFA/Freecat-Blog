@@ -176,6 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document,
         runtime,
         syncParentFrameHistory,
+        framed: FRAMED,
         prefersReducedMotion
     });
     const initUpdateSortControls = updateSort.initUpdateSortControls;
@@ -252,6 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
         applyStaggeredAnimations,
         fitTagRows,
         syncParentFrameHistory,
+        framed: FRAMED,
         getCssDurationMs
     });
 

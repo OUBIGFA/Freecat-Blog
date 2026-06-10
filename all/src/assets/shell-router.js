@@ -40,10 +40,7 @@
 
         const HOME_CONTENT = '/home.html';
         const SCROLL_RESTORE_REQUEST_KEY = 'freecat-scroll-restore-requests-v1';
-        const SHELL_HISTORY_INDEX_KEY = 'freecatShellIndex';
         const headerEl = document.querySelector('header.fixed');
-        let shellHistoryIndex = 0;
-        let pendingFrameTraversal = null;
 
         function getPublicLocation() {
             return window.location.pathname + window.location.search + window.location.hash;
@@ -95,61 +92,26 @@
             }
         }
 
-        function getShellHistoryIndex(state) {
-            const index = state && state[SHELL_HISTORY_INDEX_KEY];
-            return Number.isInteger(index) && index >= 0 ? index : null;
-        }
-
-        function shellState(baseState, index) {
-            return { ...(baseState || {}), freecatShell: true, [SHELL_HISTORY_INDEX_KEY]: index };
+        function shellState(baseState) {
+            return { ...(baseState || {}), freecatShell: true };
         }
 
         function ensureShellHistoryState() {
             const currentState = window.history.state || {};
-            const currentIndex = getShellHistoryIndex(currentState);
-            shellHistoryIndex = currentIndex == null ? 0 : currentIndex;
-            if (!currentState.freecatShell || currentIndex == null) {
-                window.history.replaceState(shellState(currentState, shellHistoryIndex), '', getPublicLocation());
+            if (!currentState.freecatShell) {
+                window.history.replaceState(shellState(currentState), '', getPublicLocation());
             }
         }
 
-        function clearPendingFrameTraversal() {
-            if (!pendingFrameTraversal) return;
-            window.clearTimeout(pendingFrameTraversal.timer);
-            pendingFrameTraversal = null;
-        }
-
-        function setFrameLocation(path, options = {}) {
+        // 历史唯一所有权：浏览器历史条目只由外壳的 pushState/replaceState 创建，
+        // iframe 的所有导航一律走 location.replace（不产生联合历史条目）。
+        // 否则一次导航会留下两条历史（外壳一条 + iframe 一条），返回键要按两次才生效。
+        function setFrameLocation(path) {
             const target = publicPathToContentPath(path);
             try {
-                if (options.replace) {
-                    frame.contentWindow.location.replace(target);
-                } else {
-                    frame.contentWindow.location.assign(target);
-                }
+                frame.contentWindow.location.replace(target);
             } catch (err) {
                 frame.src = target;
-            }
-        }
-
-        function traverseFrameHistory(delta, target) {
-            if (!Number.isInteger(delta) || delta === 0) return false;
-            try {
-                frame.contentWindow.history.go(delta);
-                clearPendingFrameTraversal();
-                pendingFrameTraversal = {
-                    target,
-                    timer: window.setTimeout(() => {
-                        if (publicPathToContentPath(getFramePath()) !== target) {
-                            setFrameLocation(target, { replace: true });
-                        }
-                        clearPendingFrameTraversal();
-                    }, 1200)
-                };
-                return true;
-            } catch (err) {
-                clearPendingFrameTraversal();
-                return false;
             }
         }
 
@@ -197,26 +159,18 @@
             const publicPath = contentPathToPublicPath(framePath);
             if (publicPath === getPublicLocation()) return;
             const method = options.push ? 'pushState' : 'replaceState';
-            const nextIndex = options.push ? shellHistoryIndex + 1 : shellHistoryIndex;
-            const state = shellState(window.history.state || {}, nextIndex);
-            window.history[method](state, '', publicPath);
-            shellHistoryIndex = nextIndex;
+            window.history[method](shellState(window.history.state), '', publicPath);
         }
 
         function navigateShell(targetHref, options = {}) {
             const contentPath = publicPathToContentPath(targetHref);
             const publicPath = contentPathToPublicPath(contentPath);
-            const currentPublicPath = getPublicLocation();
-            const shouldPush = publicPath !== currentPublicPath && !options.replace;
-            const nextIndex = shouldPush ? shellHistoryIndex + 1 : shellHistoryIndex;
-            const state = shellState(window.history.state || {}, nextIndex);
-            if (publicPath !== currentPublicPath) {
+            if (publicPath !== getPublicLocation()) {
                 const method = options.replace ? 'replaceState' : 'pushState';
-                window.history[method](state, '', publicPath);
-                shellHistoryIndex = nextIndex;
+                window.history[method](shellState(window.history.state), '', publicPath);
             }
             if (publicPathToContentPath(getFramePath()) !== contentPath) {
-                setFrameLocation(contentPath, { replace: !!options.replace });
+                setFrameLocation(contentPath);
             }
         }
 
@@ -225,12 +179,11 @@
             if (!framePath) return;
             const target = publicPathToContentPath(getPublicLocation());
             if (publicPathToContentPath(framePath) === target) return;
-            if (options.restoreScroll) requestFrameScrollRestore(target);
             if (options.restoreScroll) {
-                window.setTimeout(() => clearFrameScrollRestore(target), 15000);
+                requestFrameScrollRestore(target);
+                window.setTimeout(() => clearFrameScrollRestore(target), 6000);
             }
-            if (options.restoreScroll && traverseFrameHistory(options.historyDelta, target)) return;
-            setFrameLocation(target, { replace: true });
+            setFrameLocation(target);
         }
 
         function syncFrameOffset() {
@@ -247,14 +200,6 @@
         }
 
         function onFrameLoad() {
-            if (pendingFrameTraversal) {
-                const target = pendingFrameTraversal.target;
-                clearPendingFrameTraversal();
-                if (publicPathToContentPath(getFramePath()) !== target) {
-                    setFrameLocation(target, { replace: true });
-                    return;
-                }
-            }
             try {
                 const t = frame.contentDocument && frame.contentDocument.title;
                 if (t) document.title = t;
@@ -280,11 +225,8 @@
 
         frame.addEventListener('load', onFrameLoad);
         ensureShellHistoryState();
-        window.addEventListener('popstate', (event) => {
-            const nextIndex = getShellHistoryIndex(event.state);
-            const historyDelta = nextIndex == null ? 0 : nextIndex - shellHistoryIndex;
-            if (nextIndex != null) shellHistoryIndex = nextIndex;
-            syncFrameToLocation({ restoreScroll: true, historyDelta });
+        window.addEventListener('popstate', () => {
+            syncFrameToLocation({ restoreScroll: true });
         });
         window.addEventListener('resize', syncFrameOffset);
         if (headerEl && typeof ResizeObserver !== 'undefined') {

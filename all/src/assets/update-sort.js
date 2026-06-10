@@ -11,6 +11,7 @@
         const doc = deps.document;
         const runtime = deps.runtime;
         const syncParentFrameHistory = deps.syncParentFrameHistory;
+        const framed = !!deps.framed;
         const prefersReducedMotion = deps.prefersReducedMotion;
 
         const updateSortParam = 'updateSort';
@@ -42,7 +43,8 @@
             const nextUrl = win.location.pathname + (query ? `?${query}` : '') + win.location.hash;
             const currentUrl = win.location.pathname + win.location.search + win.location.hash;
 
-            const method = options.replace ? 'replaceState' : 'pushState';
+            // 外壳模式下历史条目只能由外壳创建，本文档（iframe）一律 replaceState。
+            const method = (options.replace || framed) ? 'replaceState' : 'pushState';
             if (nextUrl !== currentUrl) {
                 win.history[method](win.history.state || {}, '', nextUrl);
             }

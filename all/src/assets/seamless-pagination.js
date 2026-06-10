@@ -19,6 +19,7 @@
         const applyStaggeredAnimations = deps.applyStaggeredAnimations;
         const fitTagRows = deps.fitTagRows;
         const syncParentFrameHistory = deps.syncParentFrameHistory;
+        const framed = !!deps.framed;
 
         const postsList = doc.getElementById('posts-list');
         const paginationContainer = doc.getElementById('pagination-buttons');
@@ -116,7 +117,10 @@
             applyStaggeredAnimations('#posts-list .post-card');
 
             // 更新浏览器地址栏，并同步外壳历史；这样从文章页返回时能回到当前分页。
-            win.history.pushState({ ...(win.history.state || {}), freecatSoftNav: true }, '', url);
+            // 外壳模式下历史条目只能由外壳创建（syncParentFrameHistory push），
+            // iframe 自身只 replaceState，否则一次翻页产生两条历史、返回键要按两次。
+            const method = framed ? 'replaceState' : 'pushState';
+            win.history[method]({ ...(win.history.state || {}), freecatSoftNav: true }, '', url);
             syncParentFrameHistory({ push: true });
 
             // 翻页后回到页面顶部，对齐进入首页时的初始位置。

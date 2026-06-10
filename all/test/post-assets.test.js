@@ -192,6 +192,13 @@ test('article Chinese font weight ranges cover title and bold text rules', () =>
     );
 });
 
+test('article headings use smaller mobile reading scale and restore desktop scale', () => {
+    assert.match(postCss, /\.post-title\s*\{[\s\S]*font-size:\s*1\.75rem\s*!important;/);
+    assert.match(postCss, /@media \(min-width: 768px\)\s*\{[\s\S]*\.post-title\s*\{[\s\S]*font-size:\s*2\.5rem\s*!important;/);
+    assert.match(postCss, /\.prose\s*\{[\s\S]*--article-body-size:\s*1\.0625rem;[\s\S]*--article-heading-h1:\s*calc\(var\(--article-body-size\) \* 1\.72\);/);
+    assert.match(postCss, /@media \(min-width: 768px\)\s*\{[\s\S]*\.prose\s*\{[\s\S]*--article-body-size:\s*1\.1875rem;[\s\S]*--article-heading-h1:\s*calc\(var\(--article-body-size\) \* 2\.36\);/);
+});
+
 test('article headings keep peer spacing after standalone post images', () => {
     assert.equal(postCss.includes('.prose figure.post-image+h3:not(.article-heading),'), true);
     assert.equal(postCss.includes('.prose figure.post-image+h3,'), false);

@@ -13,6 +13,9 @@
         const restoreIntervalMs = 80;
         let saveFrame = 0;
         let restoreTimer = 0;
+        // 恢复进行中暂停保存：恢复重试期间的中间滚动位置（含文档被替换时的
+        // pagehide）一旦写回存储，会污染下一次加载要恢复的目标值。
+        let restoreInProgress = false;
 
         function getPageKey() {
             return window.location.pathname + window.location.search;
@@ -34,14 +37,22 @@
             } catch (e) {}
         }
 
-        function consumeShellRestoreRequest() {
+        // 外壳在返回/前进时写入恢复请求。返回导航会出现两次加载竞争
+        // （浏览器自动恢复 iframe 文档 + 外壳主动 replace），请求在短窗口内
+        // 保持有效，保证最终落地的那次加载也能恢复滚动；过期项就地清除。
+        const restoreRequestWindowMs = 5000;
+
+        function hasShellRestoreRequest() {
             try {
                 const raw = platform.sessionStorage.getItem(restoreRequestStorageKey);
                 const requests = raw ? JSON.parse(raw) : {};
                 if (!requests || typeof requests !== 'object') return false;
 
                 const pageKey = getPageKey();
-                if (!requests[pageKey]) return false;
+                const requestedAt = requests[pageKey];
+                if (!requestedAt) return false;
+
+                if (Date.now() - requestedAt <= restoreRequestWindowMs) return true;
 
                 delete requests[pageKey];
                 if (Object.keys(requests).length) {
@@ -49,7 +60,7 @@
                 } else {
                     platform.sessionStorage.removeItem(restoreRequestStorageKey);
                 }
-                return true;
+                return false;
             } catch (e) {
                 return false;
             }
@@ -64,6 +75,7 @@
 
         function saveScrollPosition() {
             saveFrame = 0;
+            if (restoreInProgress) return;
             const positions = readPositions();
             positions[getPageKey()] = {
                 x: window.scrollX || window.pageXOffset || 0,
@@ -104,6 +116,7 @@
             const start = Date.now();
             const targetX = typeof saved.x === 'number' ? saved.x : 0;
             const targetY = Math.max(0, saved.y);
+            restoreInProgress = true;
 
             function clampTargetY() {
                 const scrollingElement = document.scrollingElement || document.documentElement;
@@ -120,6 +133,7 @@
                 const timedOut = Date.now() - start >= restoreTimeoutMs;
                 if (reachedTarget || timedOut) {
                     restoreTimer = 0;
+                    restoreInProgress = false;
                     return;
                 }
                 restoreTimer = window.setTimeout(attemptRestore, restoreIntervalMs);
@@ -132,8 +146,7 @@
         }
 
         if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-        const hasShellRestoreRequest = consumeShellRestoreRequest();
-        if (isHistoryRestore() || hasShellRestoreRequest) restoreScrollPosition();
+        if (isHistoryRestore() || hasShellRestoreRequest()) restoreScrollPosition();
 
         window.addEventListener('scroll', scheduleSaveScrollPosition, { passive: true });
         window.addEventListener('pagehide', saveScrollPosition);
@@ -142,8 +155,7 @@
             if (document.visibilityState === 'hidden') saveScrollPosition();
         });
         window.addEventListener('pageshow', (event) => {
-            const hasShellRestoreRequest = consumeShellRestoreRequest();
-            if (isHistoryRestore(event) || hasShellRestoreRequest) restoreScrollPosition();
+            if (isHistoryRestore(event) || hasShellRestoreRequest()) restoreScrollPosition();
         });
     }
 

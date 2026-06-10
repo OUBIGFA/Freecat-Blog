@@ -201,6 +201,11 @@ test('go back and update sort labels use requested font assets', () => {
     assert.match(updateSortControl, /class="freecat-update-sort-label">按更新排序<\/span>/);
     assert.match(allTemplate, /<!-- INCLUDE:update-sort-control -->/);
     assert.match(searchTemplate, /<!-- INCLUDE:update-sort-control -->/);
+    assert.match(allTemplate, /class="[^"]*\bfreecat-list-toolbar\b/);
+    assert.match(searchTemplate, /class="[^"]*\bfreecat-list-toolbar\b/);
+    assert.match(transitionsCss, /@media \(max-width: 480px\)\s*\{[\s\S]*\.freecat-list-toolbar\s*\{[\s\S]*margin-bottom:\s*1\.25rem\s*!important;[\s\S]*padding-top:\s*0\.5rem\s*!important;[\s\S]*padding-bottom:\s*0\.75rem\s*!important;/);
+    assert.match(transitionsCss, /@media \(max-width: 480px\)\s*\{[\s\S]*\.freecat-list-toolbar \[data-update-sort-controls\]\s*\{[\s\S]*flex-wrap:\s*nowrap\s*!important;/);
+    assert.doesNotMatch(allTemplate, /\.freecat-all-page \[data-all-toolbar\]\s*\{/);
     assert.doesNotMatch(updateSortControl, /<span>按更新排序<\/span>/);
 });
 

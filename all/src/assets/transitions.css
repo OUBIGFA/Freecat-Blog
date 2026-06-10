@@ -67,6 +67,24 @@
     color: #cbd5e1;
 }
 
+@media (max-width: 480px) {
+    .freecat-list-toolbar {
+        align-items: center !important;
+        flex-direction: row !important;
+        gap: 0.75rem !important;
+        justify-content: space-between !important;
+        margin-bottom: 1.25rem !important;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.75rem !important;
+    }
+
+    .freecat-list-toolbar [data-update-sort-controls] {
+        flex: 0 0 auto !important;
+        flex-wrap: nowrap !important;
+        gap: 0.5rem !important;
+    }
+}
+
 .freecat-update-sort-switch {
     position: relative;
     display: inline-flex;
