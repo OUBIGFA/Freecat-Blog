@@ -40,6 +40,7 @@
 **Beginner-Friendly**
 
 - No metadata needed at all—just write your content
+- Customize the site's look, profile, social links, pinning, and visibility through simple fields or checkboxes in Markdown metadata and control files, without a complex dashboard or code
 - Supports `.md`, `.txt`, and other formats
 - No need to worry about formatting—plain text works perfectly
 
