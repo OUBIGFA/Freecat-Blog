@@ -147,6 +147,8 @@ Cloudflare Pages / Vercel 自动构建
 
 * 内置 SEO 和 AI 检索支持，可生成 Sitemap、RSS、llms.txt，并引导你提交到 Google 与 Bing。详情见 `Control/SEO_搜索优化.md`
 
+* [把网站交给 Google 和 Bing —— 小白零基础教程](https://freecat-blog.pages.dev/posts/2026060310280701)
+
 * 文章里放音频直链就能自动生成播放器
 
 * 不写代码就能改网站名、头像、社交链接和主题
