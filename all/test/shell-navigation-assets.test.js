@@ -31,11 +31,16 @@ test('main animation checks reuse a single reduced-motion helper', () => {
 
 test('theme switching uses css transitions and syncs the shell iframe', () => {
     assert.doesNotMatch(mainJs, /document\.startViewTransition/);
+    assert.doesNotMatch(themeSystemJs, /startViewTransition/);
     assert.match(themeSystemJs, /function syncFrameTheme\(isDark, options = \{\}\)\s*\{/);
     assert.match(themeSystemJs, /contentFrame\.contentWindow\.FreecatRuntime/);
     assert.match(themeSystemJs, /frameRuntime\.applyTheme\(\{\s*animate:\s*!!options\.animate\s*\}\);/);
     assert.match(themeSystemJs, /contentFrame\.contentWindow\.FreecatApplyTheme/);
     assert.match(themeSystemJs, /frameDoc\.documentElement\.classList\.toggle\('dark', isDark\);/);
+    assert.match(transitionsCss, /html\.theme-transitioning header\.fixed/);
+    assert.match(transitionsCss, /html\.theme-transitioning \.post-card > div/);
+    assert.doesNotMatch(transitionsCss, /html\.theme-transitioning body \*/);
+    assert.doesNotMatch(transitionsCss, /box-shadow !important/);
     assert.match(runtimeJs, /setApplyTheme\(fn\)\s*\{[\s\S]*FreecatApplyTheme/);
     assert.match(mainJs, /runtime\.setApplyTheme\(applyTheme\);/);
     assert.match(shellRouterJs, /syncFrameTheme\(resolveThemeIsDark\(\)\);/);

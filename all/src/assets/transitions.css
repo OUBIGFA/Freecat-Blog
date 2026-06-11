@@ -623,11 +623,32 @@ html.dark {
 
 html.theme-transitioning,
 html.theme-transitioning body,
-html.theme-transitioning body *,
-html.theme-transitioning body *::before,
-html.theme-transitioning body *::after {
-    /* 只接管会随主题变化的颜色类属性；opacity / filter / backdrop-filter
-       没有随主题变化的样式，列进来反而会劫持切换窗口内其它交互动画。 */
+html.theme-transitioning header.fixed,
+html.theme-transitioning footer,
+html.theme-transitioning .page-blur-target,
+html.theme-transitioning .t-btn,
+html.theme-transitioning .t-btn-icon,
+html.theme-transitioning .t-dropdown,
+html.theme-transitioning .post-card > div,
+html.theme-transitioning .post-card-title,
+html.theme-transitioning .post-card-excerpt,
+html.theme-transitioning .post-card-media-icon,
+html.theme-transitioning .post-card-pinned-badge,
+html.theme-transitioning .freecat-nav-text,
+html.theme-transitioning .freecat-brand-text,
+html.theme-transitioning .freecat-footer-copyright,
+html.theme-transitioning .freecat-date-text,
+html.theme-transitioning .freecat-published-date-text,
+html.theme-transitioning .tag-span,
+html.theme-transitioning .freecat-update-sort-switch,
+html.theme-transitioning .freecat-update-sort-switch::after,
+html.theme-transitioning .freecat-update-sort-switch-label,
+html.theme-transitioning .freecat-results-count,
+html.theme-transitioning .prose,
+html.theme-transitioning .prose :where(p, h1, h2, h3, h4, h5, h6, a, li, blockquote, code, pre, table, thead, tbody, tr, th, td, hr),
+html.theme-transitioning .hljs {
+    /* 只接管主要可见颜色控制点。不要再匹配 body *：大归档页有数百张卡片，
+       全量子元素一起过渡会让顶栏和正文分批刷新，线上内容越多越明显。 */
     transition-property:
         color,
         background-color,
@@ -635,8 +656,7 @@ html.theme-transitioning body *::after {
         outline-color,
         text-decoration-color,
         fill,
-        stroke,
-        box-shadow !important;
+        stroke !important;
     transition-duration: var(--theme-transition-dur) !important;
     transition-timing-function: var(--theme-transition-ease) !important;
     transition-delay: 0ms !important;
@@ -928,14 +948,6 @@ body.search-active .page-blur-target::before {
     ::view-transition-old(root),
     ::view-transition-new(root) {
         animation-duration: 1ms !important;
-    }
-
-    html.theme-transitioning,
-    html.theme-transitioning body,
-    html.theme-transitioning body *,
-    html.theme-transitioning body *::before,
-    html.theme-transitioning body *::after {
-        transition: none !important;
     }
 
     .animate-fade-in-up,
