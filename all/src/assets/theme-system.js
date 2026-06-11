@@ -81,13 +81,17 @@
             root.clearTimeout(themeTransitionTimer);
             themeTransitionTimer = root.setTimeout(
                 finishThemeTransition,
-                getCssDurationMs('--theme-transition-dur', 360) + 120
+                getCssDurationMs('--theme-transition-dur', 240) + 120
             );
         }
 
         function applyTheme(options = {}) {
             const isDark = resolveThemeIsDark();
-            const shouldAnimate = !!options.animate && doc.body && !prefersReducedMotion();
+            // 状态未变时不重启过渡：同一次切换里 iframe 先经 syncFrameTheme 应用主题，
+            // 随后又收到外壳写 localStorage 触发的 storage 事件；重复的 animated
+            // 调用只需幂等地校准状态，避免多余的全文档强制重排推迟首帧。
+            const alreadyApplied = html.classList.contains('dark') === isDark;
+            const shouldAnimate = !!options.animate && !alreadyApplied && doc.body && !prefersReducedMotion();
 
             if (!shouldAnimate) {
                 setThemeState(isDark);

@@ -25,9 +25,12 @@
     --t-btn-press-scale: 0.98;
     --t-btn-icon-press-scale: 0.92;
 
-    /* ===== Theme switch motion tokens ===== */
-    --theme-transition-dur: 360ms;
-    --theme-transition-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    /* ===== Theme switch motion tokens =====
+       全页颜色交叉淡变：等速 + 240ms。
+       不要用强缓出曲线（如 cubic-bezier(0.22,1,0.36,1)）：那会把大半变化
+       压进头几帧，整页观感是"闪一下"再拖长尾，而不是均匀渐变。 */
+    --theme-transition-dur: 240ms;
+    --theme-transition-ease: linear;
 
     /* ===== 全站统一：固定顶栏的占位与安全间距 =====
        所有页面以此为内容起点的最小上偏移；JS 会按真实 header 高度做实时同步。
@@ -623,6 +626,8 @@ html.theme-transitioning body,
 html.theme-transitioning body *,
 html.theme-transitioning body *::before,
 html.theme-transitioning body *::after {
+    /* 只接管会随主题变化的颜色类属性；opacity / filter / backdrop-filter
+       没有随主题变化的样式，列进来反而会劫持切换窗口内其它交互动画。 */
     transition-property:
         color,
         background-color,
@@ -631,10 +636,7 @@ html.theme-transitioning body *::after {
         text-decoration-color,
         fill,
         stroke,
-        box-shadow,
-        opacity,
-        filter,
-        backdrop-filter !important;
+        box-shadow !important;
     transition-duration: var(--theme-transition-dur) !important;
     transition-timing-function: var(--theme-transition-ease) !important;
     transition-delay: 0ms !important;
