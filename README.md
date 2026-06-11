@@ -269,19 +269,21 @@ Cloudflare Pages 是推荐方案，构建参数要填对。
 1. 登录 [Vercel](https://vercel.com/)。
 2. 点 `Add New...` → `Project`。
 3. 连接 GitHub，选你的博客仓库。
-4. 按下表填写。
+4. 在导入页面找到 `Root Directory`，点右侧的 `Edit`。
 
-| 字段               | 填写值             |
-| ---------------- | --------------- |
-| Framework Preset | 保持默认，或选择静态/其他类型 |
-| Root Directory   | `all`           |
-| Build Command    | `npm run build` |
-| Output Directory | `dist`          |
-| Node Version     | `20`            |
+![Vercel root directory edit](all/image/Tutorial/11.png)
+
+5. 在弹窗里勾选 `all` 文件夹，点 `Continue`。
+
+![Vercel root directory select all](all/image/Tutorial/12.png)
+
+6. 其余设置全部保持默认，直接点 `Deploy`。
+
+Vercel 只需要改 Root Directory 这一处。构建命令、输出目录和页面地址规则由仓库里的 `all/vercel.json` 自动接管，不要展开 `Build and Output Settings` 手动覆盖。
+
+> 最常踩的坑：Root Directory 没选 `all`，或者手动覆盖了构建设置。这会让 Vercel 读不到 `all/vercel.json`，部署出来的网站页面会全部 404。
 
 Vercel 会自动恢复构建缓存。Freecat Blog 会复用其中的字体子集缓存；如果文章没有新增字符，后续部署会跳过字体生成。不要在项目设置里主动清空 Build Cache，除非你确实想强制重新生成。
-
-1. 点 `Deploy`。
 
 绑定自定义域名时，进项目设置里的 `Domains`，按提示改解析即可。
 

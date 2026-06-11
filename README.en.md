@@ -244,19 +244,21 @@ If you already use Vercel, you can choose it directly.
 1. Sign in to [Vercel](https://vercel.com/).
 2. Click `Add New...` -> `Project`.
 3. Connect GitHub and choose your blog repository.
-4. Fill in the settings:
+4. On the import page, find `Root Directory` and click `Edit`.
 
-| Field | Value |
-| --- | --- |
-| Framework Preset | Keep default, or choose static/other |
-| Root Directory | `all` |
-| Build Command | `npm run build` |
-| Output Directory | `dist` |
-| Node Version | `20` |
+![Vercel root directory edit](all/image/Tutorial/11.png)
+
+5. In the dialog, select the `all` folder and click `Continue`.
+
+![Vercel root directory select all](all/image/Tutorial/12.png)
+
+6. Keep every other setting at its default and click `Deploy`.
+
+Root Directory is the only setting you need to change on Vercel. The build command, output directory, and URL rules are handled automatically by `all/vercel.json` in the repository, so do not expand `Build and Output Settings` to override them.
+
+> The most common mistake: not selecting `all` as the Root Directory, or manually overriding the build settings. Either one prevents Vercel from reading `all/vercel.json`, and every page of the deployed site returns 404.
 
 Vercel restores its build cache automatically. Freecat Blog reuses the font subset cache from it; when your articles do not introduce new characters, later deployments skip font generation. Do not clear the Build Cache in project settings unless you intentionally want to force regeneration.
-
-1. Click `Deploy`.
 
 To bind a custom domain, open project settings -> `Domains` and follow the DNS instructions.
 

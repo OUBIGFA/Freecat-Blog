@@ -190,9 +190,12 @@ Freecat Blog 也内置了搜索优化支持：可生成 Sitemap、RSS、llms.txt
 
 ## 第二步：部署参数速查表
 
-用 Cloudflare Pages 还是 Vercel，关键参数都一样。
+两个平台的填法不一样，别照搬。
 
-| 项目                                            | 应该填写什么            |
+* **Cloudflare Pages**：按下表手动填写构建参数。
+* **Vercel**：只需要把 Root Directory 选成 `all` 文件夹，其余全部保持默认（详见方案二）。
+
+| 项目（Cloudflare Pages）                           | 应该填写什么            |
 | --------------------------------------------- | ----------------- |
 | 仓库                                            | 你自己的 GitHub 仓库    |
 | 根目录 / Root Directory / Base Directory         | `all`             |
@@ -303,17 +306,21 @@ Freecat Blog 也内置了搜索优化支持：可生成 Sitemap、RSS、llms.txt
 5. 授权 Vercel 访问你的仓库
 6. 选你自己的博客仓库
 
-### 第 2 步：填写项目配置
+### 第 2 步：把 Root Directory 选成 all 文件夹
 
-| 字段                 | 应填写的值           |
-| ------------------ | --------------- |
-| Framework Preset   | 保持默认，或选择静态/其他类型 |
-| Root Directory     | `all`           |
-| Build Command      | `npm run build` |
-| Output Directory   | `dist`          |
-| Node Version（如能设置） | `20`            |
+Vercel 只需要改这一处，其余设置全部保持默认，不要手动填构建命令或输出目录。
 
-输出目录填 `dist`，别写成 `all/dist`。
+1. 在导入页面找到 `Root Directory`，点右侧的 `Edit`
+
+![Vercel 导入页面点 Root Directory 的 Edit](../all/image/Tutorial/11.png)
+
+2. 在弹窗里勾选 `all` 文件夹，点 `Continue`
+
+![在弹窗中勾选 all 文件夹](../all/image/Tutorial/12.png)
+
+构建命令、输出目录和页面地址规则，由仓库自带的 `all/vercel.json` 自动接管，所以都不用填。
+
+> 最容易踩的坑：Root Directory 没选 `all`，或者展开 `Build and Output Settings` 手动覆盖了构建设置。这两种情况都会让 Vercel 读不到 `all/vercel.json`，部署出来的网站页面会全部 404。
 
 Vercel 会自动恢复构建缓存。Freecat Blog 会复用其中的字体子集缓存；文章没有新增字符时，后续部署会跳过字体生成。除非你确实想强制重新生成，否则不要在项目设置里主动清空 Build Cache。
 
