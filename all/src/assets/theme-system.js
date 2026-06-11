@@ -7,6 +7,8 @@
     }
 }(typeof self !== 'undefined' ? self : this, function () {
     const THEME_TRANSITION_CLASS = 'theme-transitioning';
+    const THEME_TRANSITION_FROM_DARK_CLASS = 'theme-transition-from-dark';
+    const THEME_TRANSITION_FROM_LIGHT_CLASS = 'theme-transition-from-light';
 
     function createThemeSystem(options) {
         const doc = options.document;
@@ -74,15 +76,24 @@
             root.clearTimeout(themeTransitionTimer);
             themeTransitionTimer = 0;
             html.classList.remove(THEME_TRANSITION_CLASS);
+            html.classList.remove(THEME_TRANSITION_FROM_DARK_CLASS);
+            html.classList.remove(THEME_TRANSITION_FROM_LIGHT_CLASS);
         }
 
-        function startThemeTransition() {
+        function startThemeTransition(fromDark) {
             html.classList.add(THEME_TRANSITION_CLASS);
+            html.classList.toggle(THEME_TRANSITION_FROM_DARK_CLASS, !!fromDark);
+            html.classList.toggle(THEME_TRANSITION_FROM_LIGHT_CLASS, !fromDark);
             root.clearTimeout(themeTransitionTimer);
             themeTransitionTimer = root.setTimeout(
                 finishThemeTransition,
                 getCssDurationMs('--theme-transition-dur', 240) + 120
             );
+        }
+
+        function runAnimatedThemeChange(updateThemeState, fromDark) {
+            startThemeTransition(fromDark);
+            updateThemeState();
         }
 
         function applyTheme(options = {}) {
@@ -99,10 +110,11 @@
                 return;
             }
 
-            startThemeTransition();
-            void html.offsetWidth;
-            setThemeState(isDark);
-            syncFrameTheme(isDark, { animate: true });
+            const fromDark = html.classList.contains('dark');
+            runAnimatedThemeChange(() => {
+                setThemeState(isDark);
+                syncFrameTheme(isDark, { animate: false });
+            }, fromDark);
         }
 
         function bindThemeToggle() {

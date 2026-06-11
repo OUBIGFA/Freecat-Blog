@@ -621,45 +621,36 @@ html.dark {
     mix-blend-mode: normal;
 }
 
+@keyframes themeCoverFade {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+html.theme-transitioning::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    pointer-events: none;
+    background: var(--theme-transition-cover, #f6f6f8);
+    animation: themeCoverFade var(--theme-transition-dur) var(--theme-transition-ease) both;
+}
+
+html.theme-transition-from-light {
+    --theme-transition-cover: #f6f6f8;
+}
+
+html.theme-transition-from-dark {
+    --theme-transition-cover: #101622;
+}
+
 html.theme-transitioning,
-html.theme-transitioning body,
-html.theme-transitioning header.fixed,
-html.theme-transitioning footer,
-html.theme-transitioning .page-blur-target,
-html.theme-transitioning .t-btn,
-html.theme-transitioning .t-btn-icon,
-html.theme-transitioning .t-dropdown,
-html.theme-transitioning .post-card > div,
-html.theme-transitioning .post-card-title,
-html.theme-transitioning .post-card-excerpt,
-html.theme-transitioning .post-card-media-icon,
-html.theme-transitioning .post-card-pinned-badge,
-html.theme-transitioning .freecat-nav-text,
-html.theme-transitioning .freecat-brand-text,
-html.theme-transitioning .freecat-footer-copyright,
-html.theme-transitioning .freecat-date-text,
-html.theme-transitioning .freecat-published-date-text,
-html.theme-transitioning .tag-span,
-html.theme-transitioning .freecat-update-sort-switch,
-html.theme-transitioning .freecat-update-sort-switch::after,
-html.theme-transitioning .freecat-update-sort-switch-label,
-html.theme-transitioning .freecat-results-count,
-html.theme-transitioning .prose,
-html.theme-transitioning .prose :where(p, h1, h2, h3, h4, h5, h6, a, li, blockquote, code, pre, table, thead, tbody, tr, th, td, hr),
-html.theme-transitioning .hljs {
-    /* 只接管主要可见颜色控制点。不要再匹配 body *：大归档页有数百张卡片，
-       全量子元素一起过渡会让顶栏和正文分批刷新，线上内容越多越明显。 */
-    transition-property:
-        color,
-        background-color,
-        border-color,
-        outline-color,
-        text-decoration-color,
-        fill,
-        stroke !important;
-    transition-duration: var(--theme-transition-dur) !important;
-    transition-timing-function: var(--theme-transition-ease) !important;
-    transition-delay: 0ms !important;
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+    /* 主题变化由顶层遮罩做一次整页切换。这里压住元素自身过渡，
+       避免大文章里成百上千个正文节点同时启动独立颜色动画。 */
+    transition: none !important;
 }
 
 @keyframes fadeInUp {

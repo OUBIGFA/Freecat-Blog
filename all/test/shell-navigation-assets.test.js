@@ -29,17 +29,22 @@ test('main animation checks reuse a single reduced-motion helper', () => {
     assert.doesNotMatch(mainJs, /const prefersReducedMotion = \(\) =>/);
 });
 
-test('theme switching uses css transitions and syncs the shell iframe', () => {
-    assert.doesNotMatch(mainJs, /document\.startViewTransition/);
+test('theme switching uses one page-cover transition and syncs the shell iframe', () => {
     assert.doesNotMatch(themeSystemJs, /startViewTransition/);
     assert.match(themeSystemJs, /function syncFrameTheme\(isDark, options = \{\}\)\s*\{/);
     assert.match(themeSystemJs, /contentFrame\.contentWindow\.FreecatRuntime/);
     assert.match(themeSystemJs, /frameRuntime\.applyTheme\(\{\s*animate:\s*!!options\.animate\s*\}\);/);
     assert.match(themeSystemJs, /contentFrame\.contentWindow\.FreecatApplyTheme/);
+    assert.match(themeSystemJs, /syncFrameTheme\(isDark,\s*\{\s*animate:\s*false\s*\}\);/);
     assert.match(themeSystemJs, /frameDoc\.documentElement\.classList\.toggle\('dark', isDark\);/);
-    assert.match(transitionsCss, /html\.theme-transitioning header\.fixed/);
-    assert.match(transitionsCss, /html\.theme-transitioning \.post-card > div/);
-    assert.doesNotMatch(transitionsCss, /html\.theme-transitioning body \*/);
+    assert.match(transitionsCss, /@keyframes themeCoverFade/);
+    assert.match(transitionsCss, /html\.theme-transitioning::before/);
+    assert.match(transitionsCss, /z-index:\s*2147483647/);
+    assert.match(transitionsCss, /html\.theme-transitioning \*/);
+    assert.match(transitionsCss, /transition:\s*none !important/);
+    assert.doesNotMatch(transitionsCss, /html\.theme-transitioning \.prose/);
+    assert.doesNotMatch(transitionsCss, /html\.theme-transitioning \.hljs/);
+    assert.doesNotMatch(transitionsCss, /transition-property:\s*[\s\S]*color,[\s\S]*background-color,[\s\S]*border-color/);
     assert.doesNotMatch(transitionsCss, /box-shadow !important/);
     assert.match(runtimeJs, /setApplyTheme\(fn\)\s*\{[\s\S]*FreecatApplyTheme/);
     assert.match(mainJs, /runtime\.setApplyTheme\(applyTheme\);/);

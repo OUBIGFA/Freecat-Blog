@@ -32,11 +32,12 @@ function createClassList() {
     };
 }
 
-function createHarness() {
+function createHarness(options = {}) {
     const localStorage = createMemoryStorage();
     const timers = [];
     let reflowCount = 0;
-
+    const viewTransitions = [];
+    const frameApplyThemeCalls = [];
     const html = {
         classList: createClassList(),
         get offsetWidth() {
@@ -51,6 +52,13 @@ function createHarness() {
         getElementById(id) { return id === 'theme-toggle' ? themeToggleBtn : null; },
         querySelectorAll() { return []; }
     };
+    if (options.viewTransition) {
+        doc.startViewTransition = (callback) => {
+            viewTransitions.push(callback);
+            callback();
+            return {};
+        };
+    }
     const root = {
         setTimeout(fn, ms) { timers.push({ fn, ms, cleared: false }); return timers.length; },
         clearTimeout(id) { if (timers[id - 1]) timers[id - 1].cleared = true; }
@@ -59,12 +67,21 @@ function createHarness() {
         localStorage,
         mediaQuery() { return false; }
     };
+    const contentFrame = options.contentFrame ? {
+        contentWindow: {
+            FreecatRuntime: {
+                applyTheme(nextOptions) {
+                    frameApplyThemeCalls.push(nextOptions);
+                }
+            }
+        }
+    } : null;
 
     const themeSystem = themeSystemModule.createThemeSystem({
         document: doc,
         window: root,
         platform,
-        contentFrame: null,
+        contentFrame,
         getCssDurationMs: () => 240
     });
 
@@ -75,11 +92,57 @@ function createHarness() {
         localStorage,
         timers,
         activeTimers: () => timers.filter(t => !t.cleared),
-        reflows: () => reflowCount
+        reflows: () => reflowCount,
+        viewTransitions,
+        frameApplyThemeCalls
     };
 }
 
-test('animated theme switch arms the transition class then removes it after the timer', () => {
+test('animated theme switch uses the page-cover transition instead of the native view transition', () => {
+    const h = createHarness({ viewTransition: true });
+    h.localStorage.setItem('theme', 'dark');
+
+    h.themeSystem.applyTheme({ animate: true });
+
+    assert.equal(h.html.classList.contains('dark'), true);
+    assert.equal(h.html.classList.contains('theme-transitioning'), true);
+    assert.equal(h.html.classList.contains('theme-transition-from-light'), true);
+    assert.equal(h.viewTransitions.length, 0, 'theme switching avoids the crash-prone native API');
+    assert.equal(h.reflows(), 0, 'theme switching does not force layout before changing state');
+    assert.equal(h.activeTimers().length, 1);
+    assert.equal(h.activeTimers()[0].ms, 360, 'cleanup runs at duration + buffer');
+
+    h.activeTimers()[0].fn();
+    assert.equal(h.html.classList.contains('theme-transitioning'), false);
+    assert.equal(h.html.classList.contains('theme-transition-from-light'), false);
+});
+
+test('shell theme switch syncs iframe state without starting iframe animation', () => {
+    const h = createHarness({ viewTransition: true, contentFrame: true });
+    h.localStorage.setItem('theme', 'dark');
+
+    h.themeSystem.applyTheme({ animate: true });
+
+    assert.equal(h.viewTransitions.length, 0, 'shell transition does not use the native view transition API');
+    assert.deepEqual(
+        h.frameApplyThemeCalls,
+        [{ animate: false }],
+        'framed content syncs theme state without starting its own animation'
+    );
+});
+
+test('animated theme switch keeps the same page-cover path when view transitions are disabled', () => {
+    const h = createHarness({ viewTransition: true });
+    h.localStorage.setItem('theme', 'dark');
+
+    h.themeSystem.applyTheme({ animate: true, viewTransition: false });
+
+    assert.equal(h.viewTransitions.length, 0);
+    assert.equal(h.html.classList.contains('dark'), true);
+    assert.equal(h.html.classList.contains('theme-transitioning'), true);
+});
+
+test('animated theme switch suppresses element transitions without a forced reflow fallback', () => {
     const h = createHarness();
     h.localStorage.setItem('theme', 'dark');
 
@@ -87,7 +150,7 @@ test('animated theme switch arms the transition class then removes it after the 
 
     assert.equal(h.html.classList.contains('dark'), true);
     assert.equal(h.html.classList.contains('theme-transitioning'), true);
-    assert.equal(h.reflows(), 1, 'arming the transition forces exactly one reflow');
+    assert.equal(h.reflows(), 0, 'fallback does not force layout before changing state');
     assert.equal(h.activeTimers().length, 1);
     assert.equal(h.activeTimers()[0].ms, 360, 'cleanup runs at duration + buffer');
 
