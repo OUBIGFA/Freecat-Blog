@@ -252,9 +252,6 @@ function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = 
     const katexCss = needsKatex
         ? '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" />'
         : '';
-    const highlightJs = needsHighlight
-        ? '<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>'
-        : '';
     const mediaCss = needsMediaPlayer
         ? '<link rel="stylesheet" href="/assets/media-player.css" />'
         : '';
@@ -319,7 +316,6 @@ function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = 
         ['<!-- POST_KATEX_CSS -->', katexCss],
         ['<!-- POST_FONT_PRELOADS -->', renderPostFontPreloads(post.postId, assetVersion)],
         ['<!-- POST_FONT_FACE_CSS -->', renderPostFontFaceCss(post.postId, assetVersion)],
-        ['<!-- POST_HIGHLIGHT_JS -->', highlightJs],
         ['<!-- POST_CHART_JS -->', [chartJs, embedJs].filter(Boolean).join('\n    ')],
         ['<!-- POST_MEDIA_CSS -->', mediaCss],
         ['<!-- POST_MEDIA_JS -->', mediaJs],

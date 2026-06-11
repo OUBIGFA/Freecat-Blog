@@ -33,14 +33,17 @@ test('theme switching uses one page-cover transition and syncs the shell iframe'
     assert.doesNotMatch(themeSystemJs, /startViewTransition/);
     assert.match(themeSystemJs, /function syncFrameTheme\(isDark, options = \{\}\)\s*\{/);
     assert.match(themeSystemJs, /contentFrame\.contentWindow\.FreecatRuntime/);
-    assert.match(themeSystemJs, /frameRuntime\.applyTheme\(\{\s*animate:\s*!!options\.animate\s*\}\);/);
+    assert.match(themeSystemJs, /frameRuntime\.applyTheme\(\{\s*animate:\s*!!options\.animate,\s*suppressTransitions:\s*!!options\.suppressTransitions\s*\}\);/);
     assert.match(themeSystemJs, /contentFrame\.contentWindow\.FreecatApplyTheme/);
-    assert.match(themeSystemJs, /syncFrameTheme\(isDark,\s*\{\s*animate:\s*false\s*\}\);/);
+    assert.match(themeSystemJs, /syncFrameTheme\(isDark,\s*\{\s*animate:\s*false,\s*suppressTransitions:\s*true\s*\}\);/);
     assert.match(themeSystemJs, /frameDoc\.documentElement\.classList\.toggle\('dark', isDark\);/);
     assert.match(transitionsCss, /@keyframes themeCoverFade/);
     assert.match(transitionsCss, /html\.theme-transitioning::before/);
     assert.match(transitionsCss, /z-index:\s*2147483647/);
     assert.match(transitionsCss, /html\.theme-transitioning \*/);
+    // iframe 内容页接受外壳同步时的无遮罩统一抑制（不能再各元素独立过渡）
+    assert.match(transitionsCss, /html\.theme-instant \*/);
+    assert.doesNotMatch(transitionsCss, /html\.theme-instant::before/);
     assert.match(transitionsCss, /transition:\s*none !important/);
     assert.doesNotMatch(transitionsCss, /html\.theme-transitioning \.prose/);
     assert.doesNotMatch(transitionsCss, /html\.theme-transitioning \.hljs/);

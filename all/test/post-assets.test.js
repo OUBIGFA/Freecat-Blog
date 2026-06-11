@@ -332,6 +332,26 @@ test('mermaid light theme avoids heavy sequence and gantt blocks', () => {
     assert.match(postCss, /\.mermaid-block\[data-mermaid-kind="gantt"\] \.taskText,[\s\S]*\.taskTextOutsideRight,[\s\S]*\.taskTextOutsideLeft\s*\{[\s\S]*fill:\s*#233044\s*!important;/);
 });
 
+test('syntax highlighting happens at build time, never on the client', () => {
+    const postPageJs = fs.readFileSync(path.join(__dirname, '../build/pages/post.js'), 'utf-8');
+    const buildMarkdownJs = fs.readFileSync(path.join(__dirname, '../build/markdown.js'), 'utf-8');
+
+    assert.match(buildMarkdownJs, /require\('highlight\.js'\)/);
+    assert.doesNotMatch(postPageJs, /highlight\.min\.js/);
+    assert.match(postPageJs, /highlight\.js\/11\.9\.0\/styles\/github\.min\.css/, 'token color stylesheet still ships');
+    assert.doesNotMatch(postTemplate, /POST_HIGHLIGHT_JS/);
+    assert.doesNotMatch(postJs, /highlightAll/);
+    assert.doesNotMatch(postJs, /window\.hljs/);
+});
+
+test('code block visibility is contained so offscreen blocks skip style and layout work', () => {
+    assert.match(postCodeCss, /\.prose \.code-block-container\s*\{[\s\S]*content-visibility:\s*auto;[\s\S]*contain-intrinsic-size:\s*auto 500px;/);
+    assert.match(postCodeCss, /\.prose \.code-block-container\.expanded-code,\s*\.prose \.code-block-container\.code-expanding\s*\{[\s\S]*content-visibility:\s*visible;/);
+    // 折叠判定在构建期完成：运行时 init 不允许再逐块强制重排
+    assert.doesNotMatch(codeFoldingJs, /content\.scrollHeight > 500/);
+    assert.match(codeFoldingJs, /function initCodeFolding\(\)\s*\{\s*scheduleCodeControlsUpdate\(\);\s*\}/);
+});
+
 test('code folding uses a smooth height transition with fading mask cleanup', () => {
     const codeContentRule = postCodeCss.match(/\.prose \.code-content\s*\{[\s\S]*?\n\}/)?.[0] || '';
     const codeMaskRule = postCodeCss.match(/\.prose \.code-content::after\s*\{[\s\S]*?\n\}/)?.[0] || '';

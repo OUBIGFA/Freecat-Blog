@@ -647,9 +647,15 @@ html.theme-transition-from-dark {
 html.theme-transitioning,
 html.theme-transitioning *,
 html.theme-transitioning *::before,
-html.theme-transitioning *::after {
+html.theme-transitioning *::after,
+html.theme-instant,
+html.theme-instant *,
+html.theme-instant *::before,
+html.theme-instant *::after {
     /* 主题变化由顶层遮罩做一次整页切换。这里压住元素自身过渡，
-       避免大文章里成百上千个正文节点同时启动独立颜色动画。 */
+       避免大文章里成百上千个正文节点同时启动独立颜色动画。
+       theme-instant 是无遮罩版本：iframe 内容页接受外壳同步时使用，
+       遮罩淡出由外壳文档负责，iframe 里只做统一的瞬时翻转。 */
     transition: none !important;
 }
 

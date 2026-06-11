@@ -26,6 +26,23 @@
     --code-shadow: none;
 }
 
+/* 视口外代码块跳过样式计算 / 布局 / 绘制（content-visibility: auto）：
+   大文章首次渲染与主题切换（.dark 翻转、theme-transitioning 增删）触发的
+   全文档样式重算只需处理可见部分，开销不再随文章长度线性增长。
+   占位高度由构建期按行数估算，写在每个块的 contain-intrinsic-size 内联样式里
+   （渲染过一次后浏览器用 auto 记忆真实尺寸）。
+   展开态/展开动画中除外：浮动控件依赖 position: fixed，
+   而 content-visibility 隐含的 layout containment 会改变 fixed 的包含块。 */
+.prose .code-block-container {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 500px;
+}
+
+.prose .code-block-container.expanded-code,
+.prose .code-block-container.code-expanding {
+    content-visibility: visible;
+}
+
 .prose .code-block-container > .flex:first-child {
     min-height: 38px;
     padding: 0 10px 0 18px !important;

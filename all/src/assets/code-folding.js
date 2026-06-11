@@ -293,25 +293,10 @@
         }
     });
 
-    // 初始化代码块折叠检测：长代码块默认折叠
+    // 初始化代码块折叠：折叠判定已在构建期完成（build/markdown.js 按行数预折叠，
+    // 长代码块直接以 collapsed-code + max-height 形态产出）。这里不再逐块读
+    // scrollHeight —— 那会在大文章里造成上百次强制同步重排，是打开卡顿的主因之一。
     function initCodeFolding() {
-        var blocks = document.querySelectorAll('.code-block-container.code-fold');
-        blocks.forEach(function (block) {
-            var content = block.querySelector('.code-content');
-            var controls = block.querySelector('.code-fold-controls');
-
-            if (content.scrollHeight > 500) {
-                block.classList.add('collapsed-code');
-                block.classList.remove('expanded-code');
-                content.style.maxHeight = CODE_COLLAPSED_HEIGHT + 'px';
-                controls.classList.remove('hidden');
-                setCodeControlsInlineLayout(controls);
-            } else {
-                block.classList.remove('code-fold');
-                block.classList.remove('expanded-code');
-                resetCodeControlsPosition(controls);
-            }
-        });
         scheduleCodeControlsUpdate();
     }
 

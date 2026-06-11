@@ -35,6 +35,7 @@ function createClassList() {
 function createHarness(options = {}) {
     const localStorage = createMemoryStorage();
     const timers = [];
+    const rafQueue = [];
     let reflowCount = 0;
     const viewTransitions = [];
     const frameApplyThemeCalls = [];
@@ -61,7 +62,8 @@ function createHarness(options = {}) {
     }
     const root = {
         setTimeout(fn, ms) { timers.push({ fn, ms, cleared: false }); return timers.length; },
-        clearTimeout(id) { if (timers[id - 1]) timers[id - 1].cleared = true; }
+        clearTimeout(id) { if (timers[id - 1]) timers[id - 1].cleared = true; },
+        requestAnimationFrame(fn) { rafQueue.push(fn); return rafQueue.length; }
     };
     const platform = {
         localStorage,
@@ -94,7 +96,12 @@ function createHarness(options = {}) {
         activeTimers: () => timers.filter(t => !t.cleared),
         reflows: () => reflowCount,
         viewTransitions,
-        frameApplyThemeCalls
+        frameApplyThemeCalls,
+        flushRaf: () => {
+            const pending = rafQueue.splice(0, rafQueue.length);
+            pending.forEach(fn => fn());
+        },
+        pendingRafCount: () => rafQueue.length
     };
 }
 
@@ -117,7 +124,7 @@ test('animated theme switch uses the page-cover transition instead of the native
     assert.equal(h.html.classList.contains('theme-transition-from-light'), false);
 });
 
-test('shell theme switch syncs iframe state without starting iframe animation', () => {
+test('shell theme switch syncs iframe state with unified transition suppression', () => {
     const h = createHarness({ viewTransition: true, contentFrame: true });
     h.localStorage.setItem('theme', 'dark');
 
@@ -126,9 +133,39 @@ test('shell theme switch syncs iframe state without starting iframe animation', 
     assert.equal(h.viewTransitions.length, 0, 'shell transition does not use the native view transition API');
     assert.deepEqual(
         h.frameApplyThemeCalls,
-        [{ animate: false }],
-        'framed content syncs theme state without starting its own animation'
+        [{ animate: false, suppressTransitions: true }],
+        'framed content syncs theme state without its own animation, with element transitions suppressed in one place'
     );
+});
+
+test('suppressed instant apply flips state under theme-instant and releases it after first painted frame', () => {
+    const h = createHarness();
+    h.localStorage.setItem('theme', 'dark');
+
+    h.themeSystem.applyTheme({ animate: false, suppressTransitions: true });
+
+    assert.equal(h.html.classList.contains('dark'), true);
+    assert.equal(h.html.classList.contains('theme-instant'), true, 'element transitions suppressed during the flip');
+    assert.equal(h.html.classList.contains('theme-transitioning'), false, 'no page-cover overlay for instant sync');
+    assert.equal(h.timers.length, 0, 'no cleanup timer — release rides on rAF');
+
+    h.flushRaf();
+    assert.equal(h.html.classList.contains('theme-instant'), true, 'still suppressed before the new colors have painted');
+    h.flushRaf();
+    assert.equal(h.html.classList.contains('theme-instant'), false, 'released after the painted frame');
+});
+
+test('suppressed instant re-apply with unchanged state does not arm theme-instant', () => {
+    const h = createHarness();
+    h.localStorage.setItem('theme', 'dark');
+    h.themeSystem.applyTheme({ animate: false, suppressTransitions: true });
+    h.flushRaf();
+    h.flushRaf();
+
+    h.themeSystem.applyTheme({ animate: false, suppressTransitions: true });
+
+    assert.equal(h.html.classList.contains('theme-instant'), false, 'idempotent re-apply skips suppression');
+    assert.equal(h.pendingRafCount(), 0, 'no pending release frames');
 });
 
 test('animated theme switch keeps the same page-cover path when view transitions are disabled', () => {

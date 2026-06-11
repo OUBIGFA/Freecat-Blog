@@ -3,7 +3,7 @@
  *   - 代码块折叠辅助按钮 (.code-fold-controls / .fold-toggle-btn)
  *   - Share button（Web Share API + 剪贴板兜底）
  *   - TOC 锚点点击：history.replaceState + footer-safe 滚动定位
- *   - highlight.js 全文初始化
+ * 代码高亮与折叠判定已移到构建期（build/markdown.js），运行时不再处理。
  */
 (function () {
     'use strict';
@@ -376,11 +376,19 @@
         if (typeof MutationObserver === 'undefined' || !document.documentElement) return;
         if (mermaidRenderState.observed) return;
         mermaidRenderState.observed = true;
+        // 只在深/浅状态真正翻转时重渲染：主题切换过程中 html 上还会增删
+        // theme-transitioning / theme-instant 等辅助类，不能每次 class 变化都
+        // 触发一轮 mermaid 全量重渲染。
+        var lastIsDark = document.documentElement.classList.contains('dark');
         var observer = new MutationObserver(function (mutations) {
             var changed = mutations.some(function (mutation) {
                 return mutation.type === 'attributes' && mutation.attributeName === 'class';
             });
-            if (changed) requestAnimationFrame(renderMermaidBlocks);
+            if (!changed) return;
+            var isDark = document.documentElement.classList.contains('dark');
+            if (isDark === lastIsDark) return;
+            lastIsDark = isDark;
+            requestAnimationFrame(renderMermaidBlocks);
         });
         observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     }
@@ -725,23 +733,17 @@
         });
     }
 
-    function initHighlight() {
-        if (window.hljs) window.hljs.highlightAll();
-    }
-
     function initPostPage() {
         initDiagramBlocks();
         codeFolding.init();
         initShareButton();
         initTocAnchors();
-        initHighlight();
         initExternalEmbedPlaceholders();
         initTwitterEmbedFallback();
     }
 
     window.FreecatPostPage = {
-        init: initPostPage,
-        initHighlight: initHighlight
+        init: initPostPage
     };
 
     if (document.readyState === 'loading') {

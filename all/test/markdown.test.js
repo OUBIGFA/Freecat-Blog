@@ -148,6 +148,57 @@ test('markdown tables preserve source column proportions as col widths', () => {
     assert.match(html, /<colgroup><col style="width:21\.053%"><col style="width:63\.158%"><col style="width:15\.789%"><\/colgroup>/);
 });
 
+test('code blocks are syntax-highlighted at build time with hljs token markup', () => {
+    const html = parseMarkdown([
+        '```js',
+        'const total = items.length;',
+        '```'
+    ].join('\n'));
+
+    assert.match(html, /<pre><code class="hljs language-js">/);
+    assert.match(html, /<span class="hljs-keyword">const<\/span>/);
+    assert.doesNotMatch(html, /<code class="language-js">const total/);
+});
+
+test('code blocks without a known language stay escaped plain text', () => {
+    const autoHtml = parseMarkdown([
+        '```',
+        'just some words & <tags>',
+        '```'
+    ].join('\n'));
+    const unknownHtml = parseMarkdown([
+        '```not-a-real-lang',
+        'plain <body> text',
+        '```'
+    ].join('\n'));
+
+    assert.match(autoHtml, /<pre><code class="hljs">/);
+    assert.equal(autoHtml.includes('&lt;tags&gt;'), true, 'auto-detected output keeps HTML escaped');
+    assert.match(unknownHtml, /<pre><code class="hljs language-not-a-real-lang">plain &lt;body&gt; text/);
+    assert.doesNotMatch(unknownHtml, /class="hljs-/);
+});
+
+test('long code blocks ship pre-collapsed from the build instead of runtime measurement', () => {
+    const longCode = Array.from({ length: 30 }, (_, i) => `line(${i});`).join('\n');
+    const html = parseMarkdown('```js\n' + longCode + '\n```');
+
+    assert.match(html, /class="code-block-container group code-fold collapsed-code"/);
+    assert.match(html, /<div class="code-content" style="max-height:400px">/);
+    assert.match(html, /class="code-fold-controls flex /);
+    assert.doesNotMatch(html, /code-fold-controls hidden/);
+    assert.match(html, /style="contain-intrinsic-size: auto \d+px"/);
+});
+
+test('short code blocks stay expanded without fold controls', () => {
+    const html = parseMarkdown('```js\nconst a = 1;\nconst b = 2;\n```');
+
+    assert.match(html, /class="code-block-container group"/);
+    assert.doesNotMatch(html, /collapsed-code/);
+    assert.doesNotMatch(html, /code-fold-controls/);
+    assert.doesNotMatch(html, /max-height:400px/);
+    assert.match(html, /style="contain-intrinsic-size: auto \d+px"/);
+});
+
 test('mermaid code blocks render as diagram containers with detected kinds', () => {
     const sequenceHtml = parseMarkdown([
         '```mermaid',

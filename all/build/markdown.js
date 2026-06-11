@@ -1,5 +1,6 @@
 const { marked } = require('marked');
 const katex = require('katex');
+const hljs = require('highlight.js');
 const { renderCopyButton } = require('./copy-button.js');
 
 /**
@@ -8,6 +9,18 @@ const { renderCopyButton } = require('./copy-button.js');
  * applyParagraphAlignment() / extractHeadingsAndGenerateTOC() / addHeadingIds() /
  * stripMarkdown() / slugify()。
  */
+
+// ===== 代码块构建期折叠 / 占位尺寸常量 =====
+// 与 post-code.css 保持一致：pre code 字号 0.9rem(14.4px) × 行高 1.72 ≈ 24.77px/行，
+// .code-content 上下 padding 共 1.35rem × 2 = 43.2px（border-box）。
+// 折叠阈值沿用旧运行时逻辑（内容高度 > 500px 折叠到 400px）。
+const CODE_LINE_HEIGHT_PX = 24.77;
+const CODE_CONTENT_PADDING_PX = 43.2;
+const CODE_FOLD_MIN_PX = 500;
+const CODE_COLLAPSED_MAX_HEIGHT_PX = 400;
+const CODE_BLOCK_CHROME_PX = 41; // 容器上下边框 2px + 头部行（min-height 38px + 底边框 1px）
+const CODE_COLLAPSED_CONTROLS_PX = 54; // 折叠态控件行（按钮约 28px + 上下 margin 0.7rem/0.9rem）
+
 
 const {
     slugify,
@@ -580,6 +593,21 @@ function buildRenderer() {
         return Buffer.from(String(value || ''), 'utf8').toString('base64');
     }
 
+    // ===== 代码块：构建期高亮 + 构建期折叠判定 =====
+    // 高亮在构建期完成（与曾经的运行时 CDN 同版本 highlight.js@11.9.0），
+    // 浏览器不再加载 highlight.min.js、不再在主线程同步高亮全文代码块 ——
+    // 这是大文章打开卡顿的最大来源（上百个代码块逐个高亮 + DOM 重建）。
+    function highlightCodeHtml(code, normalizedLanguage) {
+        if (normalizedLanguage && hljs.getLanguage(normalizedLanguage)) {
+            return hljs.highlight(code, { language: normalizedLanguage, ignoreIllegals: true }).value;
+        }
+        if (!normalizedLanguage) {
+            return hljs.highlightAuto(code).value;
+        }
+        // 未注册的语言：保持纯转义文本（与运行时 highlightAll 对未知语言的行为一致）
+        return escapeHtml(code);
+    }
+
     renderer.code = (code, language) => {
         const normalizedLanguage = normalizeCodeLanguage(language);
         const escapedCode = escapeHtml(code);
@@ -606,22 +634,31 @@ function buildRenderer() {
     </div>`;
         }
 
-        const langClass = language ? `language-${language}` : '';
+        const langClass = language ? ` language-${escapeHtml(language)}` : '';
         const langLabel = language
             ? `<span class="code-language-label">${escapeHtml(language)}</span>`
             : '<span class="code-language-label">code</span>';
 
-        return `
-    <div class="code-block-container group code-fold">
-        <div class="flex items-center justify-between">
-            ${langLabel}
-            ${renderCopyButton()}
-        </div>
-        <div class="code-wrapper relative">
-            <div class="code-content">
-                <pre><code class="${langClass}">${escapedCode}</code></pre>
-            </div>
-            <div class="code-fold-controls hidden absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-[#f8fafc] via-[#f8fafc] via-40% dark:from-background-dark dark:via-background-dark dark:via-40% to-transparent items-end justify-center pb-2 z-10 transition-opacity duration-300">
+        // 折叠判定也在构建期完成，运行时不再对每个代码块读 scrollHeight
+        //（那会造成上百次强制同步重排，是大文章打开卡顿的另一来源）。
+        // pre-wrap 下实际渲染行数 ≥ 源码行数，因此「源码行高度估算 > 500px → 折叠」
+        // 不会误折短代码；个别短行数但换行很多的块保持展开，影响可忽略。
+        const lineCount = String(code || '').split('\n').length;
+        const contentHeightPx = CODE_CONTENT_PADDING_PX + lineCount * CODE_LINE_HEIGHT_PX;
+        const folded = contentHeightPx > CODE_FOLD_MIN_PX;
+        // contain-intrinsic-size 占位高度：让视口外代码块在 content-visibility: auto
+        // 下保持准确的滚动条与锚点定位（渲染过一次后浏览器用 auto 记忆的真实尺寸）。
+        const intrinsicHeightPx = Math.round(CODE_BLOCK_CHROME_PX + (folded
+            ? CODE_COLLAPSED_MAX_HEIGHT_PX + CODE_COLLAPSED_CONTROLS_PX
+            : contentHeightPx));
+        const containerClass = folded
+            ? 'code-block-container group code-fold collapsed-code'
+            : 'code-block-container group';
+        const contentStyle = folded ? ` style="max-height:${CODE_COLLAPSED_MAX_HEIGHT_PX}px"` : '';
+        // 折叠控件只为长代码块输出；类名等价于旧运行时 initCodeFolding +
+        // setCodeControlsInlineLayout 处理后的最终状态（构建期直接产出终态）。
+        const controlsHtml = folded ? `
+            <div class="code-fold-controls flex left-0 w-full items-end justify-center py-2 pb-2 z-10 border-t border-slate-200/50 dark:border-slate-700/50 bg-slate-50/50 dark:bg-transparent transition-opacity duration-300">
                 <button class="code-nav-btn code-nav-top" type="button" data-code-nav="top" aria-label="Scroll to code block top">
                     <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M12 13.9142L16.7929 18.7071L18.2071 17.2929L12 11.0858L5.79289 17.2929L7.20711 18.7071L12 13.9142ZM6 7L18 7V9L6 9L6 7Z"></path></svg></span>
                 </button>
@@ -636,7 +673,18 @@ function buildRenderer() {
                 <button class="code-nav-btn code-nav-bottom" type="button" data-code-nav="bottom" aria-label="Scroll to code block bottom">
                     <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M12 10.0858L7.20711 5.29291L5.79289 6.70712L12 12.9142L18.2071 6.70712L16.7929 5.29291L12 10.0858ZM18 17L6 17L6 15L18 15V17Z"></path></svg></span>
                 </button>
-            </div>
+            </div>` : '';
+
+        return `
+    <div class="${containerClass}" style="contain-intrinsic-size: auto ${intrinsicHeightPx}px">
+        <div class="flex items-center justify-between">
+            ${langLabel}
+            ${renderCopyButton()}
+        </div>
+        <div class="code-wrapper relative">
+            <div class="code-content"${contentStyle}>
+                <pre><code class="hljs${langClass}">${highlightCodeHtml(code, normalizedLanguage)}</code></pre>
+            </div>${controlsHtml}
         </div>
     </div>`;
     };
