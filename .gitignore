@@ -29,3 +29,5 @@ all/node_modules/
 CLAUDE.md
 
 AGENTS.md
+
+.brooks-lint-history.json
