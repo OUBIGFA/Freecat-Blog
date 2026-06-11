@@ -176,6 +176,7 @@ test('floating nav ignores blank pagination wrapper space on home page', () => {
 
 test('floating nav does not hide against home list layout wrappers', () => {
     assert.match(floatingNavJs, /const isHomePage = document\.body && document\.body\.dataset\.page === 'home';/);
+    assert.match(floatingNavJs, /'\.post-card'/);
     assert.match(floatingNavJs, /isHomePage \? null : '\.freecat-home-posts-inner'/);
     assert.match(floatingNavJs, /isHomePage \? null : '#posts-list'/);
     assert.match(floatingNavJs, /\.filter\(Boolean\)\.join\(','\)/);
@@ -274,6 +275,7 @@ test('shell template bootstraps clean URLs without hash routing', () => {
     const shellTemplate = fs.readFileSync(path.join(__dirname, '../src/template_shell.html'), 'utf-8');
 
     assert.match(shellTemplate, /window\.__FREECAT_SHELL_DOCUMENT__ = true/);
+    assert.match(shellTemplate, /data-freecat-shell-root="true"/);
     assert.equal(shellTemplate.includes("raw = legacyHash.replace(/^#/, '');"), true);
     assert.match(shellTemplate, /history\.replaceState\(history\.state,\s*'',\s*raw\)/);
     assert.match(shellTemplate, /url\.pathname === '\/home\.html'/);

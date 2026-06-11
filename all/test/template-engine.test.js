@@ -86,7 +86,9 @@ test('content templates include the shell bootstrap for direct clean URLs', () =
     for (const html of [indexHtml, postHtml]) {
         assert.equal(html.includes('window.__FREECAT_SHELL_DOCUMENT__'), true);
         assert.equal(html.includes("fetch('/', { credentials: 'same-origin' })"), true);
-        assert.equal(html.includes('id="freecat-content-frame"'), true);
+        assert.equal(html.includes('data-freecat-shell-root="true"'), false);
+        assert.equal(html.includes('data-freecat-shell[-]root'), true);
+        assert.equal(html.includes('htmlText.indexOf(\'id="freecat-content-frame"\')'), false);
         assert.equal(html.includes('document.write(htmlText)'), true);
     }
 });
@@ -125,6 +127,7 @@ test('shell template marks itself and keeps direct paths clean', () => {
     const html = createTestEngine('https://example.com').loadTemplate('template_shell.html');
 
     assert.equal(html.includes('window.__FREECAT_SHELL_DOCUMENT__ = true'), true);
+    assert.equal(html.includes('data-freecat-shell-root="true"'), true);
     assert.equal(html.includes("history.replaceState(history.state, '', raw)"), true);
     assert.equal(html.includes("url.pathname === '/home.html'"), true);
     assert.equal(html.includes('window.location.hash'), true);

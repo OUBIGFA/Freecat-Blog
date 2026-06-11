@@ -97,6 +97,7 @@
             const isHomePage = document.body && document.body.dataset.page === 'home';
             return document.querySelectorAll([
                 'article',
+                '.post-card',
                 '.freecat-post-toc-panel',
                 isHomePage ? null : '.freecat-home-sidebar',
                 isHomePage ? null : '.freecat-home-posts-inner',

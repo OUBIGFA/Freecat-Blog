@@ -145,7 +145,10 @@ function generateShellBootstrapScript() {
                     return response.text();
                 })
                 .then(function (htmlText) {
-                    if (htmlText.indexOf('id="freecat-content-frame"') === -1) return;
+                    // Only the persistent shell carries this marker. Keep the
+                    // pattern split with [-] so content pages embedding this
+                    // bootstrap cannot contain the exact marker by accident.
+                    if (!/data-freecat-shell[-]root=["']true["']/.test(htmlText)) return;
                     document.open();
                     document.write(htmlText);
                     document.close();
