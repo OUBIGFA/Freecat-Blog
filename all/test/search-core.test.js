@@ -41,6 +41,31 @@ test('searchPosts falls back to fuzzy all-words matching across fields', () => {
         'a word with no match anywhere should reject the post');
 });
 
+test('searchPosts reuses build-time search fields when present', () => {
+    const indexedPosts = [
+        {
+            title: 'Visible title',
+            excerpt: '',
+            content: '',
+            searchText: 'build time body keywords tech',
+            lowerTags: ['tech'],
+            date: '2026-01-01',
+            link: '/posts/indexed/'
+        }
+    ];
+
+    assert.deepEqual(
+        searchCore.searchPosts('body keywords', indexedPosts).map(p => p.link),
+        ['/posts/indexed/'],
+        'precomputed searchText should be used for keyword search'
+    );
+    assert.deepEqual(
+        searchCore.searchPosts('TECH', indexedPosts, true).map(p => p.link),
+        ['/posts/indexed/'],
+        'precomputed lowerTags should be used for exact tag search'
+    );
+});
+
 test('searchPosts returns empty results for blank queries', () => {
     assert.deepEqual(searchCore.searchPosts('', POSTS), []);
     assert.deepEqual(searchCore.searchPosts('   ', POSTS), []);
@@ -69,6 +94,20 @@ test('sortPostsForListing puts pinned posts first, then newest by date', () => {
         'pinned first, remaining posts in reverse-date order'
     );
     assert.notEqual(sorted, POSTS, 'sorting must not mutate the input array');
+});
+
+test('searchPosts keeps the order of build-time presorted indexes', () => {
+    const indexedPosts = [
+        { title: 'Alpha', excerpt: 'match', content: '', tags: [], date: '2025-01-01', link: '/posts/a/' },
+        { title: 'Beta', excerpt: 'match', content: '', tags: [], date: '2026-01-01', link: '/posts/b/' }
+    ];
+    Object.defineProperty(indexedPosts, 'freecatPresorted', { value: true });
+
+    assert.deepEqual(
+        searchCore.searchPosts('match', indexedPosts).map(p => p.link),
+        ['/posts/a/', '/posts/b/'],
+        'generated search indexes are already sorted, so the browser should not sort them again'
+    );
 });
 
 test('searchPosts caps keyword results at 20 but never caps tag results', () => {
@@ -102,6 +141,24 @@ test('getPostsByTag reads the tag index and sorts the resulting posts', () => {
         'untagged sentinel reads the untagged list'
     );
     assert.deepEqual(searchCore.getPostsByTag('x', null), [], 'missing index yields no results');
+});
+
+test('getPostsByTag keeps build-time sorted tag indexes in index order', () => {
+    const index = {
+        posts: [
+            { title: 'A', date: '2025-01-01', link: '/posts/a/', tags: ['x'] },
+            { title: 'B', date: '2026-01-01', link: '/posts/b/', tags: ['x'] }
+        ],
+        tags: { x: { posts: [0, 1] } },
+        untagged: [],
+        sorted: true
+    };
+
+    assert.deepEqual(
+        searchCore.getPostsByTag('x', index).map(p => p.link),
+        ['/posts/a/', '/posts/b/'],
+        'tag-index.json is emitted in final display order'
+    );
 });
 
 test('renderSearchResultCards renders escaped post-card markup with staggered delays', () => {

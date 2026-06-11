@@ -13,6 +13,7 @@ dayjs.tz.setDefault('Asia/Shanghai');
 const { createEngine } = require('../build/template-engine.js');
 const indexPage = require('../build/pages/index.js');
 const shellPage = require('../build/pages/shell.js');
+const searchPage = require('../build/pages/search.js');
 
 function createTestEngine() {
     const siteConfig = {
@@ -47,6 +48,7 @@ function createPost() {
         title: 'Demo Post',
         preview: 'Demo preview',
         excerpt: 'Demo excerpt',
+        content: 'Demo body content for full text search.',
         date: dayjs.tz('2026-06-01T09:00:00+08:00'),
         modifiedDate: dayjs.tz('2026-06-02T09:00:00+08:00'),
         link: '/posts/demo-post/',
@@ -99,4 +101,33 @@ test('generated home content and shell output keep separate roles', (t) => {
     assert.match(shellHtml, /id="freecat-content-frame"/);
     assert.match(shellHtml, /src="\/home"/);
     assert.match(shellHtml, /"@type":"WebSite"/);
+});
+
+test('generated search indexes contain build-time search fields', (t) => {
+    const writes = new Map();
+    t.mock.method(fs, 'writeFileSync', (filePath, content) => {
+        writes.set(path.basename(filePath), content);
+    });
+    t.mock.method(console, 'log', () => {});
+
+    const { engine, siteConfig, seoConfig } = createTestEngine();
+
+    searchPage.generate({
+        posts: [createPost()],
+        template: engine.loadTemplate('template_index_search.html'),
+        siteConfig,
+        seoConfig,
+        outputDir: 'dist',
+        recentPostsSidebarHtml: ''
+    });
+
+    const searchIndex = JSON.parse(writes.get('search-index.json'));
+    const tagIndex = JSON.parse(writes.get('tag-index.json'));
+
+    assert.equal(searchIndex[0].content, undefined, 'raw searchable content is folded into searchText at build time');
+    assert.match(searchIndex[0].searchText, /demo body content/, 'searchText contains the preprocessed article body');
+    assert.deepEqual(searchIndex[0].lowerTags, ['demo'], 'lowerTags is precomputed for exact tag matching');
+    assert.equal(tagIndex.sorted, true, 'tag indexes are emitted in display order');
+    assert.equal(tagIndex.posts[0].searchText, undefined, 'tag index keeps only display fields');
+    assert.equal(tagIndex.posts[0].lowerTags, undefined, 'tag index avoids duplicate search-only fields');
 });

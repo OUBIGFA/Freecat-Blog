@@ -31,54 +31,92 @@
         return Math.min(index, 10) * delayStep;
     }
 
+    function getPostSortDate(post) {
+        const numeric = Number(post && post.sortDate);
+        if (Number.isFinite(numeric) && numeric > 0) return numeric;
+        const parsed = Date.parse((post && post.date) || '');
+        return Number.isFinite(parsed) ? parsed : 0;
+    }
+
     // 列表排序：置顶优先，其余按发布时间倒序。
     function sortPostsForListing(posts) {
         return posts.slice().sort((a, b) => {
             if (a.pinned && !b.pinned) return -1;
             if (!a.pinned && b.pinned) return 1;
-            return new Date(b.date) - new Date(a.date);
+            return getPostSortDate(b) - getPostSortDate(a);
         });
+    }
+
+    function normalizeSearchTags(tags) {
+        return (Array.isArray(tags) ? tags : [])
+            .map(t => String(t || '').trim())
+            .filter(Boolean);
+    }
+
+    function buildSearchText(post, tags) {
+        return [
+            post && post.title,
+            post && post.excerpt,
+            post && post.content,
+            tags.join(' ')
+        ]
+            .map(value => String(value || '').toLowerCase())
+            .join(' ')
+            .trim();
+    }
+
+    function getLowerTags(post) {
+        if (post && Array.isArray(post.lowerTags)) return post.lowerTags;
+        return normalizeSearchTags(post && post.tags).map(tag => tag.toLowerCase());
+    }
+
+    function getSearchText(post, lowerTags) {
+        if (post && typeof post.searchText === 'string') return post.searchText;
+        return buildSearchText(post || {}, lowerTags || getLowerTags(post));
+    }
+
+    // 构建期写入索引的规整字段，浏览器端直接复用，避免每次输入都重复处理全文。
+    function createSearchIndexFields(post) {
+        const tags = normalizeSearchTags(post && post.tags);
+        return {
+            searchText: buildSearchText(post || {}, tags),
+            lowerTags: tags.map(tag => tag.toLowerCase())
+        };
     }
 
     // 搜索函数：支持精确匹配和模糊匹配；isTagSearch 时按标签精确匹配。
     function searchPosts(query, posts, isTagSearch = false) {
-        if (!query.trim()) return [];
-        const q = query.toLowerCase().trim();
+        const rawQuery = String(query || '').trim();
+        if (!rawQuery) return [];
+        const q = rawQuery.toLowerCase();
         const isUntaggedSearch = isTagSearch && q === '__untagged__';
 
         const filtered = posts.filter(post => {
-            const tags = (post.tags || [])
-                .map(t => String(t || '').trim())
-                .filter(Boolean);
+            const lowerTags = getLowerTags(post);
 
             if (isUntaggedSearch) {
-                return tags.length === 0;
+                return lowerTags.length === 0;
             }
-
-            const lowerTags = tags.map(t => t.toLowerCase());
 
             if (isTagSearch) {
                 return lowerTags.includes(q);
             }
 
-            const title = (post.title || '').toLowerCase();
-            const excerpt = (post.excerpt || '').toLowerCase();
-            const content = (post.content || '').toLowerCase();
-            const tagsStr = lowerTags.join(' ');
+            const searchText = getSearchText(post, lowerTags);
 
             // 精确匹配优先
-            if (title.includes(q) || excerpt.includes(q) || content.includes(q) || tagsStr.includes(q)) {
+            if (searchText.includes(q)) {
                 return true;
             }
 
             // 模糊匹配
             const words = q.split(/\s+/);
-            return words.every(word =>
-                title.includes(word) || excerpt.includes(word) || content.includes(word) || tagsStr.includes(word)
-            );
+            return words.every(word => searchText.includes(word));
         });
 
-        const sorted = sortPostsForListing(filtered);
+        const sorted = posts && posts.freecatPresorted === true
+            ? filtered
+            : sortPostsForListing(filtered);
         return isTagSearch ? sorted : sorted.slice(0, 20);
     }
 
@@ -92,7 +130,7 @@
         const posts = postIndexes
             .map(i => index.posts[i])
             .filter(Boolean);
-        return sortPostsForListing(posts);
+        return index.sorted === true ? posts : sortPostsForListing(posts);
     }
 
     // 标签 HTML：直接复用 shared.renderTagSpan，保持与构建期一致
@@ -134,11 +172,21 @@
         let searchIndex = null;
         let tagIndex = null;
 
+        function markPresorted(posts) {
+            if (Array.isArray(posts) && posts.freecatPresorted !== true) {
+                Object.defineProperty(posts, 'freecatPresorted', {
+                    value: true,
+                    configurable: true
+                });
+            }
+            return posts;
+        }
+
         async function loadSearchIndex() {
             if (searchIndex) return searchIndex;
             try {
                 const response = await platform.fetch('/search-index.json');
-                searchIndex = await response.json();
+                searchIndex = markPresorted(await response.json());
                 return searchIndex;
             } catch (err) {
                 console.error('Failed to load search index:', err);
@@ -164,6 +212,7 @@
     return {
         getStaggerDelayMs,
         sortPostsForListing,
+        createSearchIndexFields,
         searchPosts,
         getPostsByTag,
         generateTagsHtml,

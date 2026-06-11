@@ -5,6 +5,7 @@ const seo = require('../seo.js');
 const shared = require('../../shared/shared.js');
 const { replacePlaceholders } = require('../template-engine.js');
 const { normalizePostTags } = require('../article-model.js');
+const searchCore = require('../../src/assets/search-core.js');
 
 // 搜索索引每篇文章正文的截断字符数（够命中关键词，又不会让 index 文件爆炸）
 const SEARCH_CONTENT_MAX_CHARS = 1500;
@@ -19,6 +20,7 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir, recentPos
         const truncated = stripped.length > SEARCH_CONTENT_MAX_CHARS
             ? stripped.slice(0, SEARCH_CONTENT_MAX_CHARS)
             : stripped;
+        const tags = normalizePostTags(post);
         return {
             title: post.title,
             slug: post.slug,
@@ -27,8 +29,13 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir, recentPos
             sortDate: post.date.valueOf(),
             excerpt: post.excerpt,
             preview: post.preview || post.excerpt,
-            content: truncated,
-            tags: normalizePostTags(post),
+            tags,
+            ...searchCore.createSearchIndexFields({
+                title: post.title,
+                excerpt: post.excerpt,
+                content: truncated,
+                tags
+            }),
             link: shared.encodeSitePath(post.link),
             cover: post.cover,
             coverWidth: post.coverWidth || 0,
@@ -39,13 +46,14 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir, recentPos
         };
     });
     const tagPosts = searchIndex.map(post => {
-        const { content, ...summary } = post;
+        const { searchText, lowerTags, ...summary } = post;
         return summary;
     });
     const tagIndex = {
         posts: tagPosts,
         tags: {},
-        untagged: []
+        untagged: [],
+        sorted: true
     };
 
     tagPosts.forEach((post, index) => {
