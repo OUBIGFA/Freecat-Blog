@@ -182,7 +182,9 @@ function loadPosts({ postsDir, gitDates, postDates, postIds, skipMissingGitDates
             coverHeight: frontmatter.coverHeight,
             tags: frontmatter.tags,
             tag: frontmatter.tags,
-            link: `/posts/${postId}`,
+            // 尾斜杠 = Cloudflare Pages 对目录 index.html 的规范地址；
+            // 不带斜杠会被 308 到带斜杠版本，canonical/sitemap/内链必须直达 200。
+            link: `/posts/${postId}/`,
             pinned: frontmatter.pinned,
             allowCopyContent: frontmatter.allowCopyContent,
             enableImageCaptions: frontmatter.enableImageCaptions,

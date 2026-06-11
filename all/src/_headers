@@ -12,6 +12,23 @@
   Cache-Control: public, max-age=0, must-revalidate
   CDN-Cache-Control: public, max-age=86400, stale-while-revalidate=604800
 
+# Cloudflare Pages 把 *.html 规范化为无后缀地址，缓存策略与 *.html 保持一致
+/about
+  Cache-Control: public, max-age=0, must-revalidate
+  CDN-Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/all
+  Cache-Control: public, max-age=0, must-revalidate
+  CDN-Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/search
+  Cache-Control: public, max-age=0, must-revalidate
+  CDN-Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/home
+  Cache-Control: public, max-age=0, must-revalidate
+  CDN-Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
 /posts/*
   Cache-Control: public, max-age=0, must-revalidate
   CDN-Cache-Control: public, max-age=86400, stale-while-revalidate=604800

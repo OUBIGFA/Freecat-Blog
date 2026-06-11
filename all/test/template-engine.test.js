@@ -68,7 +68,7 @@ test('tag click query is pre-encoded for inline handlers', () => {
     assert.equal(html.includes("x');alert(1);//"), false);
     assert.equal(html.includes('x%27)%3Balert(1)%3B%2F%2F'), true);
     assert.equal(html.includes('window.FreecatNavigate'), true);
-    assert.equal(html.includes("window.location.href='/search.html?tag=x%27)%3Balert(1)%3B%2F%2F'"), true);
+    assert.equal(html.includes("window.location.href='/search?tag=x%27)%3Balert(1)%3B%2F%2F'"), true);
 });
 
 test('404 template includes the theme bootstrap only once', () => {

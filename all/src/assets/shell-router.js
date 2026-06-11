@@ -39,7 +39,7 @@
         const frame = contentFrame;
         if (!frame) return;
 
-        const HOME_CONTENT = '/home.html';
+        const HOME_CONTENT = '/home';
         const SCROLL_RESTORE_REQUEST_KEY = 'freecat-scroll-restore-requests-v1';
         const headerEl = document.querySelector('header.fixed');
 

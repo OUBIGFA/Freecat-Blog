@@ -87,6 +87,14 @@ function resolveFilePath(requestUrl) {
         return indexFile;
     }
 
+    // 对齐 Cloudflare Pages 的无后缀规范地址：/about → about.html
+    if (!path.extname(candidate)) {
+        const htmlFile = `${candidate}.html`;
+        if (fs.existsSync(htmlFile) && fs.statSync(htmlFile).isFile()) {
+            return htmlFile;
+        }
+    }
+
     return null;
 }
 

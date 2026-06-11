@@ -82,7 +82,7 @@
                         Results for "${escapeHtml(query)}"
                         <span class="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">(${results.length} found)</span>
                     </h2>
-                    <a href="/search.html?q=${encodeURIComponent(query)}" class="text-sm text-primary hover:underline">View all</a>
+                    <a href="/search?q=${encodeURIComponent(query)}" class="text-sm text-primary hover:underline">View all</a>
                 </div>
                 ${resultsHtml}
             </div >
@@ -289,7 +289,7 @@
                 // 按 Enter 跳转到搜索页
                 if (e.key === 'Enter' && searchInput.value.trim()) {
                     e.preventDefault();
-                    navigateWithinSite(`/search.html?q=${encodeURIComponent(searchInput.value.trim())}`);
+                    navigateWithinSite(`/search?q=${encodeURIComponent(searchInput.value.trim())}`);
                     closeHeaderSearch(true);
                 }
             });

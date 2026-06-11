@@ -1,6 +1,7 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "cleanUrls": true,
   "headers": [
     {
       "source": "/assets/(.*)",
@@ -16,6 +17,14 @@
     },
     {
       "source": "/(.*\\.html)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
+        { "key": "CDN-Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" },
+        { "key": "Vercel-CDN-Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
+      ]
+    },
+    {
+      "source": "/(about|all|search|home)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
         { "key": "CDN-Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" },

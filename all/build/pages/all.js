@@ -21,7 +21,7 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir }) {
     const seoHead = seo.renderHeadTags({
         title,
         description: `All articles from ${siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog'}.`,
-        canonicalPath: '/all.html',
+        canonicalPath: '/all',
         siteConfig,
         seoConfig,
         image: seo.defaultImage(siteConfig, seoConfig)

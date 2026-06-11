@@ -70,7 +70,7 @@
         function getPaginationFetchUrl(rawUrl) {
             const url = new URL(rawUrl, win.location.href);
             if (url.pathname === '/' || url.pathname === '/index.html' || url.pathname === '/index') {
-                return '/home.html' + url.search;
+                return '/home' + url.search;
             }
             return url.pathname + url.search;
         }

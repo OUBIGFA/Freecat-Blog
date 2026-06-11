@@ -94,12 +94,12 @@ function generateSitemap({ posts, siteConfig, outputDir }) {
     lines.push('  </url>');
 
     lines.push('  <url>');
-    lines.push(`    <loc>${xmlEscape(baseUrl + '/about.html')}</loc>`);
+    lines.push(`    <loc>${xmlEscape(baseUrl + '/about')}</loc>`);
     lines.push('    <priority>0.8</priority>');
     lines.push('  </url>');
 
     lines.push('  <url>');
-    lines.push(`    <loc>${xmlEscape(baseUrl + '/all.html')}</loc>`);
+    lines.push(`    <loc>${xmlEscape(baseUrl + '/all')}</loc>`);
     if (latestModIso) lines.push(`    <lastmod>${latestModIso}</lastmod>`);
     lines.push('    <priority>0.5</priority>');
     lines.push('  </url>');
@@ -158,8 +158,8 @@ function generateLlmsTxt({ posts, siteConfig, seoConfig = {}, outputDir }) {
         '',
         '## Core Pages',
         `- Home: ${baseUrl}/`,
-        `- All Articles: ${baseUrl}/all.html`,
-        `- About: ${baseUrl}/about.html`,
+        `- All Articles: ${baseUrl}/all`,
+        `- About: ${baseUrl}/about`,
         '',
         '## Articles'
     ];
@@ -232,7 +232,7 @@ function generateOpenSearchXml({ siteConfig, seoConfig = {}, outputDir }) {
     if (favicon) {
         lines.push(`  <Image width="16" height="16" type="image/x-icon">${xmlEscape(favicon)}</Image>`);
     }
-    lines.push(`  <Url type="text/html" method="get" template="${xmlEscape(baseUrl + '/search.html?q={searchTerms}')}" />`);
+    lines.push(`  <Url type="text/html" method="get" template="${xmlEscape(baseUrl + '/search?q={searchTerms}')}" />`);
     lines.push(`  <Url type="application/opensearchdescription+xml" rel="self" template="${xmlEscape(baseUrl + '/opensearch.xml')}" />`);
     lines.push('</OpenSearchDescription>');
     fs.writeFileSync(path.join(outputDir, 'opensearch.xml'), lines.join('\n'), 'utf-8');

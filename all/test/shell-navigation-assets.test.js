@@ -57,8 +57,8 @@ test('search page result count reserves space before rendering the numeric badge
 test('shell router uses clean history URLs for framed navigation', () => {
     assert.match(mainJs, /function navigateWithinSite\(url, options = \{\}\)\s*\{/, 'main.js owns the navigateWithinSite entry point');
     assert.match(runtimeJs, /setNavigate\(fn\)\s*\{[\s\S]*FreecatNavigate/);
-    assert.equal(headerSearchJs.includes("navigateWithinSite(`/search.html?q=${encodeURIComponent(searchInput.value.trim())}`);"), true, 'header search Enter key routes through navigateWithinSite');
-    assert.match(headerSearchJs, /if \(e\.key === 'Enter' && searchInput\.value\.trim\(\)\) \{[\s\S]*?e\.preventDefault\(\);[\s\S]*?navigateWithinSite\(`\/search\.html\?q=\$\{encodeURIComponent\(searchInput\.value\.trim\(\)\)\}`\);[\s\S]*?closeHeaderSearch\(true\);[\s\S]*?\}/, 'Enter closes the panel after navigating');
+    assert.equal(headerSearchJs.includes("navigateWithinSite(`/search?q=${encodeURIComponent(searchInput.value.trim())}`);"), true, 'header search Enter key routes through navigateWithinSite');
+    assert.match(headerSearchJs, /if \(e\.key === 'Enter' && searchInput\.value\.trim\(\)\) \{[\s\S]*?e\.preventDefault\(\);[\s\S]*?navigateWithinSite\(`\/search\?q=\$\{encodeURIComponent\(searchInput\.value\.trim\(\)\)\}`\);[\s\S]*?closeHeaderSearch\(true\);[\s\S]*?\}/, 'Enter closes the panel after navigating');
     assert.match(shellRouterJs, /function publicPathToContentPath\(raw\)\s*\{/);
     assert.match(shellRouterJs, /function contentPathToPublicPath\(raw\)\s*\{/);
     assert.match(shellRouterJs, /function ensureShellHistoryState\(\)\s*\{/);
@@ -231,8 +231,8 @@ test('go back preserves the update sort switch state in history entries', () => 
 
 test('home soft pagination syncs shell history and saved scroll before post navigation', () => {
     assert.match(seamlessPaginationJs, /function getPaginationFetchUrl\(rawUrl\)\s*\{/, 'seamless-pagination.js owns the fetch URL mapping');
-    assert.match(seamlessPaginationJs, /url\.pathname === '\/' \|\| url\.pathname === '\/index\.html' \|\| url\.pathname === '\/index'/, 'home aliases map to home.html');
-    assert.match(seamlessPaginationJs, /return '\/home\.html' \+ url\.search;/, 'home content is fetched from /home.html');
+    assert.match(seamlessPaginationJs, /url\.pathname === '\/' \|\| url\.pathname === '\/index\.html' \|\| url\.pathname === '\/index'/, 'home aliases map to home');
+    assert.match(seamlessPaginationJs, /return '\/home' \+ url\.search;/, 'home content is fetched from /home');
     assert.match(seamlessPaginationJs, /platform\.fetch\(getPaginationFetchUrl\(url\),\s*\{\s*credentials:\s*'same-origin'/, 'page fetches keep same-origin credentials');
     assert.match(seamlessPaginationJs, /const method = framed \? 'replaceState' : 'pushState';/, 'framed pagination replaces instead of pushing iframe history');
     assert.match(seamlessPaginationJs, /win\.history\[method\]\(\{\s*\.\.\.\(win\.history\.state \|\| \{\}\),\s*freecatSoftNav:\s*true\s*\},\s*'',\s*url\);/, 'soft navigation marks history entries');

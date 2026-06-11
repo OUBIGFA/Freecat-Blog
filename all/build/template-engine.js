@@ -123,6 +123,10 @@ function generateShellBootstrapScript() {
     return `(function () {
             if (window.self !== window.top) return;
             if (window.__FREECAT_SHELL_DOCUMENT__) return;
+            // 搜索引擎渲染器会执行 JS：若在这里把内容页整页换成外壳，
+            // 渲染后的 DOM（含 canonical=/）会覆盖静态 HTML，导致全站文章
+            // 被搜索引擎按外壳页归并。爬虫/预览机器人一律停留在静态内容页。
+            if (/bot|spider|crawl|slurp|yandex|sogou|facebookexternalhit|whatsapp/i.test(navigator.userAgent)) return;
 
             var path = window.location.pathname || '/';
             var publicPath = path + (window.location.search || '') + (window.location.hash || '');

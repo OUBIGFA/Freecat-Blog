@@ -86,7 +86,7 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir, recentPos
     const seoHead = seo.renderHeadTags({
         title,
         description: `Search articles from ${siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog'}.`,
-        canonicalPath: '/search.html',
+        canonicalPath: '/search',
         siteConfig,
         seoConfig,
         image: seo.defaultImage(siteConfig, seoConfig),

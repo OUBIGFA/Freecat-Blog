@@ -129,6 +129,8 @@ What you get:
 - Audio player generation from direct audio links in articles
 - Site name, avatar, social links, and theme customization without writing code
 
+- Less is more — no unnecessary animations or visual noise, just a clean, undisturbed reading experience where readability comes first
+
 ---
 
 ## 2. The Three Folders You Need to Know

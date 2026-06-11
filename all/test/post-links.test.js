@@ -82,7 +82,7 @@ test('snapshot post id controls the public post link instead of the filename', (
 
     assert.equal(post.postId, '2026053115300001');
     assert.equal(post.slug, 'Original Title');
-    assert.equal(post.link, '/posts/2026053115300001');
+    assert.equal(post.link, '/posts/2026053115300001/');
 });
 
 test('article loader recognizes robust content filenames and extensions', (t) => {

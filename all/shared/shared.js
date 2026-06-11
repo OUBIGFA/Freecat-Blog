@@ -80,7 +80,7 @@
             ? ` data-bg-light="${colors.bg}" data-text-light="${colors.text}" data-bg-dark="${colors.bgDark}" data-text-dark="${colors.textDark}"`
             : '';
         const encodedForClick = encodeTagQueryValue(tag);
-        const searchUrl = '/search.html?tag=' + encodedForClick;
+        const searchUrl = '/search?tag=' + encodedForClick;
         const visibleText = options.escapeText === false ? tag : escapeHtml(tag);
         const extraClass = options.darkHover ? ' dark:hover:brightness-110' : '';
         // tag-span 类名仅在 withDataAttrs（即客户端渲染场景）时添加，
@@ -180,8 +180,8 @@
                 ? { bg: 'rgba(148, 163, 184, 0.18)', text: '#475569' }
                 : hashTagColor(tag.label);
             const href = isUntagged
-                ? '/search.html?tag=__untagged__'
-                : '/search.html?tag=' + encodeURIComponent(tag.label);
+                ? '/search?tag=__untagged__'
+                : '/search?tag=' + encodeURIComponent(tag.label);
             return (
                 '<a role="menuitem" href="' + href + '" ' +
                 'class="tag-menu-item flex items-center justify-between gap-3 rounded-[4px] px-3 py-2 text-sm font-medium text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-400 dark:text-slate-200" ' +

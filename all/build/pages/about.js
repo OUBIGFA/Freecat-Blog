@@ -18,7 +18,8 @@ function generate({ template, siteConfig, seoConfig, aboutConfig, outputDir }) {
     const finalAvatar = aboutConfig.about_hero_avatar || siteConfig.hero_avatar;
 
     const title = `About - ${siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog'}`;
-    const canonicalPath = '/about.html';
+    // 无后缀 = Cloudflare Pages 对 *.html 的规范地址（/about.html 会被 308 到 /about）
+    const canonicalPath = '/about';
     const canonical = seo.pageUrl(siteConfig, canonicalPath);
     const seoHead = seo.renderHeadTags({
         title,
