@@ -7,7 +7,7 @@ tag:
   - free
 _03: 🔹 标签分类：用于文章归类和搜索
 cover: https://i.pinimg.com/originals/af/89/3e/af893ef77c62353ce8590e418a94783a.gif
-_04: 🔹 封面图片：文章在列表和顶部的展示图
+_04: 🔹 文章封面图片
 show_image_captions: true
 _05: 🔹 显示图注：是否在文章中显示图片下方的说明文字
 description: 一套适合新手的免费个人博客方案：在 writing 文件夹写 Markdown 文章，在 Control 文件夹改网站信息，再通过 GitHub、Cloudflare Pages 或 Vercel 自动发布成网站。

@@ -7,7 +7,7 @@ tag:
  - free
 _03: 🔹 标签分类：用于文章归类和搜索
 cover: https://i.pinimg.com/1200x/c6/5f/ac/c65facfb40e09748ba750102fe97a986.jpg
-_04: 🔹 封面图片：文章在列表和顶部的展示图
+_04: 🔹 文章封面图片
 show_image_captions: false
 _05: 🔹 显示图注：是否在文章中显示图片下方的说明文字
 description:
