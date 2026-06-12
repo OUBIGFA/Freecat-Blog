@@ -198,7 +198,9 @@ test('post share metadata uses dotted publish date for preview display', () => {
         title: 'Share Date Post',
         tag: [],
         link: '/posts/share-date',
-        cover: '',
+        cover: '/image/cover.png',
+        coverWidth: 800,
+        coverHeight: 900,
         content: 'Body',
         date: dayjs.tz('2026-05-02T09:00:00+08:00'),
         modifiedDate: dayjs.tz('2026-05-03T09:00:00+08:00'),
@@ -213,6 +215,9 @@ test('post share metadata uses dotted publish date for preview display', () => {
 
     assert.match(html, /<meta property="article:published_time" content="2026\.05\.02" \/>/);
     assert.match(html, /"datePublished":"\d{4}-\d{2}-\d{2}T/);
+    assert.match(html, /<meta property="og:image:width" content="1200" \/>/);
+    assert.match(html, /<meta property="og:image:height" content="1200" \/>/);
+    assert.doesNotMatch(html, /<meta property="og:image:height" content="900" \/>/);
 });
 
 test('post page loads video player assets only when video content is present', () => {

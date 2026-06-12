@@ -1,6 +1,9 @@
 const shared = require('../shared/shared.js');
 const { stripMarkdown } = require('./markdown.js');
 
+const SHARE_IMAGE_WIDTH = 1200;
+const SHARE_IMAGE_HEIGHT = 1200;
+
 function text(value) {
     return String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
 }
@@ -116,8 +119,6 @@ function renderHeadTags({
     seoConfig,
     type = 'website',
     image = '',
-    imageWidth = 0,
-    imageHeight = 0,
     noindex = false,
     tags = [],
     publishedTime = '',
@@ -154,14 +155,8 @@ function renderHeadTags({
     if (locale) lines.push(`<meta property="og:locale" content="${escapeAttr(locale)}" />`);
     if (ogImage) {
         lines.push(`<meta property="og:image" content="${escapeAttr(ogImage)}" />`);
-        const w = parseInt(imageWidth, 10);
-        const h = parseInt(imageHeight, 10);
-        // 仅在调用方显式给出 frontmatter cover_width / cover_height 时输出尺寸；
-        // 没给就不输出 —— 避免方形头像被谎报成 1200x630 后社交平台裁切异常。
-        if (w > 0 && h > 0) {
-            lines.push(`<meta property="og:image:width" content="${escapeAttr(w)}" />`);
-            lines.push(`<meta property="og:image:height" content="${escapeAttr(h)}" />`);
-        }
+        lines.push(`<meta property="og:image:width" content="${SHARE_IMAGE_WIDTH}" />`);
+        lines.push(`<meta property="og:image:height" content="${SHARE_IMAGE_HEIGHT}" />`);
         lines.push(`<meta property="og:image:alt" content="${escapeAttr(title)}" />`);
     }
     const publishedMetaTime = publishedDisplayDate || publishedTime;
