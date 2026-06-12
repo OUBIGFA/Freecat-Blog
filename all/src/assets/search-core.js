@@ -133,10 +133,11 @@
         return index.sorted === true ? posts : sortPostsForListing(posts);
     }
 
-    // 标签 HTML：直接复用 shared.renderTagSpan，保持与构建期一致
+    // 标签 HTML：直接复用 shared.renderTagSpan，保持与构建期一致。
+    // themed：深浅配色由构建期 CSS 变量 + .dark .tag-span 规则承担，随主题即时切换。
     function generateTagsHtml(tags) {
         if (!tags) return '';
-        return tags.map(tag => renderTagSpan(tag, { withDataAttrs: true, escapeText: true })).join('');
+        return tags.map(tag => renderTagSpan(tag, { themed: true, escapeText: true })).join('');
     }
 
     function buildSearchResultCardData(post, index, options = {}) {

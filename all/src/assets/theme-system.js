@@ -33,22 +33,11 @@
             return savedTheme === 'dark' || (!savedTheme && systemPrefersDark);
         }
 
-        function updateTagColors() {
-            const isDark = html.classList.contains('dark');
-            doc.querySelectorAll('.tag-span').forEach(tag => {
-                const bg = tag.getAttribute(isDark ? 'data-bg-dark' : 'data-bg-light');
-                const text = tag.getAttribute(isDark ? 'data-text-dark' : 'data-text-light');
-                if (bg && text) {
-                    tag.style.background = bg;
-                    tag.style.color = text;
-                }
-            });
-        }
-
         function setThemeState(isDark) {
             html.classList.toggle('dark', isDark);
             if (themeToggleBtn) themeToggleBtn.dataset.uiState = isDark ? 'dark' : 'light';
-            updateTagColors();
+            // 标签深浅配色由构建期写入的 CSS 变量（--tag-bg-dark 等）+
+            // transitions.css 的 .dark .tag-span 规则承担，这里不再遍历 DOM 改写内联样式。
         }
 
         function syncFrameTheme(isDark, options = {}) {
@@ -161,8 +150,7 @@
             bindThemeToggle,
             prefersReducedMotion,
             resolveThemeIsDark,
-            syncFrameTheme,
-            updateTagColors
+            syncFrameTheme
         };
     }
 

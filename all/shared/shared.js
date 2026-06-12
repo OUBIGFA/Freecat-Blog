@@ -76,19 +76,20 @@
     function renderTagSpan(tag, opts) {
         const options = opts || {};
         const colors = hashTagColor(tag);
-        const dataAttrs = options.withDataAttrs
-            ? ` data-bg-light="${colors.bg}" data-text-light="${colors.text}" data-bg-dark="${colors.bgDark}" data-text-dark="${colors.textDark}"`
-            : '';
         const encodedForClick = encodeTagQueryValue(tag);
         const searchUrl = '/search?tag=' + encodedForClick;
         const visibleText = options.escapeText === false ? tag : escapeHtml(tag);
         const extraClass = options.darkHover ? ' dark:hover:brightness-110' : '';
-        // tag-span 类名仅在 withDataAttrs（即客户端渲染场景）时添加，
-        // 这样 main.js 中 updateTagColors 才能在切换主题时找到这些标签。
-        const tagSpanClass = options.withDataAttrs ? 'tag-span ' : '';
+        // themed（客户端渲染场景，如搜索结果）：深浅两套配色在构建期写进 CSS 变量，
+        // 由 transitions.css 的 .tag-span / .dark .tag-span 规则随主题切换，无需任何运行时 JS。
+        // 非 themed（构建期静态页场景）：保持浅色内联样式，两种主题下观感一致（现状行为）。
+        const tagSpanClass = options.themed ? 'tag-span ' : '';
+        const styleAttr = options.themed
+            ? 'style="--tag-bg: ' + colors.bg + '; --tag-text: ' + colors.text + '; --tag-bg-dark: ' + colors.bgDark + '; --tag-text-dark: ' + colors.textDark + ';"'
+            : 'style="background: ' + colors.bg + '; color: ' + colors.text + ';"';
         return (
             '<span class="' + tagSpanClass + 'freecat-tag-text relative z-10 inline-flex items-center px-2.5 py-0.5 rounded-[4px] text-[10px] font-medium tracking-wider cursor-pointer hover:brightness-95' + extraClass + ' transition-[filter] duration-200 ease-out whitespace-nowrap" ' +
-            'style="background: ' + colors.bg + '; color: ' + colors.text + ';"' + dataAttrs + ' ' +
+            styleAttr + ' ' +
             "onclick=\"event.preventDefault(); event.stopPropagation(); if (window.FreecatNavigate) window.FreecatNavigate('" + searchUrl + "'); else window.location.href='" + searchUrl + "';\">" +
             visibleText +
             '</span>'

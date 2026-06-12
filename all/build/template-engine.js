@@ -396,7 +396,7 @@ function versionAssetUrls(html, assetVersion) {
     );
 }
 
-function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, socialConfig, assetVersion, tagMenuItemsHtml = '' }) {
+function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, socialConfig, assetVersion, tagMenuItemsHtml = '', htmlTransform }) {
     const themeScript = generateThemeScript(siteConfig);
     const logoIcon = generateLogoIcon(siteConfig);
     const socialLinks = generateSocialLinks(socialConfig, siteConfig);
@@ -438,6 +438,9 @@ function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, s
     function loadTemplate(filename) {
         let tpl = fs.readFileSync(path.join(templatesDir, filename), 'utf-8');
         tpl = injectPartials(tpl, partialsCache, partialsDir);
+        // 构建期 HTML 改写钩子（如 build/bundle.js 把多条资源引用合并为单条 bundle 引用）。
+        // 必须在 versionAssetUrls 之前执行，改写后的引用才能拿到 ?v= 版本号。
+        if (typeof htmlTransform === 'function') tpl = htmlTransform(tpl);
         tpl = applySiteConfig(tpl);
         tpl = versionAssetUrls(tpl, assetVersion);
         return tpl;

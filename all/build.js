@@ -29,6 +29,7 @@ const { copyDir, ensureCleanDir } = require('./build/fs-utils.js');
 const { buildArticleFontSubset } = require('./build/fonts.js');
 const { buildTailwindCss } = require('./build/tailwind.js');
 const { getTailwindContentGlobs } = require('./build/tailwind-sources.js');
+const { createBundler } = require('./build/bundle.js');
 const { minifyDist } = require('./build/minify.js');
 const postPage = require('./build/pages/post.js');
 const indexPage = require('./build/pages/index.js');
@@ -163,6 +164,13 @@ const tagMenuItemsHtml = shared.renderTagMenuItemsHtml(
 );
 
 // ===== 5. 模板引擎 =====
+// 构建期资源合并：把每页十几个 JS/CSS 引用改写为少量 bundle 引用（见 build/bundle.js）。
+const bundler = createBundler({
+    templatesDir: DIRS.templates,
+    partialsDir: DIRS.partials,
+    assetsDir: DIRS.assets,
+    sharedDir: DIRS.shared
+});
 const engine = createEngine({
     templatesDir: DIRS.templates,
     partialsDir: DIRS.partials,
@@ -170,7 +178,8 @@ const engine = createEngine({
     seoConfig,
     socialConfig,
     assetVersion: ASSET_VERSION,
-    tagMenuItemsHtml
+    tagMenuItemsHtml,
+    htmlTransform: bundler.rewriteHtml
 });
 
 const tplIndex = engine.loadTemplate('template_index.html');
@@ -251,6 +260,10 @@ if (fs.existsSync(DIRS.assets)) copyDir(DIRS.assets, path.join(DIRS.output, 'ass
 if (fs.existsSync(DIRS.shared)) copyDir(DIRS.shared, path.join(DIRS.output, 'assets'));
 if (fs.existsSync(DIRS.images)) copyDir(DIRS.images, path.join(DIRS.output, 'image'));
 
+// ===== 6.6 生成 JS bundle（CSS bundle 需等 Tailwind 编译完成，见第 8 步之后）=====
+console.log('🧩 Writing JS bundles...');
+bundler.writeJsBundles(path.join(DIRS.output, 'assets'));
+
 // ===== 7. 复制部署平台配置 (_headers / vercel.json) =====
 const deployConfigs = ['_headers', 'vercel.json'];
 for (const name of deployConfigs) {
@@ -267,6 +280,15 @@ buildTailwindCss({
 }).then(async ({ size }) => {
     const sizeKb = (size / 1024).toFixed(1);
     console.log(`   tailwind.css: ${sizeKb} KB`);
+
+    // ===== 8.5 生成 CSS bundle（依赖已编译的 tailwind.css）=====
+    console.log('🧩 Writing CSS bundles...');
+    const cssSizes = await bundler.writeCssBundles(path.join(DIRS.output, 'assets'), {
+        minify: process.env.NO_MINIFY !== '1'
+    });
+    for (const [name, bytes] of Object.entries(cssSizes)) {
+        console.log(`   ${name}: ${(bytes / 1024).toFixed(1)} KB`);
+    }
 
     // ===== 9. Minify HTML / JS（必须在 Tailwind 之后，因为 Tailwind 会扫描已生成的 HTML）=====
     if (process.env.NO_MINIFY !== '1') {

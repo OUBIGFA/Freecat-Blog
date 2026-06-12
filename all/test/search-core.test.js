@@ -185,3 +185,20 @@ test('getStaggerDelayMs grows per index and clamps at the 10th element', () => {
     assert.equal(searchCore.getStaggerDelayMs(25), 500, 'delay clamps at index 10');
     assert.equal(searchCore.getStaggerDelayMs(2, 100), 200, 'step is configurable');
 });
+
+test('generateTagsHtml emits build-time theme variables consumed by the dark tag rule', () => {
+    const html = searchCore.generateTagsHtml(['Tech']);
+
+    assert.match(html, /class="tag-span /, 'client-rendered tags carry the tag-span styling hook');
+    assert.match(html, /--tag-bg:\s*hsl\(/, 'light background is baked into a CSS variable');
+    assert.match(html, /--tag-text:\s*hsl\(/, 'light text color is baked into a CSS variable');
+    assert.match(html, /--tag-bg-dark:\s*hsl\(/, 'dark background is baked into a CSS variable');
+    assert.match(html, /--tag-text-dark:\s*hsl\(/, 'dark text color is baked into a CSS variable');
+    assert.doesNotMatch(html, /data-bg-light|data-text-dark/, 'legacy runtime-rewrite data attributes are gone');
+
+    const fs = require('node:fs');
+    const path = require('node:path');
+    const transitionsCss = fs.readFileSync(path.join(__dirname, '..', 'src', 'assets', 'transitions.css'), 'utf-8');
+    assert.match(transitionsCss, /\.tag-span\s*\{[\s\S]*?background:\s*var\(--tag-bg\)/, 'light theme rule consumes the variables');
+    assert.match(transitionsCss, /\.dark \.tag-span\s*\{[\s\S]*?background:\s*var\(--tag-bg-dark\)/, 'dark theme rule consumes the variables');
+});

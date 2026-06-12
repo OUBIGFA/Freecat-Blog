@@ -827,6 +827,19 @@ html.theme-instant *::after {
     color: #f8fafc;
 }
 
+/* 客户端渲染的标签（搜索结果 / 顶栏搜索 overlay）：
+   深浅两套配色在构建期写入 --tag-bg / --tag-text / --tag-bg-dark / --tag-text-dark，
+   主题切换由下面两条规则即时生效，无需运行时 JS 改写内联样式。 */
+.tag-span {
+    background: var(--tag-bg);
+    color: var(--tag-text);
+}
+
+.dark .tag-span {
+    background: var(--tag-bg-dark);
+    color: var(--tag-text-dark);
+}
+
 .tag-menu-panel.is-open .tag-menu-item {
     opacity: 1;
     transform: translateY(0);
