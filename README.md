@@ -545,6 +545,26 @@ Freecat Blog 会持续修 bug、加功能、优化样式。仓库自带一个 Gi
 
 写文章改 `writing/`，改网站信息改 `Control/`。新手一般别动 `all/`。
 
+**Q：`.gitignore` 是什么，怎么用？**
+
+`.gitignore` 是一个“不要同步到 GitHub 的文件清单”。把临时文件、草稿、系统自动生成的文件写进去，GitHub Desktop 就会自动忽略它们，避免把无关文件提交到仓库。
+
+常见用法：
+
+```gitignore
+# 忽略本地草稿文件夹
+drafts/
+
+# 忽略系统自动生成的文件
+.DS_Store
+Thumbs.db
+
+# 忽略临时日志
+*.log
+```
+
+如果只是不想上传某个新文件，先打开仓库根目录的 `.gitignore`，按上面的格式加一行，保存后再回到 GitHub Desktop 检查。注意：`.gitignore` 只会忽略还没提交过的新文件；已经提交到仓库里的文件，不能只靠 `.gitignore` 隐藏。
+
 **Q：必须买域名吗？**
 
 不用。Cloudflare Pages 和 Vercel 都会先给一个默认网址。
