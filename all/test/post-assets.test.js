@@ -199,11 +199,17 @@ test('article Chinese font weight ranges cover title and bold text rules', () =>
     );
 });
 
-test('article headings use smaller mobile reading scale and restore desktop scale', () => {
+test('article headings use one and a half times the body reading size across breakpoints', () => {
     assert.match(postCss, /\.post-title\s*\{[\s\S]*font-size:\s*1\.75rem\s*!important;/);
     assert.match(postCss, /@media \(min-width: 768px\)\s*\{[\s\S]*\.post-title\s*\{[\s\S]*font-size:\s*2\.5rem\s*!important;/);
-    assert.match(postCss, /\.prose\s*\{[\s\S]*--article-body-size:\s*1\.0625rem;[\s\S]*--article-heading-h1:\s*calc\(var\(--article-body-size\) \* 1\.72\);/);
-    assert.match(postCss, /@media \(min-width: 768px\)\s*\{[\s\S]*\.prose\s*\{[\s\S]*--article-body-size:\s*1\.1875rem;[\s\S]*--article-heading-h1:\s*calc\(var\(--article-body-size\) \* 2\.36\);/);
+    assert.match(postCss, /\.prose\s*\{[\s\S]*--article-body-size:\s*1\.0625rem;/);
+    assert.match(postCss, /@media \(min-width: 768px\)\s*\{[\s\S]*\.prose\s*\{[\s\S]*--article-body-size:\s*1\.1875rem;/);
+
+    for (let level = 1; level <= 6; level += 1) {
+        assert.match(postCss, new RegExp(`--article-heading-h${level}:\\s*calc\\(var\\(--article-body-size\\) \\* 1\\.5\\);`));
+    }
+
+    assert.doesNotMatch(postCss, /--article-heading-h[1-6]:\s*var\(--article-body-size\);/);
 });
 
 test('article headings keep peer spacing after standalone post images', () => {
