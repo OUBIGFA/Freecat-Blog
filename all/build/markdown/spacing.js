@@ -122,20 +122,13 @@ function isIndentedMarkdownContinuationLine(line) {
     return /^(?:\t| {2,})\S/.test(String(line || ''));
 }
 
-function isBlockquoteLine(line) {
-    return /^ {0,3}>/.test(String(line || ''));
-}
-
 function isFootnoteDefinitionLine(line) {
     return /^ {0,3}\[\^[^\]]+\]:/.test(String(line || ''));
 }
 
 function shouldKeepNativeMarkdownBlankLine(prevLine, nextLine) {
-    return isMarkdownListItemLine(prevLine)
-        || isMarkdownListItemLine(nextLine)
-        || isIndentedMarkdownContinuationLine(nextLine)
-        || isBlockquoteLine(prevLine)
-        || isBlockquoteLine(nextLine)
+    return isIndentedMarkdownContinuationLine(nextLine)
+        || (isMarkdownListItemLine(nextLine) && (isMarkdownListItemLine(prevLine) || isIndentedMarkdownContinuationLine(prevLine)))
         || isFootnoteDefinitionLine(prevLine)
         || isFootnoteDefinitionLine(nextLine);
 }
