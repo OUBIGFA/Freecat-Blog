@@ -121,6 +121,7 @@ function renderHeadTags({
     noindex = false,
     tags = [],
     publishedTime = '',
+    publishedDisplayDate = '',
     modifiedTime = '',
     author = '',
     pagination = null
@@ -163,7 +164,8 @@ function renderHeadTags({
         }
         lines.push(`<meta property="og:image:alt" content="${escapeAttr(title)}" />`);
     }
-    if (publishedTime) lines.push(`<meta property="article:published_time" content="${escapeAttr(publishedTime)}" />`);
+    const publishedMetaTime = publishedDisplayDate || publishedTime;
+    if (publishedMetaTime) lines.push(`<meta property="article:published_time" content="${escapeAttr(publishedMetaTime)}" />`);
     if (modifiedTime) lines.push(`<meta property="article:modified_time" content="${escapeAttr(modifiedTime)}" />`);
     if (type === 'article' && authorName) {
         lines.push(`<meta property="article:author" content="${escapeAttr(authorName)}" />`);

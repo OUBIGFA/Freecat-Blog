@@ -10,7 +10,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault('Asia/Shanghai');
 
-const { loadPosts, generateAll } = require('../build/pages/post.js');
+const { loadPosts, generateAll, renderPostPage } = require('../build/pages/post.js');
 
 const MODIFIED_AT = '2026-05-31T10:00:00+08:00';
 const PUBLISHED_AT = '2026-05-31T09:00:00+08:00';
@@ -191,6 +191,28 @@ test('generateAll writes only the fixed post id page', (t) => {
 
     assert.equal(writes.has(fixedPath), true);
     assert.equal(writes.size, 1);
+});
+
+test('post share metadata uses dotted publish date for preview display', () => {
+    const post = {
+        title: 'Share Date Post',
+        tag: [],
+        link: '/posts/share-date',
+        cover: '',
+        content: 'Body',
+        date: dayjs.tz('2026-05-02T09:00:00+08:00'),
+        modifiedDate: dayjs.tz('2026-05-03T09:00:00+08:00'),
+        postId: '2026050209000001'
+    };
+    const html = renderPostPage({
+        post,
+        template: '<!doctype html><html><head><!-- POST_SEO_HEAD --><!-- POST_JSONLD --></head><body><!-- TITLE_PLACEHOLDER --><!-- TITLE_H1_PLACEHOLDER --><!-- TAGS_PLACEHOLDER --><!-- DATE_PLACEHOLDER --><!-- DATE_ISO_PLACEHOLDER --><!-- MODIFIED_PLACEHOLDER --><!-- CONTENT_PLACEHOLDER --><!-- TOC_PLACEHOLDER --><!-- POST_HIGHLIGHT_CSS --><!-- POST_KATEX_CSS --><!-- POST_CHART_JS --><!-- POST_MEDIA_CSS --><!-- POST_MEDIA_JS --><!-- POST_AUDIO_CSS --><!-- POST_AUDIO_JS --><!-- POST_VIDEO_CSS --><!-- POST_VIDEO_JS --></body></html>',
+        siteConfig: { site_name: 'Example', site_title: 'Example Blog', site_url: 'https://example.com' },
+        seoConfig: {}
+    });
+
+    assert.match(html, /<meta property="article:published_time" content="2026\.05\.02" \/>/);
+    assert.match(html, /"datePublished":"\d{4}-\d{2}-\d{2}T/);
 });
 
 test('post page loads video player assets only when video content is present', () => {

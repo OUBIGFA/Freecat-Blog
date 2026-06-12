@@ -277,6 +277,7 @@ function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = 
         : '';
 
     const pageTitle = `${post.title} - ${siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog'}`;
+    const sharePublishDate = post.date.tz('Asia/Shanghai').format('YYYY.MM.DD');
     // cover_width / cover_height 仅在 frontmatter 显式给出时透传给 renderHeadTags，
     // og:image 尺寸只有在 frontmatter 明确给值时才输出 —— 避免方图被谎报成 1200x630
     // 后被社交平台裁切异常。
@@ -295,6 +296,7 @@ function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = 
         noindex: post.noindex,
         tags,
         publishedTime: post.date.toISOString(),
+        publishedDisplayDate: sharePublishDate,
         modifiedTime: post.modifiedDate.toISOString(),
         author: post.author
     });
