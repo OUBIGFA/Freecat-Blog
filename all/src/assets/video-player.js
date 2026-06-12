@@ -3,10 +3,9 @@
 
     const mediaPlayer = window.FreecatMediaPlayer;
     if (!mediaPlayer) throw new Error('FreecatMediaPlayer not loaded before video-player.js');
+    const template = window.FreecatMediaPlayerTemplate;
+    if (!template) throw new Error('FreecatMediaPlayerTemplate not loaded before video-player.js');
 
-    const TITLE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1.25rem" height="1.25rem"><path d="M3 3.9934C3 3.44476 3.44495 3 3.9934 3H20.0066C20.5552 3 21 3.44495 21 3.9934V20.0066C21 20.5552 20.5551 21 20.0066 21H3.9934C3.44476 21 3 20.5551 3 20.0066V3.9934ZM10.6219 8.41459C10.5562 8.37078 10.479 8.34741 10.4 8.34741C10.1791 8.34741 10 8.52649 10 8.74741V15.2526C10 15.3316 10.0234 15.4088 10.0672 15.4745C10.1897 15.6583 10.4381 15.708 10.6219 15.5855L15.5008 12.3329C15.5447 12.3036 15.5824 12.2659 15.6117 12.2221C15.7342 12.0383 15.6845 11.7899 15.5008 11.6674L10.6219 8.41459Z"></path></svg>`;
-    const FULLSCREEN_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1.25rem" height="1.25rem"><path d="M8 3V5H4V9H2V3H8ZM2 21V15H4V19H8V21H2ZM22 21H16V19H20V15H22V21ZM22 9H20V5H16V3H22V9Z"></path></svg>`;
-    const BIG_PLAY_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="2rem" height="2rem"><path d="M19.376 12.4161L8.77735 19.4818C8.54759 19.635 8.23715 19.5729 8.08397 19.3432C8.02922 19.261 8 19.1645 8 19.0658V4.93433C8 4.65818 8.22386 4.43433 8.5 4.43433C8.59871 4.43433 8.69522 4.46355 8.77735 4.5183L19.376 11.584C19.6057 11.7372 19.6678 12.0477 19.5146 12.2774C19.478 12.3323 19.4309 12.3795 19.376 12.4161Z"></path></svg>`;
     const VIDEO_EXT_RE = /\.(?:mp4|webm|ogv|mov|m4v|m3u8)(?:[?#]|$)/i;
     const VIDEO_EMOJI_RE = /\u{1f3ac}|\u{1f3a5}|\u{1f4f9}/gu;
 
@@ -31,12 +30,16 @@
             blockquote.parentNode.replaceChild(player, blockquote);
         });
 
-        scope.querySelectorAll('figure.video-player[data-video-src]').forEach(function (figure) {
-            const url = figure.getAttribute('data-video-src') || '';
+        scope.querySelectorAll('.video-player-container[data-video-src], figure.video-player[data-video-src]').forEach(function (node) {
+            const url = node.getAttribute('data-video-src') || '';
             if (!url) return;
-            const title = cleanTitle(figure.getAttribute('data-video-title') || '');
-            const player = createVideoPlayer(title, url);
-            figure.parentNode.replaceChild(player, figure);
+            const title = cleanTitle(node.getAttribute('data-video-title') || '');
+            if (node.matches && node.matches('figure.video-player[data-video-src]')) {
+                const player = createVideoPlayer(title, url);
+                node.parentNode.replaceChild(player, node);
+                return;
+            }
+            hydrateVideoPlayer(node, url);
         });
     }
 
@@ -52,26 +55,20 @@
 
     function createVideoPlayer(title, videoUrl) {
         const container = document.createElement('div');
-        container.className = 'video-player-container media-player-container';
-        container.innerHTML = `
-            <div class="video-player-stage">
-                <video class="video-player-video" preload="metadata" playsinline></video>
-                <button class="video-player-overlay" type="button" aria-label="Play">
-                    <span class="video-player-overlay-icon flex items-center justify-center">${BIG_PLAY_ICON}</span>
-                </button>
-            </div>
-            ${mediaPlayer.renderPlayerChrome({
-                kind: 'video',
-                title,
-                titleIcon: TITLE_ICON,
-                progressLabel: 'Video progress',
-                extraRightControls: `<button class="media-fullscreen-btn video-fullscreen-btn" aria-label="Fullscreen">${FULLSCREEN_ICON}</button>`
-            })}`;
+        container.innerHTML = template.renderVideoPlayer({ title, src: videoUrl });
+        const player = container.firstElementChild;
+        if (!player) return container;
+        return hydrateVideoPlayer(player, videoUrl);
+    }
 
+    function hydrateVideoPlayer(container, videoUrl) {
+        if (container.dataset.videoHydrated === 'true') return container;
+        container.dataset.videoHydrated = 'true';
         const stage = container.querySelector('.video-player-stage');
         const video = container.querySelector('video');
         const overlay = container.querySelector('.video-player-overlay');
         const fullscreenBtn = container.querySelector('.video-fullscreen-btn');
+        if (!stage || !video || !overlay || !fullscreenBtn) return container;
 
         attachSource(video, videoUrl);
 

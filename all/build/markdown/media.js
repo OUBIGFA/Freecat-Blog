@@ -1,5 +1,6 @@
 // HTML 转义统一复用 shared/shared.js，构建期与浏览器期同源，避免转义规则漂移。
 const { escapeHtml } = require('../../shared/shared.js');
+const mediaPlayerTemplate = require('../../shared/media-player-template.js');
 
 function normalizeImageHref(href) {
     const raw = String(href || '').trim();
@@ -233,10 +234,9 @@ function renderExternalEmbed(href, text) {
     const safeUrl = escapeHtml(url);
     const label = String(text || '').trim() || url;
     const safeLabel = escapeHtml(label);
-    const placeholder = '<img class="external-embed-placeholder" src="/image/404.png" alt="" loading="lazy" decoding="async" aria-hidden="true" />';
-    const loader = '<div class="external-embed-loader placeholder-loader" aria-hidden="true"><span class="loader"></span></div>';
-
     if (embed) {
+        const placeholder = '<img class="external-embed-placeholder" src="/image/404.png" alt="" loading="lazy" decoding="async" aria-hidden="true" />';
+        const loader = '<div class="external-embed-loader placeholder-loader" aria-hidden="true"><span class="loader"></span></div>';
         return `
     <figure class="external-embed external-embed-${embed.provider} external-embed-loading" data-embed-provider="${embed.provider}" data-embed-url="${safeUrl}">
         ${placeholder}
@@ -246,75 +246,29 @@ function renderExternalEmbed(href, text) {
     }
 
     return `
-    <figure class="external-embed external-embed-link external-embed-loading" data-embed-provider="link">
-        ${placeholder}
-        ${loader}
+    <figure class="external-embed external-embed-link external-embed-ready" data-embed-provider="link">
         <div class="external-embed-content"><a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${safeLabel}</a></div>
     </figure>`;
 }
 
-function renderMediaLoadingChrome(kind, safeSrc, fallbackLabel, { fullscreen = false } = {}) {
-    const label = fallbackLabel || safeSrc;
-    const fullscreenControl = fullscreen
-        ? '<span class="media-player-loading-fullscreen"></span>'
-        : '';
-    return `
-        <div class="media-player-loading-chrome">
-            <div class="media-player-loading-title">
-                <a class="${kind}-player-fallback" href="${safeSrc}" target="_blank" rel="noopener noreferrer">${label}</a>
-                <span class="media-time">
-                    <span>0:00</span>
-                    <span> / </span>
-                    <span>0:00</span>
-                </span>
-            </div>
-            <div class="media-player-loading-progress"></div>
-            <div class="media-player-loading-controls">
-                <div class="media-player-loading-controls-left">
-                    <span class="media-player-loading-play"></span>
-                    <span class="media-player-loading-volume"></span>
-                </div>
-                <div class="media-player-loading-controls-right">
-                    <span class="media-player-loading-speed">1.0x</span>
-                    ${fullscreenControl}
-                </div>
-            </div>
-        </div>`;
-}
-
-// 视频播放器占位：图片语法 ![标题](视频.mp4) 命中视频直链时产出。
-// 客户端 video-player.js 会读取 data-* 把它替换成自定义播放器；
-// 内部的 <a> 是无 JS 时的优雅降级（仍可点开直链）。
+// 视频播放器在构建期直接产出最终控件结构，浏览器只负责绑定播放、进度和全屏交互。
 function renderVideoEmbed(href, text, { force = false } = {}) {
     const src = pickVideoUrl(href, { force });
     if (!src) return '';
-    const safeSrc = escapeHtml(src);
-    const safeTitle = escapeRenderedText(cleanMediaTitle('video', text));
-    const fallbackLabel = safeTitle || safeSrc;
-    return `
-    <figure class="video-player video-player-loading media-player-container" data-video-src="${safeSrc}" data-video-title="${safeTitle}">
-        <div class="video-player-stage" aria-hidden="true">
-            <div class="video-player-loading-overlay">
-                <span class="video-player-loading-icon"></span>
-            </div>
-        </div>
-        ${renderMediaLoadingChrome('video', safeSrc, fallbackLabel, { fullscreen: true })}
-    </figure>`;
+    return mediaPlayerTemplate.renderVideoPlayer({
+        src,
+        title: decodeBasicHtmlEntities(cleanMediaTitle('video', text))
+    });
 }
 
-// 音频播放器占位：和视频一致，图片语法 ![标题](音频.mp3) 命中音频直链时产出。
-// 客户端 audio-player.js 会读取 data-* 把它替换成自定义播放器；
-// 内部的 <a> 是无 JS 时的优雅降级（仍可点开直链）。
+// 音频播放器在构建期直接产出最终控件结构，浏览器只负责绑定播放、进度和音量交互。
 function renderAudioEmbed(href, text, { force = false } = {}) {
     const src = pickAudioUrl(href, { force });
     if (!src) return '';
-    const safeSrc = escapeHtml(src);
-    const safeTitle = escapeRenderedText(cleanAudioTitle(text));
-    const fallbackLabel = safeTitle || safeSrc;
-    return `
-    <figure class="audio-player audio-player-loading media-player-container" data-audio-src="${safeSrc}" data-audio-title="${safeTitle}">
-        ${renderMediaLoadingChrome('audio', safeSrc, fallbackLabel)}
-    </figure>`;
+    return mediaPlayerTemplate.renderAudioPlayer({
+        src,
+        title: decodeBasicHtmlEntities(cleanAudioTitle(text))
+    });
 }
 
 function stripRenderedHtmlTags(html) {
@@ -358,7 +312,6 @@ module.exports = {
     isVideoUrl,
     getExternalEmbed,
     renderExternalEmbed,
-    renderMediaLoadingChrome,
     renderVideoEmbed,
     renderAudioEmbed,
     stripRenderedHtmlTags,

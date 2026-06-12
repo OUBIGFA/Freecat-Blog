@@ -15,6 +15,7 @@ const {
     seamlessPaginationJs,
     updateSortJs,
     layoutMetricsJs,
+    header,
     postTemplate,
     searchTemplate,
     headBase,
@@ -27,6 +28,8 @@ test('main animation checks reuse a single reduced-motion helper', () => {
     assert.equal((themeSystemJs.match(/function prefersReducedMotion\(\)/g) || []).length, 1);
     assert.equal((mainJs.match(/function prefersReducedMotion\(\)/g) || []).length, 0);
     assert.doesNotMatch(mainJs, /const prefersReducedMotion = \(\) =>/);
+    assert.doesNotMatch(mainJs, /applyStaggeredAnimations\('\.post-card',\s*50,\s*\{\s*replay:\s*false\s*\}\);/);
+    assert.match(seamlessPaginationJs, /applyStaggeredAnimations\('#posts-list \.post-card'\);/);
 });
 
 test('theme switching uses one page-cover transition and syncs the shell iframe', () => {
@@ -60,7 +63,9 @@ test('search page result count reserves space before rendering the numeric badge
     assert.match(searchPageJs, /resultsCountDisplay\.dataset\.countReady\s*=\s*'true';/, 'countReady flips after the number is set');
     assert.match(searchPageJs, /setSearchResultsCount\(results\.length\);/, 'badge updates from real result counts');
     assert.doesNotMatch(searchPageJs, /resultsCountDisplay\.textContent\s*=\s*`\(\$\{results\.length\} results\)`;/, 'no legacy "(N results)" text format');
-    assert.match(searchTemplate, /id="results-count" class="freecat-results-count" data-count-ready="false"/);
+    assert.match(searchTemplate, /id="search-empty-prompt"[\s\S]*Enter a search term in the search box above\./);
+    assert.match(searchTemplate, /id="search-active-query" class="hidden /);
+    assert.match(searchTemplate, /id="results-count" class="freecat-results-count hidden" data-count-ready="false"/);
     assert.match(searchTemplate, /class="freecat-results-count-icon"[\s\S]*M24 12L18\.3431 17\.6568/);
     assert.match(searchTemplate, /class="freecat-results-count-value"/);
     assert.match(transitionsCss, /\.freecat-results-count\s*\{[\s\S]*width:\s*1\.25rem;[\s\S]*height:\s*1\.25rem;[\s\S]*background:\s*rgba\(148,\s*163,\s*184,\s*0\.18\);[\s\S]*color:\s*#475569;/);
@@ -266,6 +271,8 @@ test('home soft pagination syncs shell history and saved scroll before post navi
 
 test('header search opens a blank overlay and closes from blank space', () => {
     assert.match(headerSearchJs, /function ensureSearchResultsOverlay\(\)\s*\{/, 'header-search.js owns the results overlay');
+    assert.match(header, /id="search-results-overlay"[\s\S]*data-open="false" data-prebuilt="true"/, 'header prebuilds the blank overlay container');
+    assert.match(transitionsCss, /#search-results-overlay\[data-open="false"\]\s*\{[\s\S]*display:\s*none;/, 'prebuilt overlay stays hidden until search opens');
     assert.match(headerSearchJs, /const offset = header \? header\.offsetHeight : 0;/, 'overlay sits flush under the header');
     assert.doesNotMatch(headerSearchJs, /header\.offsetHeight \+ 12/);
     assert.doesNotMatch(headerSearchJs, /rect\.bottom \+ 12/);

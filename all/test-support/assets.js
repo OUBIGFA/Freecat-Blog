@@ -63,6 +63,7 @@ const lazyEntries = {
     fontsJs: () => readProjectFile('build', 'fonts.js'),
     mediaPlayerJs: () => readAsset('media-player.js'),
     mediaPlayerCss: () => readAsset('media-player.css'),
+    mediaPlayerTemplateJs: () => readProjectFile('shared', 'media-player-template.js'),
     videoPlayerJs: () => readAsset('video-player.js'),
     videoPlayerCss: () => readAsset('video-player.css'),
     shared: () => require(path.join(projectRoot, 'shared', 'shared.js')),

@@ -256,9 +256,9 @@ function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = 
         ? '<link rel="stylesheet" href="/assets/media-player.css" />'
         : '';
     // 播放器三件套改为 defer：保证在 deferred 的 shared.js 之后按文档顺序执行
-    //（media-player.js 依赖 FreecatShared，audio/video-player.js 依赖 FreecatMediaPlayer）。
+    //（media-player-template.js 依赖 FreecatShared，media-player.js 与 audio/video-player.js 逐层依赖）。
     const mediaJs = needsMediaPlayer
-        ? '<script src="/assets/media-player.js" defer></script>'
+        ? '<script src="/assets/media-player-template.js" defer></script>\n    <script src="/assets/media-player.js" defer></script>'
         : '';
     const audioCss = needsAudioPlayer
         ? '<link rel="stylesheet" href="/assets/audio-player.css" />'

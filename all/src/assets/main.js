@@ -277,11 +277,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTagRows);
     window.addEventListener('resize', fitTagRows, { passive: true });
 
-    // Apply staggered animation to existing post cards on load
-    if (document.getElementById('posts-list')) {
-        applyStaggeredAnimations('.post-card', 50, { replay: false });
-    }
-
     // 监听主题切换按钮
     themeSystem.bindThemeToggle();
 

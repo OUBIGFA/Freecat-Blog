@@ -18,6 +18,7 @@
         function setSearchResultsCount(count) {
             const resultsCountDisplay = doc.getElementById('results-count');
             if (!resultsCountDisplay) return;
+            resultsCountDisplay.classList.remove('hidden');
             const value = resultsCountDisplay.querySelector('.freecat-results-count-value');
             if (value) {
                 value.textContent = String(count);
@@ -26,6 +27,19 @@
             }
             resultsCountDisplay.dataset.countReady = 'true';
             resultsCountDisplay.setAttribute('aria-label', `${count} results`);
+        }
+
+        function setSearchHeaderMode(hasSearchTerm) {
+            const emptyPrompt = doc.getElementById('search-empty-prompt');
+            const activeQuery = doc.getElementById('search-active-query');
+            const resultsCountDisplay = doc.getElementById('results-count');
+            if (emptyPrompt) emptyPrompt.classList.toggle('hidden', hasSearchTerm);
+            if (activeQuery) activeQuery.classList.toggle('hidden', !hasSearchTerm);
+            if (resultsCountDisplay && !hasSearchTerm) {
+                resultsCountDisplay.classList.add('hidden');
+                resultsCountDisplay.dataset.countReady = 'false';
+                resultsCountDisplay.setAttribute('aria-label', 'Loading results');
+            }
         }
 
         function getSearchPageLocationKey() {
@@ -57,14 +71,12 @@
             const tag = urlParams.get('tag');
 
             if (!query && !tag) {
-                currentQueryDisplay.textContent = '...';
-                const searchQueryDisplay = doc.getElementById('search-query-display');
-                if (searchQueryDisplay) {
-                    searchQueryDisplay.innerHTML = '<p class="text-sm text-gray-600 dark:text-gray-400">Enter a search term in the search box above.</p>';
-                }
+                setSearchHeaderMode(false);
+                currentQueryDisplay.textContent = '';
                 return true;
             }
 
+            setSearchHeaderMode(true);
             const searchTerm = query || tag;
             const isTagSearch = !!tag;
             const isUntaggedSearch = isTagSearch && searchTerm === '__untagged__';

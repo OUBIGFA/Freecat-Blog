@@ -44,11 +44,14 @@
                         <!-- 搜索查询显示 -->
                         <div id="search-query-display"
                             class="mb-10 flex items-center justify-between gap-4 rounded-xl border border-gray-200 bg-gray-100 p-4 dark:border-gray-700 dark:bg-gray-800/50">
-                            <p class="min-w-0 text-sm text-gray-600 dark:text-gray-400">
+                            <p id="search-empty-prompt" class="min-w-0 text-sm text-gray-600 dark:text-gray-400">
+                                Enter a search term in the search box above.
+                            </p>
+                            <p id="search-active-query" class="hidden min-w-0 text-sm text-gray-600 dark:text-gray-400">
                                 Searching for: <span id="current-query"
                                     class="font-semibold text-[#1e293b] dark:text-slate-200"></span>
                             </p>
-                            <span id="results-count" class="freecat-results-count" data-count-ready="false"
+                            <span id="results-count" class="freecat-results-count hidden" data-count-ready="false"
                                 aria-label="Loading results">
                                 <svg class="freecat-results-count-icon" xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

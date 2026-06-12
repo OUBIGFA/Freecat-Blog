@@ -227,15 +227,18 @@ test('post page loads video player assets only when video content is present', (
 
     assert.match(videoHtml, /href="\/assets\/video-player\.css"/);
     assert.match(videoHtml, /href="\/assets\/media-player\.css"/);
+    assert.match(videoHtml, /src="\/assets\/media-player-template\.js"/);
     assert.match(videoHtml, /src="\/assets\/media-player\.js"/);
     assert.match(videoHtml, /src="\/assets\/video-player\.js"/);
     assert.match(emojiVideoHtml, /href="\/assets\/video-player\.css"/);
     assert.match(emojiVideoHtml, /href="\/assets\/media-player\.css"/);
+    assert.match(emojiVideoHtml, /src="\/assets\/media-player-template\.js"/);
     assert.match(emojiVideoHtml, /src="\/assets\/media-player\.js"/);
     assert.match(emojiVideoHtml, /src="\/assets\/video-player\.js"/);
     assert.doesNotMatch(plainHtml, /video-player\.css/);
     assert.doesNotMatch(plainHtml, /video-player\.js/);
     assert.doesNotMatch(plainHtml, /media-player\.css/);
+    assert.doesNotMatch(plainHtml, /media-player-template\.js/);
     assert.doesNotMatch(plainHtml, /media-player\.js/);
 });
 
@@ -267,10 +270,12 @@ test('post page loads audio player assets only for image-style audio content', (
 
     assert.match(audioHtml, /href="\/assets\/audio-player\.css"/);
     assert.match(audioHtml, /href="\/assets\/media-player\.css"/);
+    assert.match(audioHtml, /src="\/assets\/media-player-template\.js"/);
     assert.match(audioHtml, /src="\/assets\/media-player\.js"/);
     assert.match(audioHtml, /src="\/assets\/audio-player\.js"/);
     assert.doesNotMatch(quoteAudioHtml, /audio-player\.css/);
     assert.doesNotMatch(quoteAudioHtml, /audio-player\.js/);
     assert.doesNotMatch(quoteAudioHtml, /media-player\.css/);
+    assert.doesNotMatch(quoteAudioHtml, /media-player-template\.js/);
     assert.doesNotMatch(quoteAudioHtml, /media-player\.js/);
 });

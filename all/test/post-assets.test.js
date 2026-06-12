@@ -35,6 +35,7 @@ const {
     tailwindBuild,
     mediaPlayerJs,
     mediaPlayerCss,
+    mediaPlayerTemplateJs,
     videoPlayerJs,
     videoPlayerCss,
     shared,
@@ -116,12 +117,16 @@ test('article video players default to 16:9 before metadata and then use real vi
     assert.match(videoPlayerCss, /\.video-player-loading-overlay\s*\{[\s\S]*position:\s*absolute;[\s\S]*inset:\s*0;/);
     assert.match(videoPlayerJs, /function updateVideoAspectRatio\(\)\s*\{[\s\S]*video\.videoWidth[\s\S]*video\.videoHeight[\s\S]*stage\.style\.setProperty\('--video-aspect-ratio',\s*`\$\{width\} \/ \$\{height\}`\);[\s\S]*\}/);
     assert.match(videoPlayerJs, /onLoadedMetadata:\s*updateVideoAspectRatio/);
+    assert.match(mediaPlayerTemplateJs, /function renderPlayerChrome\(options\)\s*\{/);
+    assert.match(mediaPlayerTemplateJs, /function renderAudioPlayer\(options\)\s*\{/);
+    assert.match(mediaPlayerTemplateJs, /function renderVideoPlayer\(options\)\s*\{/);
+    assert.match(mediaPlayerJs, /FreecatMediaPlayerTemplate/);
     assert.match(mediaPlayerJs, /function hydrateMediaControls\(container,\s*media/);
     assert.match(mediaPlayerCss, /\.media-progress-container\s*\{/);
     assert.match(mediaPlayerCss, /\.media-player-loading-chrome\s*\{/);
     assert.match(mediaPlayerCss, /\.media-player-loading-progress::before\s*\{/);
     assert.match(mediaPlayerCss, /\.media-player-loading-controls-left,\s*\.media-player-loading-controls-right\s*\{/);
-    assert.match(mediaPlayerJs, /data-origin="bottom-center"/);
+    assert.match(mediaPlayerTemplateJs, /data-origin="bottom-center"/);
     assert.match(mediaPlayerCss, /\.media-speed-dropdown\s*\{[\s\S]*left:\s*50%;[\s\S]*transform:\s*translateX\(-50%\) scale\(0\.97\);[\s\S]*transform-origin:\s*bottom center;/);
     assert.match(mediaPlayerCss, /\.media-speed-dropdown\.is-open\s*\{[\s\S]*transform:\s*translateX\(-50%\) scale\(1\);/);
 });

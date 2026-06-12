@@ -44,12 +44,13 @@ test('markdown images render the loading spinner element', () => {
     assert.equal(html.includes('<span class="loader"></span>'), true);
 });
 
-test('markdown image syntax renders direct video URLs as video player placeholders', () => {
+test('markdown image syntax renders direct video URLs as complete video players', () => {
     const html = parseMarkdown('![Demo](https://example.com/video.mp4?download=1)');
 
-    assert.match(html, /class="video-player video-player-loading media-player-container"/);
+    assert.match(html, /class="video-player-container media-player-container"/);
     assert.equal(html.includes('class="video-player-stage"'), true);
-    assert.equal(html.includes('class="media-player-loading-chrome"'), true);
+    assert.equal(html.includes('class="media-play-btn video-play-btn"'), true);
+    assert.equal(html.includes('class="media-player-loading-chrome"'), false);
     assert.equal(html.includes('data-video-src="https://example.com/video.mp4?download=1"'), true);
     assert.equal(html.includes('data-video-title="Demo"'), true);
     assert.equal(html.includes('class="post-image-loader placeholder-loader"'), false);
@@ -58,7 +59,7 @@ test('markdown image syntax renders direct video URLs as video player placeholde
 test('video emoji forces image-link syntax to render as a video player', () => {
     const html = parseMarkdown('![🎬 Demo](https://example.com/watch?id=1)');
 
-    assert.match(html, /class="video-player video-player-loading media-player-container"/);
+    assert.match(html, /class="video-player-container media-player-container"/);
     assert.equal(html.includes('data-video-src="https://example.com/watch?id=1"'), true);
     assert.equal(html.includes('data-video-title="Demo"'), true);
     assert.equal(html.includes('🎬'), false);
@@ -71,37 +72,38 @@ test('multiline media image syntax picks the video URL for the video player', ()
         'https://example.com/video.mp4)'
     ].join('\n'));
 
-    assert.match(html, /class="video-player video-player-loading media-player-container"/);
+    assert.match(html, /class="video-player-container media-player-container"/);
     assert.equal(html.includes('data-video-src="https://example.com/playlist/master.m3u8"'), true);
     assert.equal(html.includes('https://example.com/cover.jpg'), false);
 });
 
-test('blockquote video links render the player placeholder before client scripts run', () => {
+test('blockquote video links render the complete player before client scripts run', () => {
     const html = parseMarkdown('> [🎬 Demo](https://example.com/video.mp4)');
 
-    assert.match(html, /class="video-player video-player-loading media-player-container"/);
+    assert.match(html, /class="video-player-container media-player-container"/);
     assert.equal(html.includes('class="video-player-stage"'), true);
-    assert.equal(html.includes('class="media-player-loading-chrome"'), true);
+    assert.equal(html.includes('class="media-play-btn video-play-btn"'), true);
+    assert.equal(html.includes('class="media-player-loading-chrome"'), false);
     assert.equal(html.includes('data-video-src="https://example.com/video.mp4"'), true);
     assert.equal(html.includes('<blockquote>'), false);
 });
 
-test('markdown image syntax renders direct audio URLs as audio player placeholders', () => {
+test('markdown image syntax renders direct audio URLs as complete audio players', () => {
     const html = parseMarkdown('![Audio](https://example.com/audio.ogg)');
 
-    assert.doesNotMatch(html, /class="video-player video-player-loading media-player-container"/);
-    assert.match(html, /class="audio-player audio-player-loading media-player-container"/);
-    assert.equal(html.includes('class="media-player-loading-chrome"'), true);
+    assert.doesNotMatch(html, /class="video-player-container media-player-container"/);
+    assert.match(html, /class="audio-player-container media-player-container"/);
+    assert.equal(html.includes('class="media-play-btn audio-play-btn"'), true);
+    assert.equal(html.includes('class="media-player-loading-chrome"'), false);
     assert.equal(html.includes('data-audio-src="https://example.com/audio.ogg"'), true);
     assert.equal(html.includes('data-audio-title="Audio"'), true);
-    assert.equal(html.includes('class="audio-player-fallback"'), true);
-    assert.equal(html.includes('<audio preload="auto">'), false);
+    assert.equal(html.includes('<audio preload="auto">'), true);
 });
 
 test('audio emoji forces image-link syntax to render as an audio player', () => {
     const html = parseMarkdown('![🎵 Audio](https://example.com/listen?id=1)');
 
-    assert.match(html, /class="audio-player audio-player-loading media-player-container"/);
+    assert.match(html, /class="audio-player-container media-player-container"/);
     assert.equal(html.includes('data-audio-src="https://example.com/listen?id=1"'), true);
     assert.equal(html.includes('data-audio-title="Audio"'), true);
     assert.equal(html.includes('🎵'), false);
@@ -239,13 +241,13 @@ test('markdown image syntax keeps non-image URLs in the external embed flow with
     assert.equal(html.includes('data-embed-url="https://x.com/i/status/1930080468529230100"'), true);
 });
 
-test('markdown image syntax keeps unknown non-image URLs in the link flow with a placeholder', () => {
+test('markdown image syntax renders unknown non-image URLs as ready link cards', () => {
     const html = parseMarkdown('![Example](https://example.com/article)');
 
-    assert.equal(html.includes('class="external-embed external-embed-link external-embed-loading"'), true);
-    assert.equal(html.includes('src="/image/404.png"'), true);
-    assert.equal(html.includes('class="external-embed-placeholder"'), true);
-    assert.equal(html.includes('class="external-embed-loader placeholder-loader"'), true);
+    assert.equal(html.includes('class="external-embed external-embed-link external-embed-ready"'), true);
+    assert.equal(html.includes('src="/image/404.png"'), false);
+    assert.equal(html.includes('class="external-embed-placeholder"'), false);
+    assert.equal(html.includes('class="external-embed-loader placeholder-loader"'), false);
     assert.equal(html.includes('class="external-embed-content"><a href="https://example.com/article"'), true);
 });
 

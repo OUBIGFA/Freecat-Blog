@@ -48,6 +48,16 @@
             return overlay;
         }
 
+        function resetSearchResultsOverlay(overlay) {
+            overlay.innerHTML = '';
+            overlay.dataset.open = 'false';
+            if (overlay.dataset.prebuilt === 'true') {
+                updateSearchOverlayOffset(overlay);
+            } else {
+                overlay.remove();
+            }
+        }
+
         function updateSearchOverlayOffset(overlay) {
             const header = doc.querySelector('header');
             const offset = header ? header.offsetHeight : 0;
@@ -104,12 +114,12 @@
             }
             overlay.dataset.open = 'false';
             if (immediate) {
-                overlay.remove();
+                resetSearchResultsOverlay(overlay);
                 return;
             }
             setTimeout(() => {
                 if (overlay.dataset.open === 'false') {
-                    overlay.remove();
+                    resetSearchResultsOverlay(overlay);
                 }
             }, panelCloseMs);
         }
