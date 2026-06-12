@@ -139,6 +139,19 @@ test('markdown horizontal rules keep optional blank-line gap markers on both sid
     assert.match(expandedHtml, /<p>A<\/p>\s*<div class="markdown-gap"[^>]*data-md-gap-lines="2"[^>]*><\/div>\s*<hr>\s*<div class="markdown-gap"[^>]*data-md-gap-lines="2"[^>]*><\/div>\s*<p>B<\/p>/);
 });
 
+test('blank lines outside blockquotes keep visual gap markers', () => {
+    const html = parseMarkdown('> 🔗 https://example.com\n\n\n##### Next');
+
+    assert.match(html, /<\/blockquote>\s*<div class="markdown-gap"[^>]*data-md-gap-lines="2"[^>]*><\/div>\s*<h5>Next<\/h5>/);
+});
+
+test('blank lines inside list structure stay native markdown', () => {
+    const html = parseMarkdown('- First\n\n\n- Second');
+
+    assert.equal(html.includes('class="markdown-gap"'), false);
+    assert.match(html, /<ul>\s*<li>[\s\S]*First[\s\S]*<\/li>\s*<li>[\s\S]*Second[\s\S]*<\/li>\s*<\/ul>/);
+});
+
 test('markdown tables preserve source column proportions as col widths', () => {
     const html = parseMarkdown([
         '| A  | B          | C |',
