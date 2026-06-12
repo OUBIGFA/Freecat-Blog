@@ -276,10 +276,10 @@ test('pinned post cards render the pin badge in every card layout', () => {
     assert.equal(normalHtml.includes('post-card-pinned-badge'), false);
 });
 
-test('home and search mobile lists use the all-page single-column card gap', () => {
+test('home and search mobile lists use the all-page single-column card gap with a home boundary gap', () => {
     const homeLayoutStyle = readProjectFile('src/partials/home-layout-style.html');
 
-    assert.match(homeLayoutStyle, /\.freecat-home-posts\s*\{[\s\S]*padding:\s*0 0\.875rem 48px;/);
+    assert.match(homeLayoutStyle, /\.freecat-home-posts\s*\{[\s\S]*padding:\s*clamp\(12px,\s*3\.5vw,\s*18px\) 0\.875rem 48px;/);
     assert.match(homeLayoutStyle, /\.freecat-home-posts #posts-list,\s*\.freecat-home-posts #search-results\s*\{[\s\S]*display:\s*grid;[\s\S]*grid-template-columns:\s*1fr;[\s\S]*row-gap:\s*1\.25rem;/);
 });
 

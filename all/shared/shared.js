@@ -174,20 +174,24 @@
         if (!tags || !tags.length) {
             return '<p class="px-3 py-2 text-sm text-slate-500 dark:text-slate-400">No tags yet</p>';
         }
+        const maxCountDigits = tags.reduce(function (max, tag) {
+            return Math.max(max, String(Math.max(0, Math.trunc(Number(tag && tag.count) || 0))).length);
+        }, 1);
         return tags.map(function (tag, index) {
             const isUntagged = !!tag.untagged;
-            const colors = isUntagged
-                ? { bg: 'rgba(148, 163, 184, 0.18)', text: '#475569' }
-                : hashTagColor(tag.label);
+            const colors = isUntagged ? null : hashTagColor(tag.label);
+            const count = Math.max(0, Math.trunc(Number(tag.count) || 0));
             const href = isUntagged
                 ? '/search?tag=__untagged__'
                 : '/search?tag=' + encodeURIComponent(tag.label);
+            const countClass = 'tag-menu-count' + (isUntagged ? ' tag-menu-count-untagged' : '') + ' shrink-0 rounded-[4px] px-2 py-0.5 text-[11px] font-semibold';
+            const countStyle = colors ? ' style="background:' + colors.bg + ';color:' + colors.text + ';"' : '';
             return (
                 '<a role="menuitem" href="' + href + '" ' +
                 'class="tag-menu-item flex items-center justify-between gap-3 rounded-[4px] px-3 py-2 text-sm font-medium text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-400 dark:text-slate-200" ' +
-                'style="--tag-menu-index:' + index + ';">' +
+                'style="--tag-menu-index:' + index + ';--tag-menu-count-digits:' + maxCountDigits + ';">' +
                 '<span class="freecat-tag-text min-w-0 truncate">' + escapeHtml(tag.label) + '</span>' +
-                '<span class="shrink-0 rounded-[4px] px-2 py-0.5 text-[11px] font-semibold" style="background:' + colors.bg + ';color:' + colors.text + ';">' + tag.count + '</span>' +
+                '<span class="' + countClass + '"' + countStyle + '>' + count + '</span>' +
                 '</a>'
             );
         }).join('');

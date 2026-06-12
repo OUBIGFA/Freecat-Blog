@@ -309,9 +309,33 @@ test('renderTagMenuItemsHtml escapes labels, encodes hrefs and renders counts', 
     assert.equal(html.includes('dark:hover:bg-slate-800'), false);
     assert.equal(html.includes('duration-150'), false);
     assert.equal(html.includes('--tag-menu-index:0;'), true);
+    assert.equal(html.includes('--tag-menu-count-digits:1;'), true);
+    assert.equal(html.includes('class="tag-menu-count'), true);
     assert.equal(html.includes('<b>x</b>'), false);              // 标签文本被转义
     assert.equal(html.includes('&lt;b&gt;x&lt;/b&gt;'), true);
     assert.equal(html.includes('tag=%3Cb%3Ex%3C%2Fb%3E'), true); // href 编码
+});
+
+test('renderTagMenuItemsHtml uses the widest tag count as the shared badge width', () => {
+    const html = shared.renderTagMenuItemsHtml([
+        { label: 'One', count: 7 },
+        { label: 'Many', count: 1234 }
+    ]);
+
+    assert.equal((html.match(/--tag-menu-count-digits:4;/g) || []).length, 2);
+    assert.equal(html.includes('>7</span>'), true);
+    assert.equal(html.includes('>1234</span>'), true);
+});
+
+test('renderTagMenuItemsHtml marks untagged counts for theme-aware contrast', () => {
+    const html = shared.renderTagMenuItemsHtml(shared.collectMenuTags([
+        { tags: [] },
+        { tags: ['Alpha'] }
+    ]));
+
+    assert.equal(html.includes('href="/search?tag=__untagged__"'), true);
+    assert.equal(html.includes('tag-menu-count tag-menu-count-untagged'), true);
+    assert.equal(html.includes('rgba(148, 163, 184, 0.18)'), false);
 });
 
 test('renderTagMenuItemsHtml falls back to empty hint when no tags', () => {

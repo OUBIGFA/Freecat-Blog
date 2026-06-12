@@ -807,6 +807,26 @@ html.theme-instant *::after {
     background-color: transparent;
 }
 
+.tag-menu-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    inline-size: calc((var(--tag-menu-count-digits, 1) * 1ch) + 1rem);
+    text-align: center;
+    white-space: nowrap;
+}
+
+.tag-menu-count-untagged {
+    background: rgba(148, 163, 184, 0.18);
+    color: #475569;
+}
+
+.dark .tag-menu-count-untagged {
+    background: rgba(203, 213, 225, 0.24);
+    color: #f8fafc;
+}
+
 .tag-menu-panel.is-open .tag-menu-item {
     opacity: 1;
     transform: translateY(0);

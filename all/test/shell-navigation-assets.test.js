@@ -148,6 +148,16 @@ test('header tag menu item feedback stays light and responsive', () => {
     assert.doesNotMatch(transitionsCss, /\.tag-menu-item:hover[\s\S]*slate-800/);
 });
 
+test('header tag menu count badges share the widest build-time width', () => {
+    assert.match(transitionsCss, /\.tag-menu-count\s*\{[\s\S]*inline-size:\s*calc\(\(var\(--tag-menu-count-digits, 1\) \* 1ch\) \+ 1rem\);/);
+    assert.doesNotMatch(transitionsCss, /\.tag-menu-count\s*\{[\s\S]*font-variant-numeric:/);
+});
+
+test('untagged count badge has a stronger dark theme contrast', () => {
+    assert.match(transitionsCss, /\.tag-menu-count-untagged\s*\{[\s\S]*background:\s*rgba\(148, 163, 184, 0\.18\);[\s\S]*color:\s*#475569;/);
+    assert.match(transitionsCss, /\.dark \.tag-menu-count-untagged\s*\{[\s\S]*background:\s*rgba\(203, 213, 225, 0\.24\);[\s\S]*color:\s*#f8fafc;/);
+});
+
 test('fixed header has a stable css height before runtime measurement', () => {
     assert.match(transitionsCss, /header\.fixed\s*\{[\s\S]*height:\s*var\(--freecat-header-height\);/);
     assert.match(transitionsCss, /header\.fixed\s+\.header-blur-target\s*\{[\s\S]*height:\s*100%;/);
