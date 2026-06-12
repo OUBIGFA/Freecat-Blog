@@ -62,6 +62,17 @@ test('tag labels are escaped by default', () => {
     assert.equal(html.includes('&lt;img src=x onerror=alert(1)&gt;'), true);
 });
 
+test('tag badges are theme-aware by default', () => {
+    const html = shared.renderTagSpan('Tech');
+
+    assert.match(html, /class="tag-span /);
+    assert.match(html, /--tag-bg:\s*hsl\(/);
+    assert.match(html, /--tag-text:\s*hsl\(/);
+    assert.match(html, /--tag-bg-dark:\s*hsl\(/);
+    assert.match(html, /--tag-text-dark:\s*hsl\(/);
+    assert.doesNotMatch(html, /style="background:/);
+});
+
 test('tag click query is pre-encoded for inline handlers', () => {
     const html = shared.renderTagSpan("x');alert(1);//");
 
@@ -311,6 +322,10 @@ test('renderTagMenuItemsHtml escapes labels, encodes hrefs and renders counts', 
     assert.equal(html.includes('--tag-menu-index:0;'), true);
     assert.equal(html.includes('--tag-menu-count-digits:1;'), true);
     assert.equal(html.includes('class="tag-menu-count'), true);
+    assert.equal(html.includes('tag-menu-count tag-menu-count-themed'), true);
+    assert.equal(html.includes('--tag-bg:'), true);
+    assert.equal(html.includes('--tag-bg-dark:'), true);
+    assert.equal(html.includes('style="background:'), false);
     assert.equal(html.includes('<b>x</b>'), false);              // 标签文本被转义
     assert.equal(html.includes('&lt;b&gt;x&lt;/b&gt;'), true);
     assert.equal(html.includes('tag=%3Cb%3Ex%3C%2Fb%3E'), true); // href 编码

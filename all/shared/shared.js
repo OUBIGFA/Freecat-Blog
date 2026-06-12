@@ -73,6 +73,13 @@
         return encodeURIComponent(String(tag == null ? '' : tag)).replace(/'/g, '%27');
     }
 
+    function renderTagThemeVars(colors) {
+        return '--tag-bg: ' + colors.bg +
+            '; --tag-text: ' + colors.text +
+            '; --tag-bg-dark: ' + colors.bgDark +
+            '; --tag-text-dark: ' + colors.textDark + ';';
+    }
+
     function renderTagSpan(tag, opts) {
         const options = opts || {};
         const colors = hashTagColor(tag);
@@ -80,12 +87,10 @@
         const searchUrl = '/search?tag=' + encodedForClick;
         const visibleText = options.escapeText === false ? tag : escapeHtml(tag);
         const extraClass = options.darkHover ? ' dark:hover:brightness-110' : '';
-        // themed（客户端渲染场景，如搜索结果）：深浅两套配色在构建期写进 CSS 变量，
-        // 由 transitions.css 的 .tag-span / .dark .tag-span 规则随主题切换，无需任何运行时 JS。
-        // 非 themed（构建期静态页场景）：保持浅色内联样式，两种主题下观感一致（现状行为）。
-        const tagSpanClass = options.themed ? 'tag-span ' : '';
-        const styleAttr = options.themed
-            ? 'style="--tag-bg: ' + colors.bg + '; --tag-text: ' + colors.text + '; --tag-bg-dark: ' + colors.bgDark + '; --tag-text-dark: ' + colors.textDark + ';"'
+        const themed = options.themed !== false;
+        const tagSpanClass = themed ? 'tag-span ' : '';
+        const styleAttr = themed
+            ? 'style="' + renderTagThemeVars(colors) + '"'
             : 'style="background: ' + colors.bg + '; color: ' + colors.text + ';"';
         return (
             '<span class="' + tagSpanClass + 'freecat-tag-text relative z-10 inline-flex items-center px-2.5 py-0.5 rounded-[4px] text-[10px] font-medium tracking-wider cursor-pointer hover:brightness-95' + extraClass + ' transition-[filter] duration-200 ease-out whitespace-nowrap" ' +
@@ -185,8 +190,8 @@
             const href = isUntagged
                 ? '/search?tag=__untagged__'
                 : '/search?tag=' + encodeURIComponent(tag.label);
-            const countClass = 'tag-menu-count' + (isUntagged ? ' tag-menu-count-untagged' : '') + ' shrink-0 rounded-[4px] px-2 py-0.5 text-[11px] font-semibold';
-            const countStyle = colors ? ' style="background:' + colors.bg + ';color:' + colors.text + ';"' : '';
+            const countClass = 'tag-menu-count' + (isUntagged ? ' tag-menu-count-untagged' : ' tag-menu-count-themed') + ' shrink-0 rounded-[4px] px-2 py-0.5 text-[11px] font-semibold';
+            const countStyle = colors ? ' style="' + renderTagThemeVars(colors) + '"' : '';
             return (
                 '<a role="menuitem" href="' + href + '" ' +
                 'class="tag-menu-item flex items-center justify-between gap-3 rounded-[4px] px-3 py-2 text-sm font-medium text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-400 dark:text-slate-200" ' +

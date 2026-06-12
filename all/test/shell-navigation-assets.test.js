@@ -158,6 +158,11 @@ test('header tag menu count badges share the widest build-time width', () => {
     assert.doesNotMatch(transitionsCss, /\.tag-menu-count\s*\{[\s\S]*font-variant-numeric:/);
 });
 
+test('header tag menu count badges follow the active theme', () => {
+    assert.match(transitionsCss, /\.tag-span,\s*\.tag-menu-count-themed\s*\{[\s\S]*background:\s*var\(--tag-bg\);[\s\S]*color:\s*var\(--tag-text\);/);
+    assert.match(transitionsCss, /\.dark \.tag-span,\s*\.dark \.tag-menu-count-themed\s*\{[\s\S]*background:\s*var\(--tag-bg-dark\);[\s\S]*color:\s*var\(--tag-text-dark\);/);
+});
+
 test('untagged count badge has a stronger dark theme contrast', () => {
     assert.match(transitionsCss, /\.tag-menu-count-untagged\s*\{[\s\S]*background:\s*rgba\(148, 163, 184, 0\.18\);[\s\S]*color:\s*#475569;/);
     assert.match(transitionsCss, /\.dark \.tag-menu-count-untagged\s*\{[\s\S]*background:\s*rgba\(203, 213, 225, 0\.24\);[\s\S]*color:\s*#f8fafc;/);

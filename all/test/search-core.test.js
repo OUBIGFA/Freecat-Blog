@@ -199,6 +199,6 @@ test('generateTagsHtml emits build-time theme variables consumed by the dark tag
     const fs = require('node:fs');
     const path = require('node:path');
     const transitionsCss = fs.readFileSync(path.join(__dirname, '..', 'src', 'assets', 'transitions.css'), 'utf-8');
-    assert.match(transitionsCss, /\.tag-span\s*\{[\s\S]*?background:\s*var\(--tag-bg\)/, 'light theme rule consumes the variables');
-    assert.match(transitionsCss, /\.dark \.tag-span\s*\{[\s\S]*?background:\s*var\(--tag-bg-dark\)/, 'dark theme rule consumes the variables');
+    assert.match(transitionsCss, /\.tag-span,\s*\.tag-menu-count-themed\s*\{[\s\S]*?background:\s*var\(--tag-bg\)/, 'light theme rule consumes the variables');
+    assert.match(transitionsCss, /\.dark \.tag-span,\s*\.dark \.tag-menu-count-themed\s*\{[\s\S]*?background:\s*var\(--tag-bg-dark\)/, 'dark theme rule consumes the variables');
 });

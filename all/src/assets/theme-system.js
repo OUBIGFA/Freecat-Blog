@@ -37,7 +37,7 @@
             html.classList.toggle('dark', isDark);
             if (themeToggleBtn) themeToggleBtn.dataset.uiState = isDark ? 'dark' : 'light';
             // 标签深浅配色由构建期写入的 CSS 变量（--tag-bg-dark 等）+
-            // transitions.css 的 .dark .tag-span 规则承担，这里不再遍历 DOM 改写内联样式。
+            // transitions.css 的主题规则承担，这里不再遍历 DOM 改写内联样式。
         }
 
         function syncFrameTheme(isDark, options = {}) {
