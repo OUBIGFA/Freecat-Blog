@@ -79,9 +79,13 @@ test('shell router uses clean history URLs for framed navigation', () => {
     assert.match(headerSearchJs, /if \(e\.key === 'Enter' && searchInput\.value\.trim\(\)\) \{[\s\S]*?e\.preventDefault\(\);[\s\S]*?navigateWithinSite\(`\/search\?q=\$\{encodeURIComponent\(searchInput\.value\.trim\(\)\)\}`\);[\s\S]*?closeHeaderSearch\(true\);[\s\S]*?\}/, 'Enter closes the panel after navigating');
     assert.match(shellRouterJs, /function publicPathToContentPath\(raw\)\s*\{/);
     assert.match(shellRouterJs, /function contentPathToPublicPath\(raw\)\s*\{/);
+    assert.match(shellRouterJs, /const SHELL_HISTORY_INDEX_KEY = 'freecatShellIndex';/);
+    assert.match(shellRouterJs, /function getShellHistoryIndex\(state\)\s*\{/);
+    assert.match(shellRouterJs, /function nextShellHistoryState\(method\)\s*\{/);
+    assert.match(shellRouterJs, /method === 'pushState' \? currentIndex \+ 1 : currentIndex/);
     assert.match(shellRouterJs, /function ensureShellHistoryState\(\)\s*\{/);
     assert.match(shellRouterJs, /frame\.contentWindow\.location\.replace\(target\);/, 'iframe navigations replace, never add joint history entries');
-    assert.match(shellRouterJs, /window\.history\[method\]\(shellState\(window\.history\.state\),\s*'',\s*publicPath\);/);
+    assert.match(shellRouterJs, /window\.history\[method\]\(nextShellHistoryState\(method\),\s*'',\s*publicPath\);/);
     assert.match(shellRouterJs, /syncFrameToLocation\(\{\s*restoreScroll:\s*true\s*\}\);/);
     assert.doesNotMatch(shellRouterJs, /window\.addEventListener\('hashchange'/);
     assert.doesNotMatch(shellRouterJs, /function pathToHash\(/);
@@ -296,11 +300,15 @@ test('header search opens a blank overlay and closes from blank space', () => {
 test('direct URL entries use the home fallback for go back controls', () => {
     assert.match(floatingNavJs, /function hasSameOriginReferrer\(\)\s*\{/);
     assert.match(floatingNavJs, /new URL\(document\.referrer\)\.origin === window\.location\.origin/);
+    assert.match(floatingNavJs, /function getShellHistoryIndex\(state\)\s*\{/);
+    assert.match(floatingNavJs, /function hasPreviousShellHistoryEntry\(state\)\s*\{/);
     assert.match(floatingNavJs, /function canGoBackWithinSite\(\)\s*\{/);
     assert.match(floatingNavJs, /window\.history\.state && window\.history\.state\.freecatSoftNav/);
-    assert.match(floatingNavJs, /window\.history\.state && window\.history\.state\.freecatShell/);
-    assert.match(floatingNavJs, /window\.parent\.history\.state\.freecatShell/);
-    assert.match(floatingNavJs, /window\.parent\.history\.back\(\);[\s\S]*navigateWithinSite\(getUpdateSortFallbackUrl\(\),\s*\{\s*replace:\s*true\s*\}\);[\s\S]*return;[\s\S]*if \(canGoBackWithinSite\(\)\)/);
+    assert.match(floatingNavJs, /hasPreviousShellHistoryEntry\(window\.history\.state\)/);
+    assert.match(floatingNavJs, /function canGoBackWithinParentShell\(\)\s*\{/);
+    assert.match(floatingNavJs, /hasPreviousShellHistoryEntry\(parentHistory\.state\)/);
+    assert.match(floatingNavJs, /if \(canGoBackWithinParentShell\(\)\) \{\s*window\.parent\.history\.back\(\);/);
+    assert.match(floatingNavJs, /navigateWithinSite\(getUpdateSortFallbackUrl\(\),\s*\{\s*replace:\s*true\s*\}\);[\s\S]*return;[\s\S]*if \(canGoBackWithinSite\(\)\)/);
     assert.match(floatingNavJs, /\|\| hasSameOriginReferrer\(\);/);
     assert.match(floatingNavJs, /if \(canGoBackWithinSite\(\)\) \{\s*window\.history\.back\(\);/);
     assert.doesNotMatch(floatingNavJs, /window\.history\.length > 1/);

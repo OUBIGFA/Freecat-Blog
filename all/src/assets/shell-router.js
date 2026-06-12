@@ -41,10 +41,16 @@
 
         const HOME_CONTENT = '/home';
         const SCROLL_RESTORE_REQUEST_KEY = 'freecat-scroll-restore-requests-v1';
+        const SHELL_HISTORY_INDEX_KEY = 'freecatShellIndex';
         const headerEl = document.querySelector('header.fixed');
 
         function getPublicLocation() {
             return window.location.pathname + window.location.search + window.location.hash;
+        }
+
+        function getShellHistoryIndex(state) {
+            const index = Number(state && state[SHELL_HISTORY_INDEX_KEY]);
+            return Number.isInteger(index) && index >= 0 ? index : 0;
         }
 
         function parseSameOriginPath(raw, fallback = '/') {
@@ -93,13 +99,27 @@
             }
         }
 
-        function shellState(baseState) {
-            return { ...(baseState || {}), freecatShell: true };
+        function shellState(baseState, options = {}) {
+            const requestedIndex = Number(options.index);
+            const index = Number.isInteger(requestedIndex) && requestedIndex >= 0
+                ? requestedIndex
+                : getShellHistoryIndex(baseState);
+            return { ...(baseState || {}), freecatShell: true, [SHELL_HISTORY_INDEX_KEY]: index };
+        }
+
+        function nextShellHistoryState(method) {
+            const currentState = window.history.state || {};
+            const currentIndex = getShellHistoryIndex(currentState);
+            return shellState(currentState, {
+                index: method === 'pushState' ? currentIndex + 1 : currentIndex
+            });
         }
 
         function ensureShellHistoryState() {
             const currentState = window.history.state || {};
-            if (!currentState.freecatShell) {
+            const currentIndex = currentState[SHELL_HISTORY_INDEX_KEY];
+            const hasValidShellIndex = Number.isInteger(currentIndex) && currentIndex >= 0;
+            if (!currentState.freecatShell || !hasValidShellIndex) {
                 window.history.replaceState(shellState(currentState), '', getPublicLocation());
             }
         }
@@ -163,7 +183,7 @@
             const publicPath = contentPathToPublicPath(framePath);
             if (publicPath === getPublicLocation()) return;
             const method = options.push ? 'pushState' : 'replaceState';
-            window.history[method](shellState(window.history.state), '', publicPath);
+            window.history[method](nextShellHistoryState(method), '', publicPath);
         }
 
         function navigateShell(targetHref, options = {}) {
@@ -171,7 +191,7 @@
             const publicPath = contentPathToPublicPath(contentPath);
             if (publicPath !== getPublicLocation()) {
                 const method = options.replace ? 'replaceState' : 'pushState';
-                window.history[method](shellState(window.history.state), '', publicPath);
+                window.history[method](nextShellHistoryState(method), '', publicPath);
             }
             if (publicPathToContentPath(getFramePath()) !== contentPath) {
                 setFrameLocation(contentPath);

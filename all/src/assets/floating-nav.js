@@ -49,21 +49,37 @@
             }
         }
 
+        function getShellHistoryIndex(state) {
+            const index = Number(state && state.freecatShellIndex);
+            return Number.isInteger(index) && index >= 0 ? index : 0;
+        }
+
+        function hasPreviousShellHistoryEntry(state) {
+            return !!(state && state.freecatShell && getShellHistoryIndex(state) > 0);
+        }
+
         function canGoBackWithinSite() {
             return !!(window.history.state && window.history.state.freecatSoftNav)
-                || !!(window.history.state && window.history.state.freecatShell)
+                || hasPreviousShellHistoryEntry(window.history.state)
                 || hasSameOriginReferrer();
+        }
+
+        function canGoBackWithinParentShell() {
+            try {
+                const parentHistory = window.parent && window.parent.history;
+                return !!(parentHistory && hasPreviousShellHistoryEntry(parentHistory.state));
+            } catch (err) {
+                return false;
+            }
         }
 
         function goBackOrHome() {
             syncCurrentHistoryEntry();
             if (FRAMED) {
-                try {
-                    if (window.parent && window.parent.history && window.parent.history.state && window.parent.history.state.freecatShell) {
-                        window.parent.history.back();
-                        return;
-                    }
-                } catch (err) {}
+                if (canGoBackWithinParentShell()) {
+                    window.parent.history.back();
+                    return;
+                }
                 navigateWithinSite(getUpdateSortFallbackUrl(), { replace: true });
                 return;
             }
