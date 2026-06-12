@@ -166,21 +166,29 @@ function sourceHash() {
     return crypto.createHash('sha256').update(Buffer.from('font-source')).digest('hex');
 }
 
+function codepointsForTest(text) {
+    return [...new Set([...text].map(char => char.codePointAt(0)))].sort((a, b) => a - b);
+}
+
 function expectedManifest(rootDir, supported) {
     const families = {
         'freecat-figtree': ['regular', 'semi-bold', 'extra-bold'],
         'freecat-ui-noto-sans-sc': ['regular', 'medium', 'semi-bold', 'extra-bold'],
         'freecat-noto-sans-sc': ['regular', 'medium', 'semi-bold', 'extra-bold']
     };
-    const manifest = { version: 2, families: {} };
+    const supportedByFamily = Array.isArray(supported)
+        ? Object.fromEntries(Object.keys(families).map(prefix => [prefix, supported]))
+        : supported;
+    const manifest = { version: 4, families: {} };
     for (const [prefix, weights] of Object.entries(families)) {
-        manifest.families[prefix] = { requested: supported, subsets: {} };
+        const familySupported = supportedByFamily[prefix] || [];
+        manifest.families[prefix] = { requested: familySupported, subsets: {} };
         for (const weight of weights) {
             manifest.families[prefix].subsets[weight] = {
                 source: `fonts/${prefix}-${weight}`,
                 sourceSha256: sourceHash(),
                 output: `src/assets/fonts/${prefix}-${weight}-subset.woff2`,
-                supported,
+                supported: familySupported,
                 unsupported: []
             };
         }
@@ -236,20 +244,20 @@ function withFontSubsetFileMocks(html, manifest, callback) {
         if (current === normalized(path.join(rootDir, 'dist'))) return [dirent('posts', 'dir'), dirent('index.html', 'file')];
         if (current === normalized(path.join(rootDir, 'dist', 'posts'))) return [dirent('post-1', 'dir')];
         if (current === normalized(path.join(rootDir, 'dist', 'posts', 'post-1'))) return [dirent('index.html', 'file')];
-        if (
-            current === normalized(path.join(rootDir, 'src')) ||
-            current === normalized(path.join(rootDir, 'build')) ||
-            current === normalized(path.join(rootDir, '..', 'writing')) ||
-            current === normalized(path.join(rootDir, '..', 'Control'))
-        ) {
-            return [];
-        }
+        if (current === normalized(path.join(rootDir, 'src'))) return [dirent('source.js', 'file')];
+        if (current === normalized(path.join(rootDir, 'build'))) return [dirent('build.js', 'file')];
+        if (current === normalized(path.join(rootDir, '..', 'writing'))) return [dirent('post.md', 'file')];
+        if (current === normalized(path.join(rootDir, '..', 'Control'))) return [dirent('config.md', 'file')];
         return originalReaddirSync(dir, options);
     };
     fs.readFileSync = (file, encoding) => {
         const current = normalized(file);
         if (current.includes('/build/font-subsets-manifest.json')) return manifest;
         if (current.includes('/fonts/') && /\.(woff2|ttf)$/.test(current)) return Buffer.from('font-source');
+        if (current.endsWith('/src/source.js')) return 'SourceOnlyZ';
+        if (current.endsWith('/build/build.js')) return 'BuildOnlyZ';
+        if (current.endsWith('/writing/post.md')) return 'WritingOnlyZ';
+        if (current.endsWith('/Control/config.md')) return 'ControlOnlyZ';
         if (current.endsWith('/dist/index.html')) return html;
         if (current.endsWith('/dist/posts/post-1/index.html')) return html;
         return originalReadFileSync(file, encoding);
@@ -270,8 +278,12 @@ function withFontSubsetFileMocks(html, manifest, callback) {
 }
 
 test('font subset refresh skips the subsetter when the manifest covers current text', () => {
-    const asciiCoverage = Array.from({ length: 95 }, (_, index) => index + 32);
-    const manifest = expectedManifest('unused', asciiCoverage);
+    const visibleCoverage = codepointsForTest('Plain ASCII');
+    const manifest = expectedManifest('unused', {
+        'freecat-figtree': visibleCoverage,
+        'freecat-ui-noto-sans-sc': [],
+        'freecat-noto-sans-sc': []
+    });
 
     withFontSubsetFileMocks('<html><body>Plain ASCII</body></html>', manifest, ({ buildArticleFontSubset, rootDir, calls, logs }) => {
         assert.doesNotThrow(() => buildArticleFontSubset({ rootDir, refresh: true }));
@@ -281,6 +293,24 @@ test('font subset refresh skips the subsetter when the manifest covers current t
             true
         );
     });
+});
+
+test('font subset refresh ignores source and config text outside generated pages', () => {
+    const visibleCoverage = codepointsForTest('Visible text');
+    const manifest = expectedManifest('unused', {
+        'freecat-figtree': visibleCoverage,
+        'freecat-ui-noto-sans-sc': [],
+        'freecat-noto-sans-sc': []
+    });
+
+    withFontSubsetFileMocks(
+        '<html><!-- HiddenSourceZ --><script>BuildOnlyZ</script><style>.x{font-family:ControlOnlyZ}</style><body>Visible text</body></html>',
+        manifest,
+        ({ buildArticleFontSubset, rootDir, calls }) => {
+            assert.doesNotThrow(() => buildArticleFontSubset({ rootDir, refresh: true }));
+            assert.equal(calls.length, 0);
+        }
+    );
 });
 
 test('font subset refresh only asks the subsetter to rebuild stale subsets', () => {
@@ -300,8 +330,12 @@ test('font subset refresh only asks the subsetter to rebuild stale subsets', () 
 });
 
 test('font subset refresh reuses restored build cache before running the subsetter', () => {
-    const asciiCoverage = Array.from({ length: 95 }, (_, index) => index + 32);
-    const manifest = expectedManifest('unused', asciiCoverage);
+    const visibleCoverage = codepointsForTest('Plain ASCII');
+    const manifest = expectedManifest('unused', {
+        'freecat-figtree': visibleCoverage,
+        'freecat-ui-noto-sans-sc': [],
+        'freecat-noto-sans-sc': []
+    });
     const modulePath = path.join(__dirname, '../build/fonts.js');
     const rootDir = path.join('X:', 'freecat');
     const originalSpawnSync = childProcess.spawnSync;
@@ -421,7 +455,7 @@ test('font subsetter generates woff2 subsets that cover the requested text', asy
         }
 
         const manifest = JSON.parse(fs.readFileSync(path.join(rootDir, 'build', 'font-subsets-manifest.json'), 'utf-8'));
-        assert.equal(manifest.version, 2);
+        assert.equal(manifest.version, 4);
         const entry = manifest.families['freecat-figtree'].subsets.regular;
         assert.equal(entry.source, 'fonts/freecat-figtree-regular.ttf');
         assert.equal(entry.output, 'src/assets/fonts/freecat-figtree-regular-subset.woff2');

@@ -127,8 +127,22 @@
         // 历史唯一所有权：浏览器历史条目只由外壳的 pushState/replaceState 创建，
         // iframe 的所有导航一律走 location.replace（不产生联合历史条目）。
         // 否则一次导航会留下两条历史（外壳一条 + iframe 一条），返回键要按两次才生效。
+        //
+        // 替换前冻结旧文档的滚动保存：销毁窗口里的滚动读数不可信（引擎可能
+        // 已重置视口），兜底保存一旦写库会覆盖真实阅读位置。真实位置由滚动
+        // 事件持续保存，冻结只拦截销毁期的污染写入。
+        function freezeFrameScrollSaves() {
+            try {
+                const frameRuntime = frame.contentWindow && frame.contentWindow.FreecatRuntime;
+                if (frameRuntime && typeof frameRuntime.freezeScrollSaves === 'function') {
+                    frameRuntime.freezeScrollSaves();
+                }
+            } catch (err) {}
+        }
+
         function setFrameLocation(path) {
             const target = publicPathToContentPath(path);
+            freezeFrameScrollSaves();
             try {
                 frame.contentWindow.location.replace(target);
             } catch (err) {
@@ -189,6 +203,9 @@
         function navigateShell(targetHref, options = {}) {
             const contentPath = publicPathToContentPath(targetHref);
             const publicPath = contentPathToPublicPath(contentPath);
+            // 前进导航 = 全新访问，必须从顶部开始：清掉同 key 残留的恢复请求
+            // （返回导航被中断、加载被放弃时会遗留），避免新访问被错误恢复。
+            clearFrameScrollRestore(contentPath);
             if (publicPath !== getPublicLocation()) {
                 const method = options.replace ? 'replaceState' : 'pushState';
                 window.history[method](nextShellHistoryState(method), '', publicPath);
@@ -203,9 +220,12 @@
             if (!framePath) return;
             const target = publicPathToContentPath(getPublicLocation());
             if (publicPathToContentPath(framePath) === target) return;
+            // 恢复请求生命周期：返回/前进（popstate）时写入，前进点击
+            // （navigateShell）时清除，iframe 侧按时间窗对过期项做垃圾回收。
+            // 不用定时器延迟清除 —— 定时器会在用户短时间内再次返回同一页时
+            // 误删新写入的请求，造成偶发"返回落在顶部"。
             if (options.restoreScroll) {
                 requestFrameScrollRestore(target);
-                window.setTimeout(() => clearFrameScrollRestore(target), 6000);
             }
             setFrameLocation(target);
         }
@@ -252,6 +272,10 @@
         window.addEventListener('popstate', () => {
             syncFrameToLocation({ restoreScroll: true });
         });
+        // 外壳整页卸载（关标签/跳出站外）连带销毁 iframe 文档，同样进入
+        // 销毁窗口；父文档 pagehide 先于子文档触发，在这里冻结正好赶在
+        // 子文档兜底保存之前。
+        window.addEventListener('pagehide', freezeFrameScrollSaves);
         window.addEventListener('resize', syncFrameOffset);
         if (headerEl && typeof ResizeObserver !== 'undefined') {
             new ResizeObserver(syncFrameOffset).observe(headerEl);

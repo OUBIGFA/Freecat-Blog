@@ -184,7 +184,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const initUpdateSortControls = updateSort.initUpdateSortControls;
     initUpdateSortControls();
 
-    scrollMemory.init({ window, document, platform, runtime, shared });
+    // 滚动记忆只属于真正滚动内容的文档（iframe 内容页 / 独立页）。
+    // 外壳 body overflow:hidden、scrollY 恒为 0，而它的公开地址与 iframe
+    // 内容页规范化后是同一个存储 key（/posts/foo ↔ /posts/foo.html），
+    // 一旦外壳也保存（切标签页 visibilitychange、关闭 pagehide），就会把
+    // y=0 写进同一 key，覆盖真实阅读位置 → 返回时落在顶部。
+    if (!IS_SHELL) scrollMemory.init({ window, document, platform, runtime, shared });
 
     const layoutMetrics = layoutMetricsModule.init({ window, document, framed: FRAMED });
 

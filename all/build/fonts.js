@@ -3,8 +3,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 const { spawnSync } = require('child_process');
 
-const CACHE_VERSION = 2;
-const TEXT_INPUT_EXTENSIONS = new Set(['.html', '.js', '.md', '.markdown', '.mdown', '.mkd', '.mkdn', '.txt', '.text']);
+const CACHE_VERSION = 4;
 
 const NOTO_FONT_WEIGHTS = [
     ['regular', 400, 'freecat-noto-sans-sc-regular.woff2'],
@@ -37,10 +36,6 @@ const FONT_FAMILIES = [
         weights: NOTO_FONT_WEIGHTS
     }
 ];
-
-function isTextInputFile(filePath) {
-    return TEXT_INPUT_EXTENSIONS.has(path.extname(filePath).toLowerCase());
-}
 
 function walkFiles(root, filter) {
     if (!fs.existsSync(root)) return [];
@@ -174,9 +169,11 @@ function codepointsToSortedArray(codepoints) {
     return [...codepoints].sort((a, b) => a - b);
 }
 
-function codepointArrayIncludesAll(available, requested) {
-    const availableSet = new Set(available || []);
-    return requested.every(codepoint => availableSet.has(codepoint));
+function codepointArraysEqual(actual, expected) {
+    const actualSorted = codepointsToSortedArray(new Set(actual || []));
+    const expectedSorted = codepointsToSortedArray(new Set(expected || []));
+    return actualSorted.length === expectedSorted.length &&
+        actualSorted.every((codepoint, index) => codepoint === expectedSorted[index]);
 }
 
 function iterUiHtmlFiles(rootDir) {
@@ -196,23 +193,13 @@ function iterPostPages(rootDir) {
     });
 }
 
-function figtreeTextSources(rootDir) {
-    const repoRoot = path.resolve(rootDir, '..');
-    return [
-        path.join(repoRoot, 'writing'),
-        path.join(repoRoot, 'Control'),
-        path.join(rootDir, 'src'),
-        path.join(rootDir, 'build'),
-        path.join(rootDir, 'dist')
-    ];
+function iterPublicHtmlFiles(rootDir) {
+    return [...iterUiHtmlFiles(rootDir), ...iterPostPages(rootDir)];
 }
 
 function requestedCodepointsByFamily(rootDir) {
     return {
-        'freecat-figtree': collectCodepoints(
-            figtreeTextSources(rootDir).flatMap(source => walkFiles(source, isTextInputFile)),
-            { includeAscii: true, visualHtml: false }
-        ),
+        'freecat-figtree': collectCodepoints(iterPublicHtmlFiles(rootDir), { includeAscii: true, visualHtml: true }),
         'freecat-ui-noto-sans-sc': collectCodepoints(iterUiHtmlFiles(rootDir), { includeAscii: false, visualHtml: true }),
         'freecat-noto-sans-sc': collectCodepoints(iterPostPages(rootDir), { includeAscii: false, visualHtml: true })
     };
@@ -235,8 +222,8 @@ function readFontSubsetManifest(rootDir) {
     }
 }
 
-function subsetEntryCoversRequest(entry, requested) {
-    return codepointArrayIncludesAll([...(entry.supported || []), ...(entry.unsupported || [])], requested);
+function subsetEntryMatchesRequest(entry, requested) {
+    return codepointArraysEqual([...(entry.supported || []), ...(entry.unsupported || [])], requested);
 }
 
 function fontSubsetRefreshPlan(rootDir) {
@@ -287,8 +274,8 @@ function fontSubsetRefreshPlan(rootDir) {
                 markStale(family, name, 'source changed');
                 continue;
             }
-            if (!subsetEntryCoversRequest(entry, requested)) {
-                markStale(family, name, 'new characters');
+            if (!subsetEntryMatchesRequest(entry, requested)) {
+                markStale(family, name, 'changed characters');
             }
         }
     }

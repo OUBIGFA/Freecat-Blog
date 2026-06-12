@@ -70,7 +70,11 @@ async function buildSubset({ rootDir, family, weightName, weightNumber, sourceNa
         } catch {
             existingCmap = null;
         }
-        if (existingCmap && supported.every(codepoint => existingCmap.has(codepoint))) {
+        if (
+            existingCmap &&
+            existingCmap.size === supported.length &&
+            supported.every(codepoint => existingCmap.has(codepoint))
+        ) {
             console.log(`${family.prefix} ${weightNumber} ${weightName}: reused ${fs.statSync(outputFile).size} bytes`);
             return { weightName, sourceFile, outputFile, supported, unsupported };
         }

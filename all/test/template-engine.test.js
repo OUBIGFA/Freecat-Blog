@@ -192,7 +192,7 @@ test('theme bootstrap keeps shell back restoration from being reset to top', () 
 
     assert.equal(html.includes("sessionStorage.getItem('freecat-scroll-restore-requests-v1')"), true);
     assert.equal(html.includes('freecat-state-restore-pending'), false);
-    assert.equal(html.includes('var hasShellRestoreRequest = !!(shellRestoreRequests && shellRestoreRequests[shellRestorePageKey]);'), true);
+    assert.equal(html.includes('var hasShellRestoreRequest = !!shellRestoreRequests[shellRestorePageKey];'), true);
     assert.equal(html.includes('!hasShellRestoreRequest && (!navType || navType ==='), true);
 });
 

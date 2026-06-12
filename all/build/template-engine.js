@@ -40,6 +40,15 @@ function autoLineBreak(text) {
 }
 
 function generateThemeScript(siteConfig) {
+    // 初始滚动守卫，内联进每个页面（含外壳）的 <head>：
+    //   - 内容页/独立页：全新访问（navigate/reload）时把初始滚动钉在顶部，
+    //     有锚点或外壳恢复请求时让位。
+    //   - 外壳文档（window.__FREECAT_SHELL_DOCUMENT__，由 template_shell.html
+    //     首个脚本在本守卫之前设置）：自身不滚动，只把本次跨文档导航类型
+    //     翻译成 iframe 的滚动恢复握手 —— back_forward（浏览器返回/前进、
+    //     bfcache 失效后的跨文档返回）写入恢复请求；navigate/reload 是全新
+    //     访问，清掉同 key 的残留请求，避免旧请求让新访问错误恢复。
+    //     必须在 <head> 解析期完成，保证先于 iframe 内容页读取 sessionStorage。
     const initialScrollGuard = `if (window.self !== window.top) { try { document.documentElement.classList.add('freecat-framed'); } catch (e) {} }
         try {
             var navEntries = performance && performance.getEntriesByType ? performance.getEntriesByType('navigation') : null;
@@ -53,8 +62,20 @@ function generateThemeScript(siteConfig) {
             } catch (e) {
                 shellRestoreRequests = null;
             }
-            var hasShellRestoreRequest = !!(shellRestoreRequests && shellRestoreRequests[shellRestorePageKey]);
-            var shouldResetInitialScroll = !hasAnchorTarget && !hasShellRestoreRequest && (!navType || navType === 'navigate' || navType === 'reload');
+            if (!shellRestoreRequests || typeof shellRestoreRequests !== 'object') shellRestoreRequests = {};
+            if (window.__FREECAT_SHELL_DOCUMENT__) {
+                try {
+                    if (navType === 'back_forward') {
+                        shellRestoreRequests[shellRestorePageKey] = Date.now();
+                        sessionStorage.setItem('freecat-scroll-restore-requests-v1', JSON.stringify(shellRestoreRequests));
+                    } else if ((navType === 'navigate' || navType === 'reload') && shellRestoreRequests[shellRestorePageKey]) {
+                        delete shellRestoreRequests[shellRestorePageKey];
+                        sessionStorage.setItem('freecat-scroll-restore-requests-v1', JSON.stringify(shellRestoreRequests));
+                    }
+                } catch (e) {}
+            }
+            var hasShellRestoreRequest = !!shellRestoreRequests[shellRestorePageKey];
+            var shouldResetInitialScroll = !window.__FREECAT_SHELL_DOCUMENT__ && !hasAnchorTarget && !hasShellRestoreRequest && (!navType || navType === 'navigate' || navType === 'reload');
             if (shouldResetInitialScroll && 'scrollRestoration' in history) {
                 history.scrollRestoration = 'manual';
                 var userScrollIntent = false;

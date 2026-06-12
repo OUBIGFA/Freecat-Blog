@@ -41,6 +41,12 @@
         saveScrollPosition() {
             return callService('saveScrollPosition', root.FreecatSaveScrollPosition, arguments);
         },
+        setFreezeScrollSaves(fn) {
+            setService('freezeScrollSaves', fn, 'FreecatFreezeScrollSaves');
+        },
+        freezeScrollSaves() {
+            return callService('freezeScrollSaves', root.FreecatFreezeScrollSaves, arguments);
+        },
         setApplyTheme(fn) {
             setService('applyTheme', fn, 'FreecatApplyTheme');
         },
