@@ -154,6 +154,7 @@
             cover: post.cover,
             coverWidth: post.coverWidth,
             coverHeight: post.coverHeight,
+            desktopPreviewLines: post.desktopPreviewLines,
             pinned: post.pinned,
             animationDelay: getStaggerDelayMs(index),
             mobileTagsInline: postCardTemplate.ALL_PAGE_MOBILE_CARD_OPTIONS.mobileTagsInline,

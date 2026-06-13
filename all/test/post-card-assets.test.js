@@ -144,7 +144,7 @@ test('post card text uses build-time Figtree and Noto Sans SC font assets', () =
     assert.match(postTemplate, /<!-- POST_FONT_FACE_CSS -->/);
     assert.doesNotMatch(postCss, /freecat-noto-sans-sc-regular-subset\.woff2/);
 
-    assert.equal((html.match(/class="post-card-excerpt\b/g) || []).length, 2);
+    assert.equal((html.match(/<p class="post-card-excerpt\b/g) || []).length, 2);
     assert.equal((html.match(/class="post-card-title\b/g) || []).length, 2);
     assert.match(html, /<h3 class="post-card-title[^"]*\bfont-black\b/);
     assert.match(html, /class="freecat-published-date-text">2026-05-30<\/span>/);
@@ -243,6 +243,37 @@ test('default mobile post cards use the all-page card shell', () => {
     assert.match(html, /lazy-image-frame mt-4 h-\[clamp\(11\.25rem,14\.5vw,13\.25rem\)\] max-\[480px\]:h-\[11\.5rem\]/);
     assert.doesNotMatch(html, /\bmb-8\b/);
     assert.doesNotMatch(html, /\bmd:mb-10\b/);
+});
+
+test('desktop home card preview lines follow build-time title wrapping, not title length', () => {
+    const dateValue = {
+        tz: () => ({ format: () => '2026-05-30' }),
+        valueOf: () => 1780135781000
+    };
+    const modifiedDateValue = {
+        tz: () => ({ format: () => '2026-05-31' }),
+        valueOf: () => 1780222181000
+    };
+    const basePost = {
+        link: '/posts/example.html',
+        excerpt: 'Example excerpt '.repeat(20),
+        cover: '/image/example.png',
+        date: dateValue,
+        modifiedDate: modifiedDateValue,
+        tag: ['Free']
+    };
+
+    const longSingleLineHtml = renderPostCardForList({
+        ...basePost,
+        title: 'iiiiiiiiiiiiiiiiiiiiiiiii'
+    });
+    const shortWrappedHtml = renderPostCardForList({
+        ...basePost,
+        title: '这是中文标题刚好换行的长标题测试啊'
+    });
+
+    assert.match(longSingleLineHtml, /post-card-excerpt mt-8[^"]*" style="[^"]*-webkit-line-clamp:5/);
+    assert.match(shortWrappedHtml, /post-card-excerpt mt-8[^"]*" style="[^"]*-webkit-line-clamp:4/);
 });
 
 test('pinned post cards render the pin badge in every card layout', () => {
@@ -377,7 +408,7 @@ test('post font preloads and font faces use the same versioned urls', () => {
     assert.equal([...preloads].every(href => href.endsWith('?v=test-version')), true);
 });
 
-test('all-page compact cards use native excerpt ellipsis by cover state', () => {
+test('all-page compact cards use shared native excerpt ellipsis by cover state', () => {
     const excerpt = 'Long excerpt '.repeat(40);
     const withCoverHtml = postCardTemplate.renderPostCard({
         link: '/posts/example.html',
@@ -395,15 +426,40 @@ test('all-page compact cards use native excerpt ellipsis by cover state', () => 
         layout: 'compact-grid'
     });
 
-    assert.match(withCoverHtml, /<p class="post-card-excerpt[^"]*\bmin-h-\[3\.3em\][^"]*" style="[^"]*-webkit-line-clamp:2/);
-    assert.match(withoutCoverHtml, /<p class="post-card-excerpt[^"]*\bmin-h-\[12\.995rem\][^"]*" style="[^"]*-webkit-line-clamp:9/);
-    assert.match(withCoverHtml, /overflow-wrap:break-word/);
-    assert.match(withoutCoverHtml, /overflow-wrap:break-word/);
+    assert.match(withCoverHtml, /\bpost-card-excerpt-limited\b/);
+    assert.match(withoutCoverHtml, /\bpost-card-excerpt-limited\b/);
+    assert.match(withCoverHtml, /\bpost-card-excerpt-lines-2\b/);
+    assert.match(withoutCoverHtml, /\bpost-card-excerpt-lines-9\b/);
+    assert.doesNotMatch(withCoverHtml, /class="post-card-excerpt-line"/);
+    assert.doesNotMatch(withoutCoverHtml, /class="post-card-excerpt-line"/);
+    assert.match(withCoverHtml, /<p class="post-card-excerpt[^"]*" style="[^"]*-webkit-line-clamp:2/);
+    assert.match(withoutCoverHtml, /<p class="post-card-excerpt[^"]*" style="[^"]*-webkit-line-clamp:9/);
     assert.equal(withCoverHtml.includes(excerpt), true);
     assert.equal(withoutCoverHtml.includes(excerpt), true);
+    assert.match(typographyCss, /\.post-card-excerpt-limited\s*\{[\s\S]*line-height:\s*22px;/);
+    assert.doesNotMatch(typographyCss, /\.post-card-excerpt-limited::before/);
+    assert.doesNotMatch(typographyCss, /\.post-card-excerpt-limited::after/);
+    assert.match(typographyCss, /\.post-card-excerpt-lines-2\s*\{[\s\S]*max-height:\s*44px;/);
+    assert.match(typographyCss, /\.post-card-excerpt-lines-9\s*\{[\s\S]*max-height:\s*198px;/);
     assert.doesNotMatch(withCoverHtml, /data-excerpt-overflow/);
     assert.doesNotMatch(withoutCoverHtml, /data-excerpt-overflow/);
     assert.doesNotMatch(headBase, /post-card-excerpt-clamp/);
+});
+
+test('mobile no-cover compact excerpts keep full text under a nine-row cap', () => {
+    const excerpt = Array.from({ length: 10 }, (_, index) => `第${index + 1}行`).join('\n');
+    const html = postCardTemplate.renderPostCard({
+        link: '/posts/plain.html',
+        titleHtml: 'Plain',
+        excerptHtml: shared.escapeHtmlWithLineBreaks(excerpt),
+        date: '2026-05-30',
+        layout: 'compact-grid'
+    });
+
+    assert.match(html, /\bpost-card-excerpt-lines-9\b/);
+    assert.doesNotMatch(html, /class="post-card-excerpt-line"/);
+    assert.match(html, /第10行/);
+    assert.match(html, /-webkit-line-clamp:9/);
 });
 
 test('post card excerpts render line breaks consistently across card layouts', () => {
@@ -431,6 +487,8 @@ test('post card excerpts render line breaks consistently across card layouts', (
 
     assert.equal((defaultHtml.match(/第一行<br>第二行 &lt;b&gt;不能执行&lt;\/b&gt;/g) || []).length, 2);
     assert.equal((compactHtml.match(/第一行<br>第二行 &lt;b&gt;不能执行&lt;\/b&gt;/g) || []).length, 1);
+    assert.doesNotMatch(defaultHtml, /class="post-card-excerpt-line"/);
+    assert.doesNotMatch(compactHtml, /class="post-card-excerpt-line"/);
 });
 
 test('mobile post cards reuse the all-page compact layout', () => {

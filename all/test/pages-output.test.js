@@ -127,7 +127,9 @@ test('generated search indexes contain build-time search fields', (t) => {
     assert.equal(searchIndex[0].content, undefined, 'raw searchable content is folded into searchText at build time');
     assert.match(searchIndex[0].searchText, /demo body content/, 'searchText contains the preprocessed article body');
     assert.deepEqual(searchIndex[0].lowerTags, ['demo'], 'lowerTags is precomputed for exact tag matching');
+    assert.equal(searchIndex[0].mobileExcerptHtml, undefined, 'mobile excerpt html is not precomputed');
     assert.equal(tagIndex.sorted, true, 'tag indexes are emitted in display order');
     assert.equal(tagIndex.posts[0].searchText, undefined, 'tag index keeps only display fields');
     assert.equal(tagIndex.posts[0].lowerTags, undefined, 'tag index avoids duplicate search-only fields');
+    assert.equal(tagIndex.posts[0].mobileExcerptHtml, undefined, 'tag index does not keep precomputed mobile excerpt html');
 });

@@ -22,16 +22,6 @@
         return `display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:${lines};overflow:hidden;text-overflow:ellipsis;overflow-wrap:${overflowWrap};`;
     };
 
-    const plainTextFromHtml = (html) => String(html || '')
-        .replace(/<[^>]*>/g, '')
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'")
-        .trim();
-
     // 文章卡片的媒体标记：构建期 stripMarkdown()（build/markdown.js）会给含
     // 音频 / 视频的摘要文本加上 🎶 / 🎬 前缀。这里把该前缀从摘要里摘出来，改成
     // 行内 SVG 图标渲染，避免媒体标记以 emoji 字形出现在正文文本中。
@@ -68,8 +58,7 @@
         const imageSrc = cover;
         const pinned = !!post.pinned;
         const animationDelay = Math.max(0, Number(post.animationDelay) || 0);
-        const titleText = plainTextFromHtml(titleHtml);
-        const desktopPreviewLines = titleText.length >= 24 ? 3 : 4;
+        const desktopPreviewLines = Number(post.desktopPreviewLines) === 4 ? 4 : 5;
         // 给 <img> 写 width/height 以预留盒子，消除卡片图片加载的 CLS。
         // 来自 frontmatter cover_width / cover_height（构建期注入）；
         // 客户端搜索结果场景由 search-index.json 透传同名字段。
@@ -130,7 +119,6 @@
 
         function renderAllPageMobileCardInner(extraClass = '') {
             const compactExcerptLines = imageMarkup ? 2 : 9;
-            const compactExcerptMinHeight = imageMarkup ? 'min-h-[3.3em]' : 'min-h-[12.995rem]';
             const compactImageHeight = mobileTagsInline
                 ? 'h-[clamp(11.25rem,14.5vw,13.25rem)] max-[480px]:h-[11.5rem]'
                 : 'h-[clamp(8.75rem,12vw,10.75rem)] max-[480px]:h-36';
@@ -139,7 +127,6 @@
                         ${imageMarkup}
                     </div>`
                 : '';
-
             return `<div class="relative flex h-full min-h-0 ${imageMarkup ? '' : 'min-h-[clamp(21rem,27vw,23.4rem)] max-[480px]:min-h-[18.5rem]'} flex-col rounded-lg bg-white dark:bg-card-dark p-4 sm:p-5 shadow-none ${extraClass}">
                 ${pinnedBadge}
                 <div class="shrink-0">
@@ -154,7 +141,7 @@
                     </div>
                 </div>
                 <div class="mt-4 shrink-0">
-                    <p class="post-card-excerpt text-[#63718a] dark:text-gray-400 text-[14px] font-normal leading-[1.65] ${compactExcerptMinHeight}" style="${clampStyle(compactExcerptLines, { overflowWrap: 'break-word' })}">${mediaIconHtml}${excerptBodyHtml}</p>
+                    <p class="post-card-excerpt post-card-excerpt-limited post-card-excerpt-lines-${compactExcerptLines} text-[#63718a] dark:text-gray-400 text-[14px] font-normal" style="${clampStyle(compactExcerptLines)}">${mediaIconHtml}${excerptBodyHtml}</p>
                 </div>
                 ${compactImageBlock}
                 ${mobileFooterTagsBlock}
