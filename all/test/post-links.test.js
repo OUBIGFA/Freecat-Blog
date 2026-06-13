@@ -89,17 +89,34 @@ test('article loader keeps plain-text preview line breaks after removing markdow
     mockArticleFiles(t, {
         'Original Title.md': article({
             body: [
+                '![封面图][cover]',
+                '<video src="https://example.com/demo.mp4">fallback text</video>',
+                '| 名称 | 地址 |',
+                '| --- | --- |',
+                '| 很长的表格内容 | https://example.com/large |',
                 '第一行 **加粗**',
                 '第二行 [链接](https://example.com)',
-                '- 第三行'
+                '- 第三行',
+                '<[https://linux.do/t/topic/462102](https://linux.do/t/topic/462102)>',
+                '<https://search.google.com/search-console>',
+                '[cover]: https://example.com/cover.png'
             ].join('\n')
         })
     });
 
     const [post] = loadMockPosts();
 
-    assert.equal(post.preview, ['第一行 加粗', '第二行 链接', '第三行'].join('\n'));
-    assert.equal(post.excerpt, ['第一行 加粗', '第二行 链接', '第三行'].join('\n'));
+    assert.equal(
+        post.preview,
+        [
+            '第一行 加粗',
+            '第二行 链接',
+            '第三行',
+            'https://linux.do/t/topic/462102',
+            'https://search.google.com/search-console'
+        ].join('\n')
+    );
+    assert.equal(post.excerpt.includes('https://linux.do/t/topic/462102'), true);
 });
 
 test('article loader recognizes robust content filenames and extensions', (t) => {

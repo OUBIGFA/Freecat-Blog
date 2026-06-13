@@ -93,6 +93,50 @@ test('stripMarkdown can preserve source line breaks for card previews', () => {
     );
 });
 
+test('stripMarkdown keeps link text for inline, angle-wrapped, autolink, and reference links', () => {
+    const source = [
+        '<[https://linux.do/t/topic/462102](https://linux.do/t/topic/462102)>',
+        '[XXX](YYYYY)',
+        '<https://search.google.com/search-console>',
+        '<mail@example.com>',
+        '[参考链接][ref]',
+        '',
+        '[ref]: https://example.com'
+    ].join('\n');
+
+    assert.equal(
+        stripMarkdown(source, { preserveLineBreaks: true }),
+        [
+            'https://linux.do/t/topic/462102',
+            'XXX',
+            'https://search.google.com/search-console',
+            'mail@example.com',
+            '参考链接'
+        ].join('\n')
+    );
+});
+
+test('stripMarkdown ignores large preview blocks while keeping surrounding text', () => {
+    const source = [
+        '开头正文',
+        '![封面图](https://example.com/cover.png)',
+        '![参考图][img]',
+        '<video src="https://example.com/demo.mp4">fallback text</video>',
+        '<iframe src="https://example.com/embed"></iframe>',
+        '| 名称 | 地址 |',
+        '| --- | --- |',
+        '| 很长的表格内容 | https://example.com/large |',
+        '[img]: https://example.com/ref.png',
+        '[普通链接](https://example.com/image.png)',
+        '结尾正文'
+    ].join('\n');
+
+    assert.equal(
+        stripMarkdown(source, { preserveLineBreaks: true }),
+        ['开头正文', '普通链接', '结尾正文'].join('\n')
+    );
+});
+
 test('blockquote video links render the complete player before client scripts run', () => {
     const html = parseMarkdown('> [🎬 Demo](https://example.com/video.mp4)');
 

@@ -199,11 +199,55 @@ function normalizeStrippedMarkdownWhitespace(text, { preserveLineBreaks = false 
         .trim();
 }
 
+function stripMarkdownReferenceDefinitions(text) {
+    return String(text || '').replace(/^\s*\[[^\]\r\n]+]:[^\r\n]*(?:\r?\n[ \t]+[^\r\n]*)*/gm, '');
+}
+
+function stripMarkdownTables(text) {
+    const lines = String(text || '').split(/\r?\n/);
+    const kept = [];
+
+    for (let i = 0; i < lines.length; i++) {
+        const current = lines[i];
+        const next = lines[i + 1] || '';
+        const isTableHeader = current.includes('|')
+            && /^\s*\|?\s*:?-{3,}:?\s*(?:\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(next);
+        if (!isTableHeader) {
+            kept.push(current);
+            continue;
+        }
+
+        i += 2;
+        while (i < lines.length && lines[i].includes('|')) i++;
+        i--;
+    }
+
+    return kept.join('\n');
+}
+
+function stripLargePreviewBlocks(text) {
+    return stripMarkdownTables(String(text || '')
+        .replace(/<(iframe|video|audio|object|picture|figure|svg|canvas)\b[\s\S]*?<\/\1>/gi, '')
+        .replace(/<(img|embed|source|track)\b[^>]*\/?>/gi, '')
+        .replace(/!\[[^\]\n]*\]\[[^\]\n]*\]/g, ''));
+}
+
+function stripMarkdownLinkText(text) {
+    return String(text || '')
+        .replace(/<\s*\[([^\]\n]*?)\]\s*\([^)\n]*\)\s*>/g, '$1')
+        .replace(/<\s*\[([^\]\n]*?)\]\[[^\]\n]*\]\s*>/g, '$1')
+        .replace(/<((?:https?:\/\/|mailto:)[^<>\s]+)>/gi, '$1')
+        .replace(/<([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})>/gi, '$1')
+        .replace(/\[([^\]\n]*?)\]\s*\([^)\n]*\)/g, '$1')
+        .replace(/\[([^\]\n]*?)\]\[[^\]\n]*\]/g, '$1');
+}
+
 function stripMarkdown(text, options = {}) {
     if (!text) return '';
     const preserveLineBreaks = Boolean(options && options.preserveLineBreaks);
 
-    let clean = text.replace(/^>\s*\[![^\]]+\](?:\r?\n>[^\r?\n]*)*\r?\n?/gm, '');
+    let clean = stripLargePreviewBlocks(stripMarkdownReferenceDefinitions(text))
+        .replace(/^>\s*\[![^\]]+\](?:\r?\n>[^\r?\n]*)*\r?\n?/gm, '');
 
     // 同时吃掉可选的前导 `!`，这样图片语法 ![](视频.mp4) 被剥离后不会残留 `!`。
     const allLinksRegex = /!?\[([^\]]*?)\]\s*\([^\)]+?\)/gi;
@@ -227,8 +271,9 @@ function stripMarkdown(text, options = {}) {
         .replace(/^\s*([-*+]|\d+\.)\s+(\[[x ]\]\s+)?/gm, '')
         .replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, '$2')
         .replace(/\[\[([^\]]+)\]\]/g, '$1')
-        .replace(/==([^=]+)==/g, '$1')
-        .replace(/\[(.*?)\]\(.*?\)/g, '$1')
+        .replace(/==([^=]+)==/g, '$1');
+
+    clean = stripMarkdownLinkText(clean)
         .replace(/^\s*>+\s?/gm, '')
         .replace(/^\s*([-*_])(?:\s*\1){2,}\s*$/gm, '')
         .replace(/^\s*#+\s+/gm, '')
