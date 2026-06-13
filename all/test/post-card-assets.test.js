@@ -278,11 +278,18 @@ test('desktop home card uses safe single-line titles for six-line previews', () 
     });
 
     for (const html of [shortTitleHtml, nearEdgeHtml, longTitleHtml]) {
-        assert.match(html, /<div class="row-start-1 flex min-h-0 flex-col">/);
-        assert.equal(html.includes('lg:h-[430px]'), true);
+        assert.match(html, /<div class="post-card-default-desktop-panel\b/);
+        assert.match(html, /<div class="post-card-default-desktop-grid">/);
+        assert.match(html, /<div class="post-card-default-desktop-copy">/);
+        assert.match(html, /<div class="post-card-default-desktop-footer\b/);
+        assert.equal(html.includes('lg:h-[430px]'), false);
         assert.doesNotMatch(html, /post-card-title-line/);
         assert.match(html, /<p class="post-card-excerpt mt-5[^"]*"/);
     }
+
+    assert.match(typographyCss, /\.post-card-default-desktop-panel\s*\{[\s\S]*display:\s*none;/);
+    assert.match(typographyCss, /@media \(min-width:\s*1024px\)\s*\{[\s\S]*\.post-card-default-desktop-panel\s*\{[\s\S]*height:\s*430px;[\s\S]*padding:\s*3rem 4rem;/);
+    assert.match(typographyCss, /\.post-card\.has-cover \.post-card-default-desktop-grid\s*\{[\s\S]*grid-template-columns:\s*minmax\(0,\s*1fr\) minmax\(360px,\s*43%\);/);
 
     assert.match(shortTitleHtml, /<h3 class="post-card-title[^"]*" style="[^"]*white-space:nowrap;[^"]*">为什么坐月子是陋习<\/h3>/);
     assert.match(shortTitleHtml, /<p class="post-card-excerpt mt-5[^"]*" style="[^"]*-webkit-line-clamp:6/);
