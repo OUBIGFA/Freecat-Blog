@@ -160,7 +160,7 @@ function loadPosts({ postsDir, gitDates, postDates, postIds, skipMissingGitDates
         if (frontmatter.updated) modifiedDate = dayjs(frontmatter.updated);
         else modifiedDate = dayjs(storedModifiedDate);
 
-        const cleanContent = stripMarkdown(content);
+        const cleanContent = stripMarkdown(content, { preserveLineBreaks: true });
         const previewRaw = frontmatter.description || cleanContent;
         const excerptRaw = frontmatter.description || (cleanContent.slice(0, 160) + (cleanContent.length > 160 ? '...' : ''));
         const titleRaw = (frontmatter.title && String(frontmatter.title).trim()) ? frontmatter.title : slug;

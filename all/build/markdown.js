@@ -183,8 +183,25 @@ function addHeadingIds(html, headings) {
 }
 
 // ===== Markdown → 纯文本（用于摘要 / 搜索索引） =====
-function stripMarkdown(text) {
+function normalizeStrippedMarkdownWhitespace(text, { preserveLineBreaks = false } = {}) {
+    const normalized = String(text || '').replace(/\r\n?/g, '\n');
+    if (preserveLineBreaks) {
+        return normalized
+            .replace(/[^\S\n]+/g, ' ')
+            .replace(/[ \t]*\n[ \t]*/g, '\n')
+            .replace(/\n{2,}/g, '\n')
+            .trim();
+    }
+
+    return normalized
+        .replace(/\n+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function stripMarkdown(text, options = {}) {
     if (!text) return '';
+    const preserveLineBreaks = Boolean(options && options.preserveLineBreaks);
 
     let clean = text.replace(/^>\s*\[![^\]]+\](?:\r?\n>[^\r?\n]*)*\r?\n?/gm, '');
 
@@ -222,10 +239,9 @@ function stripMarkdown(text) {
         .replace(/`(.+?)`/g, '$1')
         .replace(/(\*\*+|__+|~~+|\*|_)/g, '')
         .replace(/<[^>]+>/g, '')
-        .replace(/\[\^.+?\]/g, '')
-        .replace(/\n+/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
+        .replace(/\[\^.+?\]/g, '');
+
+    clean = normalizeStrippedMarkdownWhitespace(clean, { preserveLineBreaks });
 
     if (hasAudio) clean = '🎶 ' + clean;
     else if (hasVideo) clean = '🎬 ' + clean;

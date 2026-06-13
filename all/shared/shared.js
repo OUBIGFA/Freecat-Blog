@@ -42,6 +42,10 @@
             .replace(/'/g, '&#39;');
     }
 
+    function escapeHtmlWithLineBreaks(text) {
+        return escapeHtml(text).replace(/\r\n?|\n/g, '<br>');
+    }
+
     function encodePathSegment(segment) {
         try {
             return encodeURIComponent(decodeURIComponent(segment));
@@ -230,6 +234,7 @@
     return {
         hashTagColor,
         escapeHtml,
+        escapeHtmlWithLineBreaks,
         encodeSitePath,
         processTitleHtml,
         renderTagSpan,

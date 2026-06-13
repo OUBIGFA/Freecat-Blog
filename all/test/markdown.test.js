@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const { parseMarkdown, extractHeadingsAndGenerateTOC, parseImageStyleAudio, parseImageStyleAudioList } = require('../build/markdown.js');
+const { parseMarkdown, extractHeadingsAndGenerateTOC, parseImageStyleAudio, parseImageStyleAudioList, stripMarkdown } = require('../build/markdown.js');
 
 test('callout titles are rendered as text', () => {
     const html = parseMarkdown('> [!note] <img src=x onerror=alert(1)>\\n> content');
@@ -75,6 +75,22 @@ test('multiline media image syntax picks the video URL for the video player', ()
     assert.match(html, /class="video-player-container media-player-container"/);
     assert.equal(html.includes('data-video-src="https://example.com/playlist/master.m3u8"'), true);
     assert.equal(html.includes('https://example.com/cover.jpg'), false);
+});
+
+test('stripMarkdown can preserve source line breaks for card previews', () => {
+    const source = [
+        '# 标题',
+        '第一行 **加粗**',
+        '第二行 [链接](https://example.com)',
+        '',
+        '- 第三行'
+    ].join('\n');
+
+    assert.equal(stripMarkdown(source), '标题 第一行 加粗 第二行 链接 第三行');
+    assert.equal(
+        stripMarkdown(source, { preserveLineBreaks: true }),
+        ['标题', '第一行 加粗', '第二行 链接', '第三行'].join('\n')
+    );
 });
 
 test('blockquote video links render the complete player before client scripts run', () => {

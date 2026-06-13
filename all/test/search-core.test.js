@@ -163,13 +163,13 @@ test('getPostsByTag keeps build-time sorted tag indexes in index order', () => {
 
 test('renderSearchResultCards renders escaped post-card markup with staggered delays', () => {
     const html = searchCore.renderSearchResultCards([
-        { title: 'Hello <b>World</b>', excerpt: 'safe & sound', tags: ['Tech'], date: '2026-01-01', link: '/posts/a/', cover: '/image/example.png', pinned: true },
+        { title: 'Hello <b>World</b>', excerpt: 'safe & sound\nnext <line>', tags: ['Tech'], date: '2026-01-01', link: '/posts/a/', cover: '/image/example.png', pinned: true },
         { title: 'Second', excerpt: 'two', tags: [], date: '2026-02-01', link: '/posts/b/' }
     ]);
 
     assert.match(html, /class="post-card\b/, 'results render through the shared post-card template');
     assert.equal(html.includes('Hello &lt;b&gt;World&lt;/b&gt;'), true, 'title HTML is escaped');
-    assert.equal(html.includes('safe &amp; sound'), true, 'excerpt HTML is escaped');
+    assert.equal(html.includes('safe &amp; sound<br>next &lt;line&gt;'), true, 'excerpt HTML is escaped and keeps line breaks');
     assert.equal(html.includes('<b>World</b>'), false, 'raw HTML must not pass through');
     assert.match(html, /animation-delay:\s*0ms/, 'first card starts immediately');
     assert.match(html, /animation-delay:\s*50ms/, 'second card is staggered by 50ms');

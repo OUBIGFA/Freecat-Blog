@@ -85,6 +85,23 @@ test('snapshot post id controls the public post link instead of the filename', (
     assert.equal(post.link, '/posts/2026053115300001/');
 });
 
+test('article loader keeps plain-text preview line breaks after removing markdown', (t) => {
+    mockArticleFiles(t, {
+        'Original Title.md': article({
+            body: [
+                '第一行 **加粗**',
+                '第二行 [链接](https://example.com)',
+                '- 第三行'
+            ].join('\n')
+        })
+    });
+
+    const [post] = loadMockPosts();
+
+    assert.equal(post.preview, ['第一行 加粗', '第二行 链接', '第三行'].join('\n'));
+    assert.equal(post.excerpt, ['第一行 加粗', '第二行 链接', '第三行'].join('\n'));
+});
+
 test('article loader recognizes robust content filenames and extensions', (t) => {
     mockArticleFiles(t, {
         'combined.name.with.embedded.md.md': article({ title: 'Nested Markdown Name' }),

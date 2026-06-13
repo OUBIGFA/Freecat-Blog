@@ -406,6 +406,33 @@ test('all-page compact cards use native excerpt ellipsis by cover state', () => 
     assert.doesNotMatch(headBase, /post-card-excerpt-clamp/);
 });
 
+test('post card excerpts render line breaks consistently across card layouts', () => {
+    const multilinePreview = '第一行\n第二行 <b>不能执行</b>';
+    const defaultHtml = renderPostCardForList({
+        title: 'Example',
+        preview: multilinePreview,
+        excerpt: multilinePreview,
+        date: { tz: () => ({ format: () => '2026-05-30' }), valueOf: () => 1 },
+        modifiedDate: { tz: () => ({ format: () => '2026-05-31' }), valueOf: () => 2 },
+        tags: [],
+        link: '/posts/example/',
+        cover: ''
+    });
+    const compactHtml = renderPostCardForList({
+        title: 'Example',
+        preview: multilinePreview,
+        excerpt: multilinePreview,
+        date: { tz: () => ({ format: () => '2026-05-30' }), valueOf: () => 1 },
+        modifiedDate: { tz: () => ({ format: () => '2026-05-31' }), valueOf: () => 2 },
+        tags: [],
+        link: '/posts/example/',
+        cover: ''
+    }, 0, { layout: 'compact-grid' });
+
+    assert.equal((defaultHtml.match(/第一行<br>第二行 &lt;b&gt;不能执行&lt;\/b&gt;/g) || []).length, 2);
+    assert.equal((compactHtml.match(/第一行<br>第二行 &lt;b&gt;不能执行&lt;\/b&gt;/g) || []).length, 1);
+});
+
 test('mobile post cards reuse the all-page compact layout', () => {
     const html = postCardTemplate.renderPostCard({
         link: '/posts/example.html',

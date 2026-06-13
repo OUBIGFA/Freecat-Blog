@@ -29,7 +29,7 @@ function renderPostCardForList(post, index = 0, options = {}) {
         // titleHtml / excerptHtml 字段语义为"已安全的 HTML 片段"，由调用方 escape；
         // 对 title 先 escape 再 processTitleHtml（| 替换为 <span>），顺序不能反
         titleHtml: shared.processTitleHtml(shared.escapeHtml(post.title)),
-        excerptHtml: shared.escapeHtml(post.preview || post.excerpt),
+        excerptHtml: shared.escapeHtmlWithLineBreaks(post.preview || post.excerpt),
         date: post.date.tz('Asia/Shanghai').format('YYYY-MM-DD'),
         modifiedDate: post.modifiedDate.tz('Asia/Shanghai').format('YYYY-MM-DD'),
         sortDate: post.date.valueOf(),

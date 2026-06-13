@@ -24,7 +24,7 @@
     if (!postCardTemplate.ALL_PAGE_MOBILE_CARD_OPTIONS) {
         throw new Error('PostCardTemplate missing all-page mobile card options');
     }
-    const { escapeHtml, processTitleHtml, renderTagSpan, normalizeTagKey } = shared;
+    const { escapeHtml, escapeHtmlWithLineBreaks, processTitleHtml, renderTagSpan, normalizeTagKey } = shared;
 
     // 列表入场动画的错峰延迟（与 main.js applyStaggeredAnimations 共用同一决策）。
     function getStaggerDelayMs(index, delayStep = 50) {
@@ -145,7 +145,7 @@
         return {
             link: post.link,
             titleHtml: processTitleHtml(escapeHtml(post.title)),
-            excerptHtml: escapeHtml(post.preview || post.excerpt),
+            excerptHtml: escapeHtmlWithLineBreaks(post.preview || post.excerpt),
             date: post.date,
             modifiedDate: post.modifiedDate,
             sortDate: post.sortDate,
