@@ -44,14 +44,6 @@ const notFoundPage = require('./build/pages/notfound.js');
 const shellPage = require('./build/pages/shell.js');
 const { generateSitemap, generateRobotsTxt, generateLlmsTxt, generateFeed, generateOpenSearchXml } = require('./build/pages/sitemap.js');
 
-function skipBuildUntilGitDatesUpdate(err) {
-    if (!err || err.code !== gitDatesModule.MISSING_GIT_DATE_CODE) return false;
-
-    console.log(`Skipping build: ${err.message}`);
-    console.log('The git-dates workflow should commit the updated snapshot, then the next build can continue.');
-    process.exit(0);
-}
-
 // ===== 路径常量 =====
 const DEFAULT_POSTS_PER_PAGE = 8;
 const DEFAULT_RECENT_POSTS_LIMIT = 8;
@@ -178,7 +170,7 @@ try {
         refreshLocalArticleSnapshots({ rootDir: __dirname });
         articleSnapshots = loadArticleSnapshots();
         allPosts = loadPostsFromSnapshots(articleSnapshots);
-    } else if (!skipBuildUntilGitDatesUpdate(err)) {
+    } else {
         throw err;
     }
 }

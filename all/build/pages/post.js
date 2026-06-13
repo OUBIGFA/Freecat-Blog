@@ -15,8 +15,6 @@ const {
     isMarkdownContentFile
 } = require('../content-files.js');
 
-const MISSING_ARTICLE_SNAPSHOT_CODE = 'MISSING_GIT_DATE';
-
 function fileSlug(file) {
     return contentFileSlug(file);
 }
@@ -26,9 +24,7 @@ function readPostId(postIds, file) {
     const postId = String(raw == null ? '' : raw).trim();
 
     if (!postId) {
-        const err = new Error(`Missing post id for "${file}". The GitHub article snapshot workflow should add it to all/git-dates.json.`);
-        err.code = MISSING_ARTICLE_SNAPSHOT_CODE;
-        throw err;
+        return '';
     }
 
     if (!/^\d{16}$/.test(postId)) {
@@ -137,6 +133,10 @@ function loadPosts({ postsDir, gitDates, postDates, postIds, skipMissingGitDates
         }
 
         const postId = readPostId(postIds, file);
+        if (!postId) {
+            return;
+        }
+
         const existingFile = seenPostIds.get(postId);
         if (existingFile) {
             throw new Error(`Duplicate post id "${postId}" in "${existingFile}" and "${file}". Each article must have a unique post id.`);

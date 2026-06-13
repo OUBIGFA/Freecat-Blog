@@ -173,15 +173,44 @@ test('changing a title does not change the fixed public post link', (t) => {
     assert.equal(afterTitleChange.link, beforeTitleChange.link);
 });
 
-test('missing snapshot post id fails with a clear message', (t) => {
+test('missing snapshot post id skips only that article', (t) => {
     mockArticleFiles(t, {
-        'Missing Id.md': article()
+        'Missing Id.md': article({ title: 'Missing Id' }),
+        'Included.md': article({ title: 'Included' })
     });
 
-    assert.throws(
-        () => loadMockPosts({ postIds: {} }),
-        /Missing post id for "Missing Id\.md"/
-    );
+    const posts = loadMockPosts({
+        postIds: {
+            'Included.md': '2026053115300002'
+        }
+    });
+
+    assert.deepEqual(posts.map(post => post.slug), ['Included']);
+    assert.equal(posts[0].link, '/posts/2026053115300002/');
+});
+
+test('incomplete article snapshots skip only those articles', (t) => {
+    mockArticleFiles(t, {
+        'Missing Id.md': article({ title: 'Missing Id' }),
+        'Missing Date.md': article({ title: 'Missing Date' }),
+        'Included.md': article({ title: 'Included' })
+    });
+
+    const posts = loadPosts({
+        postsDir: 'writing',
+        gitDates: mapStore({
+            'Included.md': MODIFIED_AT
+        }),
+        postDates: publishStore(),
+        postIds: mapStore({
+            'Missing Date.md': '2026053115300001',
+            'Included.md': '2026053115300002'
+        }),
+        skipMissingGitDates: true
+    });
+
+    assert.deepEqual(posts.map(post => post.slug), ['Included']);
+    assert.equal(posts[0].link, '/posts/2026053115300002/');
 });
 
 test('duplicate snapshot post ids fail before pages are generated', (t) => {
