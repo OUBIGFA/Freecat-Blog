@@ -5,7 +5,7 @@ const seo = require('../seo.js');
 const shared = require('../../shared/shared.js');
 const { replacePlaceholders } = require('../template-engine.js');
 const { normalizePostTags } = require('../article-model.js');
-const { getDesktopPreviewLinesForTitle } = require('../post-card-title-layout.js');
+const { getDesktopTitleLayout } = require('../post-card-title-layout.js');
 const searchCore = require('../../src/assets/search-core.js');
 
 // 搜索索引每篇文章正文的截断字符数（够命中关键词，又不会让 index 文件爆炸）
@@ -23,6 +23,7 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir, recentPos
             : stripped;
         const tags = normalizePostTags(post);
         const previewText = post.preview || post.excerpt;
+        const desktopTitleLayout = getDesktopTitleLayout(post.title, { hasCover: !!post.cover });
         return {
             title: post.title,
             slug: post.slug,
@@ -42,7 +43,8 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir, recentPos
             cover: post.cover,
             coverWidth: post.coverWidth || 0,
             coverHeight: post.coverHeight || 0,
-            desktopPreviewLines: getDesktopPreviewLinesForTitle(post.title, { hasCover: !!post.cover }),
+            desktopTitleSingleLine: desktopTitleLayout.singleLine,
+            desktopPreviewLines: desktopTitleLayout.previewLines,
             pinned: post.pinned,
             modifiedDate: post.modifiedDate.tz('Asia/Shanghai').format('YYYY-MM-DD'),
             sortModifiedDate: post.modifiedDate.valueOf()

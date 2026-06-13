@@ -108,6 +108,7 @@ test('post card text uses build-time Figtree and Noto Sans SC font assets', () =
     assert.match(headBase, /href="\/assets\/typography\.css"/);
     assert.match(postTemplate, /href="\/assets\/typography\.css"/);
     assert.match(typographyCss, /\.post-card-title\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Post Card Noto Sans SC"/);
+    assert.doesNotMatch(typographyCss, /\.post-card-title-line\s*\{/);
     assert.match(typographyCss, /\.post-card-excerpt\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"/);
     assert.match(typographyCss, /\.post-card-excerpt\s*\{[\s\S]*font-weight:\s*400;/);
     assert.match(typographyCss, /\.freecat-date-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"/);
@@ -145,7 +146,7 @@ test('post card text uses build-time Figtree and Noto Sans SC font assets', () =
     assert.doesNotMatch(postCss, /freecat-noto-sans-sc-regular-subset\.woff2/);
 
     assert.equal((html.match(/<p class="post-card-excerpt\b/g) || []).length, 2);
-    assert.equal((html.match(/class="post-card-title\b/g) || []).length, 2);
+    assert.equal((html.match(/class="post-card-title(?:\s|")/g) || []).length, 2);
     assert.match(html, /<h3 class="post-card-title[^"]*\bfont-black\b/);
     assert.match(html, /class="freecat-published-date-text">2026-05-30<\/span>/);
     assert.match(html, /class="freecat-date-text">2026-05-31<\/span>/);
@@ -245,7 +246,7 @@ test('default mobile post cards use the all-page card shell', () => {
     assert.doesNotMatch(html, /\bmd:mb-10\b/);
 });
 
-test('desktop home card preview lines follow build-time title wrapping, not title length', () => {
+test('desktop home card uses safe single-line titles for six-line previews', () => {
     const dateValue = {
         tz: () => ({ format: () => '2026-05-30' }),
         valueOf: () => 1780135781000
@@ -263,17 +264,35 @@ test('desktop home card preview lines follow build-time title wrapping, not titl
         tag: ['Free']
     };
 
-    const longSingleLineHtml = renderPostCardForList({
+    const shortTitleHtml = renderPostCardForList({
         ...basePost,
-        title: 'iiiiiiiiiiiiiiiiiiiiiiiii'
+        title: '为什么坐月子是陋习'
     });
-    const shortWrappedHtml = renderPostCardForList({
+    const nearEdgeHtml = renderPostCardForList({
         ...basePost,
-        title: '这是中文标题刚好换行的长标题测试啊'
+        title: 'ChatGPT image 2.0 视觉指南'
+    });
+    const longTitleHtml = renderPostCardForList({
+        ...basePost,
+        title: 'Freecat Blog 免费博客构建指南 | 本地写作 + GitHub 备份 + 免费部署'
     });
 
-    assert.match(longSingleLineHtml, /post-card-excerpt mt-8[^"]*" style="[^"]*-webkit-line-clamp:5/);
-    assert.match(shortWrappedHtml, /post-card-excerpt mt-8[^"]*" style="[^"]*-webkit-line-clamp:4/);
+    for (const html of [shortTitleHtml, nearEdgeHtml, longTitleHtml]) {
+        assert.match(html, /<div class="row-start-1 flex min-h-0 flex-col">/);
+        assert.equal(html.includes('lg:h-[430px]'), true);
+        assert.doesNotMatch(html, /post-card-title-line/);
+        assert.match(html, /<p class="post-card-excerpt mt-5[^"]*"/);
+    }
+
+    assert.match(shortTitleHtml, /<h3 class="post-card-title[^"]*" style="[^"]*white-space:nowrap;[^"]*">为什么坐月子是陋习<\/h3>/);
+    assert.match(shortTitleHtml, /<p class="post-card-excerpt mt-5[^"]*" style="[^"]*-webkit-line-clamp:6/);
+
+    assert.match(nearEdgeHtml, /<h3 class="post-card-title[^"]*" style="[^"]*-webkit-line-clamp:2[^"]*">ChatGPT image 2\.0 视觉指南<\/h3>/);
+    assert.match(nearEdgeHtml, /<p class="post-card-excerpt mt-5[^"]*" style="[^"]*-webkit-line-clamp:5/);
+
+    assert.match(longTitleHtml, /<h3 class="post-card-title[^"]*" style="[^"]*-webkit-line-clamp:2[^"]*">Freecat Blog 免费博客构建指南/);
+    assert.match(longTitleHtml, /<p class="post-card-excerpt mt-5[^"]*" style="[^"]*-webkit-line-clamp:5/);
+    assert.doesNotMatch(longTitleHtml, /row-start-1[^>]+-webkit-line-clamp:6/);
 });
 
 test('pinned post cards render the pin badge in every card layout', () => {

@@ -154,6 +154,7 @@
             cover: post.cover,
             coverWidth: post.coverWidth,
             coverHeight: post.coverHeight,
+            desktopTitleSingleLine: post.desktopTitleSingleLine,
             desktopPreviewLines: post.desktopPreviewLines,
             pinned: post.pinned,
             animationDelay: getStaggerDelayMs(index),

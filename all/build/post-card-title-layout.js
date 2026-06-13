@@ -8,6 +8,7 @@ const DESKTOP_CARD_PADDING_X_PX = 64 * 2;
 const DESKTOP_CARD_GRID_GAP_PX = 56;
 const DESKTOP_COVER_COLUMN_MIN_PX = 360;
 const DESKTOP_COVER_COLUMN_RATIO = 0.43;
+const DESKTOP_TITLE_SINGLE_LINE_SAFETY_PX = 48;
 const SEPARATOR_INLINE_MARGIN_PX = 2;
 
 let fontCache = null;
@@ -86,11 +87,20 @@ function desktopTitleColumnWidth(hasCover) {
 function getDesktopPreviewLinesForTitle(title, options = {}) {
     const titleWidth = measurePostCardTitleWidth(title);
     const availableWidth = desktopTitleColumnWidth(!!options.hasCover);
-    return titleWidth > availableWidth ? 4 : 5;
+    return titleWidth <= availableWidth - DESKTOP_TITLE_SINGLE_LINE_SAFETY_PX ? 6 : 5;
+}
+
+function getDesktopTitleLayout(title, options = {}) {
+    const previewLines = getDesktopPreviewLinesForTitle(title, options);
+    return {
+        singleLine: previewLines === 6,
+        previewLines
+    };
 }
 
 module.exports = {
     desktopTitleColumnWidth,
+    getDesktopTitleLayout,
     getDesktopPreviewLinesForTitle,
     measurePostCardTitleWidth
 };

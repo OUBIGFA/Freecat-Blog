@@ -6,7 +6,7 @@ const { generatePaginationHtml } = require('../pagination.js');
 const seo = require('../seo.js');
 const { replacePlaceholders } = require('../template-engine.js');
 const { normalizePostTags } = require('../article-model.js');
-const { getDesktopPreviewLinesForTitle } = require('../post-card-title-layout.js');
+const { getDesktopTitleLayout } = require('../post-card-title-layout.js');
 const { ALL_PAGE_MOBILE_CARD_OPTIONS } = postCardTemplate;
 
 /**
@@ -24,16 +24,18 @@ function renderPostCardForList(post, index = 0, options = {}) {
     const animationDelayStep = Number.isFinite(Number(cardOptions.animationDelayStep))
         ? Number(cardOptions.animationDelayStep)
         : 50;
-    const desktopPreviewLines = cardOptions.layout === 'compact-grid'
-        ? undefined
-        : getDesktopPreviewLinesForTitle(post.title, { hasCover: !!post.cover });
     const previewText = post.preview || post.excerpt;
+    const desktopTitleLayout = cardOptions.layout === 'compact-grid'
+        ? null
+        : getDesktopTitleLayout(post.title, { hasCover: !!post.cover });
 
     return postCardTemplate.renderPostCard({
         link: post.link,
         // titleHtml / excerptHtml 字段语义为"已安全的 HTML 片段"，由调用方 escape；
         // 对 title 先 escape 再 processTitleHtml（| 替换为 <span>），顺序不能反
         titleHtml: shared.processTitleHtml(shared.escapeHtml(post.title)),
+        desktopTitleSingleLine: desktopTitleLayout ? desktopTitleLayout.singleLine : undefined,
+        desktopPreviewLines: desktopTitleLayout ? desktopTitleLayout.previewLines : undefined,
         excerptHtml: shared.escapeHtmlWithLineBreaks(previewText),
         date: post.date.tz('Asia/Shanghai').format('YYYY-MM-DD'),
         modifiedDate: post.modifiedDate.tz('Asia/Shanghai').format('YYYY-MM-DD'),
@@ -43,7 +45,6 @@ function renderPostCardForList(post, index = 0, options = {}) {
         cover: post.cover,
         coverWidth: post.coverWidth,
         coverHeight: post.coverHeight,
-        desktopPreviewLines,
         pinned: post.pinned,
         animationDelay: getCardAnimationDelay(index, animationDelayStep),
         mobileTagsInline: ALL_PAGE_MOBILE_CARD_OPTIONS.mobileTagsInline,

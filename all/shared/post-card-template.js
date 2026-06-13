@@ -58,7 +58,11 @@
         const imageSrc = cover;
         const pinned = !!post.pinned;
         const animationDelay = Math.max(0, Number(post.animationDelay) || 0);
-        const desktopPreviewLines = Number(post.desktopPreviewLines) === 4 ? 4 : 5;
+        const desktopTitleSingleLine = post.desktopTitleSingleLine === true;
+        const desktopTitleStyle = desktopTitleSingleLine
+            ? 'display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;'
+            : clampStyle(2);
+        const desktopPreviewLines = Number(post.desktopPreviewLines) === 6 ? 6 : 5;
         // 给 <img> 写 width/height 以预留盒子，消除卡片图片加载的 CLS。
         // 来自 frontmatter cover_width / cover_height（构建期注入）；
         // 客户端搜索结果场景由 search-index.json 透传同名字段。
@@ -158,12 +162,12 @@
         return `
         <a href="${link}" class="post-card post-card-layout-compact-grid ${imageMarkup ? 'has-cover' : 'has-no-cover'} ${mobileTagsInline ? 'tags-inline-mobile' : ''} animate-fade-in-up block h-full min-w-0 lg:mb-10 group cursor-pointer" style="animation-delay: ${animationDelay}ms" data-sort-date="${sortDate}" data-sort-modified="${sortModifiedDate}" data-sort-pinned="${pinned ? '1' : '0'}">
             ${renderAllPageMobileCardInner('lg:hidden')}
-            <div class="relative hidden shadow-none lg:block lg:rounded-2xl lg:bg-white dark:lg:bg-card-dark lg:h-[390px] lg:px-16 lg:py-12 lg:group-hover:shadow-2xl lg:group-hover:shadow-gray-400/20 dark:lg:group-hover:shadow-black/40">
+            <div class="relative hidden shadow-none lg:block lg:rounded-2xl lg:bg-white dark:lg:bg-card-dark lg:h-[430px] lg:px-16 lg:py-12 lg:group-hover:shadow-2xl lg:group-hover:shadow-gray-400/20 dark:lg:group-hover:shadow-black/40">
                 ${pinnedBadge}
                 <div class="hidden h-full min-w-0 ${imageMarkup ? 'grid-cols-[minmax(0,1fr)_minmax(360px,43%)]' : 'grid-cols-1'} grid-rows-[1fr_auto] gap-x-14 lg:grid">
                     <div class="row-start-1 flex min-h-0 flex-col">
-                        <h3 class="post-card-title text-[#1e293b] dark:text-slate-200 text-[34px] font-black leading-tight" style="${clampStyle(2)}">${titleHtml}</h3>
-                        <p class="post-card-excerpt mt-8 text-[#63718a] dark:text-gray-400 text-[16px] font-normal leading-[1.78]" style="${clampStyle(desktopPreviewLines)}">${mediaIconHtml}${excerptBodyHtml}</p>
+                        <h3 class="post-card-title text-[#1e293b] dark:text-slate-200 text-[34px] font-black leading-tight" style="${desktopTitleStyle}">${titleHtml}</h3>
+                        <p class="post-card-excerpt mt-5 text-[#63718a] dark:text-gray-400 text-[16px] font-normal leading-[1.78]" style="${clampStyle(desktopPreviewLines)}">${mediaIconHtml}${excerptBodyHtml}</p>
                     </div>
                     ${desktopImageBlock}
                     <div class="col-start-1 row-start-2 border-t border-slate-200 dark:border-slate-700 pt-3">
