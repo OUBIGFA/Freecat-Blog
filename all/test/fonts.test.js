@@ -99,6 +99,8 @@ test('font subset refresh falls back to the existing subsets when the subsetter 
     const modulePath = path.join(__dirname, '../build/fonts.js');
     const originalSpawnSync = childProcess.spawnSync;
     const originalExistsSync = fs.existsSync;
+    const originalCopyFileSync = fs.copyFileSync;
+    const originalMkdirSync = fs.mkdirSync;
     const warnings = [];
     const originalWarn = console.warn;
     const originalLog = console.log;
@@ -117,6 +119,8 @@ test('font subset refresh falls back to the existing subsets when the subsetter 
         if (normalized.includes('/src/assets/fonts/freecat-figtree-')) return true;
         return originalExistsSync(file);
     };
+    fs.copyFileSync = () => {};
+    fs.mkdirSync = () => {};
     console.warn = (message) => warnings.push(String(message));
     console.log = () => {};
 
@@ -130,6 +134,8 @@ test('font subset refresh falls back to the existing subsets when the subsetter 
     } finally {
         childProcess.spawnSync = originalSpawnSync;
         fs.existsSync = originalExistsSync;
+        fs.copyFileSync = originalCopyFileSync;
+        fs.mkdirSync = originalMkdirSync;
         console.warn = originalWarn;
         console.log = originalLog;
         delete require.cache[require.resolve(modulePath)];
@@ -295,41 +301,7 @@ test('font subset refresh skips the subsetter when the manifest covers current t
     });
 });
 
-test('font subset refresh ignores source and config text outside generated pages', () => {
-    const visibleCoverage = codepointsForTest('Visible text');
-    const manifest = expectedManifest('unused', {
-        'freecat-figtree': visibleCoverage,
-        'freecat-ui-noto-sans-sc': [],
-        'freecat-noto-sans-sc': []
-    });
-
-    withFontSubsetFileMocks(
-        '<html><!-- HiddenSourceZ --><script>BuildOnlyZ</script><style>.x{font-family:ControlOnlyZ}</style><body>Visible text</body></html>',
-        manifest,
-        ({ buildArticleFontSubset, rootDir, calls }) => {
-            assert.doesNotThrow(() => buildArticleFontSubset({ rootDir, refresh: true }));
-            assert.equal(calls.length, 0);
-        }
-    );
-});
-
-test('font subset refresh only asks the subsetter to rebuild stale subsets', () => {
-    const asciiCoverage = Array.from({ length: 95 }, (_, index) => index + 32);
-    const manifest = expectedManifest('unused', asciiCoverage);
-
-    withFontSubsetFileMocks('<html><body>新增汉字</body></html>', manifest, ({ buildArticleFontSubset, rootDir, calls }) => {
-        assert.doesNotThrow(() => buildArticleFontSubset({ rootDir, refresh: true }));
-        assert.equal(calls.length, 1);
-        const args = calls[0][1];
-        assert.match(String(args[0]).replace(/\\/g, '/'), /\/build\/font-subsetter\.js$/);
-        assert.equal(args.filter(arg => arg === '--target').length, 11);
-        assert.equal(args.includes('freecat-figtree:regular'), true);
-        assert.equal(args.includes('freecat-ui-noto-sans-sc:regular'), true);
-        assert.equal(args.includes('freecat-noto-sans-sc:regular'), true);
-    });
-});
-
-test('font subset refresh reuses restored build cache before running the subsetter', () => {
+test('font subset refresh does not restore cache over current reusable subsets', () => {
     const visibleCoverage = codepointsForTest('Plain ASCII');
     const manifest = expectedManifest('unused', {
         'freecat-figtree': visibleCoverage,
@@ -404,6 +376,147 @@ test('font subset refresh reuses restored build cache before running the subsett
     };
     fs.copyFileSync = (source, target) => {
         copied.push([normalized(source), normalized(target)]);
+    };
+    fs.mkdirSync = () => {};
+    console.log = (message) => logs.push(String(message));
+
+    try {
+        const { buildArticleFontSubset } = require(modulePath);
+        assert.doesNotThrow(() => buildArticleFontSubset({ rootDir, refresh: true }));
+        assert.equal(calls.length, 0);
+        assert.equal(
+            copied.some(([source]) => source.includes('/node_modules/.cache/freecat-font-subsets/')),
+            false
+        );
+        assert.equal(
+            copied.some(([, target]) => target.includes('/node_modules/.cache/freecat-font-subsets/')),
+            true
+        );
+        assert.equal(logs.some(message => message.includes('Restored cached font subsets')), false);
+        assert.equal(logs.some(message => message.includes('Saved cached font subsets')), true);
+    } finally {
+        childProcess.spawnSync = originalSpawnSync;
+        fs.existsSync = originalExistsSync;
+        fs.readFileSync = originalReadFileSync;
+        fs.readdirSync = originalReaddirSync;
+        fs.copyFileSync = originalCopyFileSync;
+        fs.mkdirSync = originalMkdirSync;
+        console.log = originalLog;
+        delete require.cache[require.resolve(modulePath)];
+    }
+});
+
+test('font subset refresh ignores source and config text outside generated pages', () => {
+    const visibleCoverage = codepointsForTest('Visible text');
+    const manifest = expectedManifest('unused', {
+        'freecat-figtree': visibleCoverage,
+        'freecat-ui-noto-sans-sc': [],
+        'freecat-noto-sans-sc': []
+    });
+
+    withFontSubsetFileMocks(
+        '<html><!-- HiddenSourceZ --><script>BuildOnlyZ</script><style>.x{font-family:ControlOnlyZ}</style><body>Visible text</body></html>',
+        manifest,
+        ({ buildArticleFontSubset, rootDir, calls }) => {
+            assert.doesNotThrow(() => buildArticleFontSubset({ rootDir, refresh: true }));
+            assert.equal(calls.length, 0);
+        }
+    );
+});
+
+test('font subset refresh only asks the subsetter to rebuild stale subsets', () => {
+    const asciiCoverage = Array.from({ length: 95 }, (_, index) => index + 32);
+    const manifest = expectedManifest('unused', asciiCoverage);
+
+    withFontSubsetFileMocks('<html><body>新增汉字</body></html>', manifest, ({ buildArticleFontSubset, rootDir, calls }) => {
+        assert.doesNotThrow(() => buildArticleFontSubset({ rootDir, refresh: true }));
+        assert.equal(calls.length, 1);
+        const args = calls[0][1];
+        assert.match(String(args[0]).replace(/\\/g, '/'), /\/build\/font-subsetter\.js$/);
+        assert.equal(args.filter(arg => arg === '--target').length, 11);
+        assert.equal(args.includes('freecat-figtree:regular'), true);
+        assert.equal(args.includes('freecat-ui-noto-sans-sc:regular'), true);
+        assert.equal(args.includes('freecat-noto-sans-sc:regular'), true);
+    });
+});
+
+test('font subset refresh reuses restored build cache before running the subsetter', () => {
+    const visibleCoverage = codepointsForTest('Plain ASCII');
+    const manifest = expectedManifest('unused', {
+        'freecat-figtree': visibleCoverage,
+        'freecat-ui-noto-sans-sc': [],
+        'freecat-noto-sans-sc': []
+    });
+    const modulePath = path.join(__dirname, '../build/fonts.js');
+    const rootDir = path.join('X:', 'freecat');
+    const originalSpawnSync = childProcess.spawnSync;
+    const originalExistsSync = fs.existsSync;
+    const originalReadFileSync = fs.readFileSync;
+    const originalReaddirSync = fs.readdirSync;
+    const originalCopyFileSync = fs.copyFileSync;
+    const originalMkdirSync = fs.mkdirSync;
+    const originalLog = console.log;
+    const calls = [];
+    const copied = [];
+    const logs = [];
+    let restoredSubsets = false;
+
+    function normalized(file) {
+        return String(file).replace(/\\/g, '/');
+    }
+
+    function dirent(name, type) {
+        return {
+            name,
+            isDirectory: () => type === 'dir',
+            isFile: () => type === 'file'
+        };
+    }
+
+    delete require.cache[require.resolve(modulePath)];
+    childProcess.spawnSync = (...args) => {
+        calls.push(args);
+        return { status: 0, stdout: '', stderr: '' };
+    };
+    fs.existsSync = (file) => {
+        const current = normalized(file);
+        if (current.includes('/node_modules/.cache/freecat-font-subsets/font-subsets-manifest.json')) return true;
+        if (current.includes('/node_modules/.cache/freecat-font-subsets/fonts/') && current.endsWith('-subset.woff2')) return true;
+        if (current.includes('/build/font-subsets-manifest.json')) return true;
+        if (current.includes('/src/assets/fonts/') && current.endsWith('-subset.woff2')) return restoredSubsets;
+        if (current.includes('/fonts/') && /\.(woff2|ttf)$/.test(current)) return true;
+        if (current === normalized(path.join(rootDir, 'dist'))) return true;
+        if (current === normalized(path.join(rootDir, 'dist', 'posts'))) return true;
+        if (current === normalized(path.join(rootDir, 'src'))) return true;
+        if (current === normalized(path.join(rootDir, 'build'))) return true;
+        if (current === normalized(path.join(rootDir, '..', 'writing'))) return true;
+        if (current === normalized(path.join(rootDir, '..', 'Control'))) return true;
+        return originalExistsSync(file);
+    };
+    fs.readdirSync = (dir, options) => {
+        const current = normalized(dir);
+        if (options && options.withFileTypes) {
+            if (current === normalized(path.join(rootDir, 'dist'))) return [dirent('index.html', 'file'), dirent('posts', 'dir')];
+            if (current === normalized(path.join(rootDir, 'dist', 'posts'))) return [];
+            if (
+                current === normalized(path.join(rootDir, 'src')) ||
+                current === normalized(path.join(rootDir, 'build')) ||
+                current === normalized(path.join(rootDir, '..', 'writing')) ||
+                current === normalized(path.join(rootDir, '..', 'Control'))
+            ) return [];
+        }
+        return originalReaddirSync(dir, options);
+    };
+    fs.readFileSync = (file, encoding) => {
+        const current = normalized(file);
+        if (current.includes('/build/font-subsets-manifest.json')) return manifest;
+        if (current.includes('/fonts/') && /\.(woff2|ttf)$/.test(current)) return Buffer.from('font-source');
+        if (current.endsWith('/dist/index.html')) return '<html><body>Plain ASCII</body></html>';
+        return originalReadFileSync(file, encoding);
+    };
+    fs.copyFileSync = (source, target) => {
+        copied.push([normalized(source), normalized(target)]);
+        if (normalized(target).includes('/src/assets/fonts/')) restoredSubsets = true;
     };
     fs.mkdirSync = () => {};
     console.log = (message) => logs.push(String(message));

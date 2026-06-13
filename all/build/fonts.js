@@ -337,14 +337,21 @@ function buildArticleFontSubset({ rootDir, refresh = false }) {
         return;
     }
 
-    restoreCachedFontSubsets(rootDir);
-
-    const refreshPlan = fontSubsetRefreshPlan(rootDir);
+    let refreshPlan = fontSubsetRefreshPlan(rootDir);
     if (refreshPlan.reusable) {
         console.log('   Font subset manifest covers the current text; skipping refresh.');
         saveCachedFontSubsets(rootDir);
         return;
     }
+
+    restoreCachedFontSubsets(rootDir);
+    refreshPlan = fontSubsetRefreshPlan(rootDir);
+    if (refreshPlan.reusable) {
+        console.log('   Font subset manifest covers the current text; skipping refresh.');
+        saveCachedFontSubsets(rootDir);
+        return;
+    }
+
     if (refreshPlan.targets && refreshPlan.targets.length > 0) {
         console.log(`   Refreshing ${refreshPlan.targets.length} stale font subset(s).`);
         console.log(`   Font subset refresh reason(s): ${formatFontSubsetRefreshReasons(refreshPlan.stale)}`);
