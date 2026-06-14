@@ -261,49 +261,55 @@
 
 .t-btn.t-btn-outline-subtle {
     background-color: transparent;
-    border-color: rgba(148, 163, 184, 0.38);
+    border-color: rgba(100, 116, 139, 0.42);
     color: #64748b;
     transition:
-        border-color 460ms cubic-bezier(0.4, 0, 0.2, 1) 110ms,
-        outline-color 460ms cubic-bezier(0.4, 0, 0.2, 1) 110ms;
-    will-change: border-color;
+        border-color 220ms var(--t-btn-ease),
+        background-color 220ms var(--t-btn-ease),
+        color 220ms var(--t-btn-ease),
+        outline-color 180ms var(--t-btn-ease);
+    will-change: border-color, background-color;
 }
 
 .t-btn.t-btn-outline-subtle:not([disabled]):not([aria-disabled="true"]):hover {
-    border-color: rgba(100, 116, 139, 0.42);
-    background-color: transparent;
-    color: #64748b;
+    border-color: rgba(71, 85, 105, 0.6);
+    background-color: rgba(248, 250, 252, 0.48);
+    color: #475569;
     transform: none;
 }
 
 .t-btn.t-btn-outline-subtle:not([disabled]):not([aria-disabled="true"]):active {
-    border-color: rgba(100, 116, 139, 0.46);
+    border-color: rgba(51, 65, 85, 0.66);
+    background-color: rgba(241, 245, 249, 0.62);
+    color: #475569;
     transform: none;
     transition-delay: 0ms;
 }
 
 .t-btn.t-btn-outline-subtle:focus-visible {
-    outline: 2px solid rgba(148, 163, 184, 0.42);
+    outline: 2px solid rgba(100, 116, 139, 0.46);
     outline-offset: 3px;
 }
 
 .dark .t-btn.t-btn-outline-subtle {
-    border-color: rgba(100, 116, 139, 0.48);
+    border-color: rgba(148, 163, 184, 0.44);
     color: #cbd5e1;
 }
 
 .dark .t-btn.t-btn-outline-subtle:not([disabled]):not([aria-disabled="true"]):hover {
-    border-color: rgba(148, 163, 184, 0.54);
-    background-color: transparent;
-    color: #cbd5e1;
+    border-color: rgba(203, 213, 225, 0.58);
+    background-color: rgba(30, 41, 59, 0.28);
+    color: #e2e8f0;
 }
 
 .dark .t-btn.t-btn-outline-subtle:not([disabled]):not([aria-disabled="true"]):active {
-    border-color: rgba(148, 163, 184, 0.58);
+    border-color: rgba(226, 232, 240, 0.64);
+    background-color: rgba(30, 41, 59, 0.36);
+    color: #e2e8f0;
 }
 
 .dark .t-btn.t-btn-outline-subtle:focus-visible {
-    outline-color: rgba(148, 163, 184, 0.46);
+    outline-color: rgba(148, 163, 184, 0.52);
 }
 
 /* 内部图标的 hover 微动效（向左 / 上下），由父 .group 控制 */
