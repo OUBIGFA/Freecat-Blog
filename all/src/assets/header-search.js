@@ -94,7 +94,9 @@
                     </h2>
                     <a href="/search?q=${encodeURIComponent(query)}" class="text-sm text-primary hover:underline">View all</a>
                 </div>
-                ${resultsHtml}
+                <div class="freecat-post-card-list">
+                    ${resultsHtml}
+                </div>
             </div >
             `;
             initDeferredImages();

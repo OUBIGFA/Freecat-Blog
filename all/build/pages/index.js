@@ -48,7 +48,6 @@ function renderPostCardForList(post, index = 0, options = {}) {
         pinned: post.pinned,
         animationDelay: getCardAnimationDelay(index, animationDelayStep),
         mobileTagsInline: ALL_PAGE_MOBILE_CARD_OPTIONS.mobileTagsInline,
-        compactNoCoverExcerptLines: cardOptions.compactNoCoverExcerptLines,
         layout: cardOptions.layout
     });
 }

@@ -336,13 +336,20 @@ test('pinned post cards render the pin badge in every card layout', () => {
     assert.equal((defaultHtml.match(/post-card-pinned-badge/g) || []).length, 2);
     assert.match(defaultHtml, /lg:hidden[\s\S]*post-card-pinned-badge[\s\S]*lg:block[\s\S]*post-card-pinned-badge/);
     assert.match(defaultHtml, /\bpost-card-pinned animate-fade-in-up\b/);
+    assert.match(defaultHtml, /post-card-pinned-badge absolute -top-2 -left-2 md:-top-3 md:-left-3\b/);
+    assert.doesNotMatch(defaultHtml, /post-card-pinned-badge absolute top-0 left-0\b/);
     assert.equal((compactHtml.match(/post-card-pinned-badge/g) || []).length, 1);
     assert.match(compactHtml, /\bpost-card-pinned animate-fade-in-up\b/);
     assert.equal(compactHtml.includes('data-sort-pinned="1"'), true);
     assert.equal(normalHtml.includes('post-card-pinned-badge'), false);
     assert.doesNotMatch(normalHtml, /\bpost-card-pinned animate-fade-in-up\b/);
-    assert.match(typographyCss, /\.post-card-pinned\s*\{[\s\S]*box-sizing:\s*content-box;[\s\S]*margin-top:\s*-0\.5rem;[\s\S]*padding-left:\s*0\.5rem;/);
-    assert.match(typographyCss, /@media \(min-width:\s*768px\)\s*\{[\s\S]*\.post-card-pinned\s*\{[\s\S]*margin-top:\s*-0\.75rem;[\s\S]*padding-left:\s*0\.75rem;/);
+    assert.match(typographyCss, /\.freecat-post-card-list\s*\{[\s\S]*--freecat-post-card-pin-overhang:\s*0\.5rem;[\s\S]*--freecat-post-card-mobile-height:\s*27rem;[\s\S]*padding-top:\s*var\(--freecat-post-card-pin-overhang\);[\s\S]*width:\s*calc\(100% \+ var\(--freecat-post-card-pin-overhang\)\);[\s\S]*overflow:\s*visible;/);
+    assert.match(typographyCss, /@media \(min-width:\s*768px\)\s*\{[\s\S]*\.freecat-post-card-list\s*\{[\s\S]*--freecat-post-card-pin-overhang:\s*0\.75rem;/);
+    assert.match(typographyCss, /@media \(max-width:\s*1023px\)\s*\{[\s\S]*\.freecat-post-card-list\s*\{[\s\S]*display:\s*grid;[\s\S]*grid-auto-rows:\s*var\(--freecat-post-card-mobile-height\);[\s\S]*row-gap:\s*1\.25rem;/);
+    assert.match(typographyCss, /\.freecat-post-card-list \.post-card\s*\{[\s\S]*height:\s*var\(--freecat-post-card-mobile-height\);/);
+    assert.match(typographyCss, /\.freecat-post-card-list \.post-card\.has-cover \.lazy-image-frame\s*\{[\s\S]*flex:\s*1 1 auto;[\s\S]*height:\s*auto;[\s\S]*min-height:\s*0;/);
+    assert.match(typographyCss, /\.freecat-post-card-list \.post-card\.has-cover \.post-card-excerpt-lines-4\s*\{[\s\S]*min-height:\s*88px;/);
+    assert.doesNotMatch(typographyCss, /\.post-card-pinned\s*\{[\s\S]*box-sizing:\s*content-box;/);
 });
 
 test('home mobile hero uses safe side padding instead of a fixed text width', () => {
@@ -364,6 +371,8 @@ test('home and search mobile lists use the all-page single-column card gap with 
 
     assert.match(homeLayoutStyle, /\.freecat-home-posts\s*\{[\s\S]*padding:\s*clamp\(12px,\s*3\.5vw,\s*18px\) 0\.875rem 48px;/);
     assert.match(homeLayoutStyle, /\.freecat-home-posts #posts-list,\s*\.freecat-home-posts #search-results\s*\{[\s\S]*display:\s*grid;[\s\S]*grid-template-columns:\s*1fr;[\s\S]*row-gap:\s*1\.25rem;/);
+    assert.match(indexTemplate, /<div id="posts-list" class="freecat-post-card-list">/);
+    assert.match(searchTemplate, /<div id="search-results" class="freecat-post-card-list">/);
 });
 
 test('home, all and search cards share the all-page mobile card contract', () => {
@@ -379,6 +388,7 @@ test('home, all and search cards share the all-page mobile card contract', () =>
 });
 
 test('all page grid keeps compact cards at one uniform height', () => {
+    assert.match(allTemplate, /<div id="posts-list" class="freecat-post-card-list">/);
     assert.match(allTemplate, /\.freecat-all-page #posts-list\s*\{[\s\S]*--freecat-all-card-height:\s*27rem;[\s\S]*grid-auto-rows:\s*var\(--freecat-all-card-height\);/);
     assert.match(allTemplate, /\.freecat-all-page #posts-list \.post-card\s*\{[\s\S]*height:\s*var\(--freecat-all-card-height\);/);
     assert.match(allTemplate, /\.freecat-all-page #posts-list \.post-card > div\s*\{[\s\S]*height:\s*100%;/);
@@ -487,9 +497,10 @@ test('all-page compact cards use shared native excerpt ellipsis by cover state',
 
     assert.match(withCoverHtml, /\bpost-card-excerpt-limited\b/);
     assert.match(withoutCoverHtml, /\bpost-card-excerpt-limited\b/);
-    assert.match(withCoverHtml, /\bpost-card-excerpt-lines-2\b/);
-    assert.match(withoutCoverHtml, /\bpost-card-excerpt-lines-9\b/);
-    assert.doesNotMatch(withoutCoverHtml, /\bpost-card-excerpt-lines-13\b/);
+    assert.match(withCoverHtml, /\bpost-card-excerpt-lines-4\b/);
+    assert.doesNotMatch(withCoverHtml, /\bpost-card-excerpt-lines-2\b/);
+    assert.match(withoutCoverHtml, /\bpost-card-excerpt-lines-13\b/);
+    assert.doesNotMatch(withoutCoverHtml, /\bpost-card-excerpt-lines-9\b/);
     assert.doesNotMatch(withCoverHtml, /class="post-card-excerpt-line"/);
     assert.doesNotMatch(withoutCoverHtml, /class="post-card-excerpt-line"/);
     assert.doesNotMatch(withCoverHtml, /<p class="post-card-excerpt[^"]*" style=/);
@@ -499,15 +510,16 @@ test('all-page compact cards use shared native excerpt ellipsis by cover state',
     assert.match(typographyCss, /\.post-card-excerpt-limited\s*\{[\s\S]*-webkit-box-orient:\s*vertical;[\s\S]*text-overflow:\s*ellipsis;[\s\S]*line-height:\s*22px;/);
     assert.doesNotMatch(typographyCss, /\.post-card-excerpt-limited::before/);
     assert.doesNotMatch(typographyCss, /\.post-card-excerpt-limited::after/);
-    assert.match(typographyCss, /\.post-card-excerpt-lines-2\s*\{[\s\S]*-webkit-line-clamp:\s*2;[\s\S]*max-height:\s*44px;/);
-    assert.match(typographyCss, /\.post-card-excerpt-lines-9\s*\{[\s\S]*-webkit-line-clamp:\s*9;[\s\S]*max-height:\s*198px;/);
+    assert.match(typographyCss, /\.post-card-excerpt-lines-4\s*\{[\s\S]*-webkit-line-clamp:\s*4;[\s\S]*max-height:\s*88px;/);
+    assert.doesNotMatch(typographyCss, /\.post-card-excerpt-lines-2\b/);
     assert.match(typographyCss, /\.post-card-excerpt-lines-13\s*\{[\s\S]*-webkit-line-clamp:\s*13;[\s\S]*max-height:\s*286px;/);
+    assert.doesNotMatch(typographyCss, /\.post-card-excerpt-lines-9\b/);
     assert.doesNotMatch(withCoverHtml, /data-excerpt-overflow/);
     assert.doesNotMatch(withoutCoverHtml, /data-excerpt-overflow/);
     assert.doesNotMatch(headBase, /post-card-excerpt-clamp/);
 });
 
-test('all page no-cover compact cards use thirteen excerpt rows', () => {
+test('mobile no-cover compact cards use thirteen excerpt rows by default', () => {
     const post = {
         title: 'Plain',
         preview: 'Long excerpt '.repeat(60),
@@ -519,25 +531,23 @@ test('all page no-cover compact cards use thirteen excerpt rows', () => {
         cover: ''
     };
     const html = renderPostCardForList(post, 0, {
-        layout: 'compact-grid',
-        compactNoCoverExcerptLines: 13
+        layout: 'compact-grid'
     });
     const coveredHtml = renderPostCardForList({
         ...post,
         cover: '/image/example.png'
     }, 0, {
-        layout: 'compact-grid',
-        compactNoCoverExcerptLines: 13
+        layout: 'compact-grid'
     });
 
     assert.match(html, /\bpost-card-excerpt-lines-13\b/);
     assert.doesNotMatch(html, /\bpost-card-excerpt-lines-9\b/);
     assert.doesNotMatch(coveredHtml, /\bpost-card-excerpt-lines-13\b/);
-    assert.match(readProjectFile('build', 'pages', 'all.js'), /compactNoCoverExcerptLines:\s*13/);
-    assert.match(readProjectFile('build', 'pages', 'index.js'), /compactNoCoverExcerptLines:\s*cardOptions\.compactNoCoverExcerptLines/);
+    assert.doesNotMatch(readProjectFile('build', 'pages', 'all.js'), /compactNoCoverExcerptLines/);
+    assert.doesNotMatch(readProjectFile('build', 'pages', 'index.js'), /compactNoCoverExcerptLines/);
 });
 
-test('mobile no-cover compact excerpts keep full text under a nine-row cap', () => {
+test('mobile no-cover compact excerpts keep full text under a thirteen-row cap', () => {
     const excerpt = Array.from({ length: 10 }, (_, index) => `第${index + 1}行`).join('\n');
     const html = postCardTemplate.renderPostCard({
         link: '/posts/plain.html',
@@ -547,11 +557,11 @@ test('mobile no-cover compact excerpts keep full text under a nine-row cap', () 
         layout: 'compact-grid'
     });
 
-    assert.match(html, /\bpost-card-excerpt-lines-9\b/);
-    assert.doesNotMatch(html, /\bpost-card-excerpt-lines-13\b/);
+    assert.match(html, /\bpost-card-excerpt-lines-13\b/);
+    assert.doesNotMatch(html, /\bpost-card-excerpt-lines-9\b/);
     assert.doesNotMatch(html, /class="post-card-excerpt-line"/);
     assert.match(html, /第10行/);
-    assert.match(typographyCss, /\.post-card-excerpt-lines-9\s*\{[\s\S]*-webkit-line-clamp:\s*9;/);
+    assert.match(typographyCss, /\.post-card-excerpt-lines-13\s*\{[\s\S]*-webkit-line-clamp:\s*13;/);
 });
 
 test('post card excerpts render line breaks consistently across card layouts', () => {
