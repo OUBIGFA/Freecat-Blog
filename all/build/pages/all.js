@@ -14,7 +14,7 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir }) {
         .map((post, index) => renderPostCardForList(post, index, {
             ...postCardTemplate.ALL_PAGE_MOBILE_CARD_OPTIONS,
             animationDelayStep: 50,
-            compactNoCoverDesktopExcerptLines: 12,
+            compactNoCoverExcerptLines: 13,
             layout: 'compact-grid'
         }))
         .join('');

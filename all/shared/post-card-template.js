@@ -123,9 +123,9 @@
             : '';
 
         function renderAllPageMobileCardInner(extraClass = '') {
-            const compactExcerptLines = imageMarkup ? 2 : 9;
-            const compactNoCoverDesktopExcerptLines = !imageMarkup && Number(post.compactNoCoverDesktopExcerptLines) === 12 ? 12 : 0;
-            const compactExcerptLineClasses = `post-card-excerpt-lines-${compactExcerptLines}${compactNoCoverDesktopExcerptLines ? ` post-card-excerpt-lines-desktop-${compactNoCoverDesktopExcerptLines}` : ''}`;
+            const compactNoCoverExcerptLines = !imageMarkup && Number(post.compactNoCoverExcerptLines) === 13 ? 13 : 9;
+            const compactExcerptLines = imageMarkup ? 2 : compactNoCoverExcerptLines;
+            const compactExcerptLineClasses = `post-card-excerpt-lines-${compactExcerptLines}`;
             const compactImageHeight = mobileTagsInline
                 ? 'h-[clamp(11.25rem,14.5vw,13.25rem)] max-[480px]:h-[11.5rem]'
                 : 'h-[clamp(8.75rem,12vw,10.75rem)] max-[480px]:h-36';

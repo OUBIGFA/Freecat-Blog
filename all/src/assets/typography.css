@@ -23,11 +23,9 @@
     max-height: 198px;
 }
 
-@media (min-width: 1024px) {
-    .post-card-excerpt-lines-desktop-12 {
-        -webkit-line-clamp: 12;
-        max-height: 264px;
-    }
+.post-card-excerpt-lines-13 {
+    -webkit-line-clamp: 13;
+    max-height: 286px;
 }
 
 .post-card-title {

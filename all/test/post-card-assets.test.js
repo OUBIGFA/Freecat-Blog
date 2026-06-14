@@ -373,6 +373,13 @@ test('home, all and search cards share the all-page mobile card contract', () =>
     assert.match(readProjectFile('shared', 'post-card-template.js'), /function renderAllPageMobileCardInner/);
 });
 
+test('all page grid keeps compact cards at one uniform height', () => {
+    assert.match(allTemplate, /\.freecat-all-page #posts-list\s*\{[\s\S]*--freecat-all-card-height:\s*28rem;[\s\S]*grid-auto-rows:\s*var\(--freecat-all-card-height\);/);
+    assert.match(allTemplate, /\.freecat-all-page #posts-list \.post-card\s*\{[\s\S]*height:\s*var\(--freecat-all-card-height\);/);
+    assert.match(allTemplate, /\.freecat-all-page #posts-list \.post-card > div\s*\{[\s\S]*height:\s*100%;/);
+    assert.match(allTemplate, /\.freecat-all-page #posts-list \.post-card\.has-cover \.lazy-image-frame\s*\{[\s\S]*flex:\s*1 1 auto;[\s\S]*height:\s*auto;[\s\S]*min-height:\s*0;/);
+});
+
 test('pagination text uses requested regular and active font weights', () => {
     const html = generatePaginationHtml(1, 2);
 
@@ -477,7 +484,7 @@ test('all-page compact cards use shared native excerpt ellipsis by cover state',
     assert.match(withoutCoverHtml, /\bpost-card-excerpt-limited\b/);
     assert.match(withCoverHtml, /\bpost-card-excerpt-lines-2\b/);
     assert.match(withoutCoverHtml, /\bpost-card-excerpt-lines-9\b/);
-    assert.doesNotMatch(withoutCoverHtml, /\bpost-card-excerpt-lines-desktop-12\b/);
+    assert.doesNotMatch(withoutCoverHtml, /\bpost-card-excerpt-lines-13\b/);
     assert.doesNotMatch(withCoverHtml, /class="post-card-excerpt-line"/);
     assert.doesNotMatch(withoutCoverHtml, /class="post-card-excerpt-line"/);
     assert.doesNotMatch(withCoverHtml, /<p class="post-card-excerpt[^"]*" style=/);
@@ -489,12 +496,13 @@ test('all-page compact cards use shared native excerpt ellipsis by cover state',
     assert.doesNotMatch(typographyCss, /\.post-card-excerpt-limited::after/);
     assert.match(typographyCss, /\.post-card-excerpt-lines-2\s*\{[\s\S]*-webkit-line-clamp:\s*2;[\s\S]*max-height:\s*44px;/);
     assert.match(typographyCss, /\.post-card-excerpt-lines-9\s*\{[\s\S]*-webkit-line-clamp:\s*9;[\s\S]*max-height:\s*198px;/);
+    assert.match(typographyCss, /\.post-card-excerpt-lines-13\s*\{[\s\S]*-webkit-line-clamp:\s*13;[\s\S]*max-height:\s*286px;/);
     assert.doesNotMatch(withCoverHtml, /data-excerpt-overflow/);
     assert.doesNotMatch(withoutCoverHtml, /data-excerpt-overflow/);
     assert.doesNotMatch(headBase, /post-card-excerpt-clamp/);
 });
 
-test('all page no-cover compact cards use twelve excerpt rows on desktop only', () => {
+test('all page no-cover compact cards use thirteen excerpt rows', () => {
     const post = {
         title: 'Plain',
         preview: 'Long excerpt '.repeat(60),
@@ -507,22 +515,21 @@ test('all page no-cover compact cards use twelve excerpt rows on desktop only', 
     };
     const html = renderPostCardForList(post, 0, {
         layout: 'compact-grid',
-        compactNoCoverDesktopExcerptLines: 12
+        compactNoCoverExcerptLines: 13
     });
     const coveredHtml = renderPostCardForList({
         ...post,
         cover: '/image/example.png'
     }, 0, {
         layout: 'compact-grid',
-        compactNoCoverDesktopExcerptLines: 12
+        compactNoCoverExcerptLines: 13
     });
 
-    assert.match(html, /\bpost-card-excerpt-lines-9\b/);
-    assert.match(html, /\bpost-card-excerpt-lines-desktop-12\b/);
-    assert.doesNotMatch(coveredHtml, /\bpost-card-excerpt-lines-desktop-12\b/);
-    assert.match(readProjectFile('build', 'pages', 'all.js'), /compactNoCoverDesktopExcerptLines:\s*12/);
-    assert.match(readProjectFile('build', 'pages', 'index.js'), /compactNoCoverDesktopExcerptLines:\s*cardOptions\.compactNoCoverDesktopExcerptLines/);
-    assert.match(typographyCss, /@media \(min-width:\s*1024px\)\s*\{[\s\S]*\.post-card-excerpt-lines-desktop-12\s*\{[\s\S]*-webkit-line-clamp:\s*12;[\s\S]*max-height:\s*264px;/);
+    assert.match(html, /\bpost-card-excerpt-lines-13\b/);
+    assert.doesNotMatch(html, /\bpost-card-excerpt-lines-9\b/);
+    assert.doesNotMatch(coveredHtml, /\bpost-card-excerpt-lines-13\b/);
+    assert.match(readProjectFile('build', 'pages', 'all.js'), /compactNoCoverExcerptLines:\s*13/);
+    assert.match(readProjectFile('build', 'pages', 'index.js'), /compactNoCoverExcerptLines:\s*cardOptions\.compactNoCoverExcerptLines/);
 });
 
 test('mobile no-cover compact excerpts keep full text under a nine-row cap', () => {
@@ -536,7 +543,7 @@ test('mobile no-cover compact excerpts keep full text under a nine-row cap', () 
     });
 
     assert.match(html, /\bpost-card-excerpt-lines-9\b/);
-    assert.doesNotMatch(html, /\bpost-card-excerpt-lines-desktop-12\b/);
+    assert.doesNotMatch(html, /\bpost-card-excerpt-lines-13\b/);
     assert.doesNotMatch(html, /class="post-card-excerpt-line"/);
     assert.match(html, /第10行/);
     assert.match(typographyCss, /\.post-card-excerpt-lines-9\s*\{[\s\S]*-webkit-line-clamp:\s*9;/);
