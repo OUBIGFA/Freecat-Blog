@@ -130,12 +130,12 @@ test('generated search indexes contain build-time search fields', (t) => {
     assert.equal(searchIndex[0].mobileExcerptHtml, undefined, 'mobile excerpt html is not precomputed');
     assert.equal(searchIndex[0].desktopTitleSingleLine, true, 'safe one-line desktop titles are fixed at build time');
     assert.equal(searchIndex[0].desktopTitleLines, undefined, 'desktop title text is not pre-split');
-    assert.equal(searchIndex[0].desktopPreviewLines, 6, 'safe one-line desktop titles get a six-line preview');
+    assert.equal(searchIndex[0].desktopPreviewLines, 7, 'safe one-line desktop titles get a seven-line preview');
     assert.equal(tagIndex.sorted, true, 'tag indexes are emitted in display order');
     assert.equal(tagIndex.posts[0].searchText, undefined, 'tag index keeps only display fields');
     assert.equal(tagIndex.posts[0].lowerTags, undefined, 'tag index avoids duplicate search-only fields');
     assert.equal(tagIndex.posts[0].mobileExcerptHtml, undefined, 'tag index does not keep precomputed mobile excerpt html');
     assert.equal(tagIndex.posts[0].desktopTitleSingleLine, true, 'tag index keeps the desktop title mode');
     assert.equal(tagIndex.posts[0].desktopTitleLines, undefined, 'tag index does not keep pre-split title text');
-    assert.equal(tagIndex.posts[0].desktopPreviewLines, 6, 'tag index keeps desktop preview line count');
+    assert.equal(tagIndex.posts[0].desktopPreviewLines, 7, 'tag index keeps desktop preview line count');
 });

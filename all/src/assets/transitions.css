@@ -689,7 +689,7 @@ html.theme-instant *::after {
 
 .freecat-about-social > a {
     animation: fadeInUp var(--post-card-enter-dur) var(--post-card-enter-ease) both;
-    animation-delay: calc(380ms + (var(--freecat-social-index, 0) * 50ms));
+    animation-delay: calc(150ms + (var(--freecat-social-index, 0) * 50ms));
     opacity: 0;
     transform-origin: center top;
     transition:

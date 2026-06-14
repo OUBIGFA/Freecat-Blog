@@ -5,15 +5,29 @@
 }
 
 .post-card-excerpt-limited {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    text-overflow: ellipsis;
     line-height: 22px;
 }
 
 .post-card-excerpt-lines-2 {
+    -webkit-line-clamp: 2;
     max-height: 44px;
 }
 
 .post-card-excerpt-lines-9 {
+    -webkit-line-clamp: 9;
     max-height: 198px;
+}
+
+@media (min-width: 1024px) {
+    .post-card-excerpt-lines-desktop-12 {
+        -webkit-line-clamp: 12;
+        max-height: 264px;
+    }
 }
 
 .post-card-title {
@@ -26,6 +40,23 @@
 
 .post-card-default-mobile-panel {
     display: flex;
+}
+
+.post-card-pinned {
+    box-sizing: content-box;
+    margin-top: -0.5rem;
+    margin-left: -0.5rem;
+    padding-top: 0.5rem;
+    padding-left: 0.5rem;
+}
+
+@media (min-width: 768px) {
+    .post-card-pinned {
+        margin-top: -0.75rem;
+        margin-left: -0.75rem;
+        padding-top: 0.75rem;
+        padding-left: 0.75rem;
+    }
 }
 
 @media (min-width: 1024px) {

@@ -57,12 +57,13 @@
         const cover = escapeHtml(post.cover || '');
         const imageSrc = cover;
         const pinned = !!post.pinned;
+        const pinnedCardClass = pinned ? ' post-card-pinned' : '';
         const animationDelay = Math.max(0, Number(post.animationDelay) || 0);
         const desktopTitleSingleLine = post.desktopTitleSingleLine === true;
         const desktopTitleStyle = desktopTitleSingleLine
             ? 'display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;'
             : clampStyle(2);
-        const desktopPreviewLines = Number(post.desktopPreviewLines) === 6 ? 6 : 5;
+        const desktopPreviewLines = Number(post.desktopPreviewLines) === 7 ? 7 : 5;
         // 给 <img> 写 width/height 以预留盒子，消除卡片图片加载的 CLS。
         // 来自 frontmatter cover_width / cover_height（构建期注入）；
         // 客户端搜索结果场景由 search-index.json 透传同名字段。
@@ -123,6 +124,8 @@
 
         function renderAllPageMobileCardInner(extraClass = '') {
             const compactExcerptLines = imageMarkup ? 2 : 9;
+            const compactNoCoverDesktopExcerptLines = !imageMarkup && Number(post.compactNoCoverDesktopExcerptLines) === 12 ? 12 : 0;
+            const compactExcerptLineClasses = `post-card-excerpt-lines-${compactExcerptLines}${compactNoCoverDesktopExcerptLines ? ` post-card-excerpt-lines-desktop-${compactNoCoverDesktopExcerptLines}` : ''}`;
             const compactImageHeight = mobileTagsInline
                 ? 'h-[clamp(11.25rem,14.5vw,13.25rem)] max-[480px]:h-[11.5rem]'
                 : 'h-[clamp(8.75rem,12vw,10.75rem)] max-[480px]:h-36';
@@ -145,7 +148,7 @@
                     </div>
                 </div>
                 <div class="mt-4 shrink-0">
-                    <p class="post-card-excerpt post-card-excerpt-limited post-card-excerpt-lines-${compactExcerptLines} text-[#63718a] dark:text-gray-400 text-[14px] font-normal" style="${clampStyle(compactExcerptLines)}">${mediaIconHtml}${excerptBodyHtml}</p>
+                    <p class="post-card-excerpt post-card-excerpt-limited ${compactExcerptLineClasses} text-[#63718a] dark:text-gray-400 text-[14px] font-normal">${mediaIconHtml}${excerptBodyHtml}</p>
                 </div>
                 ${compactImageBlock}
                 ${mobileFooterTagsBlock}
@@ -154,13 +157,13 @@
 
         if (layout === 'compact-grid') {
             return `
-        <a href="${link}" class="post-card post-card-layout-compact-grid ${imageMarkup ? 'has-cover' : 'has-no-cover'} ${mobileTagsInline ? 'tags-inline-mobile' : ''} animate-fade-in-up block h-full min-w-0 group cursor-pointer" style="animation-delay: ${animationDelay}ms" data-sort-date="${sortDate}" data-sort-modified="${sortModifiedDate}" data-sort-pinned="${pinned ? '1' : '0'}">
+        <a href="${link}" class="post-card post-card-layout-compact-grid ${imageMarkup ? 'has-cover' : 'has-no-cover'} ${mobileTagsInline ? 'tags-inline-mobile' : ''}${pinnedCardClass} animate-fade-in-up block h-full min-w-0 group cursor-pointer" style="animation-delay: ${animationDelay}ms" data-sort-date="${sortDate}" data-sort-modified="${sortModifiedDate}" data-sort-pinned="${pinned ? '1' : '0'}">
             ${renderAllPageMobileCardInner()}
         </a>`;
         }
 
         return `
-        <a href="${link}" class="post-card post-card-layout-compact-grid ${imageMarkup ? 'has-cover' : 'has-no-cover'} ${mobileTagsInline ? 'tags-inline-mobile' : ''} animate-fade-in-up block h-full min-w-0 lg:mb-10 group cursor-pointer" style="animation-delay: ${animationDelay}ms" data-sort-date="${sortDate}" data-sort-modified="${sortModifiedDate}" data-sort-pinned="${pinned ? '1' : '0'}">
+        <a href="${link}" class="post-card post-card-layout-compact-grid ${imageMarkup ? 'has-cover' : 'has-no-cover'} ${mobileTagsInline ? 'tags-inline-mobile' : ''}${pinnedCardClass} animate-fade-in-up block h-full min-w-0 lg:mb-10 group cursor-pointer" style="animation-delay: ${animationDelay}ms" data-sort-date="${sortDate}" data-sort-modified="${sortModifiedDate}" data-sort-pinned="${pinned ? '1' : '0'}">
             ${renderAllPageMobileCardInner('post-card-default-mobile-panel lg:hidden')}
             <div class="post-card-default-desktop-panel relative hidden shadow-none lg:block lg:group-hover:shadow-2xl lg:group-hover:shadow-gray-400/20 dark:lg:group-hover:shadow-black/40">
                 ${pinnedBadge}

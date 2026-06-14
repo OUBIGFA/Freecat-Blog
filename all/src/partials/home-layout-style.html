@@ -186,12 +186,13 @@
             :root {
                 --freecat-hero-avatar-size: clamp(180px, 36vw, 240px);
                 --freecat-hero-title-size: clamp(1.5rem, 6vw, 2rem);
+                --freecat-mobile-hero-safe-inline: clamp(20px, 5vw, 36px);
             }
 
             .freecat-home-sidebar {
                 box-sizing: border-box;
                 width: 100%;
-                padding: calc(var(--freecat-page-top-offset, 96px) + 12px) clamp(20px, 5vw, 36px) clamp(8px, 2vw, 14px);
+                padding: calc(var(--freecat-page-top-offset, 96px) + 12px) var(--freecat-mobile-hero-safe-inline) clamp(8px, 2vw, 14px);
             }
 
             .freecat-home-sidebar-hero,
@@ -200,7 +201,8 @@
             }
 
             .freecat-home-sidebar-hero-text {
-                max-width: min(100%, 19rem);
+                width: 100%;
+                max-width: none;
                 margin-inline: auto;
             }
 

@@ -87,13 +87,13 @@ function desktopTitleColumnWidth(hasCover) {
 function getDesktopPreviewLinesForTitle(title, options = {}) {
     const titleWidth = measurePostCardTitleWidth(title);
     const availableWidth = desktopTitleColumnWidth(!!options.hasCover);
-    return titleWidth <= availableWidth - DESKTOP_TITLE_SINGLE_LINE_SAFETY_PX ? 6 : 5;
+    return titleWidth <= availableWidth - DESKTOP_TITLE_SINGLE_LINE_SAFETY_PX ? 7 : 5;
 }
 
 function getDesktopTitleLayout(title, options = {}) {
     const previewLines = getDesktopPreviewLinesForTitle(title, options);
     return {
-        singleLine: previewLines === 6,
+        singleLine: previewLines === 7,
         previewLines
     };
 }
