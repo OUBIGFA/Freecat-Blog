@@ -374,7 +374,7 @@ test('home, all and search cards share the all-page mobile card contract', () =>
 });
 
 test('all page grid keeps compact cards at one uniform height', () => {
-    assert.match(allTemplate, /\.freecat-all-page #posts-list\s*\{[\s\S]*--freecat-all-card-height:\s*28rem;[\s\S]*grid-auto-rows:\s*var\(--freecat-all-card-height\);/);
+    assert.match(allTemplate, /\.freecat-all-page #posts-list\s*\{[\s\S]*--freecat-all-card-height:\s*27rem;[\s\S]*grid-auto-rows:\s*var\(--freecat-all-card-height\);/);
     assert.match(allTemplate, /\.freecat-all-page #posts-list \.post-card\s*\{[\s\S]*height:\s*var\(--freecat-all-card-height\);/);
     assert.match(allTemplate, /\.freecat-all-page #posts-list \.post-card > div\s*\{[\s\S]*height:\s*100%;/);
     assert.match(allTemplate, /\.freecat-all-page #posts-list \.post-card\.has-cover \.lazy-image-frame\s*\{[\s\S]*flex:\s*1 1 auto;[\s\S]*height:\s*auto;[\s\S]*min-height:\s*0;/);
