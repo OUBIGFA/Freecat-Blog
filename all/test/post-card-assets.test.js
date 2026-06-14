@@ -347,10 +347,15 @@ test('pinned post cards render the pin badge in every card layout', () => {
 
 test('home mobile hero uses safe side padding instead of a fixed text width', () => {
     const homeLayoutStyle = readProjectFile('src/partials/home-layout-style.html');
+    const balancedTitleIndex = homeLayoutStyle.indexOf('text-wrap: balance;');
+    const subtitleWrapIndex = homeLayoutStyle.lastIndexOf('.freecat-home-sidebar-hero-text h2');
 
     assert.match(homeLayoutStyle, /--freecat-mobile-hero-safe-inline:\s*clamp\(20px,\s*5vw,\s*36px\);/);
     assert.match(homeLayoutStyle, /\.freecat-home-sidebar\s*\{[\s\S]*padding:\s*calc\(var\(--freecat-page-top-offset,\s*96px\) \+ 12px\) var\(--freecat-mobile-hero-safe-inline\) clamp\(8px,\s*2vw,\s*14px\);/);
     assert.match(homeLayoutStyle, /\.freecat-home-sidebar-hero-text\s*\{[\s\S]*width:\s*100%;[\s\S]*max-width:\s*none;[\s\S]*margin-inline:\s*auto;/);
+    assert.equal(balancedTitleIndex > -1, true);
+    assert.equal(subtitleWrapIndex > balancedTitleIndex, true);
+    assert.match(homeLayoutStyle.slice(subtitleWrapIndex), /\.freecat-home-sidebar-hero-text h2\s*\{[\s\S]*text-wrap:\s*wrap;/);
     assert.doesNotMatch(homeLayoutStyle, /max-width:\s*min\(100%,\s*19rem\)/);
 });
 
