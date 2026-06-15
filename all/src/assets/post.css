@@ -258,6 +258,10 @@ article {
     border-radius: 8px;
 }
 
+#freecat-article-body.prose .markdown-image-block {
+    margin-inline: auto !important;
+}
+
 .prose figure.post-image .post-image-placeholder {
     aspect-ratio: 3 / 4;
     object-fit: cover;
@@ -1280,13 +1284,9 @@ article {
 }
 
 /* Final cascade guard: outrank older paragraph/list/table/heading rules without special cases. */
-/* IMPORTANT: the adjacency spacing rules below MUST wrap their target block list in
-   :is(), never :where(). :where() has zero specificity, so this margin:0 reset guard
-   (which uses class selectors -> higher specificity) would outrank it and zero the
-   top margin of class-based blocks (.code-block-container, figure.post-image,
-   .callout, .katex-display, .footnotes, ...), making them sit flush against
-   a preceding hr or heading. :is() inherits the class specificity of its arguments
-   and reliably beats this guard, exactly like the flow rule just below. */
+/* IMPORTANT: block-to-block spacing rules below use :is() so class-based blocks
+   still beat this reset. Heading-adjacent rules are scoped to #freecat-article-body,
+   so they can stay generic without enumerating every possible embed or media block. */
 .prose p,
 .prose ul,
 .prose ol,
@@ -1390,40 +1390,40 @@ article {
     background: transparent !important;
 }
 
-.prose .article-heading-depth-1+:is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
-.prose .article-heading-depth-1+.markdown-gap+:is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
-.prose .article-heading-depth-2+:is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
-.prose .article-heading-depth-2+.markdown-gap+:is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
-.prose .article-heading-depth-3+:is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
-.prose .article-heading-depth-3+.markdown-gap+:is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
-.prose .article-heading-depth-4+:is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
-.prose .article-heading-depth-4+.markdown-gap+:is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player) {
+#freecat-article-body.prose>.article-heading-depth-1+:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template)),
+#freecat-article-body.prose>.article-heading-depth-1+.markdown-gap+:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template)),
+#freecat-article-body.prose>.article-heading-depth-2+:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template)),
+#freecat-article-body.prose>.article-heading-depth-2+.markdown-gap+:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template)),
+#freecat-article-body.prose>.article-heading-depth-3+:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template)),
+#freecat-article-body.prose>.article-heading-depth-3+.markdown-gap+:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template)),
+#freecat-article-body.prose>.article-heading-depth-4+:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template)),
+#freecat-article-body.prose>.article-heading-depth-4+.markdown-gap+:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template)) {
     margin-block-start: var(--article-space-heading-to-content) !important;
 }
 
-.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+.article-heading-depth-1,
-.prose .markdown-gap+.article-heading-depth-1,
+#freecat-article-body.prose>:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template))+.article-heading-depth-1,
+#freecat-article-body.prose>:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template))+.markdown-gap+.article-heading-depth-1,
 .prose .article-heading-depth-1+.article-heading-depth-1,
 .prose .article-heading-depth-1+.markdown-gap+.article-heading-depth-1 {
     margin-block-start: var(--article-space-heading-peer-1) !important;
 }
 
-.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+.article-heading-depth-2,
-.prose .markdown-gap+.article-heading-depth-2,
+#freecat-article-body.prose>:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template))+.article-heading-depth-2,
+#freecat-article-body.prose>:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template))+.markdown-gap+.article-heading-depth-2,
 .prose .article-heading-depth-2+.article-heading-depth-2,
 .prose .article-heading-depth-2+.markdown-gap+.article-heading-depth-2 {
     margin-block-start: var(--article-space-heading-peer-2) !important;
 }
 
-.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+.article-heading-depth-3,
-.prose .markdown-gap+.article-heading-depth-3,
+#freecat-article-body.prose>:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template))+.article-heading-depth-3,
+#freecat-article-body.prose>:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template))+.markdown-gap+.article-heading-depth-3,
 .prose .article-heading-depth-3+.article-heading-depth-3,
 .prose .article-heading-depth-3+.markdown-gap+.article-heading-depth-3 {
     margin-block-start: var(--article-space-heading-peer-3) !important;
 }
 
-.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+.article-heading-depth-4,
-.prose .markdown-gap+.article-heading-depth-4,
+#freecat-article-body.prose>:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template))+.article-heading-depth-4,
+#freecat-article-body.prose>:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template))+.markdown-gap+.article-heading-depth-4,
 .prose .article-heading-depth-4+.article-heading-depth-4,
 .prose .article-heading-depth-4+.markdown-gap+.article-heading-depth-4 {
     margin-block-start: var(--article-space-heading-peer-4) !important;
@@ -1501,22 +1501,22 @@ article {
     margin-block-start: var(--article-space-divider) !important;
 }
 
-.prose .article-heading-depth-5+:is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
-.prose .article-heading-depth-5+.markdown-gap+:where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
-.prose .article-heading-depth-6+:is(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
-.prose .article-heading-depth-6+.markdown-gap+:where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player) {
+#freecat-article-body.prose>.article-heading-depth-5+:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template)),
+#freecat-article-body.prose>.article-heading-depth-5+.markdown-gap+:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template)),
+#freecat-article-body.prose>.article-heading-depth-6+:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template)),
+#freecat-article-body.prose>.article-heading-depth-6+.markdown-gap+:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template)) {
     margin-block-start: var(--article-space-heading-to-content) !important;
 }
 
-.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+.article-heading-depth-5,
-.prose .markdown-gap+.article-heading-depth-5,
+#freecat-article-body.prose>:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template))+.article-heading-depth-5,
+#freecat-article-body.prose>:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template))+.markdown-gap+.article-heading-depth-5,
 .prose .article-heading-depth-5+.article-heading-depth-5,
 .prose .article-heading-depth-5+.markdown-gap+.article-heading-depth-5 {
     margin-block-start: var(--article-space-heading-peer-5) !important;
 }
 
-.prose :where(p, ul, ol, dl, blockquote, table, .code-block-container, figure.post-image, details, .callout, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+.article-heading-depth-6,
-.prose .markdown-gap+.article-heading-depth-6,
+#freecat-article-body.prose>:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template))+.article-heading-depth-6,
+#freecat-article-body.prose>:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template))+.markdown-gap+.article-heading-depth-6,
 .prose .article-heading-depth-6+.article-heading-depth-6,
 .prose .article-heading-depth-6+.markdown-gap+.article-heading-depth-6 {
     margin-block-start: var(--article-space-heading-peer-6) !important;

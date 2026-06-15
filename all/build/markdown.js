@@ -78,6 +78,21 @@ function parseImageDimensions(title) {
     return { width: '', height: '', cleanTitle: raw.trim() };
 }
 
+function addClassToRenderedBlock(html, className) {
+    const block = String(html || '');
+    if (!block.trim()) return block;
+    const withExistingClass = block.replace(
+        /^(\s*<[a-z][\w:-]*\b[^>]*\bclass=")([^"]*)"/i,
+        (match, prefix, classes) => {
+            const classList = String(classes || '').split(/\s+/).filter(Boolean);
+            if (classList.includes(className)) return match;
+            return `${prefix}${classList.concat(className).join(' ')}"`;
+        }
+    );
+    if (withExistingClass !== block) return withExistingClass;
+    return block.replace(/^(\s*<[a-z][\w:-]*\b)/i, `$1 class="${className}"`);
+}
+
 // ===== TOC 与标题 ID =====
 function createUniqueHeadingId(rawId, usedIds, fallbackId) {
     const baseId = rawId || fallbackId;
@@ -573,9 +588,9 @@ function buildRenderer() {
     };
 
     renderer.image = (href, title, text) => {
-        if (isVideoUrl(href) || hasVideoMarker(text)) return renderVideoEmbed(href, text, { force: hasVideoMarker(text) });
-        if (isAudioUrl(href) || hasAudioMarker(text)) return renderAudioEmbed(href, text, { force: hasAudioMarker(text) });
-        if (!isLikelyImageUrl(href)) return renderExternalEmbed(href, text);
+        if (isVideoUrl(href) || hasVideoMarker(text)) return addClassToRenderedBlock(renderVideoEmbed(href, text, { force: hasVideoMarker(text) }), 'markdown-image-block');
+        if (isAudioUrl(href) || hasAudioMarker(text)) return addClassToRenderedBlock(renderAudioEmbed(href, text, { force: hasAudioMarker(text) }), 'markdown-image-block');
+        if (!isLikelyImageUrl(href)) return addClassToRenderedBlock(renderExternalEmbed(href, text), 'markdown-image-block');
 
         const fallbackSrc = '/image/404.png';
         const safeHref = escapeHtml(normalizeImageHref(href));
@@ -592,7 +607,7 @@ function buildRenderer() {
         const enableCaption = Boolean(activePostOptions && activePostOptions.enableImageCaptions);
 
         return `
-    <figure class="post-image relative w-full">
+    <figure class="post-image markdown-image-block relative w-full">
         <img class="post-image-img post-image-placeholder" src="${fallbackSrc}" data-src="${safeHref}" alt="${safeAlt}"${safeTitle} loading="lazy" decoding="async" />
         <div class="post-image-loader placeholder-loader" aria-hidden="true"><span class="loader"></span></div>
         ${(enableCaption && caption) ? `<figcaption class="image-caption block text-center text-sm text-slate-500 dark:text-slate-400">${escapeRenderedText(caption)}</figcaption>` : ''}

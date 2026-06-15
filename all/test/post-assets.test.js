@@ -212,6 +212,21 @@ test('article headings use one and a half times the body reading size across bre
     assert.doesNotMatch(postCss, /--article-heading-h[1-6]:\s*var\(--article-body-size\);/);
 });
 
+test('markdown image blocks center without shrinking regular images', () => {
+    const centerRule = postCss.match(/#freecat-article-body\.prose \.markdown-image-block\s*\{[\s\S]*?\}/)?.[0] || '';
+    const postImageRule = postCss.match(/\.prose figure\.post-image\s*\{[\s\S]*?\}/)?.[0] || '';
+    const externalRule = postCss.match(/\.prose figure\.external-embed\s*\{[\s\S]*?\}/)?.[0] || '';
+    const imageRule = postCss.match(/\.prose img\s*\{[\s\S]*?\}/)?.[0] || '';
+
+    assert.match(centerRule, /margin-inline:\s*auto\s*!important;/);
+    assert.match(postImageRule, /width:\s*100%;/);
+    assert.match(imageRule, /width:\s*100%\s*!important;/);
+    assert.doesNotMatch(postImageRule, /max-width:\s*(?:max-content|fit-content|none)/);
+    assert.doesNotMatch(postImageRule, /width:\s*auto/);
+    assert.match(externalRule, /margin:\s*0 0 2rem 0\s*!important;/);
+    assert.doesNotMatch(externalRule, /margin(?:-inline)?:\s*auto/);
+});
+
 test('article directly attached paragraph-led lists keep a clear parent-child rhythm', () => {
     const listPaddingRules = [...postCss.matchAll(/\.prose ul,\s*\.prose ol\s*\{[\s\S]*?\}/g)]
         .map(match => match[0]);
@@ -236,32 +251,43 @@ test('article directly attached paragraph-led lists keep a clear parent-child rh
     assert.doesNotMatch(paragraphListRule, /border-left:/);
 });
 
-test('article headings keep peer spacing after standalone post images', () => {
+test('article headings keep peer spacing after any preceding body block', () => {
     assert.equal(postCss.includes('.prose figure.post-image+h3:not(.article-heading),'), true);
     assert.equal(postCss.includes('.prose figure.post-image+h3,'), false);
     assert.equal(postCss.includes('.prose .relative.w-full.inline-block+h3:not(.article-heading),'), true);
     assert.equal(postCss.includes('.prose .relative.w-full.inline-block+h3,'), false);
-    assert.match(postCss, /\.prose :where\([^)]*figure\.post-image[^)]*\)\+\.article-heading-depth-2,\s*\.prose \.markdown-gap\+\.article-heading-depth-2[\s\S]*margin-block-start:\s*var\(--article-space-heading-peer-2\)\s*!important;/);
+
+    const articleBodyBlock = ':where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template))';
+    assert.equal(postCss.includes(`#freecat-article-body.prose>${articleBodyBlock}+.article-heading-depth-2,`), true);
+    assert.equal(postCss.includes(`#freecat-article-body.prose>${articleBodyBlock}+.markdown-gap+.article-heading-depth-2,`), true);
+    assert.match(postCss, /#freecat-article-body\.prose>:where\(:not\(\.markdown-gap\):not\(\.article-heading\):not\(hr\):not\(script\):not\(style\):not\(template\)\)\+\.article-heading-depth-2,[\s\S]*?margin-block-start:\s*var\(--article-space-heading-peer-2\)\s*!important;/);
+    assert.doesNotMatch(postCss, /\.prose :where\([^{}]*figure\.post-image[^{}]*\)\+\.article-heading-depth-2/);
 });
 
-test('article heading spacing covers media embeds and link cards', () => {
+test('article heading spacing uses generic body adjacency around headings', () => {
     const resetRule = postCss.match(/\.prose p,[\s\S]*?\{\s*margin:\s*0\s*!important;\s*\}/)?.[0] || '';
     const flowRule = postCss.match(/\.prose :is\([^{}]*figure\.external-embed[\s\S]*?margin-block-start:\s*var\(--article-space-flow\)\s*!important;\s*\}/)?.[0] || '';
-    const headingContentRule = postCss.match(/\.prose \.article-heading-depth-1\+:is\([^{}]*figure\.external-embed[\s\S]*?margin-block-start:\s*var\(--article-space-heading-to-content\)\s*!important;\s*\}/)?.[0] || '';
-    const headingPeerRule = postCss.match(/\.prose :where\([^{}]*figure\.external-embed[\s\S]*?\)\+\.article-heading-depth-2,[\s\S]*?margin-block-start:\s*var\(--article-space-heading-peer-2\)\s*!important;\s*\}/)?.[0] || '';
+    const articleBodyBlock = ':where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template))';
 
     for (const selector of [
         '.relative.w-full.inline-block',
         'figure.post-image',
         'figure.external-embed',
+        '.diagram-block',
         '.media-player-container'
     ]) {
         assert.equal(resetRule.includes(selector), true);
         assert.equal(flowRule.includes(selector), true);
-        assert.equal(headingContentRule.includes(selector), true);
-        assert.equal(headingPeerRule.includes(selector), true);
     }
-    assert.doesNotMatch(headingContentRule, /\+:where\(/);
+    assert.equal(postCss.includes(`#freecat-article-body.prose>.article-heading-depth-1+${articleBodyBlock},`), true);
+    assert.equal(postCss.includes(`#freecat-article-body.prose>.article-heading-depth-1+.markdown-gap+${articleBodyBlock},`), true);
+    assert.equal(postCss.includes(`#freecat-article-body.prose>.article-heading-depth-5+${articleBodyBlock},`), true);
+    assert.equal(postCss.includes(`#freecat-article-body.prose>.article-heading-depth-5+.markdown-gap+${articleBodyBlock},`), true);
+    assert.equal(postCss.includes(`#freecat-article-body.prose>${articleBodyBlock}+.article-heading-depth-5,`), true);
+    assert.equal(postCss.includes(`#freecat-article-body.prose>${articleBodyBlock}+.markdown-gap+.article-heading-depth-5,`), true);
+    assert.match(postCss, /#freecat-article-body\.prose>\.article-heading-depth-5\+:where\(:not\(\.markdown-gap\):not\(\.article-heading\):not\(hr\):not\(script\):not\(style\):not\(template\)\),[\s\S]*?margin-block-start:\s*var\(--article-space-heading-to-content\)\s*!important;/);
+    assert.doesNotMatch(postCss, /\.article-heading-depth-5\+:is\([^{}]*figure\.external-embed/);
+    assert.doesNotMatch(postCss, /figure\.external-embed[^{}]*\)\+\.article-heading-depth-5/);
 });
 
 test('markdown horizontal rules render as thick article dividers', () => {
