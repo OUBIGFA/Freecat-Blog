@@ -30,7 +30,8 @@ const {
     collectMarkdownTableColumnWidths,
     applyMarkdownTableColumnWidths,
     preserveMarkdownGaps,
-    prepareMarkdownSpacing
+    prepareMarkdownSpacing,
+    applyAttachedListMarkup
 } = require('./markdown/spacing.js');
 
 const {
@@ -409,7 +410,7 @@ function renderFootnotesSection() {
         const content = ctx.defs.get(id) || '';
         const previousContext = activeFootnoteContext;
         activeFootnoteContext = null;
-        const contentHtml = content ? marked.parse(prepareMarkdownSpacing(content)).trim() : '';
+        const contentHtml = content ? applyAttachedListMarkup(marked.parse(prepareMarkdownSpacing(content))).trim() : '';
         activeFootnoteContext = previousContext;
         const refCount = ctx.refCountById.get(id) || 0;
         const backRefs = refCount > 0
@@ -781,7 +782,7 @@ function parseMarkdown(content, { includeFootnotesSection = true, enableImageCap
     const previousPostOptions = activePostOptions;
     activePostOptions = { enableImageCaptions };
     activeFootnoteContext = createFootnoteContext(defs);
-    const html = applyMarkdownTableColumnWidths(marked.parse(markdown), tableColumnWidths);
+    const html = applyAttachedListMarkup(applyMarkdownTableColumnWidths(marked.parse(markdown), tableColumnWidths));
     const footnotesHtml = includeFootnotesSection ? renderFootnotesSection() : '';
     activeFootnoteContext = previousContext;
     activePostOptions = previousPostOptions;

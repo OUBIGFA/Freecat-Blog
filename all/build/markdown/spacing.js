@@ -118,6 +118,39 @@ function isMarkdownListItemLine(line) {
     return /^ {0,3}(?:[-+*]|\d+[.)])\s+\S/.test(String(line || ''));
 }
 
+const ATTACHED_LIST_MARKER = '<!-- freecat-md-attached-list -->';
+
+function isTopLevelMarkdownListItemLine(line) {
+    return /^(?:[-+*]|\d{1,9}[.)])\s+\S/.test(String(line || ''));
+}
+
+function isAttachableListLeadLine(line) {
+    const raw = String(line || '');
+    const trimmed = raw.trim();
+    if (!trimmed) return false;
+    if (/^(?:\t| {4,})/.test(raw)) return false;
+    if (/^(?:#{1,6}\s|>|[-+*]\s|\d+[.)]\s|`{3,}|~{3,}|<\/?[a-z][^>]*>|\|)/i.test(trimmed)) return false;
+    return true;
+}
+
+function markAttachedListBlocks(content) {
+    if (!content) return '';
+    const lines = String(content).split(/\r?\n/);
+    const output = [];
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        output.push(line);
+
+        const nextLine = i + 1 < lines.length ? lines[i + 1] : '';
+        if (isAttachableListLeadLine(line) && isTopLevelMarkdownListItemLine(nextLine)) {
+            output.push(ATTACHED_LIST_MARKER);
+        }
+    }
+
+    return output.join('\n');
+}
+
 function isIndentedMarkdownContinuationLine(line) {
     return /^(?:\t| {2,})\S/.test(String(line || ''));
 }
@@ -194,7 +227,7 @@ function preserveMarkdownGaps(content) {
 function prepareMarkdownSpacing(content) {
     if (!content) return '';
     return preserveFencedCodeBlocks(content, (text) => {
-        return preserveMarkdownLinkTargets(text, (safeText) => safeText
+        return preserveMarkdownLinkTargets(text, (safeText) => markAttachedListBlocks(safeText
             // 移除标题中的加粗符号
             .replace(/^(#{1,6}\s+)(.*)$/gm, (m, prefix, body) => prefix + body.replace(/\*\*\*|\*\*/g, ''))
             // 智能处理粗体/斜体/删除线前后的空格
@@ -218,8 +251,32 @@ function prepareMarkdownSpacing(content) {
             // 缩进 - 列表转换为 * 列表，避免被误识别为 Setext 标题。
             // 这里只能匹配同一行内的空格/Tab，不能用 \s；\s 会吞掉换行，
             // 导致普通列表块的第一项被误改成另一种列表标记。
-            .replace(/^([ \t]{2,})-\s/gm, '$1* '));
+            .replace(/^([ \t]{2,})-\s/gm, '$1* ')));
     });
+}
+
+function addClassToHtmlAttrs(attrs, className) {
+    const currentAttrs = String(attrs || '');
+    if (/\bclass\s*=/.test(currentAttrs)) {
+        return currentAttrs.replace(/\bclass=(["'])([^"']*)\1/i, (match, quote, value) => {
+            const classes = String(value || '').trim().split(/\s+/).filter(Boolean);
+            if (!classes.includes(className)) classes.push(className);
+            return `class=${quote}${classes.join(' ')}${quote}`;
+        });
+    }
+    return `${currentAttrs} class="${className}"`;
+}
+
+function applyAttachedListMarkup(html) {
+    if (!html) return '';
+    return String(html).replace(
+        /<p\b([^>]*)>((?:(?!<\/p>|<p\b)[\s\S])*)<\/p>\s*<!--\s*freecat-md-attached-list\s*-->\s*<(ul|ol)\b([^>]*)>/gi,
+        (match, paragraphAttrs, paragraphContent, listTag, listAttrs) => {
+            const markedParagraphAttrs = addClassToHtmlAttrs(paragraphAttrs, 'markdown-list-lead');
+            const markedListAttrs = addClassToHtmlAttrs(listAttrs, 'markdown-attached-list');
+            return `<p${markedParagraphAttrs}>${paragraphContent}</p>\n<${listTag}${markedListAttrs}>`;
+        }
+    );
 }
 
 function splitMarkdownTableRow(line) {
@@ -390,5 +447,6 @@ module.exports = {
     collectMarkdownTableColumnWidths,
     applyMarkdownTableColumnWidths,
     preserveMarkdownGaps,
-    prepareMarkdownSpacing
+    prepareMarkdownSpacing,
+    applyAttachedListMarkup
 };

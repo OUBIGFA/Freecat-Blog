@@ -212,6 +212,39 @@ test('blank lines inside list structure stay native markdown', () => {
     assert.match(html, /<ul>\s*<li>[\s\S]*First[\s\S]*<\/li>\s*<li>[\s\S]*Second[\s\S]*<\/li>\s*<\/ul>/);
 });
 
+test('paragraph-led lists are marked only when the list is directly attached', () => {
+    const compactHtml = parseMarkdown('这类基因突变主要涉及两类基因\n- 促进细胞生长的基因\n- 抑制细胞生长的基因');
+    const expandedHtml = parseMarkdown('这类基因突变主要涉及两类基因\n\n- 促进细胞生长的基因');
+    const orderedHtml = parseMarkdown('现代医学治疗癌症\n1. 局部肿瘤\n2. 全身治疗');
+    const nestedListHtml = parseMarkdown('- 父级\n  - 子级');
+
+    assert.match(compactHtml, /<p class="markdown-list-lead">[\s\S]*<\/p>\s*<ul class="markdown-attached-list">/);
+    assert.match(orderedHtml, /<p class="markdown-list-lead">[\s\S]*<\/p>\s*<ol class="markdown-attached-list">/);
+    assert.equal(expandedHtml.includes('markdown-list-lead'), false);
+    assert.equal(expandedHtml.includes('markdown-attached-list'), false);
+    assert.equal(nestedListHtml.includes('markdown-list-lead'), false);
+    assert.equal(nestedListHtml.includes('markdown-attached-list'), false);
+});
+
+test('attached list markers stay on their own lead paragraph across nearby paragraphs', () => {
+    const html = parseMarkdown([
+        '这种基因突变主要涉及两类基因：',
+        '- 促进细胞生长的基因',
+        '- 抑制细胞生长的基因',
+        '',
+        '癌细胞的扩散也是一个渐进的过程。',
+        '',
+        '现代医学治疗癌症，完全是根据肿瘤的生长和扩散状况量身定制的：',
+        '- 局部肿瘤',
+        '- 全身性系统治疗'
+    ].join('\n'));
+
+    assert.match(html, /<p class="markdown-list-lead">这种[\s\S]*?<\/p>\s*<ul class="markdown-attached-list">/);
+    assert.match(html, /<p>癌细胞的扩散也是一个渐进的过程。<\/p>\s*<p class="markdown-list-lead">现代医学治疗癌症/);
+    assert.equal((html.match(/class="markdown-list-lead"/g) || []).length, 2);
+    assert.equal((html.match(/class="markdown-attached-list"/g) || []).length, 2);
+});
+
 test('markdown tables preserve source column proportions as col widths', () => {
     const html = parseMarkdown([
         '| A  | B          | C |',

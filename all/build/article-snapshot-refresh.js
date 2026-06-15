@@ -15,6 +15,22 @@ function shouldRefreshLocalArticleSnapshots(err, missingSnapshotCode, env = proc
         && isLocalArticleSnapshotRefreshEnabled(env);
 }
 
+function hasSnapshotValue(store, file) {
+    return !!(store && typeof store.get === 'function' && store.get(file));
+}
+
+function missingArticleSnapshotFiles(files, snapshots = {}) {
+    const gitDates = snapshots.gitDates;
+    const postIds = snapshots.postIds;
+
+    return (files || []).filter(file => !hasSnapshotValue(gitDates, file) || !hasSnapshotValue(postIds, file));
+}
+
+function shouldRefreshIncompleteArticleSnapshots(files, snapshots, env = process.env) {
+    return missingArticleSnapshotFiles(files, snapshots).length > 0
+        && isLocalArticleSnapshotRefreshEnabled(env);
+}
+
 function refreshLocalArticleSnapshots(options = {}) {
     const rootDir = options.rootDir || path.join(__dirname, '..');
     const nodePath = options.nodePath || process.execPath;
@@ -38,6 +54,8 @@ function refreshLocalArticleSnapshots(options = {}) {
 
 module.exports = {
     isLocalArticleSnapshotRefreshEnabled,
+    missingArticleSnapshotFiles,
     refreshLocalArticleSnapshots,
+    shouldRefreshIncompleteArticleSnapshots,
     shouldRefreshLocalArticleSnapshots
 };

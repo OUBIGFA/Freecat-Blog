@@ -169,11 +169,24 @@ function codepointsToSortedArray(codepoints) {
     return [...codepoints].sort((a, b) => a - b);
 }
 
-function codepointArraysEqual(actual, expected) {
-    const actualSorted = codepointsToSortedArray(new Set(actual || []));
-    const expectedSorted = codepointsToSortedArray(new Set(expected || []));
-    return actualSorted.length === expectedSorted.length &&
-        actualSorted.every((codepoint, index) => codepoint === expectedSorted[index]);
+function addCodepoints(target, codepoints) {
+    for (const codepoint of codepoints || []) {
+        if (Number.isInteger(codepoint) && codepoint >= 0) {
+            target.add(codepoint);
+        }
+    }
+}
+
+function manifestFamilyCodepoints(familyManifest) {
+    const codepoints = new Set();
+    if (!familyManifest) return codepoints;
+
+    addCodepoints(codepoints, familyManifest.requested);
+    for (const entry of Object.values(familyManifest.subsets || {})) {
+        addCodepoints(codepoints, entry && entry.supported);
+        addCodepoints(codepoints, entry && entry.unsupported);
+    }
+    return codepoints;
 }
 
 function iterUiHtmlFiles(rootDir) {
@@ -198,11 +211,24 @@ function iterPublicHtmlFiles(rootDir) {
 }
 
 function requestedCodepointsByFamily(rootDir) {
-    return {
+    const requestedByFamily = {
         'freecat-figtree': collectCodepoints(iterPublicHtmlFiles(rootDir), { includeAscii: true, visualHtml: true }),
         'freecat-ui-noto-sans-sc': collectCodepoints(iterUiHtmlFiles(rootDir), { includeAscii: false, visualHtml: true }),
         'freecat-noto-sans-sc': collectCodepoints(iterPostPages(rootDir), { includeAscii: false, visualHtml: true })
     };
+    const manifest = readFontSubsetManifest(rootDir);
+
+    if (!manifest || manifest.version !== CACHE_VERSION || !manifest.families) {
+        return requestedByFamily;
+    }
+
+    for (const family of FONT_FAMILIES) {
+        const requested = requestedByFamily[family.prefix] || new Set();
+        addCodepoints(requested, manifestFamilyCodepoints(manifest.families[family.prefix]));
+        requestedByFamily[family.prefix] = requested;
+    }
+
+    return requestedByFamily;
 }
 
 function sha256File(filePath) {
@@ -223,7 +249,9 @@ function readFontSubsetManifest(rootDir) {
 }
 
 function subsetEntryMatchesRequest(entry, requested) {
-    return codepointArraysEqual([...(entry.supported || []), ...(entry.unsupported || [])], requested);
+    const available = new Set([...(entry.supported || []), ...(entry.unsupported || [])]);
+    return codepointsToSortedArray(new Set(requested || []))
+        .every(codepoint => available.has(codepoint));
 }
 
 function fontSubsetRefreshPlan(rootDir) {
@@ -339,7 +367,7 @@ function buildArticleFontSubset({ rootDir, refresh = false }) {
 
     let refreshPlan = fontSubsetRefreshPlan(rootDir);
     if (refreshPlan.reusable) {
-        console.log('   Font subset manifest covers the current text; skipping refresh.');
+        console.log('   Font subset manifest covers the known text; skipping refresh.');
         saveCachedFontSubsets(rootDir);
         return;
     }
@@ -347,7 +375,7 @@ function buildArticleFontSubset({ rootDir, refresh = false }) {
     restoreCachedFontSubsets(rootDir);
     refreshPlan = fontSubsetRefreshPlan(rootDir);
     if (refreshPlan.reusable) {
-        console.log('   Font subset manifest covers the current text; skipping refresh.');
+        console.log('   Font subset manifest covers the known text; skipping refresh.');
         saveCachedFontSubsets(rootDir);
         return;
     }

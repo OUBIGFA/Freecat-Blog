@@ -965,6 +965,11 @@ article {
     --article-heading-rule: #d8e0eb;
     --article-space-tight: 0.42rem;
     --article-space-flow: 1.2rem;
+    --article-space-list-attach: 0.32rem;
+    --article-space-list-after: 2.15rem;
+    --article-space-list-group-before: 2.35rem;
+    --article-space-list-item: 0.62rem;
+    --article-list-indent: 1.15rem;
     --article-space-heading-to-content: 1.25rem;
     --article-space-heading-parent-child: 1.99rem;
     --article-space-heading-peer-1: 5.59rem;
@@ -1011,11 +1016,6 @@ article {
     -webkit-hyphens: none !important;
     -ms-hyphens: none !important;
     hyphens: none !important;
-}
-
-.prose p:has(+ ul),
-.prose p:has(+ ol) {
-    margin-bottom: calc(var(--article-rhythm) * 0.26) !important;
 }
 
 .prose p:has(+ p) {
@@ -1248,12 +1248,12 @@ article {
 
 .prose ul,
 .prose ol {
-    padding-left: 1.35em !important;
+    padding-left: 1.7em !important;
 }
 
 .prose li {
-    margin: 0 0 var(--article-space-tight) !important;
-    line-height: 1.62 !important;
+    margin: 0 0 var(--article-space-list-item) !important;
+    line-height: 1.72 !important;
 }
 
 .prose li:last-child {
@@ -1262,6 +1262,10 @@ article {
 
 .prose li > p {
     margin: 0 !important;
+}
+
+.prose li li {
+    margin-bottom: var(--article-space-tight) !important;
 }
 
 .prose>hr {
@@ -1320,6 +1324,28 @@ article {
 .prose :is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+:is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
 .prose .markdown-gap+:is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player) {
     margin-block-start: var(--article-space-flow) !important;
+}
+
+#freecat-article-body.prose>.markdown-list-lead+.markdown-attached-list {
+    margin-block-start: var(--article-space-list-attach) !important;
+    margin-inline-start: var(--article-list-indent) !important;
+    padding: 0 0 0.18rem 1.5rem !important;
+}
+
+#freecat-article-body.prose>.markdown-attached-list+p,
+#freecat-article-body.prose>.markdown-attached-list+.markdown-gap+p {
+    margin-block-start: var(--article-space-list-after) !important;
+}
+
+#freecat-article-body.prose>:is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+p.markdown-list-lead {
+    margin-block-start: var(--article-space-list-group-before) !important;
+}
+
+@media (max-width: 640px) {
+    #freecat-article-body.prose>.markdown-list-lead+.markdown-attached-list {
+        margin-inline-start: 0.45rem !important;
+        padding-left: 1.2rem !important;
+    }
 }
 
 .prose blockquote {

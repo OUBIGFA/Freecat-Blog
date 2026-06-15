@@ -226,7 +226,7 @@ Cloudflare Pages is the recommended option. The key is filling in the build sett
 
 1. Click `Save and Deploy` and wait 1-3 minutes.
 
-> In the Cloudflare Pages project settings, enable `Build cache`. The font subsetting toolchain is now pure npm dependencies, so installs finish in seconds once the dependency cache warms up; builds reuse the subsets committed in the repository when they cover the current text, and regenerating them after articles add new characters only takes seconds — no Python environment required.
+> In the Cloudflare Pages project settings, enable `Build cache`. The font subsetting toolchain is now pure npm dependencies, so installs finish in seconds once the dependency cache warms up; builds reuse the subsets committed in the repository when they cover the known article text, and expanding them after articles add new characters only takes seconds — no Python environment required.
 
 2. When the build finishes, open the default URL from Cloudflare, such as `xxx.pages.dev`.
 
@@ -258,7 +258,7 @@ Root Directory is the only setting you need to change on Vercel. The build comma
 
 > The most common mistake: not selecting `all` as the Root Directory, or manually overriding the build settings. Either one prevents Vercel from reading `all/vercel.json`, and every page of the deployed site returns 404.
 
-Vercel restores its build cache automatically. Freecat Blog reuses the font subset cache from it; when your articles do not introduce new characters, later deployments skip font generation. Do not clear the Build Cache in project settings unless you intentionally want to force regeneration.
+Vercel restores its build cache automatically. Freecat Blog reuses the font subset cache from it; when your articles do not introduce new characters, later deployments skip font generation, and characters generated for deleted articles stay in the subset for future reuse. Do not clear the Build Cache in project settings unless you intentionally want to force regeneration.
 
 To bind a custom domain, open project settings -> `Domains` and follow the DNS instructions.
 

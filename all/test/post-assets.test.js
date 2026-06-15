@@ -212,6 +212,30 @@ test('article headings use one and a half times the body reading size across bre
     assert.doesNotMatch(postCss, /--article-heading-h[1-6]:\s*var\(--article-body-size\);/);
 });
 
+test('article directly attached paragraph-led lists keep a clear parent-child rhythm', () => {
+    const listPaddingRules = [...postCss.matchAll(/\.prose ul,\s*\.prose ol\s*\{[\s\S]*?\}/g)]
+        .map(match => match[0]);
+    const paragraphListRule = postCss.match(/#freecat-article-body\.prose>\.markdown-list-lead\+\.markdown-attached-list\s*\{[\s\S]*?\}/)?.[0] || '';
+
+    assert.match(postCss, /--article-space-list-attach:\s*0\.32rem;/);
+    assert.match(postCss, /--article-space-list-after:\s*2\.15rem;/);
+    assert.match(postCss, /--article-space-list-group-before:\s*2\.35rem;/);
+    assert.match(postCss, /--article-space-list-item:\s*0\.62rem;/);
+    assert.equal(listPaddingRules.some(rule => /padding-left:\s*1\.7em\s*!important;/.test(rule)), true);
+    assert.match(postCss, /\.prose li\s*\{[\s\S]*margin:\s*0 0 var\(--article-space-list-item\)\s*!important;[\s\S]*line-height:\s*1\.72\s*!important;/);
+    assert.match(paragraphListRule, /margin-block-start:\s*var\(--article-space-list-attach\)\s*!important;/);
+    assert.match(paragraphListRule, /margin-inline-start:\s*var\(--article-list-indent\)\s*!important;/);
+    assert.match(paragraphListRule, /padding:\s*0 0 0\.18rem 1\.5rem\s*!important;/);
+    assert.match(postCss, /#freecat-article-body\.prose>\.markdown-attached-list\+p,[\s\S]*margin-block-start:\s*var\(--article-space-list-after\)\s*!important;/);
+    assert.match(postCss, /#freecat-article-body\.prose>:is\([\s\S]*\)\+p\.markdown-list-lead\s*\{[\s\S]*margin-block-start:\s*var\(--article-space-list-group-before\)\s*!important;/);
+    assert.doesNotMatch(postCss, /#freecat-article-body\.prose>?p\+ul/);
+    assert.doesNotMatch(postCss, /p:has\(\+ ul\)/);
+    assert.doesNotMatch(postCss, /--article-list-surface/);
+    assert.doesNotMatch(paragraphListRule, /-\d/);
+    assert.doesNotMatch(paragraphListRule, /background:/);
+    assert.doesNotMatch(paragraphListRule, /border-left:/);
+});
+
 test('article headings keep peer spacing after standalone post images', () => {
     assert.equal(postCss.includes('.prose figure.post-image+h3:not(.article-heading),'), true);
     assert.equal(postCss.includes('.prose figure.post-image+h3,'), false);

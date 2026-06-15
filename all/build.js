@@ -23,6 +23,7 @@ dayjs.tz.setDefault('Asia/Shanghai');
 const gitDatesModule = require('./build/git-dates.js');
 const {
     refreshLocalArticleSnapshots,
+    shouldRefreshIncompleteArticleSnapshots,
     shouldRefreshLocalArticleSnapshots
 } = require('./build/article-snapshot-refresh.js');
 const { loadConfig } = require('./build/config.js');
@@ -96,7 +97,15 @@ function loadPostsFromSnapshots(snapshots) {
     });
 }
 
-let articleSnapshots = loadArticleSnapshots();
+function refreshLocalArticleSnapshotsIfIncomplete(snapshots) {
+    const postFiles = gitDatesModule.listPostFiles(DIRS.posts);
+    if (!shouldRefreshIncompleteArticleSnapshots(postFiles, snapshots)) return snapshots;
+
+    refreshLocalArticleSnapshots({ rootDir: __dirname });
+    return loadArticleSnapshots();
+}
+
+let articleSnapshots = refreshLocalArticleSnapshotsIfIncomplete(loadArticleSnapshots());
 
 // ===== 3. 加载配置（site / social / about）=====
 console.log('⚙️ Loading site configuration...');

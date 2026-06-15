@@ -3,18 +3,52 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {
     isLocalArticleSnapshotRefreshEnabled,
+    missingArticleSnapshotFiles,
     refreshLocalArticleSnapshots,
+    shouldRefreshIncompleteArticleSnapshots,
     shouldRefreshLocalArticleSnapshots
 } = require('../build/article-snapshot-refresh.js');
 
-test('local builds refresh article snapshots when an article id is missing', () => {
+function store(values) {
+    return {
+        get(file) {
+            return values[file] || null;
+        }
+    };
+}
+
+test('local builds refresh article snapshots when an article date error is raised', () => {
     assert.equal(
         shouldRefreshLocalArticleSnapshots({ code: 'MISSING_GIT_DATE' }, 'MISSING_GIT_DATE', {}),
         true
     );
 });
 
+test('local builds refresh article snapshots when an article id is missing', () => {
+    const files = ['Existing.md', 'New.md'];
+    const snapshots = {
+        gitDates: store({
+            'Existing.md': '2026-05-31T10:00:00+08:00',
+            'New.md': '2026-06-15T10:00:00+08:00'
+        }),
+        postIds: store({
+            'Existing.md': '2026053115300001'
+        })
+    };
+
+    assert.deepEqual(missingArticleSnapshotFiles(files, snapshots), ['New.md']);
+    assert.equal(shouldRefreshIncompleteArticleSnapshots(files, snapshots, {}), true);
+});
+
 test('ci and hosted builds keep using committed article snapshots', () => {
+    const files = ['New.md'];
+    const snapshots = {
+        gitDates: store({
+            'New.md': '2026-06-15T10:00:00+08:00'
+        }),
+        postIds: store({})
+    };
+
     assert.equal(isLocalArticleSnapshotRefreshEnabled({ GITHUB_ACTIONS: 'true' }), false);
     assert.equal(isLocalArticleSnapshotRefreshEnabled({ CI: 'true' }), false);
     assert.equal(isLocalArticleSnapshotRefreshEnabled({ CF_PAGES: '1' }), false);
@@ -24,6 +58,7 @@ test('ci and hosted builds keep using committed article snapshots', () => {
         shouldRefreshLocalArticleSnapshots({ code: 'MISSING_GIT_DATE' }, 'MISSING_GIT_DATE', { GITHUB_ACTIONS: 'true' }),
         false
     );
+    assert.equal(shouldRefreshIncompleteArticleSnapshots(files, snapshots, { GITHUB_ACTIONS: 'true' }), false);
 });
 
 test('local snapshot refresh invokes the existing extract dates script', () => {

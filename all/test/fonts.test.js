@@ -21,7 +21,7 @@ test('font subset refresh checks the manifest before running the subsetter', () 
     assert.notEqual(cacheCheckIndex, -1);
     assert.notEqual(runIndex, -1);
     assert.ok(cacheCheckIndex < runIndex);
-    assert.match(fontsJs, /Font subset manifest covers the current text; skipping refresh/);
+    assert.match(fontsJs, /Font subset manifest covers the known text; skipping refresh/);
     assert.doesNotMatch(fontsJs, /fontSubsetInputSignature/);
 });
 
@@ -283,7 +283,7 @@ function withFontSubsetFileMocks(html, manifest, callback) {
     }
 }
 
-test('font subset refresh skips the subsetter when the manifest covers current text', () => {
+test('font subset refresh skips the subsetter when the manifest covers known text', () => {
     const visibleCoverage = codepointsForTest('Plain ASCII');
     const manifest = expectedManifest('unused', {
         'freecat-figtree': visibleCoverage,
@@ -295,7 +295,24 @@ test('font subset refresh skips the subsetter when the manifest covers current t
         assert.doesNotThrow(() => buildArticleFontSubset({ rootDir, refresh: true }));
         assert.equal(calls.length, 0);
         assert.equal(
-            logs.some(message => message.includes('manifest covers the current text')),
+            logs.some(message => message.includes('manifest covers the known text')),
+            true
+        );
+    });
+});
+
+test('font subset refresh keeps previously generated characters after pages shrink', () => {
+    const manifest = expectedManifest('unused', {
+        'freecat-figtree': codepointsForTest('Plain ASCII Older Title'),
+        'freecat-ui-noto-sans-sc': codepointsForTest('旧字符'),
+        'freecat-noto-sans-sc': codepointsForTest('旧字符')
+    });
+
+    withFontSubsetFileMocks('<html><body>Plain ASCII</body></html>', manifest, ({ buildArticleFontSubset, rootDir, calls, logs }) => {
+        assert.doesNotThrow(() => buildArticleFontSubset({ rootDir, refresh: true }));
+        assert.equal(calls.length, 0);
+        assert.equal(
+            logs.some(message => message.includes('manifest covers the known text')),
             true
         );
     });
@@ -527,7 +544,7 @@ test('font subset refresh reuses restored build cache before running the subsett
         assert.equal(calls.length, 0);
         assert.equal(copied.some(([source]) => source.includes('/node_modules/.cache/freecat-font-subsets/')), true);
         assert.equal(logs.some(message => message.includes('Restored cached font subsets')), true);
-        assert.equal(logs.some(message => message.includes('manifest covers the current text')), true);
+        assert.equal(logs.some(message => message.includes('manifest covers the known text')), true);
     } finally {
         childProcess.spawnSync = originalSpawnSync;
         fs.existsSync = originalExistsSync;
