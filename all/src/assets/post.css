@@ -967,6 +967,8 @@ article {
     --article-line-height: 1.82;
     --article-rhythm: calc(var(--article-body-size) * var(--article-line-height));
     --article-heading-rule: #d8e0eb;
+    --article-quote-border: #cbd5e1;
+    --article-quote-text: #334155;
     --article-space-tight: 0.42rem;
     --article-space-flow: 1.2rem;
     --article-space-list-attach: 0.32rem;
@@ -1006,6 +1008,8 @@ article {
 
 .dark .prose {
     --article-heading-rule: #334155;
+    --article-quote-border: #475569;
+    --article-quote-text: #cbd5e1;
     color: #aebacc !important;
 }
 
@@ -1194,6 +1198,11 @@ article {
 
 .prose blockquote p {
     margin-bottom: calc(var(--article-rhythm) * 0.38) !important;
+    color: var(--article-quote-text) !important;
+}
+
+.prose blockquote > :last-child {
+    margin-bottom: 0 !important;
 }
 
 .prose strong,
@@ -1349,44 +1358,45 @@ article {
 }
 
 .prose blockquote {
-    padding: calc(var(--article-rhythm) * 0.35) 0 calc(var(--article-rhythm) * 0.35) 1.05em !important;
-    border-left: 2px solid #cbd5e1 !important;
-    color: #475569 !important;
+    padding: 0 0 0 1em !important;
+    border-left: 2px solid var(--article-quote-border) !important;
+    color: var(--article-quote-text) !important;
     background: transparent !important;
+    font-style: normal !important;
 }
 
 .dark .prose blockquote {
-    border-left-color: #475569 !important;
-    color: #cbd5e1 !important;
+    border-left-color: var(--article-quote-border) !important;
+    color: var(--article-quote-text) !important;
     background: transparent !important;
 }
 
 .prose blockquote blockquote {
-    margin-block-start: calc(var(--article-rhythm) * 0.42) !important;
-    margin-left: 0.7em !important;
-    padding: calc(var(--article-rhythm) * 0.18) 0 calc(var(--article-rhythm) * 0.18) 0.85em !important;
-    border-left-width: 1px !important;
-    border-left-color: #d8dee8 !important;
-    color: #64748b !important;
+    margin-block-start: calc(var(--article-rhythm) * 0.32) !important;
+    margin-left: 0.8em !important;
+    padding: 0 0 0 1em !important;
+    border-left-width: 2px !important;
+    border-left-color: var(--article-quote-border) !important;
+    color: var(--article-quote-text) !important;
     background: transparent !important;
 }
 
 .dark .prose blockquote blockquote {
-    border-left-color: #334155 !important;
-    color: #aab6c5 !important;
+    border-left-color: var(--article-quote-border) !important;
+    color: var(--article-quote-text) !important;
     background: transparent !important;
 }
 
 .prose blockquote blockquote blockquote {
-    margin-left: 0.65em !important;
-    border-left-color: #e2e8f0 !important;
-    color: #64748b !important;
+    margin-left: 0.8em !important;
+    border-left-color: var(--article-quote-border) !important;
+    color: var(--article-quote-text) !important;
     background: transparent !important;
 }
 
 .dark .prose blockquote blockquote blockquote {
-    border-left-color: #263244 !important;
-    color: #94a3b8 !important;
+    border-left-color: var(--article-quote-border) !important;
+    color: var(--article-quote-text) !important;
     background: transparent !important;
 }
 

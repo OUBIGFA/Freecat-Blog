@@ -334,16 +334,26 @@ test('markdown tables use horizontal rules without vertical borders', () => {
 });
 
 test('nested article blockquotes stay quiet and aligned', () => {
+    const quoteParagraphRule = postCss.match(/\.prose blockquote p\s*\{[\s\S]*?\}/)?.[0] || '';
     const finalQuoteRule = postCss.match(/\.prose blockquote\s*\{[\s\S]*?\}/)?.[0] || '';
+    const lastChildRule = postCss.match(/\.prose blockquote > :last-child\s*\{[\s\S]*?\}/)?.[0] || '';
     const nestedQuoteRule = postCss.match(/\.prose blockquote blockquote\s*\{[\s\S]*?\}/)?.[0] || '';
     const thirdLevelQuoteRule = postCss.match(/\.prose blockquote blockquote blockquote\s*\{[\s\S]*?\}/)?.[0] || '';
 
-    assert.match(finalQuoteRule, /border-left:\s*2px solid #cbd5e1\s*!important;/);
+    assert.match(quoteParagraphRule, /color:\s*var\(--article-quote-text\)\s*!important;/);
+    assert.match(finalQuoteRule, /padding:\s*0 0 0 1em\s*!important;/);
+    assert.match(finalQuoteRule, /border-left:\s*2px solid var\(--article-quote-border\)\s*!important;/);
+    assert.match(finalQuoteRule, /color:\s*var\(--article-quote-text\)\s*!important;/);
+    assert.match(finalQuoteRule, /font-style:\s*normal\s*!important;/);
     assert.match(finalQuoteRule, /background:\s*transparent\s*!important;/);
-    assert.match(nestedQuoteRule, /margin-left:\s*0\.7em\s*!important;/);
-    assert.match(nestedQuoteRule, /border-left-width:\s*1px\s*!important;/);
+    assert.match(lastChildRule, /margin-bottom:\s*0\s*!important;/);
+    assert.match(nestedQuoteRule, /margin-left:\s*0\.8em\s*!important;/);
+    assert.match(nestedQuoteRule, /padding:\s*0 0 0 1em\s*!important;/);
+    assert.match(nestedQuoteRule, /border-left-width:\s*2px\s*!important;/);
+    assert.match(nestedQuoteRule, /border-left-color:\s*var\(--article-quote-border\)\s*!important;/);
     assert.match(nestedQuoteRule, /background:\s*transparent\s*!important;/);
-    assert.match(thirdLevelQuoteRule, /margin-left:\s*0\.65em\s*!important;/);
+    assert.match(thirdLevelQuoteRule, /margin-left:\s*0\.8em\s*!important;/);
+    assert.match(thirdLevelQuoteRule, /border-left-color:\s*var\(--article-quote-border\)\s*!important;/);
     assert.match(thirdLevelQuoteRule, /background:\s*transparent\s*!important;/);
     assert.doesNotMatch(nestedQuoteRule, /background(?:-color)?:\s*#(?:f1f5f9|e2e8f0|0f172a|0b1220)/);
 });
