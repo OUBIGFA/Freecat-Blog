@@ -119,6 +119,7 @@ function isMarkdownListItemLine(line) {
 }
 
 const ATTACHED_LIST_MARKER = '<!-- freecat-md-attached-list -->';
+const ATTACHED_BLOCK_MARKER = '<!-- freecat-md-attached-block -->';
 
 function isTopLevelMarkdownListItemLine(line) {
     return /^(?:[-+*]|\d{1,9}[.)])\s+\S/.test(String(line || ''));
@@ -133,7 +134,44 @@ function isAttachableListLeadLine(line) {
     return true;
 }
 
-function markAttachedListBlocks(content) {
+function isPreservedCodeBlockPlaceholderLine(line) {
+    return /^__CODE_BLOCK_\d+__$/.test(String(line || '').trim());
+}
+
+function isMarkdownHeadingLine(line) {
+    return /^ {0,3}#{1,6}\s+\S/.test(String(line || ''));
+}
+
+function isMarkdownHorizontalRuleLine(line) {
+    return /^ {0,3}(?:-{3,}|\*{3,}|_{3,})\s*$/.test(String(line || ''));
+}
+
+function isMarkdownBlockStartLine(line) {
+    const raw = String(line || '');
+    const trimmed = raw.trim();
+    if (!trimmed) return false;
+    if (/^(?:\t| {4,})/.test(raw)) return false;
+    return isTopLevelMarkdownListItemLine(raw)
+        || isMarkdownHeadingLine(raw)
+        || /^>/.test(trimmed)
+        || Boolean(getFenceMarker(raw))
+        || isMarkdownHorizontalRuleLine(raw)
+        || isStandaloneVisualBlockLine(raw)
+        || isPreservedCodeBlockPlaceholderLine(raw);
+}
+
+function shouldAttachGenericBlockBoundary(line, nextLine) {
+    const raw = String(line || '');
+    const nextRaw = String(nextLine || '');
+    if (!raw.trim() || !nextRaw.trim()) return false;
+    if (isTopLevelMarkdownListItemLine(raw) && isTopLevelMarkdownListItemLine(nextRaw)) return false;
+    if (/^>/.test(raw.trim()) && /^>/.test(nextRaw.trim())) return false;
+    if (isAttachableListLeadLine(raw) && isTopLevelMarkdownListItemLine(nextRaw)) return false;
+    return (isAttachableListLeadLine(raw) && isMarkdownBlockStartLine(nextRaw))
+        || (isMarkdownBlockStartLine(raw) && (isAttachableListLeadLine(nextRaw) || isMarkdownBlockStartLine(nextRaw)));
+}
+
+function markAttachedBodyBlocks(content) {
     if (!content) return '';
     const lines = String(content).split(/\r?\n/);
     const output = [];
@@ -145,6 +183,8 @@ function markAttachedListBlocks(content) {
         const nextLine = i + 1 < lines.length ? lines[i + 1] : '';
         if (isAttachableListLeadLine(line) && isTopLevelMarkdownListItemLine(nextLine)) {
             output.push(ATTACHED_LIST_MARKER);
+        } else if (shouldAttachGenericBlockBoundary(line, nextLine)) {
+            output.push(ATTACHED_BLOCK_MARKER);
         }
     }
 
@@ -227,7 +267,7 @@ function preserveMarkdownGaps(content) {
 function prepareMarkdownSpacing(content) {
     if (!content) return '';
     return preserveFencedCodeBlocks(content, (text) => {
-        return preserveMarkdownLinkTargets(text, (safeText) => markAttachedListBlocks(safeText
+        return preserveMarkdownLinkTargets(text, (safeText) => markAttachedBodyBlocks(safeText
             // 移除标题中的加粗符号
             .replace(/^(#{1,6}\s+)(.*)$/gm, (m, prefix, body) => prefix + body.replace(/\*\*\*|\*\*/g, ''))
             // 智能处理粗体/斜体/删除线前后的空格
@@ -242,7 +282,7 @@ function prepareMarkdownSpacing(content) {
                 if (nextChar && !/\s/.test(nextChar) && !isPunctuation.test(nextChar)) suffix = ' ';
                 return prefix + match + suffix;
             })
-            .replace(/([^\n])\n(!\[[^\]]*\]\([^)]+\))/g, '$1\n\n$2')
+            .replace(/([^\n])\n(!\[[^\]]*\]\([^)]+\))/g, `$1\n${ATTACHED_BLOCK_MARKER}\n$2`)
             .replace(/\]\(([^)\s]+)\s+'([^']+)'\)/g, ']($1 "$2")')
             // 中英文及数字间自动空格
             .replace(/([一-龥])([a-zA-Z0-9$%.])/g, '$1 $2')
@@ -269,13 +309,17 @@ function addClassToHtmlAttrs(attrs, className) {
 
 function applyAttachedListMarkup(html) {
     if (!html) return '';
-    return String(html).replace(
+    const withLists = String(html).replace(
         /<p\b([^>]*)>((?:(?!<\/p>|<p\b)[\s\S])*)<\/p>\s*<!--\s*freecat-md-attached-list\s*-->\s*<(ul|ol)\b([^>]*)>/gi,
         (match, paragraphAttrs, paragraphContent, listTag, listAttrs) => {
             const markedParagraphAttrs = addClassToHtmlAttrs(paragraphAttrs, 'markdown-list-lead');
             const markedListAttrs = addClassToHtmlAttrs(listAttrs, 'markdown-attached-list');
             return `<p${markedParagraphAttrs}>${paragraphContent}</p>\n<${listTag}${markedListAttrs}>`;
         }
+    );
+    return withLists.replace(
+        /<!--\s*freecat-md-attached-block\s*-->\s*<(p|ul|ol|dl|blockquote|table|div|figure|details|center|pre|hr|h[1-6])\b([^>]*)>/gi,
+        (match, tagName, attrs) => `<${tagName}${addClassToHtmlAttrs(attrs, 'markdown-attached-block')}>`
     );
 }
 

@@ -970,10 +970,9 @@ article {
     --article-quote-border: #cbd5e1;
     --article-quote-text: #334155;
     --article-space-tight: 0.42rem;
+    --article-space-group: 0.42rem;
     --article-space-flow: 1.2rem;
     --article-space-list-attach: 0.32rem;
-    --article-space-list-after: 2.15rem;
-    --article-space-list-group-before: 2.35rem;
     --article-space-list-item: 0.62rem;
     --article-list-indent: 1.15rem;
     --article-space-heading-to-content: 1.25rem;
@@ -1330,9 +1329,12 @@ article {
     margin: 0 !important;
 }
 
-.prose :is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+:is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player),
-.prose .markdown-gap+:is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player) {
+.prose :is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+:is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player) {
     margin-block-start: var(--article-space-flow) !important;
+}
+
+#freecat-article-body.prose>.markdown-attached-block {
+    margin-block-start: var(--article-space-group) !important;
 }
 
 #freecat-article-body.prose>.markdown-list-lead+.markdown-attached-list {
@@ -1341,13 +1343,8 @@ article {
     padding: 0 0 0.18rem 1.5rem !important;
 }
 
-#freecat-article-body.prose>.markdown-attached-list+p,
-#freecat-article-body.prose>.markdown-attached-list+.markdown-gap+p {
-    margin-block-start: var(--article-space-list-after) !important;
-}
-
-#freecat-article-body.prose>:is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+p.markdown-list-lead {
-    margin-block-start: var(--article-space-list-group-before) !important;
+.prose .markdown-gap+:is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player) {
+    margin-block-start: var(--article-space-flow) !important;
 }
 
 @media (max-width: 640px) {

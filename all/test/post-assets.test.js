@@ -227,28 +227,36 @@ test('markdown image blocks center without shrinking regular images', () => {
     assert.doesNotMatch(externalRule, /margin(?:-inline)?:\s*auto/);
 });
 
-test('article directly attached paragraph-led lists keep a clear parent-child rhythm', () => {
+test('article body blocks with zero blank lines share compact group rhythm', () => {
     const listPaddingRules = [...postCss.matchAll(/\.prose ul,\s*\.prose ol\s*\{[\s\S]*?\}/g)]
         .map(match => match[0]);
-    const paragraphListRule = postCss.match(/#freecat-article-body\.prose>\.markdown-list-lead\+\.markdown-attached-list\s*\{[\s\S]*?\}/)?.[0] || '';
+    const ordinaryBodyBlocks = ':is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)';
+    const compactGroupRule = postCss.match(/\.prose :is\([^{}]*figure\.external-embed[\s\S]*?\)\+:is\([^{}]*figure\.external-embed[\s\S]*?\)\s*\{[\s\S]*?\}/)?.[0] || '';
+    const attachedBlockRule = postCss.match(/#freecat-article-body\.prose>\.markdown-attached-block\s*\{[\s\S]*?\}/)?.[0] || '';
+    const extraGapRule = postCss.match(/\.prose \.markdown-gap\+:is\([^{}]*figure\.external-embed[\s\S]*?\)\s*\{[\s\S]*?\}/)?.[0] || '';
+    const groupedListRule = postCss.match(/#freecat-article-body\.prose>\.markdown-list-lead\+\.markdown-attached-list\s*\{[\s\S]*?\}/)?.[0] || '';
 
+    assert.match(postCss, /--article-space-group:\s*0\.42rem;/);
     assert.match(postCss, /--article-space-list-attach:\s*0\.32rem;/);
-    assert.match(postCss, /--article-space-list-after:\s*2\.15rem;/);
-    assert.match(postCss, /--article-space-list-group-before:\s*2\.35rem;/);
     assert.match(postCss, /--article-space-list-item:\s*0\.62rem;/);
     assert.equal(listPaddingRules.some(rule => /padding-left:\s*1\.7em\s*!important;/.test(rule)), true);
     assert.match(postCss, /\.prose li\s*\{[\s\S]*margin:\s*0 0 var\(--article-space-list-item\)\s*!important;[\s\S]*line-height:\s*1\.72\s*!important;/);
-    assert.match(paragraphListRule, /margin-block-start:\s*var\(--article-space-list-attach\)\s*!important;/);
-    assert.match(paragraphListRule, /margin-inline-start:\s*var\(--article-list-indent\)\s*!important;/);
-    assert.match(paragraphListRule, /padding:\s*0 0 0\.18rem 1\.5rem\s*!important;/);
-    assert.match(postCss, /#freecat-article-body\.prose>\.markdown-attached-list\+p,[\s\S]*margin-block-start:\s*var\(--article-space-list-after\)\s*!important;/);
-    assert.match(postCss, /#freecat-article-body\.prose>:is\([\s\S]*\)\+p\.markdown-list-lead\s*\{[\s\S]*margin-block-start:\s*var\(--article-space-list-group-before\)\s*!important;/);
-    assert.doesNotMatch(postCss, /#freecat-article-body\.prose>?p\+ul/);
+    assert.equal(postCss.includes(`.prose ${ordinaryBodyBlocks}+${ordinaryBodyBlocks} {`), true);
+    assert.match(compactGroupRule, /margin-block-start:\s*var\(--article-space-flow\)\s*!important;/);
+    assert.match(attachedBlockRule, /margin-block-start:\s*var\(--article-space-group\)\s*!important;/);
+    assert.match(extraGapRule, /margin-block-start:\s*var\(--article-space-flow\)\s*!important;/);
+    assert.match(groupedListRule, /margin-block-start:\s*var\(--article-space-list-attach\)\s*!important;/);
+    assert.match(groupedListRule, /margin-inline-start:\s*var\(--article-list-indent\)\s*!important;/);
+    assert.match(groupedListRule, /padding:\s*0 0 0\.18rem 1\.5rem\s*!important;/);
+    assert.doesNotMatch(postCss, /--article-space-list-after/);
+    assert.doesNotMatch(postCss, /--article-space-list-group-before/);
+    assert.doesNotMatch(postCss, />:is\([^{}]*\)\+:is\(ul, ol\)/);
+    assert.doesNotMatch(postCss, /markdown-attached-list\+p/);
+    assert.doesNotMatch(postCss, /p\.markdown-list-lead/);
     assert.doesNotMatch(postCss, /p:has\(\+ ul\)/);
-    assert.doesNotMatch(postCss, /--article-list-surface/);
-    assert.doesNotMatch(paragraphListRule, /-\d/);
-    assert.doesNotMatch(paragraphListRule, /background:/);
-    assert.doesNotMatch(paragraphListRule, /border-left:/);
+    assert.doesNotMatch(groupedListRule, /-\d/);
+    assert.doesNotMatch(groupedListRule, /background:/);
+    assert.doesNotMatch(groupedListRule, /border-left:/);
 });
 
 test('article headings keep peer spacing after any preceding body block', () => {

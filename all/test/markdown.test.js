@@ -226,6 +226,43 @@ test('blank lines inside list structure stay native markdown', () => {
     assert.match(html, /<ul>\s*<li>[\s\S]*First[\s\S]*<\/li>\s*<li>[\s\S]*Second[\s\S]*<\/li>\s*<\/ul>/);
 });
 
+test('only source blocks with zero blank lines are marked as one body group', () => {
+    const directHtml = parseMarkdown([
+        '第一段',
+        '> 引用内容',
+        '第二段',
+        '```js',
+        'const value = 1;',
+        '```'
+    ].join('\n'));
+    const singleBlankHtml = parseMarkdown([
+        '第一段',
+        '',
+        '第二段'
+    ].join('\n'));
+    const doubleBlankHtml = parseMarkdown([
+        '第一段',
+        '',
+        '',
+        '第二段',
+        '',
+        '',
+        '> 引用内容'
+    ].join('\n'));
+
+    assert.equal(directHtml.includes('class="markdown-gap"'), false);
+    assert.match(directHtml, /<p>第一段<\/p>\s*<blockquote class="markdown-attached-block">/);
+    assert.match(directHtml, /<\/blockquote>\s*<p class="markdown-attached-block">第二段<\/p>/);
+    assert.match(directHtml, /<div class="code-block-container group markdown-attached-block"/);
+    assert.equal(singleBlankHtml.includes('markdown-attached-block'), false);
+    assert.equal(singleBlankHtml.includes('class="markdown-gap"'), false);
+    assert.match(singleBlankHtml, /<p>第一段<\/p>\s*<p>第二段<\/p>/);
+    assert.equal((doubleBlankHtml.match(/class="markdown-gap"/g) || []).length, 2);
+    assert.equal(doubleBlankHtml.includes('markdown-attached-block'), false);
+    assert.match(doubleBlankHtml, /<p>第一段<\/p>\s*<div class="markdown-gap"[^>]*><\/div>\s*<p>第二段<\/p>/);
+    assert.match(doubleBlankHtml, /<p>第二段<\/p>\s*<div class="markdown-gap"[^>]*><\/div>\s*<blockquote>/);
+});
+
 test('paragraph-led lists are marked only when the list is directly attached', () => {
     const compactHtml = parseMarkdown('这类基因突变主要涉及两类基因\n- 促进细胞生长的基因\n- 抑制细胞生长的基因');
     const expandedHtml = parseMarkdown('这类基因突变主要涉及两类基因\n\n- 促进细胞生长的基因');
