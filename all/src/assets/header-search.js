@@ -14,6 +14,7 @@
         const searchCore = deps.searchCore;
         const loadSearchIndex = deps.loadSearchIndex;
         const { initDeferredImages, unobserveDeferredImages } = deps.lazyImages;
+        const fitTagRows = deps.fitTagRows;
         const navigateWithinSite = deps.navigateWithinSite;
         const isShell = !!deps.isShell;
         const contentFrame = deps.contentFrame;
@@ -100,6 +101,7 @@
             </div >
             `;
             initDeferredImages();
+            fitTagRows();
         }
 
         function closeSearchResults(immediate = false) {

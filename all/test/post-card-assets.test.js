@@ -147,7 +147,8 @@ test('post card text uses build-time Figtree and Noto Sans SC font assets', () =
 
     assert.equal((html.match(/<p class="post-card-excerpt\b/g) || []).length, 2);
     assert.equal((html.match(/class="post-card-title(?:\s|")/g) || []).length, 2);
-    assert.match(html, /<h3 class="post-card-title[^"]*\bfont-black\b/);
+    assert.match(html, /<h3 class="post-card-title[^"]*\bfont-semibold\b/);
+    assert.doesNotMatch(html, /<h3 class="post-card-title[^"]*\bfont-black\b/);
     assert.match(html, /class="freecat-published-date-text">2026-05-30<\/span>/);
     assert.match(html, /class="freecat-date-text">2026-05-31<\/span>/);
     assert.match(html, /\bfreecat-tag-text\b/);
@@ -285,7 +286,8 @@ test('desktop home card uses safe single-line titles for seven-line previews', (
     });
 
     for (const html of [shortTitleHtml, nearEdgeHtml, longTitleHtml]) {
-        assert.match(html, /<div class="post-card-default-desktop-panel\b/);
+        assert.match(html, /<div class="post-card-default-desktop-panel[^"]*\bgroup-hover:shadow-2xl\b/);
+        assert.doesNotMatch(html, /post-card-default-desktop-panel[^"]*\bborder\b/);
         assert.match(html, /<div class="post-card-default-desktop-grid">/);
         assert.match(html, /<div class="post-card-default-desktop-copy">/);
         assert.match(html, /<div class="post-card-default-desktop-footer\b/);
@@ -453,6 +455,10 @@ test('only pages that render post cards preload post-card font assets', () => {
     });
 
     assert.match(compactHtml, /post-card-layout-compact-grid/);
+    assert.match(compactHtml, /<div class="relative flex[^"]*\blg:group-hover:shadow-2xl\b/);
+    assert.match(compactHtml, /<div class="relative flex[^"]*\blg:group-hover:shadow-gray-400\/20\b/);
+    assert.match(compactHtml, /<div class="relative flex[^"]*\bdark:lg:group-hover:shadow-black\/40\b/);
+    assert.doesNotMatch(compactHtml, /<div class="relative flex[^"]*\bborder\b/);
     assert.doesNotMatch(allTemplate, /\.freecat-all-page #posts-list \.post-card h3/);
 
     const sharedFontPreloads = [

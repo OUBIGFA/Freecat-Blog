@@ -310,6 +310,9 @@ test('header search opens a blank overlay and closes from blank space', () => {
     assert.match(headerSearchJs, /overlay\.innerHTML = '';\s*updateSearchOverlayOffset\(overlay\);\s*overlay\.dataset\.open = 'true';/);
     assert.match(headerSearchJs, /<div data-search-results-content class="max-w-\[1200px\]/);
     assert.match(headerSearchJs, /<div class="freecat-post-card-list">\s*\$\{resultsHtml\}\s*<\/div>/);
+    assert.match(mainJs, /headerSearchModule\.init\(\{[\s\S]*fitTagRows,/);
+    assert.match(headerSearchJs, /const fitTagRows = deps\.fitTagRows;/);
+    assert.match(headerSearchJs, /initDeferredImages\(\);\s*fitTagRows\(\);/);
 });
 
 test('direct URL entries use the home fallback for go back controls', () => {

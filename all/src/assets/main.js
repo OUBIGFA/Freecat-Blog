@@ -206,6 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadSearchIndex,
         lazyImages,
         getCssDurationMs,
+        fitTagRows,
         navigateWithinSite,
         isShell: IS_SHELL,
         contentFrame

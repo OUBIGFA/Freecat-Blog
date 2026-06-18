@@ -79,11 +79,6 @@
                     class="w-full h-full object-cover"${coverDimAttrs}
                     loading="lazy" decoding="async" />${cover ? '<div class="placeholder-loader" aria-hidden="true"><span class="loader"></span></div>' : ''}`
             : '';
-        const mobileImageBlock = imageMarkup
-            ? `<div class="lazy-image-frame mt-8 h-[196px] shrink-0 rounded-2xl overflow-hidden sm:h-[216px]">
-                        ${imageMarkup}
-                    </div>`
-            : '';
         const desktopImageBlock = imageMarkup
             ? `<div class="post-card-default-desktop-media lazy-image-frame">
                         ${imageMarkup}
@@ -157,7 +152,7 @@
         if (layout === 'compact-grid') {
             return `
         <a href="${link}" class="post-card post-card-layout-compact-grid ${imageMarkup ? 'has-cover' : 'has-no-cover'} ${mobileTagsInline ? 'tags-inline-mobile' : ''}${pinnedCardClass} animate-fade-in-up block h-full min-w-0 group cursor-pointer" style="animation-delay: ${animationDelay}ms" data-sort-date="${sortDate}" data-sort-modified="${sortModifiedDate}" data-sort-pinned="${pinned ? '1' : '0'}">
-            ${renderAllPageMobileCardInner()}
+            ${renderAllPageMobileCardInner('lg:group-hover:shadow-2xl lg:group-hover:shadow-gray-400/20 dark:lg:group-hover:shadow-black/40')}
         </a>`;
         }
 
@@ -168,7 +163,7 @@
                 ${pinnedBadge}
                 <div class="post-card-default-desktop-grid">
                     <div class="post-card-default-desktop-copy">
-                        <h3 class="post-card-title text-[#1e293b] dark:text-slate-200 text-[34px] font-black leading-tight" style="${desktopTitleStyle}">${titleHtml}</h3>
+                        <h3 class="post-card-title text-[#1e293b] dark:text-slate-200 text-[34px] font-semibold leading-tight" style="${desktopTitleStyle}">${titleHtml}</h3>
                         <p class="post-card-excerpt mt-5 text-[#63718a] dark:text-gray-400 text-[16px] font-normal leading-[1.78]" style="${clampStyle(desktopPreviewLines)}">${mediaIconHtml}${excerptBodyHtml}</p>
                     </div>
                     ${desktopImageBlock}

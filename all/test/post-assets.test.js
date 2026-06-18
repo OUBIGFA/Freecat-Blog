@@ -175,12 +175,14 @@ test('article heading links are prefixed with a currentColor link icon', () => {
 });
 
 test('article Chinese font weight ranges cover title and bold text rules', () => {
+    assert.match(postCss, /\.prose \.callout-title\s*\{[\s\S]*font-weight:\s*600\s*!important;/);
+    assert.match(postCss, /\.prose summary\s*\{[\s\S]*font-weight:\s*600;/);
     assert.match(postCss, /\.post-title\s*\{[\s\S]*font-weight:\s*600\s*!important;/);
     assert.match(postCss, /\.prose \.article-heading\s*\{[\s\S]*font-weight:\s*600\s*!important;/);
-    assert.match(postCss, /\.prose:has\(\.article-heading-rank-2\) \.article-heading-rank-1\s*\{[\s\S]*font-weight:\s*800\s*!important;/);
+    assert.match(postCss, /\.prose:has\(\.article-heading-rank-2\) \.article-heading-rank-1\s*\{[\s\S]*font-weight:\s*649\s*!important;/);
     assert.doesNotMatch(postCss, /\.prose:has\(\.article-heading-rank-2\) \.article-heading-rank-1\s*\{[\s\S]*font-weight:\s*700\s*!important;/);
-    assert.match(postCss, /\.prose strong,\s*\.prose b\s*\{[\s\S]*font-weight:\s*760\s*!important;/);
-    assert.match(postCss, /\.prose li>strong:first-child\s*\{[\s\S]*font-weight:\s*800\s*!important;/);
+    assert.match(postCss, /\.prose strong,\s*\.prose b\s*\{[\s\S]*font-weight:\s*649\s*!important;/);
+    assert.match(postCss, /\.prose li>strong:first-child\s*\{[\s\S]*font-weight:\s*649\s*!important;/);
     assert.doesNotMatch(postCss, /\.prose strong\s*\{[\s\S]*font-weight:\s*700\s*!important;/);
     assert.doesNotMatch(postTemplate, /class="post-title[^"]*\bfont-black\b/);
     assert.doesNotMatch(postTemplate, /\bprose-strong:/);

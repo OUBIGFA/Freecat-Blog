@@ -421,14 +421,6 @@ article {
     text-align: center !important;
 }
 
-/* Dark Mode adaptation for legacy HTML bgcolor attributes */
-.dark .prose td[bgcolor] {
-    background-color: #1e293b !important;
-    /* Slate-800 */
-    color: #b6c2cf !important;
-}
-
-
 /* ===== 代码块样式 ===== */
 .prose :not(pre)>code {
     background-color: #f3f6fa !important;
@@ -517,7 +509,7 @@ article {
     display: flex !important;
     align-items: center !important;
     gap: 0.5rem !important;
-    font-weight: 800 !important;
+    font-weight: 600 !important;
     font-size: 0.95em !important;
     letter-spacing: 0.02em !important;
     color: var(--callout-title) !important;
@@ -624,84 +616,6 @@ article {
     margin-bottom: 0 !important;
 }
 
-/* ===== 列表样式 ===== */
-/* 无序列表 */
-.prose ul {
-    list-style-type: disc !important;
-    padding-left: 1.5em !important;
-    margin: 1em 0 1.618em 0 !important;
-}
-
-.prose ul ul {
-    list-style-type: circle !important;
-    margin: 0.5em 0 !important;
-}
-
-.prose ul ul ul {
-    list-style-type: square !important;
-}
-
-/* 有序列表 */
-.prose ol {
-    list-style-type: decimal !important;
-    padding-left: 1.5em !important;
-    margin: 1em 0 1.618em 0 !important;
-}
-
-.prose ol ol {
-    list-style-type: lower-alpha !important;
-    margin: 0.5em 0 !important;
-}
-
-/* 列表项 */
-.prose li {
-    margin-bottom: 0.5em !important;
-    line-height: 1.7 !important;
-    color: #1e293b !important;
-    /* Slate-700 */
-}
-
-.prose>ul>li,
-.prose>ol>li {
-    margin-bottom: 0.85em !important;
-}
-
-.prose>ul>li:last-child,
-.prose>ol>li:last-child {
-    margin-bottom: 0 !important;
-}
-
-.dark .prose li {
-    color: #cbd5e1 !important;
-    /* Slate-300 */
-}
-
-.prose li::marker {
-    color: #9ca3af !important;
-}
-
-.dark .prose li::marker {
-    color: #6b7280 !important;
-}
-
-.prose li>p {
-    margin: 0 0 0.35em 0 !important;
-}
-
-.prose li>p:last-child {
-    margin-bottom: 0 !important;
-}
-
-.prose li>p+ul,
-.prose li>p+ol {
-    margin-top: 0.35em !important;
-}
-
-.prose ul ul,
-.prose ol ol {
-    margin: 0.35em 0 !important;
-}
-
 /* 任务列表（Checkbox）。 */
 .prose input[type="checkbox"] {
     margin-right: 0.5em !important;
@@ -718,7 +632,8 @@ article {
     border-spacing: 1.2em 0 !important;
     background-color: #f0f1f4 !important;
     margin: 1.618em 0 !important;
-    font-size: 0.9em !important;
+    font-size: 0.88em !important;
+    line-height: 1.6 !important;
     overflow-x: hidden !important;
 }
 
@@ -812,37 +727,14 @@ article {
     font-style: italic !important;
 }
 
-/* ===== 标记 / 高亮 ===== */
-.prose mark {
-    background-color: #fef08a;
-    color: #854d0e;
-    padding: 0.1em 0.3em;
-    border-radius: 8px;
-}
-
-.dark .prose mark {
-    background-color: rgba(245, 158, 11, 0.18);
-    color: #b6c2cf;
-}
-
-/* Dark Mode Adaptation for Legacy HTML Blocks (tables & fonts) */
-/* Force transparent background for the outer table wrapper if any */
-.dark .prose table {
-    background-color: #151c2a !important;
-}
-
-/* Override bgcolor cell colors to Slate-800 */
+/* Dark Mode adaptation for legacy HTML table/font attributes. */
 .dark .prose td[bgcolor] {
     background-color: #151c2a !important;
-    /* Slate-800 */
     color: #b6c2cf !important;
     border-radius: 8px;
-    /* Smooth corners */
     border: 1px solid #1e293b;
-    /* Slate-700 border for definition */
 }
 
-/* Override font color attributes to Slate-200 */
 .dark .prose font[color],
 .dark .prose font[size],
 .dark .prose font[face] {
@@ -862,51 +754,11 @@ article {
 
 .prose summary {
     cursor: pointer;
-    font-weight: 800;
+    font-weight: 600;
     color: #1e293b !important;
     /* Slate-800 */
 }
 
-/* Comprehensive Dark Mode Text Color Automation */
-/* 1. Override Tailwind Prose CSS Variables for Dark Mode */
-.dark .prose {
-    --tw-prose-body: #94a3b8;
-    /* Slate-400 */
-    --tw-prose-headings: #94a3b8;
-    /* Slate-400 */
-    --tw-prose-lead: #94a3b8;
-    --tw-prose-links: #38bdf8;
-    /* Sky-400 */
-    --tw-prose-bold: #94a3b8;
-    /* Slate-400 */
-    --tw-prose-counters: #94a3b8;
-    --tw-prose-bullets: #94a3b8;
-    /* Slate-400 */
-    --tw-prose-hr: #475569;
-    --tw-prose-quotes: #b6c2cf;
-    --tw-prose-quote-borders: #475569;
-    --tw-prose-captions: #94a3b8;
-    --tw-prose-code: #b6c2cf;
-    --tw-prose-pre-code: #b6c2cf;
-    --tw-prose-pre-bg: transparent;
-
-    /* Force base color to Slate-400 */
-    color: #94a3b8 !important;
-}
-
-/* 2. Target specific HTML elements to ensure they use the variable/color */
-.dark .prose li,
-.dark .prose ul,
-.dark .prose ol,
-.dark .prose details,
-.dark .prose summary,
-.dark .prose div,
-.dark .prose span:not([class*="hljs-"]) {
-    /* Exclude syntax highlighting */
-    color: inherit !important;
-}
-
-/* 3. Specific fix for Details/Summary */
 .dark .prose details {
     border-color: #475569;
     background-color: #1e293b;
@@ -915,7 +767,6 @@ article {
 
 .dark .prose summary {
     color: #94a3b8 !important;
-    /* Slate-400 */
 }
 
 .prose mark {
@@ -1122,77 +973,9 @@ article {
     border-top: 0;
 }
 
-/* When multiple heading levels exist, the top-level heading gets a heavier weight */
+/* When multiple heading levels exist, the top-level heading gets slightly more emphasis. */
 .prose:has(.article-heading-rank-2) .article-heading-rank-1 {
-    font-weight: 800 !important;
-}
-
-.prose ul,
-.prose ol {
-    padding-left: 1.35em !important;
-}
-
-.prose p+ul,
-.prose p+ol {
-    margin-top: 0 !important;
-}
-
-.prose ul {
-    list-style-type: disc !important;
-}
-
-.prose ol {
-    list-style-type: decimal !important;
-}
-
-.prose ul ul,
-.prose ol ol,
-.prose ul ol,
-.prose ol ul {
-    padding-left: 1.15em !important;
-}
-
-.prose ul ul {
-    list-style-type: circle !important;
-}
-
-.prose ul ul ul {
-    list-style-type: square !important;
-}
-
-.prose li {
-    line-height: 1.72 !important;
-    color: #1e293b !important;
-}
-
-.prose>ul>li,
-.prose>ol>li {
-}
-
-.prose li>p {
-    margin: 0 0 calc(var(--article-rhythm) * 0.22) !important;
-    line-height: 1.72 !important;
-}
-
-.prose li::marker {
-    color: #94a3b8 !important;
-}
-
-.dark .prose li {
-    color: #c5d0df !important;
-}
-
-.dark .prose li::marker {
-    color: #64748b !important;
-}
-
-.prose li>strong:first-child {
-    color: #1e293b !important;
-    font-weight: 800 !important;
-}
-
-.dark .prose li>strong:first-child {
-    color: #e2e8f0 !important;
+    font-weight: 649 !important;
 }
 
 .prose blockquote p {
@@ -1207,17 +990,12 @@ article {
 .prose strong,
 .prose b {
     color: #1e293b !important;
-    font-weight: 760 !important;
+    font-weight: 649 !important;
 }
 
 .dark .prose strong,
 .dark .prose b {
     color: #e2e8f0 !important;
-}
-
-.prose table {
-    font-size: 0.88em !important;
-    line-height: 1.6 !important;
 }
 
 .prose :not(pre)>code {
@@ -1263,9 +1041,38 @@ article {
     padding-left: 1.7em !important;
 }
 
+.prose p+ul,
+.prose p+ol {
+    margin-top: 0 !important;
+}
+
+.prose ul {
+    list-style-type: disc !important;
+}
+
+.prose ol {
+    list-style-type: decimal !important;
+}
+
+.prose ul ul,
+.prose ol ol,
+.prose ul ol,
+.prose ol ul {
+    padding-left: 1.15em !important;
+}
+
+.prose ul ul {
+    list-style-type: circle !important;
+}
+
+.prose ul ul ul {
+    list-style-type: square !important;
+}
+
 .prose li {
     margin: 0 0 var(--article-space-list-item) !important;
     line-height: 1.72 !important;
+    color: #1e293b !important;
 }
 
 .prose li:last-child {
@@ -1274,10 +1081,32 @@ article {
 
 .prose li > p {
     margin: 0 !important;
+    line-height: 1.72 !important;
 }
 
 .prose li li {
     margin-bottom: var(--article-space-tight) !important;
+}
+
+.prose li::marker {
+    color: #94a3b8 !important;
+}
+
+.dark .prose li {
+    color: #c5d0df !important;
+}
+
+.dark .prose li::marker {
+    color: #64748b !important;
+}
+
+.prose li>strong:first-child {
+    color: #1e293b !important;
+    font-weight: 649 !important;
+}
+
+.dark .prose li>strong:first-child {
+    color: #e2e8f0 !important;
 }
 
 .prose>hr {
