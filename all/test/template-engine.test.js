@@ -310,6 +310,12 @@ test('article copy content frontmatter defaults off and only enables when explic
     assert.equal(normalizePostFrontmatter({ copy_content: true }).allowCopyContent, true);
 });
 
+test('article latest update frontmatter defaults off and only enables when explicit', () => {
+    assert.equal(normalizePostFrontmatter({}).showLatestUpdate, false);
+    assert.equal(normalizePostFrontmatter({ show_latest_update: false }).showLatestUpdate, false);
+    assert.equal(normalizePostFrontmatter({ show_latest_update: true }).showLatestUpdate, true);
+});
+
 test('renderTagMenuItemsHtml escapes labels, encodes hrefs and renders counts', () => {
     const html = shared.renderTagMenuItemsHtml(shared.collectMenuTags([
         { tags: ['<b>x</b>'] }

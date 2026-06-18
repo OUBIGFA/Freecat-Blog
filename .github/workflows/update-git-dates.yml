@@ -8,6 +8,7 @@ on:
       - 'writing/**'
       - 'all/extract-git-dates.js'
       - 'all/build/git-dates.js'
+      - 'all/build/latest-updates.js'
       - '.github/workflows/update-git-dates.yml'
   workflow_dispatch:
 

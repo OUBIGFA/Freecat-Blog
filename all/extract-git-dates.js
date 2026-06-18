@@ -3,6 +3,7 @@ const path = require('path');
 const { execFileSync } = require('child_process');
 const { collectFromGit, collectPublishDates, loadSnapshot } = require('./build/git-dates.js');
 const { collectPostIdSnapshots } = require('./build/post-id-snapshots.js');
+const { collectLatestUpdates } = require('./build/latest-updates.js');
 
 console.log('Extracting article date snapshots...');
 
@@ -114,12 +115,19 @@ const sortedPostIds = Object.fromEntries(
     Object.entries(postIdSnapshots).sort(([a], [b]) => a.localeCompare(b, 'zh-Hans-CN'))
 );
 
+const latestUpdates = collectLatestUpdates({ repoRoot, postsDir });
+const sortedLatestUpdates = Object.fromEntries(
+    Object.entries(latestUpdates).sort(([a], [b]) => a.localeCompare(b, 'zh-Hans-CN'))
+);
+
 fs.writeFileSync(datesFile, `${JSON.stringify({
     modified: sorted,
     published: sortedPublishDates,
-    post_ids: sortedPostIds
+    post_ids: sortedPostIds,
+    latest_updates: sortedLatestUpdates
 }, null, 2)}\n`, 'utf-8');
 
 console.log(`Saved ${Object.keys(sorted).length} article modified dates to ${path.basename(datesFile)}.`);
 console.log(`Saved ${Object.keys(sortedPublishDates).length} article publish dates to ${path.basename(datesFile)}.`);
 console.log(`Saved ${Object.keys(sortedPostIds).length} article post ids to ${path.basename(datesFile)}.`);
+console.log(`Saved ${Object.keys(sortedLatestUpdates).length} article latest updates to ${path.basename(datesFile)}.`);

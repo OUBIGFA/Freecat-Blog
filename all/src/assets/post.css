@@ -1755,6 +1755,11 @@ article {
 .dark .diagram-error p {
     color: #94a3b8 !important;
 }
+
+.freecat-post-latest-update-shell {
+    display: none;
+}
+
 @media (min-width: 1280px) {
     .freecat-post-toc-panel {
         --freecat-post-toc-top: 16rem;
@@ -1762,11 +1767,14 @@ article {
         --freecat-post-toc-scrollbar: rgba(148, 163, 184, 0.46);
         position: fixed;
         top: var(--freecat-post-toc-top);
-        /* Article is 900px wide and centered on the viewport: 450px half-width + 48px visual gap. */
-        left: calc(50% + 498px);
         height: calc(100vh - var(--freecat-post-toc-top) - var(--freecat-post-toc-bottom-gap));
         z-index: 20;
         overflow-x: hidden;
+    }
+
+    .freecat-post-toc-panel {
+        /* Article is 900px wide and centered on the viewport: 450px half-width + 48px visual gap. */
+        left: calc(50% + 498px);
     }
 
     .dark .freecat-post-toc-panel {
@@ -1816,8 +1824,130 @@ article {
     }
 }
 
+@media (min-width: 1600px) {
+    .freecat-post-latest-update-shell {
+        display: block;
+    }
+
+    .freecat-post-latest-update-panel {
+        --freecat-post-latest-update-top: 16rem;
+        --freecat-post-latest-update-bottom-gap: 10.1875rem;
+        --freecat-post-latest-update-scrollbar: rgba(148, 163, 184, 0.46);
+        position: fixed;
+        top: var(--freecat-post-latest-update-top);
+        right: calc(50% + 498px);
+        height: calc(100vh - var(--freecat-post-latest-update-top) - var(--freecat-post-latest-update-bottom-gap));
+        z-index: 20;
+        overflow-x: hidden;
+    }
+
+    .dark .freecat-post-latest-update-panel {
+        --freecat-post-latest-update-scrollbar: rgba(100, 116, 139, 0.48);
+    }
+
+    .freecat-post-latest-update-scroll {
+        position: relative;
+    }
+
+    #latest-update-container,
+    .freecat-post-latest-update-body,
+    .freecat-post-latest-update-body p,
+    .freecat-post-latest-update-link {
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    #latest-update-container {
+        direction: rtl;
+        overflow-y: auto !important;
+        padding-right: 0;
+        padding-left: 0.5rem;
+        scrollbar-gutter: stable;
+        scrollbar-width: thin;
+        scrollbar-color: var(--freecat-post-latest-update-scrollbar) transparent;
+    }
+
+    #latest-update-container::-webkit-scrollbar {
+        width: 0.375rem;
+    }
+
+    #latest-update-container::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    #latest-update-container::-webkit-scrollbar-thumb {
+        min-height: 2rem;
+        border-radius: 999px;
+        background-color: var(--freecat-post-latest-update-scrollbar);
+    }
+
+    .freecat-post-latest-update-date {
+        margin-bottom: 0.85rem;
+        color: #94a3b8;
+        font-size: 0.75rem;
+        line-height: 1.35;
+    }
+
+    .freecat-post-latest-update-panel .freecat-post-toc-title,
+    .freecat-post-latest-update-date {
+        padding-left: 1.125rem;
+    }
+
+    .freecat-post-latest-update-body {
+        border-right: 1px solid #e2e8f0;
+        direction: ltr;
+        padding: 0.35rem 1rem 0.35rem 0;
+    }
+
+    .dark .freecat-post-latest-update-body {
+        border-right-color: #334155;
+    }
+
+    .freecat-post-latest-update-body p {
+        margin: 0 0 0.8rem;
+    }
+
+    .freecat-post-latest-update-link {
+        display: -webkit-box;
+        color: #64748b;
+        font-size: 0.875rem;
+        line-height: 1.7;
+        overflow: hidden;
+        overflow-wrap: anywhere;
+        text-overflow: ellipsis;
+        white-space: normal;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        text-decoration: none;
+        transition: color 150ms ease;
+    }
+
+    .freecat-post-latest-update-link:hover,
+    .freecat-post-latest-update-link:focus-visible {
+        color: #1e293b;
+    }
+
+    .freecat-post-latest-update-body p:last-child {
+        margin-bottom: 0;
+    }
+
+    .dark .freecat-post-latest-update-link {
+        color: #94a3b8;
+    }
+
+    .dark .freecat-post-latest-update-link:hover,
+    .dark .freecat-post-latest-update-link:focus-visible {
+        color: #e2e8f0;
+    }
+}
+
 @media (min-width: 1760px) {
     .freecat-post-toc-panel {
         left: calc(50% + 498px);
+    }
+
+    .freecat-post-latest-update-panel {
+        right: calc(50% + 498px);
     }
 }

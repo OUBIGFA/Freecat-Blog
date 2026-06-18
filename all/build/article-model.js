@@ -34,6 +34,8 @@ function normalizePostFrontmatter(data = {}) {
         tags: normalizeTags(firstDefined(data.tags, data.tag, [])),
         pinned: data.pinned === true,
         allowCopyContent: data.copy_content === true,
+        showLatestUpdate: data.show_latest_update === true
+            || data.showLatestUpdate === true,
         author: data.author || '',
         authorUrl: firstDefined(data.author_url, data.authorUrl, ''),
         noindex: data.noindex === true,

@@ -83,6 +83,12 @@ function loadArticleSnapshots() {
             required: false,
             label: 'post id',
             section: 'post_ids'
+        }),
+        latestUpdates: gitDatesModule.loadSnapshotMap({
+            snapshotPath,
+            required: false,
+            label: 'article latest update',
+            section: 'latest_updates'
         })
     };
 }
@@ -93,6 +99,7 @@ function loadPostsFromSnapshots(snapshots) {
         gitDates: snapshots.gitDates,
         postDates: snapshots.postDates,
         postIds: snapshots.postIds,
+        latestUpdates: snapshots.latestUpdates,
         skipMissingGitDates: true
     });
 }

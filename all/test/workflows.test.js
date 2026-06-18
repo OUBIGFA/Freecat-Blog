@@ -14,6 +14,7 @@ test('article snapshot workflow only commits article dates', () => {
 
     assert.match(workflow, /Generate article snapshots/);
     assert.match(workflow, /git add all\/git-dates\.json/);
+    assert.match(workflow, /all\/build\/latest-updates\.js/);
     assert.match(workflow, /chore: update article snapshots/);
     assert.doesNotMatch(workflow, /Generate font subsets/);
     assert.doesNotMatch(workflow, /npm run build/);

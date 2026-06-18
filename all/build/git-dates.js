@@ -33,6 +33,18 @@ function normalizeDateMap(raw) {
     return map;
 }
 
+function normalizeValueMap(raw) {
+    const map = {};
+    if (!raw || typeof raw !== 'object') return map;
+
+    for (const [key, value] of Object.entries(raw)) {
+        if (value == null || value === '') continue;
+        map[path.posix.basename(normalizePath(key))] = value;
+    }
+
+    return map;
+}
+
 function listPostFiles(postsDir) {
     return fs.readdirSync(postsDir).filter(isContentFile);
 }
@@ -150,6 +162,23 @@ function readSnapshot(snapshotPath, section) {
     return normalizeDateMap(raw);
 }
 
+function readSnapshotMap(snapshotPath, section) {
+    if (!fs.existsSync(snapshotPath)) return null;
+    const content = fs.readFileSync(snapshotPath, 'utf-8');
+    let raw;
+    try {
+        raw = JSON.parse(content);
+    } catch (err) {
+        if (!hasConflictMarkers(content)) throw err;
+        raw = recoverSnapshotConflict(snapshotPath, content);
+    }
+    if (section && raw && typeof raw === 'object' && raw[section] && typeof raw[section] === 'object') {
+        return normalizeValueMap(raw[section]);
+    }
+    if (section) return {};
+    return normalizeValueMap(raw);
+}
+
 function makeDateStore(cache, source) {
     return {
         raw: cache,
@@ -163,6 +192,16 @@ function makeDateStore(cache, source) {
                 throw new MissingGitDateError(filename);
             }
             return value;
+        }
+    };
+}
+
+function makeSnapshotStore(cache, source) {
+    return {
+        raw: cache,
+        source,
+        get(filename) {
+            return cache[filename] || cache[path.basename(filename)] || null;
         }
     };
 }
@@ -181,6 +220,22 @@ function loadSnapshot({ snapshotPath, required = true, label = 'Git modified dat
 
     console.log(`Loaded ${label} snapshot for ${Object.keys(cache).length} article files.`);
     return makeDateStore(cache, 'snapshot');
+}
+
+function loadSnapshotMap({ snapshotPath, required = true, label = 'snapshot', section = '' }) {
+    const cache = readSnapshotMap(snapshotPath, section);
+
+    if (!cache) {
+        if (!required) return makeSnapshotStore({}, 'none');
+        throw new Error(
+            `Missing ${path.basename(snapshotPath)}. ` +
+            'This project now requires all/git-dates.json for production builds. ' +
+            'Wait for the GitHub Actions git-dates update to finish, or run "cd all && npm run extract-dates" and commit the generated file.'
+        );
+    }
+
+    console.log(`Loaded ${label} snapshot for ${Object.keys(cache).length} article files.`);
+    return makeSnapshotStore(cache, 'snapshot');
 }
 
 function extractFromGit(repoRoot, targetDir) {
@@ -303,5 +358,6 @@ module.exports = {
     collectFromGit,
     listPostFiles,
     loadSnapshot,
+    loadSnapshotMap,
     MISSING_GIT_DATE_CODE,
 };

@@ -283,6 +283,44 @@ test('post share metadata uses dotted publish date for preview display', () => {
     assert.doesNotMatch(html, /<meta property="og:image:height" content="900" \/>/);
 });
 
+test('post page renders latest update panel only when update snapshot exists', () => {
+    const basePost = {
+        title: 'Latest Update Post',
+        tag: [],
+        link: '/posts/latest-update',
+        cover: '',
+        content: 'Body',
+        date: dayjs.tz('2026-05-02T09:00:00+08:00'),
+        modifiedDate: dayjs.tz('2026-05-03T09:00:00+08:00'),
+        postId: '2026050209000002'
+    };
+    const template = '<!doctype html><html><head><!-- POST_SEO_HEAD --><!-- POST_JSONLD --></head><body><!-- LATEST_UPDATE_PLACEHOLDER --><!-- CONTENT_PLACEHOLDER --></body></html>';
+    const siteConfig = { site_name: 'Example', site_title: 'Example Blog', site_url: 'https://example.com' };
+
+    const withUpdate = renderPostPage({
+        post: { ...basePost, latestUpdate: { items: ['最后新增的正文内容'] } },
+        template,
+        siteConfig,
+        seoConfig: {}
+    });
+    const withoutUpdate = renderPostPage({
+        post: basePost,
+        template,
+        siteConfig,
+        seoConfig: {}
+    });
+
+    assert.match(withUpdate, /freecat-post-latest-update-panel/);
+    assert.match(withUpdate, />\s*最新更新\s*</);
+    assert.match(withUpdate, /最后新增的正文内容/);
+    assert.match(withUpdate, /class="freecat-post-latest-update-link"/);
+    assert.match(withUpdate, /href="#latest-update-1"/);
+    assert.match(withUpdate, /data-latest-update-text="最后新增的正文内容"/);
+    assert.doesNotMatch(withUpdate, /title="最后新增的正文内容"/);
+    assert.doesNotMatch(withoutUpdate, /freecat-post-latest-update-panel/);
+    assert.doesNotMatch(withoutUpdate, />\s*最新更新\s*</);
+});
+
 test('post page loads video player assets only when video content is present', () => {
     const baseTemplate = '<!doctype html><html><head><!-- POST_SEO_HEAD --><!-- POST_JSONLD --><!-- POST_MEDIA_CSS --><!-- POST_VIDEO_CSS --></head><body><!-- TITLE_PLACEHOLDER --><!-- TITLE_H1_PLACEHOLDER --><!-- TAGS_PLACEHOLDER --><!-- DATE_PLACEHOLDER --><!-- DATE_ISO_PLACEHOLDER --><!-- MODIFIED_PLACEHOLDER --><!-- CONTENT_PLACEHOLDER --><!-- TOC_PLACEHOLDER --><!-- POST_HIGHLIGHT_CSS --><!-- POST_KATEX_CSS --><!-- POST_HIGHLIGHT_JS --><!-- POST_CHART_JS --><!-- POST_MEDIA_JS --><!-- POST_AUDIO_CSS --><!-- POST_AUDIO_JS --><!-- POST_VIDEO_JS --></body></html>';
     const siteConfig = { site_name: 'Example', site_title: 'Example', site_url: 'https://example.com' };

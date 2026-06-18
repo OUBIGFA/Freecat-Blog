@@ -624,6 +624,51 @@
         });
     }
 
+    function normalizeLatestUpdateText(value) {
+        return String(value || '').replace(/\s+/g, ' ').trim();
+    }
+
+    function findLatestUpdateTarget(text) {
+        var needle = normalizeLatestUpdateText(text);
+        var article = document.querySelector('article');
+        if (!needle || !article) return null;
+
+        var candidates = article.querySelectorAll('h1,h2,h3,h4,h5,h6,p,li,td,th,blockquote,figcaption,.callout,pre code');
+        var fallbackNeedle = needle.length > 40 ? needle.slice(0, 40) : needle;
+        for (var i = 0; i < candidates.length; i += 1) {
+            var candidate = candidates[i];
+            var haystack = normalizeLatestUpdateText(candidate.textContent);
+            if (!haystack) continue;
+            if (haystack.indexOf(needle) !== -1 || haystack.indexOf(fallbackNeedle) !== -1) {
+                return candidate;
+            }
+        }
+
+        return null;
+    }
+
+    function initLatestUpdateAnchors() {
+        document.querySelectorAll('.freecat-post-latest-update-link[href^="#"]').forEach(function (anchor) {
+            if (anchor.getAttribute('data-latest-update-ready') === 'true') return;
+            anchor.setAttribute('data-latest-update-ready', 'true');
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                var article = document.querySelector('article');
+                var targetId = this.getAttribute('href').substring(1);
+                var targetElement = document.getElementById(targetId) || findLatestUpdateTarget(this.getAttribute('data-latest-update-text'));
+
+                if (targetElement && article) {
+                    if (!targetElement.id) targetElement.id = targetId;
+                    window.scrollTo({
+                        top: getTocTargetScrollY(targetElement, article),
+                        behavior: 'smooth'
+                    });
+                    history.replaceState(null, null, '#' + targetElement.id);
+                }
+            });
+        });
+    }
+
     function replaceFailedTwitterEmbed(figure) {
         var url = figure && figure.getAttribute('data-embed-url');
         if (!url) return;
@@ -738,6 +783,7 @@
         codeFolding.init();
         initShareButton();
         initTocAnchors();
+        initLatestUpdateAnchors();
         initExternalEmbedPlaceholders();
         initTwitterEmbedFallback();
     }

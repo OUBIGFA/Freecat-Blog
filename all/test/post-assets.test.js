@@ -104,6 +104,27 @@ test('article table of contents uses requested Chinese and Latin font assets', (
     assert.match(typographyCss, /#toc-container a\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
 });
 
+test('article latest update panel mirrors the toc on the left when there is room', () => {
+    assert.match(postTemplate, /<!-- LATEST_UPDATE_PLACEHOLDER -->/);
+    assert.match(postCss, /\.freecat-post-latest-update-shell\s*\{[\s\S]*display:\s*none;/);
+    assert.match(postCss, /@media \(min-width:\s*1600px\)\s*\{[\s\S]*\.freecat-post-latest-update-shell\s*\{[\s\S]*display:\s*block;/);
+    assert.match(postCss, /\.freecat-post-latest-update-panel\s*\{[\s\S]*right:\s*calc\(50% \+ 498px\);/);
+    assert.match(postCss, /#latest-update-container\s*\{[\s\S]*overflow-y:\s*auto !important;/);
+    assert.match(postCss, /#latest-update-container\s*\{[\s\S]*direction:\s*rtl;/);
+    assert.match(postCss, /\.freecat-post-latest-update-body\s*\{[\s\S]*direction:\s*ltr;/);
+    assert.match(postCss, /\.freecat-post-latest-update-body\s*\{[\s\S]*border-right:\s*1px solid #e2e8f0;/);
+    assert.match(postCss, /\.freecat-post-latest-update-panel \.freecat-post-toc-title,\s*\.freecat-post-latest-update-date\s*\{[\s\S]*padding-left:\s*1\.125rem;/);
+    assert.match(postCss, /\.freecat-post-latest-update-link\s*\{[\s\S]*text-overflow:\s*ellipsis;/);
+    assert.match(postCss, /\.freecat-post-latest-update-link\s*\{[\s\S]*-webkit-line-clamp:\s*3;/);
+    assert.match(postCss, /\.freecat-post-latest-update-link\s*\{[\s\S]*white-space:\s*normal;/);
+    assert.match(postJs, /function initLatestUpdateAnchors\(\)\s*\{/);
+    assert.match(postJs, /\.freecat-post-latest-update-link\[href\^="#"\]/);
+    assert.match(postJs, /findLatestUpdateTarget\(this\.getAttribute\('data-latest-update-text'\)\)/);
+    assert.match(postJs, /getTocTargetScrollY\(targetElement,\s*article\)/);
+    assert.match(floatingNavJs, /\.freecat-post-latest-update-panel/);
+    assert.match(floatingNavJs, /getElementById\('latest-update-container'\)/);
+});
+
 test('article toc anchor scrolling respects the shell header offset when framed', () => {
     assert.match(postJs, /function getRootPixelValue\(name,\s*fallback\)\s*\{/);
     assert.match(postJs, /getRootPixelValue\('--freecat-page-top-offset',\s*0\)/);

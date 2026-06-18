@@ -115,6 +115,7 @@
                 'article',
                 '.post-card',
                 '.freecat-post-toc-panel',
+                '.freecat-post-latest-update-panel',
                 isHomePage ? null : '.freecat-home-sidebar',
                 isHomePage ? null : '.freecat-home-posts-inner',
                 '.layout-content-container',
@@ -191,6 +192,8 @@
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 const tocContainer = document.getElementById('toc-container');
                 if (tocContainer) tocContainer.scrollTo({ top: 0, behavior: 'smooth' });
+                const latestUpdateContainer = document.getElementById('latest-update-container');
+                if (latestUpdateContainer) latestUpdateContainer.scrollTo({ top: 0, behavior: 'smooth' });
             });
         }
 

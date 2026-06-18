@@ -109,11 +109,58 @@ function renderPostFontFaceCss(postId, assetVersion = '') {
     ].join('\n\n    ');
 }
 
+function normalizeLatestUpdateSnapshot(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    const items = Array.isArray(raw.items)
+        ? raw.items.map(item => String(item == null ? '' : item).trim()).filter(Boolean)
+        : [];
+    if (items.length === 0) return null;
+    return { items };
+}
+
+function renderLatestUpdatePanel(post) {
+    const latestUpdate = post && post.latestUpdate;
+    const items = latestUpdate && Array.isArray(latestUpdate.items) ? latestUpdate.items : [];
+    if (items.length === 0) return '';
+
+    const date = post.modifiedDate && typeof post.modifiedDate.tz === 'function'
+        ? post.modifiedDate.tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm')
+        : '';
+    const dateHtml = date
+        ? `<div class="freecat-post-latest-update-date freecat-date-text">${shared.escapeHtml(date)}</div>`
+        : '';
+    const itemsHtml = items
+        .map((item, index) => {
+            const itemHtml = shared.escapeHtml(autoSpacing(item));
+            const targetId = `latest-update-${index + 1}`;
+            return `<p><a class="freecat-post-latest-update-link" href="#${targetId}" data-latest-update-text="${itemHtml}">${itemHtml}</a></p>`;
+        })
+        .join('\n                                            ');
+
+    return `<div class="freecat-post-latest-update-shell">
+                        <aside class="freecat-post-latest-update-panel w-72 2xl:w-80 flex-shrink-0">
+                            <div class="flex h-full flex-col">
+                                <h3 class="freecat-post-toc-title text-sm tracking-wider text-slate-500 dark:text-slate-400 mb-3">
+                                    最新更新
+                                </h3>
+                                ${dateHtml}
+                                <div class="freecat-post-latest-update-scroll min-h-0 flex-1">
+                                    <div id="latest-update-container" class="h-full overflow-x-hidden pr-2">
+                                        <div class="freecat-post-latest-update-body">
+                                            ${itemsHtml}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>`;
+}
+
 /**
  * 读取 writing/ 目录下的所有 Markdown 文章并归一化为 post 对象数组。
  * 跳过 frontmatter 标记 show: false 的文件。已按"置顶在前 + 时间倒序"排序。
  */
-function loadPosts({ postsDir, gitDates, postDates, postIds, skipMissingGitDates = false }) {
+function loadPosts({ postsDir, gitDates, postDates, postIds, latestUpdates, skipMissingGitDates = false }) {
     const postFiles = fs.readdirSync(postsDir).filter(isContentFile);
     const posts = [];
     const seenPostIds = new Map();
@@ -165,6 +212,9 @@ function loadPosts({ postsDir, gitDates, postDates, postIds, skipMissingGitDates
         const excerptRaw = frontmatter.description || (cleanContent.slice(0, 160) + (cleanContent.length > 160 ? '...' : ''));
         const titleRaw = (frontmatter.title && String(frontmatter.title).trim()) ? frontmatter.title : slug;
         const faqItems = seo.normalizeFaq(frontmatter.faq);
+        const latestUpdate = frontmatter.showLatestUpdate && latestUpdates && typeof latestUpdates.get === 'function'
+            ? normalizeLatestUpdateSnapshot(latestUpdates.get(file))
+            : null;
 
         posts.push({
             title: autoSpacing(titleRaw),
@@ -187,6 +237,7 @@ function loadPosts({ postsDir, gitDates, postDates, postIds, skipMissingGitDates
             link: `/posts/${postId}/`,
             pinned: frontmatter.pinned,
             allowCopyContent: frontmatter.allowCopyContent,
+            latestUpdate,
             enableImageCaptions: frontmatter.enableImageCaptions,
             author: frontmatter.author,
             authorUrl: frontmatter.authorUrl,
@@ -226,6 +277,7 @@ function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = 
     const copyContentSource = post.allowCopyContent
         ? `<script type="application/json" id="freecat-article-copy-source">${JSON.stringify(String(post.content || ''))}</script>`
         : '';
+    const latestUpdatePanel = renderLatestUpdatePanel(post);
 
     const canonical = seo.pageUrl(siteConfig, post.link);
     const rawCover = String(post.cover || '');
@@ -304,6 +356,7 @@ function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = 
         ['<!-- MODIFIED_PLACEHOLDER -->', post.modifiedDate.tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm')],
         ['<!-- POST_COPY_BUTTON_PLACEHOLDER -->', copyContentButton],
         ['<!-- POST_COPY_SOURCE_PLACEHOLDER -->', copyContentSource],
+        ['<!-- LATEST_UPDATE_PLACEHOLDER -->', latestUpdatePanel],
         ['<!-- CONTENT_PLACEHOLDER -->', finalContentHtml],
         ['<!-- TOC_PLACEHOLDER -->', toc],
         ['<!-- POST_SEO_HEAD -->', seoHead],
@@ -338,4 +391,12 @@ function generateAll({ posts, template, siteConfig, seoConfig, outputDir, assetV
     });
 }
 
-module.exports = { loadPosts, renderPostPage, generateAll, renderPostFontPreloads, renderPostFontFaceCss };
+module.exports = {
+    loadPosts,
+    renderPostPage,
+    generateAll,
+    normalizeLatestUpdateSnapshot,
+    renderLatestUpdatePanel,
+    renderPostFontPreloads,
+    renderPostFontFaceCss
+};
