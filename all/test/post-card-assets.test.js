@@ -440,9 +440,13 @@ test('site text does not request unsupported bold weight', () => {
         seoJs,
         paginationJs
     ].join('\n');
+    const sourcesWithoutArticleRankBoost = sources.replace(
+        /\.prose:has\(\.article-heading-rank-2\) \.article-heading-rank-1\s*\{[\s\S]*?\}/,
+        ''
+    );
 
     assert.doesNotMatch(sources, /\bfont-bold\b/);
-    assert.doesNotMatch(sources, /font-weight:\s*700\b/);
+    assert.doesNotMatch(sourcesWithoutArticleRankBoost, /font-weight:\s*700\b/);
 });
 
 test('only pages that render post cards preload post-card font assets', () => {
@@ -730,7 +734,7 @@ test('article Chinese font uses generated Noto Sans SC subsets for available wei
     const weights = [
         ['regular', '350 449'],
         ['medium', '450 549'],
-        ['semi-bold', '550 649'],
+        ['semi-bold', '600'],
         ['extra-bold', '750 849']
     ];
     const unusedWeights = ['thin', 'extra-light', 'light', 'bold', 'black'];

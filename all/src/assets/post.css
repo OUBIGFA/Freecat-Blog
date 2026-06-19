@@ -975,7 +975,7 @@ article {
 
 /* When multiple heading levels exist, the top-level heading gets slightly more emphasis. */
 .prose:has(.article-heading-rank-2) .article-heading-rank-1 {
-    font-weight: 649 !important;
+    font-weight: 700 !important;
 }
 
 .prose blockquote p {
@@ -990,7 +990,7 @@ article {
 .prose strong,
 .prose b {
     color: #1e293b !important;
-    font-weight: 649 !important;
+    font-weight: 600 !important;
 }
 
 .dark .prose strong,
@@ -1102,7 +1102,7 @@ article {
 
 .prose li>strong:first-child {
     color: #1e293b !important;
-    font-weight: 649 !important;
+    font-weight: 600 !important;
 }
 
 .dark .prose li>strong:first-child {

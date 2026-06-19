@@ -31,6 +31,7 @@ const {
     applyMarkdownTableColumnWidths,
     preserveMarkdownGaps,
     prepareMarkdownSpacing,
+    addClassToHtmlAttrs,
     applyAttachedListMarkup
 } = require('./markdown/spacing.js');
 
@@ -188,13 +189,25 @@ function extractHeadingsAndGenerateTOC(content) {
 function addHeadingIds(html, headings) {
     let headingIndex = 0;
 
-    return html.replace(/<h([1-6])>([\s\S]*?)<\/h\1>/gi, (match, level, innerHtml) => {
+    return html.replace(/<h([1-6])\b([^>]*)>([\s\S]*?)<\/h\1>/gi, (match, level, attrs, innerHtml) => {
         const h = headings[headingIndex++];
         if (!h) return match;
         const sourceLevel = Math.min(Math.max(h.level || Number(level), 1), 6);
         const renderedLevel = Math.min(Math.max(h.renderedLevel || Number(level), 1), 6);
         const rank = Math.min(Math.max(h.rank || sourceLevel, 1), 6);
-        return `<h${renderedLevel} id="${h.id}" class="article-heading article-heading-depth-${sourceLevel} article-heading-rank-${rank} article-heading-source-h${sourceLevel} scroll-mt-24">${innerHtml}</h${renderedLevel}>`;
+        const headingClasses = [
+            'article-heading',
+            `article-heading-depth-${sourceLevel}`,
+            `article-heading-rank-${rank}`,
+            `article-heading-source-h${sourceLevel}`,
+            'scroll-mt-24'
+        ];
+        const attrsWithId = ` id="${h.id}"${attrs || ''}`;
+        const nextAttrs = headingClasses.reduce(
+            (currentAttrs, className) => addClassToHtmlAttrs(currentAttrs, className),
+            attrsWithId
+        );
+        return `<h${renderedLevel}${nextAttrs}>${innerHtml}</h${renderedLevel}>`;
     });
 }
 

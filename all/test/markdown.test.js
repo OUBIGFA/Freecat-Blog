@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const { parseMarkdown, extractHeadingsAndGenerateTOC, parseImageStyleAudio, parseImageStyleAudioList, stripMarkdown } = require('../build/markdown.js');
+const { parseMarkdown, extractHeadingsAndGenerateTOC, addHeadingIds, parseImageStyleAudio, parseImageStyleAudioList, stripMarkdown } = require('../build/markdown.js');
 
 test('callout titles are rendered as text', () => {
     const html = parseMarkdown('> [!note] <img src=x onerror=alert(1)>\\n> content');
@@ -22,6 +22,28 @@ test('heading ranks follow the largest levels present in each article', () => {
         { level: 5, rank: 3 },
         { level: 4, rank: 2 }
     ]);
+});
+
+test('heading attributes are preserved when article heading classes are added', () => {
+    const markdown = [
+        '### AI测试集',
+        '#### ARC-AGI-3',
+        '',
+        '### 智能体工具',
+        '',
+        '#### [Understand-Anything](https://github.com/Lum1104/Understand-Anything)'
+    ].join('\n');
+    const { headings } = extractHeadingsAndGenerateTOC(markdown);
+    const html = addHeadingIds(parseMarkdown(markdown), headings);
+
+    assert.match(
+        html,
+        /<h4 id="arc-agi-3" class="markdown-attached-block article-heading article-heading-depth-4 article-heading-rank-2 article-heading-source-h4 scroll-mt-24">ARC-AGI-3<\/h4>/
+    );
+    assert.match(
+        html,
+        /<h4 id="understand-anything" class="article-heading article-heading-depth-4 article-heading-rank-2 article-heading-source-h4 scroll-mt-24"><a[^>]+>Understand-Anything<\/a><\/h4>/
+    );
 });
 
 test('image alt, title, and caption are rendered as text', () => {

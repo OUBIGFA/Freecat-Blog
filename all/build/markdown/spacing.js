@@ -492,5 +492,6 @@ module.exports = {
     applyMarkdownTableColumnWidths,
     preserveMarkdownGaps,
     prepareMarkdownSpacing,
+    addClassToHtmlAttrs,
     applyAttachedListMarkup
 };

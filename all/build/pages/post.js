@@ -103,7 +103,7 @@ function renderPostFontFaceCss(postId, assetVersion = '') {
         fontFace('Freecat Figtree', figtreeExtraBold, '800 1000', { unicodeRange: figtreeRange }),
         fontFace('Freecat Noto Sans SC', regular, '350 449'),
         fontFace('Freecat Noto Sans SC', medium, '450 549'),
-        fontFace('Freecat Noto Sans SC', semiBold, '550 649'),
+        fontFace('Freecat Noto Sans SC', semiBold, '600'),
         fontFace('Freecat Noto Sans SC', extraBold, '750 849'),
         fontFace('Freecat Tag Noto Sans SC', medium, '500')
     ].join('\n\n    ');
