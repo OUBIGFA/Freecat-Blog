@@ -186,12 +186,25 @@ function extractHeadingsAndGenerateTOC(content) {
     return { toc: tocHtml, headings, totalRanks };
 }
 
+const MARKDOWN_HEADING_ATTR = 'data-freecat-md-heading';
+const MARKDOWN_HEADING_ATTR_PATTERN = /\s+data-freecat-md-heading=(?:"true"|'true'|true)(?=\s|$)/i;
+
+function hasMarkdownHeadingMarker(attrs) {
+    return MARKDOWN_HEADING_ATTR_PATTERN.test(String(attrs || ''));
+}
+
+function stripMarkdownHeadingMarker(attrs) {
+    return String(attrs || '').replace(MARKDOWN_HEADING_ATTR_PATTERN, '');
+}
+
 function addHeadingIds(html, headings) {
     let headingIndex = 0;
 
     return html.replace(/<h([1-6])\b([^>]*)>([\s\S]*?)<\/h\1>/gi, (match, level, attrs, innerHtml) => {
+        if (!hasMarkdownHeadingMarker(attrs)) return match;
+        const cleanAttrs = stripMarkdownHeadingMarker(attrs);
         const h = headings[headingIndex++];
-        if (!h) return match;
+        if (!h) return `<h${level}${cleanAttrs}>${innerHtml}</h${level}>`;
         const sourceLevel = Math.min(Math.max(h.level || Number(level), 1), 6);
         const renderedLevel = Math.min(Math.max(h.renderedLevel || Number(level), 1), 6);
         const rank = Math.min(Math.max(h.rank || sourceLevel, 1), 6);
@@ -202,7 +215,7 @@ function addHeadingIds(html, headings) {
             `article-heading-source-h${sourceLevel}`,
             'scroll-mt-24'
         ];
-        const attrsWithId = ` id="${h.id}"${attrs || ''}`;
+        const attrsWithId = ` id="${h.id}"${cleanAttrs || ''}`;
         const nextAttrs = headingClasses.reduce(
             (currentAttrs, className) => addClassToHtmlAttrs(currentAttrs, className),
             attrsWithId
@@ -594,10 +607,14 @@ function buildRenderer() {
     const linkRenderer = renderer.link;
 
     renderer.html = (html) => {
-        const raw = String(html || '');
-        if (/^<!-- freecat-md-attached-(?:block|list) -->\s*$/.test(raw)) return raw;
-        if (/^<div class="markdown-gap" data-md-gap-lines="\d+" aria-hidden="true" style="--md-gap-lines:\d+;--md-gap-size:[0-9.]+lh"><\/div>\s*$/.test(raw)) return raw;
-        return escapeHtml(raw);
+        return String(html || '');
+    };
+
+    renderer.heading = (text, level) => {
+        const markerAttr = activePostOptions && activePostOptions.markMarkdownHeadings
+            ? ` ${MARKDOWN_HEADING_ATTR}="true"`
+            : '';
+        return `<h${level}${markerAttr}>${text}</h${level}>\n`;
     };
 
     renderer.link = (href, title, text) => {
@@ -812,7 +829,7 @@ function setup() {
 // previous-restore 保护「同步嵌套调用」（如 callout 内嵌 markdown），但若未来
 // 引入 worker / 并行渲染多篇文章，这两个全局会被串扰。
 // 真要并行的话，需要把 ctx 塞进 marked 扩展的 tokenizer/renderer 闭包参数里。
-function parseMarkdown(content, { includeFootnotesSection = true, enableImageCaptions = false, getHighlightHtml } = {}) {
+function parseMarkdown(content, { includeFootnotesSection = true, enableImageCaptions = false, getHighlightHtml, markMarkdownHeadings = false } = {}) {
     setup();
     const normalizedContent = normalizeMultilineVideoImages(content || '');
     const tableColumnWidths = collectMarkdownTableColumnWidths(normalizedContent);
@@ -820,7 +837,7 @@ function parseMarkdown(content, { includeFootnotesSection = true, enableImageCap
     const { markdown, defs } = extractFootnoteDefinitions(prepared);
     const previousContext = activeFootnoteContext;
     const previousPostOptions = activePostOptions;
-    activePostOptions = { enableImageCaptions, getHighlightHtml };
+    activePostOptions = { enableImageCaptions, getHighlightHtml, markMarkdownHeadings };
     activeFootnoteContext = createFootnoteContext(defs);
 
     try {

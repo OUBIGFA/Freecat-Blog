@@ -11,26 +11,25 @@ test('callout titles are rendered as text', () => {
     assert.equal(html.includes('&lt;img src=x onerror=alert(1)&gt;'), true);
 });
 
-test('raw html in article markdown is rendered as text', () => {
-    const html = parseMarkdown('<script>alert(1)</script>\n<img src=x onerror=alert(1)>\n\nText');
+test('raw html in article markdown is preserved', () => {
+    const html = parseMarkdown('<section class="native-html"><h2>Raw HTML</h2><p>Custom block</p></section>\n\nText');
 
-    assert.equal(html.includes('<script>alert(1)</script>'), false);
-    assert.equal(html.includes('<img src=x onerror=alert(1)>'), false);
-    assert.equal(html.includes('&lt;script&gt;alert(1)&lt;/script&gt;'), true);
-    assert.equal(html.includes('&lt;img src=x onerror=alert(1)&gt;'), true);
+    assert.equal(html.includes('<section class="native-html"><h2>Raw HTML</h2><p>Custom block</p></section>'), true);
+    assert.equal(html.includes('&lt;section'), false);
 });
 
 test('raw html headings do not steal markdown heading ids', () => {
     const { html, toc } = renderPostContent({
         post: {
-            content: '<h2>Raw HTML</h2>\n\n## Markdown Heading',
+            content: '<h2 class="native-heading">Raw HTML</h2>\n\n## Markdown Heading',
             faq: []
         }
     });
 
     assert.match(toc, /href="#markdown-heading">Markdown Heading<\/a>/);
-    assert.match(html, /&lt;h2&gt;Raw HTML&lt;\/h2&gt;/);
+    assert.match(html, /<h2 class="native-heading">Raw HTML<\/h2>/);
     assert.doesNotMatch(html, /id="markdown-heading"[^>]*>Raw HTML/);
+    assert.doesNotMatch(html, /<h2[^>]*class="[^"]*article-heading[^"]*"[^>]*>Raw HTML<\/h2>/);
     assert.match(html, /<h3 id="markdown-heading"[^>]*>Markdown Heading<\/h3>/);
 });
 
@@ -69,7 +68,7 @@ test('heading attributes are preserved when article heading classes are added', 
         '#### [Understand-Anything](https://github.com/Lum1104/Understand-Anything)'
     ].join('\n');
     const { headings } = extractHeadingsAndGenerateTOC(markdown);
-    const html = addHeadingIds(parseMarkdown(markdown), headings);
+    const html = addHeadingIds(parseMarkdown(markdown, { markMarkdownHeadings: true }), headings);
 
     assert.match(
         html,
