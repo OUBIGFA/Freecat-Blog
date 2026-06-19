@@ -27,24 +27,48 @@ function escapeRenderedText(value) {
     return escapeHtml(decodeBasicHtmlEntities(value));
 }
 
+const IMAGE_EXTENSION_RE = /^(?:avif|gif|jpe?g|png|svg|webp|bmp|ico|tiff?)$/i;
+const IMAGE_PATH_SEGMENT_RE = /^(?:image|images|img|photo|photos|picture|pictures|pic|thumbnail|thumbnails|thumb|thumbs|avatar|avatars)$/i;
+const IMAGE_PATH_TOKEN_RE = /(?:^|[._-])(?:image|img|photo|picture|pic|thumbnail|thumb|avatar)(?:$|[._-])/i;
+const IMAGE_FORMAT_PARAM_KEYS = new Set(['format', 'fm', 'type', 'ext', 'extension', 'mime', 'mimetype', 'content_type', 'content-type']);
+const IMAGE_SOURCE_PARAM_KEYS = new Set(['url', 'src', 'source', 'image', 'img', 'media']);
+
+function hasImageExtension(value) {
+    const raw = String(value || '').trim();
+    if (!raw) return false;
+    return /\.(?:avif|gif|jpe?g|png|svg|webp|bmp|ico|tiff?)(?:$|[?#])/i.test(raw)
+        || IMAGE_EXTENSION_RE.test(raw)
+        || /^image\/(?:avif|gif|jpe?g|png|svg\+xml|webp|bmp|x-icon|tiff?)$/i.test(raw);
+}
+
+function hasImageResourcePath(url) {
+    const segments = url.pathname.split('/').filter(Boolean);
+    if (segments.some(segment => IMAGE_PATH_SEGMENT_RE.test(segment))) return true;
+    const lastSegment = segments[segments.length - 1] || '';
+    return IMAGE_PATH_TOKEN_RE.test(lastSegment);
+}
+
+function hasImageQueryHint(url) {
+    for (const [key, value] of url.searchParams.entries()) {
+        const normalizedKey = key.toLowerCase();
+        if (IMAGE_FORMAT_PARAM_KEYS.has(normalizedKey) && hasImageExtension(value)) return true;
+        if (IMAGE_SOURCE_PARAM_KEYS.has(normalizedKey) && hasImageExtension(value)) return true;
+    }
+
+    return false;
+}
+
 function isLikelyImageUrl(href) {
     const raw = String(href || '').trim();
     if (!raw) return false;
     if (/^(?:data|blob):/i.test(raw)) return true;
     if (!/^(?:https?:)?\/\//i.test(raw)) return true;
 
-    const imageExtensions = /^(?:avif|gif|jpe?g|png|svg|webp|bmp|ico|tiff?)$/i;
-
     try {
         const url = new URL(raw, 'https://example.com');
-        if (/\.(?:avif|gif|jpe?g|png|svg|webp|bmp|ico|tiff?)(?:$|[?#])/i.test(url.pathname)) return true;
-
-        for (const [key, value] of url.searchParams.entries()) {
-            const normalizedKey = key.toLowerCase();
-            if ((normalizedKey === 'format' || normalizedKey === 'fm' || normalizedKey === 'type') && imageExtensions.test(value)) {
-                return true;
-            }
-        }
+        if (hasImageExtension(url.pathname)) return true;
+        if (hasImageQueryHint(url)) return true;
+        if (hasImageResourcePath(url)) return true;
 
         return false;
     } catch (err) {

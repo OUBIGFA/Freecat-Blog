@@ -468,6 +468,19 @@ test('markdown image syntax renders unknown non-image URLs as ready link cards',
     assert.equal(html.includes('class="external-embed-content"><a href="https://example.com/article"'), true);
 });
 
+test('markdown image syntax renders image resource URLs without extensions as images', () => {
+    const googleThumbnailHtml = parseMarkdown('![美国纳指历史趋势图](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFswDLYwh-h2EQ2KuTTnlitYwx-qseXtx7F4idCEFg2A&s=10)');
+    const genericThumbnailHtml = parseMarkdown('![Preview](https://cdn.example.com/thumbnail?id=abc123&w=1200)');
+    const nestedSourceHtml = parseMarkdown('![Preview](https://cdn.example.com/proxy?src=https%3A%2F%2Fassets.example.com%2Fchart.webp)');
+
+    for (const html of [googleThumbnailHtml, genericThumbnailHtml, nestedSourceHtml]) {
+        assert.equal(html.includes('class="post-image markdown-image-block relative w-full"'), true);
+        assert.equal(html.includes('class="external-embed external-embed-link'), false);
+    }
+
+    assert.equal(googleThumbnailHtml.includes('data-src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFswDLYwh-h2EQ2KuTTnlitYwx-qseXtx7F4idCEFg2A&amp;s=10"'), true);
+});
+
 test('inline-code headings keep their own text in the table of contents', () => {
     const { headings, toc } = extractHeadingsAndGenerateTOC([
         '### `site_网站属性.md`',
