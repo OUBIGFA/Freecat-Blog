@@ -202,6 +202,8 @@ function isFootnoteDefinitionLine(line) {
 function shouldKeepNativeMarkdownBlankLine(prevLine, nextLine) {
     return isIndentedMarkdownContinuationLine(nextLine)
         || (isMarkdownListItemLine(nextLine) && (isMarkdownListItemLine(prevLine) || isIndentedMarkdownContinuationLine(prevLine)))
+        || isMarkdownHorizontalRuleLine(prevLine)
+        || isMarkdownHorizontalRuleLine(nextLine)
         || isFootnoteDefinitionLine(prevLine)
         || isFootnoteDefinitionLine(nextLine);
 }

@@ -335,17 +335,20 @@ test('markdown horizontal rules render as thick article dividers', () => {
     assert.equal(hrBlocks.some((block) => /border-radius:/.test(block)), false);
 });
 
-test('markdown horizontal rule spacing is centered and preserves blank-line gaps', () => {
+test('markdown horizontal rule spacing stays centered around any adjacent element', () => {
+    const headingSpacingAt = postCss.indexOf('#freecat-article-body.prose>.article-heading-depth-5+:where');
+    const dividerSpacingAt = postCss.indexOf('#freecat-article-body.prose>:not(.markdown-gap)+hr,');
+
     assert.match(postCss, /--article-space-divider:\s*80px;/);
     assert.doesNotMatch(postCss, /--article-space-divider-(?:before|after):/);
     assert.match(postCss, /\.prose>hr\s*\{[^}]*margin:\s*0\s*!important;/);
-    assert.match(postCss, /\.prose>:not\(\.markdown-gap\)\+hr\s*,/);
-    assert.match(postCss, /\.prose \.markdown-gap\+hr\s*\{[\s\S]*margin-block-start:\s*var\(--article-space-divider\)\s*!important;/);
-    assert.match(postCss, /\.prose>hr\+:not\(\.markdown-gap\)\s*,/);
-    assert.match(postCss, /\.prose>hr\+\.markdown-gap\+:not\(\.markdown-gap\)\s*\{[\s\S]*margin-block-start:\s*var\(--article-space-divider\)\s*!important;/);
+    assert.equal(dividerSpacingAt > headingSpacingAt, true);
+    assert.match(postCss, /#freecat-article-body\.prose>:not\(\.markdown-gap\)\+hr,\s*#freecat-article-body\.prose>\.markdown-gap\+hr,\s*#freecat-article-body\.prose>hr\+:not\(\.markdown-gap\),\s*#freecat-article-body\.prose>hr\+\.markdown-gap\+:not\(\.markdown-gap\)\s*\{[\s\S]*margin-block-start:\s*var\(--article-space-divider\)\s*!important;/);
     assert.doesNotMatch(postCss, /\.prose\.prose/);
     assert.doesNotMatch(postCss, /hr\+\.article-heading-depth-/);
     assert.doesNotMatch(postCss, /hr\+\.markdown-gap\+\.article-heading-depth-/);
+    assert.doesNotMatch(postCss, /hr\+\.article-heading\b/);
+    assert.doesNotMatch(postCss, /hr\+\.markdown-gap\+\.article-heading\b/);
 });
 
 test('markdown tables use horizontal rules without vertical borders', () => {

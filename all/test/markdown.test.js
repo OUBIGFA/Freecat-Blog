@@ -2,12 +2,47 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const { parseMarkdown, extractHeadingsAndGenerateTOC, addHeadingIds, parseImageStyleAudio, parseImageStyleAudioList, stripMarkdown } = require('../build/markdown.js');
+const { renderPostContent } = require('../build/pages/post-content.js');
 
 test('callout titles are rendered as text', () => {
     const html = parseMarkdown('> [!note] <img src=x onerror=alert(1)>\\n> content');
 
     assert.equal(html.includes('<span class="callout-title-inner"><img'), false);
     assert.equal(html.includes('&lt;img src=x onerror=alert(1)&gt;'), true);
+});
+
+test('raw html in article markdown is rendered as text', () => {
+    const html = parseMarkdown('<script>alert(1)</script>\n<img src=x onerror=alert(1)>\n\nText');
+
+    assert.equal(html.includes('<script>alert(1)</script>'), false);
+    assert.equal(html.includes('<img src=x onerror=alert(1)>'), false);
+    assert.equal(html.includes('&lt;script&gt;alert(1)&lt;/script&gt;'), true);
+    assert.equal(html.includes('&lt;img src=x onerror=alert(1)&gt;'), true);
+});
+
+test('raw html headings do not steal markdown heading ids', () => {
+    const { html, toc } = renderPostContent({
+        post: {
+            content: '<h2>Raw HTML</h2>\n\n## Markdown Heading',
+            faq: []
+        }
+    });
+
+    assert.match(toc, /href="#markdown-heading">Markdown Heading<\/a>/);
+    assert.match(html, /&lt;h2&gt;Raw HTML&lt;\/h2&gt;/);
+    assert.doesNotMatch(html, /id="markdown-heading"[^>]*>Raw HTML/);
+    assert.match(html, /<h3 id="markdown-heading"[^>]*>Markdown Heading<\/h3>/);
+});
+
+test('markdown parser restores render options after an error', () => {
+    assert.throws(
+        () => parseMarkdown('```js\nconst x = 1;\n```', { getHighlightHtml() { throw new Error('forced highlight failure'); } }),
+        /forced highlight failure/
+    );
+
+    const imageHtml = parseMarkdown('![Alt](/image/freecat.png "Caption")');
+
+    assert.equal(imageHtml.includes('<figcaption'), false);
 });
 
 test('heading ranks follow the largest levels present in each article', () => {
@@ -226,13 +261,17 @@ test('image-style audio list parser accepts comma-separated audio values', () =>
     ]);
 });
 
-test('markdown horizontal rules keep optional blank-line gap markers on both sides', () => {
+test('markdown horizontal rules suppress optional blank-line gap markers on both sides', () => {
     const compactHtml = parseMarkdown('A\n\n---\n\nB');
     const expandedHtml = parseMarkdown('A\n\n\n---\n\n\nB');
+    const unevenHtml = parseMarkdown('A\n\n\n---\n\nB');
 
     assert.match(compactHtml, /<p>A<\/p>\s*<hr>\s*<p>B<\/p>/);
     assert.equal(compactHtml.includes('class="markdown-gap"'), false);
-    assert.match(expandedHtml, /<p>A<\/p>\s*<div class="markdown-gap"[^>]*data-md-gap-lines="2"[^>]*><\/div>\s*<hr>\s*<div class="markdown-gap"[^>]*data-md-gap-lines="2"[^>]*><\/div>\s*<p>B<\/p>/);
+    assert.match(expandedHtml, /<p>A<\/p>\s*<hr>\s*<p>B<\/p>/);
+    assert.equal(expandedHtml.includes('class="markdown-gap"'), false);
+    assert.match(unevenHtml, /<p>A<\/p>\s*<hr>\s*<p>B<\/p>/);
+    assert.equal(unevenHtml.includes('class="markdown-gap"'), false);
 });
 
 test('blank lines outside blockquotes keep visual gap markers', () => {

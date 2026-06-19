@@ -592,6 +592,14 @@ function isExternalLinkHref(href) {
 function buildRenderer() {
     const renderer = new marked.Renderer();
     const linkRenderer = renderer.link;
+
+    renderer.html = (html) => {
+        const raw = String(html || '');
+        if (/^<!-- freecat-md-attached-(?:block|list) -->\s*$/.test(raw)) return raw;
+        if (/^<div class="markdown-gap" data-md-gap-lines="\d+" aria-hidden="true" style="--md-gap-lines:\d+;--md-gap-size:[0-9.]+lh"><\/div>\s*$/.test(raw)) return raw;
+        return escapeHtml(raw);
+    };
+
     renderer.link = (href, title, text) => {
         const html = linkRenderer.call(renderer, href, title, text);
         // 仅给外链开 _blank，并补 rel=noopener noreferrer 防 tab-nabbing
@@ -688,6 +696,10 @@ function buildRenderer() {
     // 浏览器不再加载 highlight.min.js、不再在主线程同步高亮全文代码块 ——
     // 这是大文章打开卡顿的最大来源（上百个代码块逐个高亮 + DOM 重建）。
     function highlightCodeHtml(code, normalizedLanguage) {
+        if (activePostOptions && typeof activePostOptions.getHighlightHtml === 'function') {
+            return activePostOptions.getHighlightHtml(code, normalizedLanguage, { hljs, escapeHtml });
+        }
+
         if (normalizedLanguage && hljs.getLanguage(normalizedLanguage)) {
             return hljs.highlight(code, { language: normalizedLanguage, ignoreIllegals: true }).value;
         }
@@ -800,7 +812,7 @@ function setup() {
 // previous-restore 保护「同步嵌套调用」（如 callout 内嵌 markdown），但若未来
 // 引入 worker / 并行渲染多篇文章，这两个全局会被串扰。
 // 真要并行的话，需要把 ctx 塞进 marked 扩展的 tokenizer/renderer 闭包参数里。
-function parseMarkdown(content, { includeFootnotesSection = true, enableImageCaptions = false } = {}) {
+function parseMarkdown(content, { includeFootnotesSection = true, enableImageCaptions = false, getHighlightHtml } = {}) {
     setup();
     const normalizedContent = normalizeMultilineVideoImages(content || '');
     const tableColumnWidths = collectMarkdownTableColumnWidths(normalizedContent);
@@ -808,13 +820,17 @@ function parseMarkdown(content, { includeFootnotesSection = true, enableImageCap
     const { markdown, defs } = extractFootnoteDefinitions(prepared);
     const previousContext = activeFootnoteContext;
     const previousPostOptions = activePostOptions;
-    activePostOptions = { enableImageCaptions };
+    activePostOptions = { enableImageCaptions, getHighlightHtml };
     activeFootnoteContext = createFootnoteContext(defs);
-    const html = applyAttachedListMarkup(applyMarkdownTableColumnWidths(marked.parse(markdown), tableColumnWidths));
-    const footnotesHtml = includeFootnotesSection ? renderFootnotesSection() : '';
-    activeFootnoteContext = previousContext;
-    activePostOptions = previousPostOptions;
-    return html + footnotesHtml;
+
+    try {
+        const html = applyAttachedListMarkup(applyMarkdownTableColumnWidths(marked.parse(markdown), tableColumnWidths));
+        const footnotesHtml = includeFootnotesSection ? renderFootnotesSection() : '';
+        return html + footnotesHtml;
+    } finally {
+        activeFootnoteContext = previousContext;
+        activePostOptions = previousPostOptions;
+    }
 }
 
 module.exports = {

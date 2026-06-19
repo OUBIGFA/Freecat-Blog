@@ -1327,16 +1327,6 @@ article {
     margin-block-start: var(--article-space-heading-peer-5) !important;
 }
 
-.prose>:not(.markdown-gap)+hr,
-.prose .markdown-gap+hr {
-    margin-block-start: var(--article-space-divider) !important;
-}
-
-.prose>hr+:not(.markdown-gap),
-.prose>hr+.markdown-gap+:not(.markdown-gap) {
-    margin-block-start: var(--article-space-divider) !important;
-}
-
 #freecat-article-body.prose>.article-heading-depth-5+:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template)),
 #freecat-article-body.prose>.article-heading-depth-5+.markdown-gap+:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template)),
 #freecat-article-body.prose>.article-heading-depth-6+:where(:not(.markdown-gap):not(.article-heading):not(hr):not(script):not(style):not(template)),
@@ -1356,6 +1346,13 @@ article {
 .prose .article-heading-depth-6+.article-heading-depth-6,
 .prose .article-heading-depth-6+.markdown-gap+.article-heading-depth-6 {
     margin-block-start: var(--article-space-heading-peer-6) !important;
+}
+
+#freecat-article-body.prose>:not(.markdown-gap)+hr,
+#freecat-article-body.prose>.markdown-gap+hr,
+#freecat-article-body.prose>hr+:not(.markdown-gap),
+#freecat-article-body.prose>hr+.markdown-gap+:not(.markdown-gap) {
+    margin-block-start: var(--article-space-divider) !important;
 }
 
 .diagram-block {
