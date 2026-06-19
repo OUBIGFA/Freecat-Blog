@@ -35,13 +35,17 @@ function isNoiseLine(line) {
 }
 
 function extractAddedHunks(diff, currentRaw) {
+    return extractAddedHunksWithLines(diff, currentRaw).map(hunk => hunk.map(entry => entry.text));
+}
+
+function extractAddedHunksWithLines(diff, currentRaw) {
     const frontmatterEnd = frontmatterEndLine(currentRaw);
     const hunks = [];
     let current = null;
     let nextNewLine = 0;
 
     function flush() {
-        if (current && current.some(line => !isNoiseLine(line))) {
+        if (current && current.some(entry => !isNoiseLine(entry.text))) {
             hunks.push(current);
         }
         current = null;
@@ -58,7 +62,7 @@ function extractAddedHunks(diff, currentRaw) {
         if (!current) continue;
 
         if (line.startsWith('+') && !line.startsWith('+++')) {
-            if (nextNewLine > frontmatterEnd) current.push(line.slice(1));
+            if (nextNewLine > frontmatterEnd) current.push({ lineNumber: nextNewLine, text: line.slice(1) });
             nextNewLine += 1;
             continue;
         }
@@ -93,10 +97,58 @@ function limitParagraphs(paragraphs, options = {}) {
     return maxItems > 0 ? selected.slice(0, maxItems) : selected;
 }
 
+function plainParagraphEntries(lineEntries) {
+    const paragraphs = [];
+    let current = [];
+
+    function flush() {
+        const lines = current.map(entry => entry.text);
+        const text = plainParagraphs(lines)[0] || '';
+        const target = current.find(entry => !isNoiseLine(entry.text));
+        if (text && target) {
+            paragraphs.push({
+                text,
+                target: target.text,
+                lineNumber: target.lineNumber
+            });
+        }
+        current = [];
+    }
+
+    for (const entry of lineEntries) {
+        if (String(entry.text || '').trim()) {
+            current.push(entry);
+        } else {
+            flush();
+        }
+    }
+    flush();
+
+    return paragraphs;
+}
+
 function extractLatestUpdateFromDiff(diff, currentRaw, options = {}) {
-    const hunks = extractAddedHunks(diff, currentRaw);
-    const paragraphs = hunks.flatMap(hunk => plainParagraphs(hunk));
-    return { items: limitParagraphs(paragraphs, options) };
+    const hunks = extractAddedHunksWithLines(diff, currentRaw);
+    const paragraphs = hunks.flatMap(hunk => plainParagraphEntries(hunk));
+    const maxItems = Number(options.maxItems) > 0 ? Number(options.maxItems) : 0;
+    const selected = maxItems > 0 ? paragraphs.slice(0, maxItems) : paragraphs;
+    return {
+        items: selected.map(entry => entry.text),
+        targets: selected.map(entry => ({
+            text: entry.target,
+            line: entry.lineNumber
+        }))
+    };
+}
+
+function compactLatestUpdate(update) {
+    if (!update || !Array.isArray(update.items) || update.items.length === 0) return update;
+    if (!Array.isArray(update.targets) || update.targets.length !== update.items.length) return { items: update.items };
+
+    return {
+        items: update.items,
+        targets: update.targets
+    };
 }
 
 function gitOutput(repoRoot, args, options = {}) {
@@ -124,6 +176,7 @@ function collectWorkingTreeUpdate({ repoRoot, relativePath, currentRaw, options 
             'core.quotepath=false',
             'diff',
             '--unified=0',
+            '--ignore-space-at-eol',
             '--no-ext-diff',
             'HEAD',
             '--',
@@ -134,7 +187,7 @@ function collectWorkingTreeUpdate({ repoRoot, relativePath, currentRaw, options 
     }
 
     const update = extractLatestUpdateFromDiff(diff, currentRaw, options);
-    return update.items.length > 0 ? { ...update, source: 'working-tree' } : null;
+    return update.items.length > 0 ? { ...compactLatestUpdate(update), source: 'working-tree' } : null;
 }
 
 function collectCommittedUpdate({ repoRoot, relativePath, options }) {
@@ -162,6 +215,7 @@ function collectCommittedUpdate({ repoRoot, relativePath, options }) {
                 'show',
                 '--format=',
                 '--unified=0',
+                '--ignore-space-at-eol',
                 '--no-ext-diff',
                 commit,
                 '--',
@@ -174,7 +228,7 @@ function collectCommittedUpdate({ repoRoot, relativePath, options }) {
         const currentRaw = readCommitFile(repoRoot, commit, relativePath);
         const update = extractLatestUpdateFromDiff(diff, currentRaw, options);
         if (update.items.length > 0) {
-            return { ...update, source: 'commit', commit: commit.slice(0, 12) };
+            return { ...compactLatestUpdate(update), source: 'commit', commit: commit.slice(0, 12) };
         }
     }
 
@@ -201,8 +255,10 @@ function collectLatestUpdates({ repoRoot, postsDir, options = {} }) {
 module.exports = {
     collectLatestUpdates,
     extractAddedHunks,
+    extractAddedHunksWithLines,
     extractLatestUpdateFromDiff,
     frontmatterEndLine,
     limitParagraphs,
+    plainParagraphEntries,
     plainParagraphs
 };

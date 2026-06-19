@@ -311,14 +311,96 @@ test('post page renders latest update panel only when update snapshot exists', (
     });
 
     assert.match(withUpdate, /freecat-post-latest-update-panel/);
-    assert.match(withUpdate, />\s*最新更新\s*</);
+    assert.match(withUpdate, /class="freecat-sidebar-recent-heading text-sm tracking-wider text-slate-500 dark:text-slate-400 mb-3"/);
+    assert.match(withUpdate, /freecat-post-latest-update-content[\s\S]*>\s*Update\s*<[\s\S]*freecat-post-latest-update-body/);
+    assert.match(withUpdate, />\s*Update\s*</);
     assert.match(withUpdate, /最后新增的正文内容/);
     assert.match(withUpdate, /class="freecat-post-latest-update-link"/);
     assert.match(withUpdate, /href="#latest-update-1"/);
     assert.match(withUpdate, /data-latest-update-text="最后新增的正文内容"/);
     assert.doesNotMatch(withUpdate, /title="最后新增的正文内容"/);
+    assert.doesNotMatch(withUpdate, /freecat-post-latest-update-date/);
     assert.doesNotMatch(withoutUpdate, /freecat-post-latest-update-panel/);
-    assert.doesNotMatch(withoutUpdate, />\s*最新更新\s*</);
+    assert.doesNotMatch(withoutUpdate, />\s*Update\s*</);
+});
+
+test('post page binds latest update links to rendered table row targets', () => {
+    const post = {
+        title: 'Latest Update Table Post',
+        tag: [],
+        link: '/posts/latest-update-table',
+        cover: '',
+        content: [
+            '| 文件夹 | 功能 | 说明 |',
+            '| --- | --- | --- |',
+            '| `all/` | 构建资源 | 部署平台从这里构建网站 |'
+        ].join('\n'),
+        date: dayjs.tz('2026-05-02T09:00:00+08:00'),
+        modifiedDate: dayjs.tz('2026-05-03T09:00:00+08:00'),
+        postId: '2026050209000003',
+        latestUpdate: {
+            items: [{
+                text: 'all/ 构建资源 部署平台从这里构建网站',
+                targetText: '| `all/` | 构建资源 | 部署平台从这里构建网站 |'
+            }]
+        }
+    };
+    const template = '<!doctype html><html><head><!-- POST_SEO_HEAD --><!-- POST_JSONLD --></head><body><!-- LATEST_UPDATE_PLACEHOLDER --><!-- CONTENT_PLACEHOLDER --></body></html>';
+    const html = renderPostPage({
+        post,
+        template,
+        siteConfig: { site_name: 'Example', site_title: 'Example Blog', site_url: 'https://example.com' },
+        seoConfig: {}
+    });
+
+    assert.match(html, /href="#latest-update-1"/);
+    assert.match(html, /<tr id="latest-update-1">[\s\S]*<code>all\/<\/code>[\s\S]*构建资源[\s\S]*部署平台从这里构建网站[\s\S]*<\/tr>/);
+});
+
+test('post page binds latest update links to formatted list and table targets', () => {
+    const post = {
+        title: 'Latest Update Formatted Post',
+        tag: [],
+        link: '/posts/latest-update-formatted',
+        cover: '',
+        content: [
+            '- **Cloudflare Pages**: fill build settings.',
+            '- `theme_system`',
+            '',
+            '| Field | Notes |',
+            '| --- | --- |',
+            '| `about_hero_avatar` | About page avatar |',
+            '',
+            '- Sync: `all/`, `README.md`, `README.en.md`'
+        ].join('\n'),
+        date: dayjs.tz('2026-05-02T09:00:00+08:00'),
+        modifiedDate: dayjs.tz('2026-05-03T09:00:00+08:00'),
+        postId: '2026050209000004',
+        latestUpdate: {
+            items: [
+                { text: 'Cloudflare Pages: fill build settings.', targetText: '- **Cloudflare Pages**: fill build settings.' },
+                { text: 'theme_system', targetText: '- `theme_system`' },
+                { text: 'about_hero_avatar About page avatar', targetText: '| `about_hero_avatar` | About page avatar |' },
+                { text: 'Sync: all/, README.md, README.en.md', targetText: '- Sync: `all/`, `README.md`, `README.en.md`' }
+            ]
+        }
+    };
+    const template = '<!doctype html><html><head><!-- POST_SEO_HEAD --><!-- POST_JSONLD --></head><body><!-- LATEST_UPDATE_PLACEHOLDER --><!-- CONTENT_PLACEHOLDER --></body></html>';
+    const html = renderPostPage({
+        post,
+        template,
+        siteConfig: { site_name: 'Example', site_title: 'Example Blog', site_url: 'https://example.com' },
+        seoConfig: {}
+    });
+
+    assert.match(html, /href="#latest-update-1"/);
+    assert.match(html, /href="#latest-update-2"/);
+    assert.match(html, /href="#latest-update-3"/);
+    assert.match(html, /href="#latest-update-4"/);
+    assert.match(html, /<li id="latest-update-1">[\s\S]*<strong>Cloudflare Pages<\/strong>[\s\S]*fill build settings\.[\s\S]*<\/li>/);
+    assert.match(html, /<li id="latest-update-2">[\s\S]*<code>theme_system<\/code>[\s\S]*<\/li>/);
+    assert.match(html, /<tr id="latest-update-3">[\s\S]*<code>about_hero_avatar<\/code>[\s\S]*About page avatar[\s\S]*<\/tr>/);
+    assert.match(html, /<li id="latest-update-4">[\s\S]*<code>all\/<\/code>[\s\S]*<code>README\.md<\/code>[\s\S]*<\/li>/);
 });
 
 test('post page loads video player assets only when video content is present', () => {

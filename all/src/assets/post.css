@@ -1850,6 +1850,7 @@ article {
     }
 
     #latest-update-container,
+    .freecat-post-latest-update-content,
     .freecat-post-latest-update-body,
     .freecat-post-latest-update-body p,
     .freecat-post-latest-update-link {
@@ -1881,21 +1882,16 @@ article {
         background-color: var(--freecat-post-latest-update-scrollbar);
     }
 
-    .freecat-post-latest-update-date {
-        margin-bottom: 0.85rem;
-        color: #94a3b8;
-        font-size: 0.75rem;
-        line-height: 1.35;
+    .freecat-post-latest-update-content {
+        direction: ltr;
     }
 
-    .freecat-post-latest-update-panel .freecat-post-toc-title,
-    .freecat-post-latest-update-date {
-        padding-left: 1.125rem;
+    .freecat-post-latest-update-panel .freecat-post-toc-title {
+        margin-top: 0;
     }
 
     .freecat-post-latest-update-body {
         border-right: 1px solid #e2e8f0;
-        direction: ltr;
         padding: 0.35rem 1rem 0.35rem 0;
     }
 

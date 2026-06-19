@@ -633,14 +633,21 @@
         var article = document.querySelector('article');
         if (!needle || !article) return null;
 
-        var candidates = article.querySelectorAll('h1,h2,h3,h4,h5,h6,p,li,td,th,blockquote,figcaption,.callout,pre code');
         var fallbackNeedle = needle.length > 40 ? needle.slice(0, 40) : needle;
-        for (var i = 0; i < candidates.length; i += 1) {
-            var candidate = candidates[i];
-            var haystack = normalizeLatestUpdateText(candidate.textContent);
-            if (!haystack) continue;
-            if (haystack.indexOf(needle) !== -1 || haystack.indexOf(fallbackNeedle) !== -1) {
-                return candidate;
+        var candidateGroups = [
+            'h1,h2,h3,h4,h5,h6,p,li,tr,td,th,blockquote,figcaption,.callout,pre code',
+            'ul,ol,table'
+        ];
+
+        for (var groupIndex = 0; groupIndex < candidateGroups.length; groupIndex += 1) {
+            var candidates = article.querySelectorAll(candidateGroups[groupIndex]);
+            for (var i = 0; i < candidates.length; i += 1) {
+                var candidate = candidates[i];
+                var haystack = normalizeLatestUpdateText(candidate.textContent);
+                if (!haystack) continue;
+                if (haystack.indexOf(needle) !== -1 || haystack.indexOf(fallbackNeedle) !== -1) {
+                    return candidate;
+                }
             }
         }
 

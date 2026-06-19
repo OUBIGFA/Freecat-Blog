@@ -106,19 +106,23 @@ test('article table of contents uses requested Chinese and Latin font assets', (
 
 test('article latest update panel mirrors the toc on the left when there is room', () => {
     assert.match(postTemplate, /<!-- LATEST_UPDATE_PLACEHOLDER -->/);
+    assert.match(typographyCss, /\.freecat-sidebar-recent-heading\s*\{[\s\S]*font-family:\s*"Freecat Figtree", Inter/);
+    assert.match(typographyCss, /\.freecat-sidebar-recent-heading\s*\{[\s\S]*font-weight:\s*800;/);
     assert.match(postCss, /\.freecat-post-latest-update-shell\s*\{[\s\S]*display:\s*none;/);
     assert.match(postCss, /@media \(min-width:\s*1600px\)\s*\{[\s\S]*\.freecat-post-latest-update-shell\s*\{[\s\S]*display:\s*block;/);
     assert.match(postCss, /\.freecat-post-latest-update-panel\s*\{[\s\S]*right:\s*calc\(50% \+ 498px\);/);
     assert.match(postCss, /#latest-update-container\s*\{[\s\S]*overflow-y:\s*auto !important;/);
     assert.match(postCss, /#latest-update-container\s*\{[\s\S]*direction:\s*rtl;/);
-    assert.match(postCss, /\.freecat-post-latest-update-body\s*\{[\s\S]*direction:\s*ltr;/);
+    assert.match(postCss, /\.freecat-post-latest-update-content\s*\{[\s\S]*direction:\s*ltr;/);
     assert.match(postCss, /\.freecat-post-latest-update-body\s*\{[\s\S]*border-right:\s*1px solid #e2e8f0;/);
-    assert.match(postCss, /\.freecat-post-latest-update-panel \.freecat-post-toc-title,\s*\.freecat-post-latest-update-date\s*\{[\s\S]*padding-left:\s*1\.125rem;/);
+    assert.doesNotMatch(postCss, /freecat-post-latest-update-date/);
     assert.match(postCss, /\.freecat-post-latest-update-link\s*\{[\s\S]*text-overflow:\s*ellipsis;/);
     assert.match(postCss, /\.freecat-post-latest-update-link\s*\{[\s\S]*-webkit-line-clamp:\s*3;/);
     assert.match(postCss, /\.freecat-post-latest-update-link\s*\{[\s\S]*white-space:\s*normal;/);
     assert.match(postJs, /function initLatestUpdateAnchors\(\)\s*\{/);
     assert.match(postJs, /\.freecat-post-latest-update-link\[href\^="#"\]/);
+    assert.match(postJs, /h1,h2,h3,h4,h5,h6,p,li,tr,td,th,blockquote,figcaption,\.callout,pre code/);
+    assert.match(postJs, /ul,ol,table/);
     assert.match(postJs, /findLatestUpdateTarget\(this\.getAttribute\('data-latest-update-text'\)\)/);
     assert.match(postJs, /getTocTargetScrollY\(targetElement,\s*article\)/);
     assert.match(floatingNavJs, /\.freecat-post-latest-update-panel/);

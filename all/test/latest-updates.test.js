@@ -1,6 +1,11 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { execFileSync } = require('node:child_process');
 const {
+    collectLatestUpdates,
     extractLatestUpdateFromDiff,
     plainParagraphs
 } = require('../build/latest-updates.js');
@@ -33,8 +38,13 @@ test('latest update extraction ignores frontmatter and keeps body changes in art
         '+Final second paragraph.'
     ].join('\n');
 
+    const update = extractLatestUpdateFromDiff(diff, currentRaw);
     assert.deepEqual(
-        extractLatestUpdateFromDiff(diff, currentRaw).items,
+        update.items,
+        ['Earlier body update.', 'Final body update.', 'Final second paragraph.']
+    );
+    assert.deepEqual(
+        update.targets.map(target => target.text),
         ['Earlier body update.', 'Final body update.', 'Final second paragraph.']
     );
 });
@@ -63,5 +73,48 @@ test('latest update paragraphs strip markdown before snapshotting', () => {
     assert.deepEqual(
         plainParagraphs(['### 标题', '', '- **新增** [链接](https://example.com) 和 show_latest_update 字段']),
         ['标题', '新增 链接 和 show_latest_update 字段']
+    );
+});
+
+test('latest update extraction ignores working tree whitespace-only body changes', (t) => {
+    const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'freecat-latest-update-'));
+    t.after(() => fs.rmSync(repoRoot, { recursive: true, force: true }));
+
+    const postsDir = path.join(repoRoot, 'writing');
+    const file = 'Example.md';
+    const filePath = path.join(postsDir, file);
+    fs.mkdirSync(postsDir, { recursive: true });
+    fs.writeFileSync(filePath, [
+        '---',
+        'title: Example',
+        'show_latest_update: false',
+        '---',
+        '',
+        'Committed body update.'
+    ].join('\n'), 'utf-8');
+
+    execFileSync('git', ['init'], { cwd: repoRoot, stdio: 'ignore' });
+    execFileSync('git', ['config', 'user.email', 'test@example.com'], { cwd: repoRoot });
+    execFileSync('git', ['config', 'user.name', 'Test User'], { cwd: repoRoot });
+    execFileSync('git', ['add', '.'], { cwd: repoRoot });
+    execFileSync('git', ['commit', '-m', 'initial'], { cwd: repoRoot, stdio: 'ignore' });
+
+    fs.writeFileSync(filePath, [
+        '---',
+        'title: Example',
+        'show_latest_update: true',
+        '---',
+        '',
+        'Committed body update. '
+    ].join('\n'), 'utf-8');
+
+    assert.deepEqual(
+        collectLatestUpdates({ repoRoot, postsDir })[file],
+        {
+            items: ['Committed body update.'],
+            targets: [{ text: 'Committed body update.', line: 6 }],
+            source: 'commit',
+            commit: execFileSync('git', ['rev-parse', '--short=12', 'HEAD'], { cwd: repoRoot, encoding: 'utf-8' }).trim()
+        }
     );
 });

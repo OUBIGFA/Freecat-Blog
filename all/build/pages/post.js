@@ -111,11 +111,140 @@ function renderPostFontFaceCss(postId, assetVersion = '') {
 
 function normalizeLatestUpdateSnapshot(raw) {
     if (!raw || typeof raw !== 'object') return null;
+    const targets = Array.isArray(raw.targets) ? raw.targets : [];
     const items = Array.isArray(raw.items)
-        ? raw.items.map(item => String(item == null ? '' : item).trim()).filter(Boolean)
+        ? raw.items
+            .map((item, index) => {
+                const text = String(item == null ? '' : item).trim();
+                const target = targets[index];
+                const targetText = target && typeof target === 'object'
+                    ? String(target.text == null ? '' : target.text).trim()
+                    : String(target == null ? '' : target).trim();
+                return text ? { text, targetText } : null;
+            })
+            .filter(Boolean)
         : [];
     if (items.length === 0) return null;
     return { items };
+}
+
+function latestUpdateEntryText(entry) {
+    if (entry && typeof entry === 'object') return String(entry.text == null ? '' : entry.text).trim();
+    return String(entry == null ? '' : entry).trim();
+}
+
+function latestUpdateEntryTargetText(entry) {
+    if (entry && typeof entry === 'object') return String(entry.targetText == null ? '' : entry.targetText).trim();
+    return '';
+}
+
+function latestUpdateEntryTargetId(entry, fallbackId) {
+    if (entry && typeof entry === 'object' && entry.targetId) return String(entry.targetId);
+    return fallbackId;
+}
+
+function decodeHtmlText(value) {
+    return String(value || '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&#(\d+);/g, (match, code) => String.fromCharCode(Number(code)))
+        .replace(/&#x([0-9a-f]+);/gi, (match, code) => String.fromCharCode(parseInt(code, 16)));
+}
+
+function htmlToPlainText(html) {
+    return decodeHtmlText(String(html || '').replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
+}
+
+function normalizeLatestUpdateMatchText(value) {
+    return stripMarkdown(String(value || ''), { preserveLineBreaks: false }).replace(/\s+/g, ' ').trim();
+}
+
+function compactLatestUpdateMatchText(value) {
+    return normalizeLatestUpdateMatchText(value)
+        .replace(/[\s_]/g, '')
+        .trim();
+}
+
+function openingTagId(openingTag) {
+    const match = /\bid="([^"]+)"/i.exec(String(openingTag || ''));
+    return match ? match[1] : '';
+}
+
+function attachLatestUpdateId(openingTag, targetId) {
+    if (/\bid="/i.test(openingTag)) return openingTag;
+    return openingTag.replace(/^<([a-z][\w:-]*)\b/i, `<$1 id="${shared.escapeHtml(targetId)}"`);
+}
+
+function annotateLatestUpdateHtml(html, latestUpdate) {
+    const items = latestUpdate && Array.isArray(latestUpdate.items) ? latestUpdate.items : [];
+    if (items.length === 0) return { html, latestUpdate };
+
+    let annotatedHtml = String(html || '');
+    const annotatedItems = items.map((entry, index) => {
+        const baseEntry = entry && typeof entry === 'object'
+            ? { ...entry }
+            : { text: latestUpdateEntryText(entry) };
+        const fallbackId = `latest-update-${index + 1}`;
+        const targetId = latestUpdateEntryTargetId(entry, fallbackId);
+        const targetText = latestUpdateEntryTargetText(entry) || latestUpdateEntryText(entry);
+        const needle = normalizeLatestUpdateMatchText(targetText);
+        const compactNeedle = compactLatestUpdateMatchText(targetText);
+        const fallbackNeedle = needle.length > 40 ? needle.slice(0, 40) : needle;
+        const compactFallbackNeedle = compactNeedle.length > 40 ? compactNeedle.slice(0, 40) : compactNeedle;
+        let resolvedId = targetId;
+        let matched = false;
+
+        if (!needle && !compactNeedle) return { ...baseEntry, targetId: resolvedId };
+
+        const blockPatterns = [
+            /(<h[1-6]\b[^>]*>)([\s\S]*?<\/h[1-6]>)/gi,
+            /(<p\b[^>]*>)([\s\S]*?<\/p>)/gi,
+            /(<li\b[^>]*>)([\s\S]*?<\/li>)/gi,
+            /(<tr\b[^>]*>)([\s\S]*?<\/tr>)/gi,
+            /(<blockquote\b[^>]*>)([\s\S]*?<\/blockquote>)/gi,
+            /(<figcaption\b[^>]*>)([\s\S]*?<\/figcaption>)/gi,
+            /(<div\b[^>]*\bclass="[^"]*\bcallout\b[^"]*"[^>]*>)([\s\S]*?<\/div>)/gi,
+            /(<pre\b[^>]*>)([\s\S]*?<\/pre>)/gi,
+            /(<ul\b[^>]*>)([\s\S]*?<\/ul>)/gi,
+            /(<ol\b[^>]*>)([\s\S]*?<\/ol>)/gi,
+            /(<table\b[^>]*>)([\s\S]*?<\/table>)/gi
+        ];
+
+        for (const pattern of blockPatterns) {
+            if (matched) break;
+            annotatedHtml = annotatedHtml.replace(pattern, (match, openingTag, rest) => {
+                if (matched) return match;
+                const haystack = htmlToPlainText(match);
+                const compactHaystack = compactLatestUpdateMatchText(haystack);
+                const normalizedMatched = needle && (
+                    haystack.indexOf(needle) !== -1
+                    || haystack.indexOf(fallbackNeedle) !== -1
+                );
+                const compactMatched = compactNeedle && (
+                    compactHaystack.indexOf(compactNeedle) !== -1
+                    || compactHaystack.indexOf(compactFallbackNeedle) !== -1
+                );
+                if (!haystack || (!normalizedMatched && !compactMatched)) {
+                    return match;
+                }
+
+                resolvedId = openingTagId(openingTag) || targetId;
+                matched = true;
+                return `${attachLatestUpdateId(openingTag, targetId)}${rest}`;
+            });
+        }
+
+        return { ...baseEntry, targetId: resolvedId };
+    });
+
+    return {
+        html: annotatedHtml,
+        latestUpdate: { ...latestUpdate, items: annotatedItems }
+    };
 }
 
 function renderLatestUpdatePanel(post) {
@@ -123,31 +252,26 @@ function renderLatestUpdatePanel(post) {
     const items = latestUpdate && Array.isArray(latestUpdate.items) ? latestUpdate.items : [];
     if (items.length === 0) return '';
 
-    const date = post.modifiedDate && typeof post.modifiedDate.tz === 'function'
-        ? post.modifiedDate.tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm')
-        : '';
-    const dateHtml = date
-        ? `<div class="freecat-post-latest-update-date freecat-date-text">${shared.escapeHtml(date)}</div>`
-        : '';
     const itemsHtml = items
         .map((item, index) => {
-            const itemHtml = shared.escapeHtml(autoSpacing(item));
-            const targetId = `latest-update-${index + 1}`;
+            const itemHtml = shared.escapeHtml(autoSpacing(latestUpdateEntryText(item)));
+            const targetId = latestUpdateEntryTargetId(item, `latest-update-${index + 1}`);
             return `<p><a class="freecat-post-latest-update-link" href="#${targetId}" data-latest-update-text="${itemHtml}">${itemHtml}</a></p>`;
         })
         .join('\n                                            ');
 
     return `<div class="freecat-post-latest-update-shell">
                         <aside class="freecat-post-latest-update-panel w-72 2xl:w-80 flex-shrink-0">
-                            <div class="flex h-full flex-col">
-                                <h3 class="freecat-post-toc-title text-sm tracking-wider text-slate-500 dark:text-slate-400 mb-3">
-                                    最新更新
-                                </h3>
-                                ${dateHtml}
-                                <div class="freecat-post-latest-update-scroll min-h-0 flex-1">
-                                    <div id="latest-update-container" class="h-full overflow-x-hidden pr-2">
+                            <div class="h-full">
+                                <div class="freecat-post-latest-update-scroll h-full min-h-0">
+                                    <div id="latest-update-container" class="h-full overflow-x-hidden">
+                                        <div class="freecat-post-latest-update-content">
+                                            <h3 class="freecat-sidebar-recent-heading text-sm tracking-wider text-slate-500 dark:text-slate-400 mb-3">
+                                                Update
+                                            </h3>
                                         <div class="freecat-post-latest-update-body">
                                             ${itemsHtml}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -261,7 +385,10 @@ function loadPosts({ postsDir, gitDates, postDates, postIds, latestUpdates, skip
  * 渲染单篇文章详情页 HTML。
  */
 function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = '' }) {
-    const { html: finalContentHtml, toc } = renderPostContent({ post });
+    const renderedPostContent = renderPostContent({ post });
+    const annotatedLatestUpdate = annotateLatestUpdateHtml(renderedPostContent.html, post.latestUpdate);
+    const finalContentHtml = annotatedLatestUpdate.html;
+    const toc = renderedPostContent.toc;
     const safeTitle = shared.escapeHtml(post.title);
 
     const tags = normalizePostTags(post);
@@ -277,7 +404,7 @@ function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = 
     const copyContentSource = post.allowCopyContent
         ? `<script type="application/json" id="freecat-article-copy-source">${JSON.stringify(String(post.content || ''))}</script>`
         : '';
-    const latestUpdatePanel = renderLatestUpdatePanel(post);
+    const latestUpdatePanel = renderLatestUpdatePanel({ ...post, latestUpdate: annotatedLatestUpdate.latestUpdate });
 
     const canonical = seo.pageUrl(siteConfig, post.link);
     const rawCover = String(post.cover || '');
