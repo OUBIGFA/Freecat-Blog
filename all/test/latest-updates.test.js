@@ -135,6 +135,25 @@ test('latest update extraction keeps markdown target updates', () => {
     );
 });
 
+test('latest update extraction keeps markdown target updates inside formatted text', () => {
+    assert.deepEqual(
+        plainParagraphs(['- 文案 ![](/image/list.png)']),
+        ['文案 /image/list.png']
+    );
+    assert.deepEqual(
+        plainParagraphs(['> 文案 [](https://example.com/quote)']),
+        ['文案 https://example.com/quote']
+    );
+    assert.deepEqual(
+        plainParagraphs(['| 列 | 图 |', '| --- | --- |', '| 文案 | ![](/image/table.png) |']),
+        ['/image/table.png']
+    );
+    assert.deepEqual(
+        plainParagraphs(['| 图 |', '| --- |', '| ![标题](/image/table-title.png) |']),
+        ['图 标题']
+    );
+});
+
 test('latest update extraction ignores working tree whitespace-only body changes', (t) => {
     const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'freecat-latest-update-'));
     t.after(() => fs.rmSync(repoRoot, { recursive: true, force: true }));

@@ -337,8 +337,9 @@ function stripMarkdown(text, options = {}) {
     return clean;
 }
 
-function summarizeMarkdownTargetLinks(markdown) {
+function summarizeMarkdownTargetLinks(markdown, options = {}) {
     const raw = String(markdown || '');
+    const supplemental = Boolean(options.supplemental);
     const imageRanges = [];
     const summaries = parseMarkdownImages(raw)
         .map(image => stripMarkdown(image.alt, { preserveLineBreaks: false })
@@ -356,13 +357,21 @@ function summarizeMarkdownTargetLinks(markdown) {
         const offset = match.index;
         if (imageRanges.some(([start, end]) => offset >= start && offset < end)) continue;
         const target = parseMarkdownInlineTarget(match[2]);
-        const label = stripMarkdown(match[1], { preserveLineBreaks: false })
-            || target.href;
+        const labelText = stripMarkdown(match[1], { preserveLineBreaks: false });
+        if (supplemental && labelText) continue;
+        const label = labelText || target.href;
         const normalized = String(label || '').replace(/\s+/g, ' ').trim();
         if (normalized) summaries.push(normalized);
     }
 
     return summaries.join(' ');
+}
+
+function summarizeMarkdownUpdateText(markdown) {
+    const raw = String(markdown || '');
+    const text = stripMarkdown(raw, { preserveLineBreaks: false });
+    const targetText = summarizeMarkdownTargetLinks(raw, { supplemental: Boolean(text) });
+    return [text, targetText].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
 }
 
 // ===== marked 渲染器 / 扩展（callout / footnote / math） =====
@@ -891,6 +900,7 @@ module.exports = {
     parseImageStyleAudio,
     parseImageStyleAudioList,
     summarizeMarkdownTargetLinks,
+    summarizeMarkdownUpdateText,
     stripMarkdown,
     slugify
 };

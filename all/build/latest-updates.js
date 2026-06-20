@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
-const { stripMarkdown, summarizeMarkdownTargetLinks } = require('./markdown.js');
+const { summarizeMarkdownUpdateText } = require('./markdown.js');
 const { isContentFile } = require('./content-files.js');
 
 const WORD_UNDERSCORE_TOKEN = 'FREECATWORDUNDERSCORETOKEN';
@@ -81,7 +81,7 @@ function plainParagraphs(lines) {
     return text
         .split(/\n{2,}/)
         .map(paragraph => paragraph.replace(/([A-Za-z0-9])_([A-Za-z0-9])/g, `$1${WORD_UNDERSCORE_TOKEN}$2`))
-        .map(paragraph => stripMarkdown(paragraph, { preserveLineBreaks: false }) || summarizeMarkdownTargetLinks(paragraph))
+        .map(paragraph => summarizeMarkdownUpdateText(paragraph))
         .map(paragraph => paragraph.replace(new RegExp(WORD_UNDERSCORE_TOKEN, 'g'), '_'))
         .map(paragraph => paragraph.replace(/\s+/g, ' ').trim())
         .filter(Boolean)

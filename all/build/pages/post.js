@@ -3,7 +3,7 @@ const path = require('path');
 const dayjs = require('dayjs');
 const matter = require('gray-matter');
 const shared = require('../../shared/shared.js');
-const { autoSpacing, stripMarkdown, summarizeMarkdownTargetLinks } = require('../markdown.js');
+const { autoSpacing, stripMarkdown, summarizeMarkdownUpdateText } = require('../markdown.js');
 const { renderPostContent } = require('./post-content.js');
 const seo = require('../seo.js');
 const { replacePlaceholders } = require('../template-engine.js');
@@ -194,10 +194,7 @@ function htmlToLatestUpdateMatchText(html) {
 }
 
 function normalizeLatestUpdateMatchText(value) {
-    const raw = String(value || '');
-    return (stripMarkdown(raw, { preserveLineBreaks: false }) || summarizeMarkdownTargetLinks(raw))
-        .replace(/\s+/g, ' ')
-        .trim();
+    return summarizeMarkdownUpdateText(value);
 }
 
 function compactLatestUpdateMatchText(value) {
