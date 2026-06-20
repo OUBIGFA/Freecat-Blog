@@ -135,6 +135,47 @@ function normalizeMultilineVideoImages(content) {
     });
 }
 
+function parseMarkdownInlineTarget(target) {
+    const raw = String(target || '').trim();
+    if (!raw) return { href: '', title: '' };
+
+    const angled = /^<([^>]*)>\s*(.*)$/.exec(raw);
+    if (angled) {
+        return {
+            href: angled[1].trim(),
+            title: angled[2].replace(/^["'(]|["')]$/g, '').trim()
+        };
+    }
+
+    const titled = /^(.*?)(?:\s+("([^"]*)"|'([^']*)'|\(([^)]*)\)))\s*$/.exec(raw);
+    if (titled && titled[1].trim()) {
+        return {
+            href: titled[1].trim(),
+            title: (titled[3] || titled[4] || titled[5] || '').trim()
+        };
+    }
+
+    return { href: raw, title: '' };
+}
+
+function parseMarkdownImages(content) {
+    const images = [];
+    const imageRe = /!\[([^\]]*)\]\(([\s\S]*?)\)/g;
+    let match;
+
+    while ((match = imageRe.exec(String(content || ''))) !== null) {
+        const target = parseMarkdownInlineTarget(match[2]);
+        images.push({
+            markdown: match[0],
+            alt: match[1],
+            href: target.href,
+            title: target.title
+        });
+    }
+
+    return images;
+}
+
 function hasVideoMarker(text) {
     return hasMediaMarker('video', text);
 }
@@ -325,6 +366,8 @@ module.exports = {
     isLikelyImageUrl,
     normalizeEmbedUrl,
     normalizeMultilineVideoImages,
+    parseMarkdownInlineTarget,
+    parseMarkdownImages,
     hasVideoMarker,
     hasAudioMarker,
     cleanAudioTitle,

@@ -3,7 +3,7 @@ const path = require('path');
 const dayjs = require('dayjs');
 const matter = require('gray-matter');
 const shared = require('../../shared/shared.js');
-const { autoSpacing, stripMarkdown } = require('../markdown.js');
+const { autoSpacing, stripMarkdown, summarizeMarkdownTargetLinks } = require('../markdown.js');
 const { renderPostContent } = require('./post-content.js');
 const seo = require('../seo.js');
 const { replacePlaceholders } = require('../template-engine.js');
@@ -159,8 +159,45 @@ function htmlToPlainText(html) {
     return decodeHtmlText(String(html || '').replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
 }
 
+function htmlAttribute(tag, name) {
+    const pattern = new RegExp(`\\b${name}=("[^"]*"|'[^']*')`, 'i');
+    const match = pattern.exec(String(tag || ''));
+    if (!match) return '';
+    return decodeHtmlText(match[1].slice(1, -1)).trim();
+}
+
+function htmlImageMatchText(html) {
+    const parts = [];
+    String(html || '').replace(/<img\b[^>]*>/gi, tag => {
+        [
+            htmlAttribute(tag, 'alt'),
+            htmlAttribute(tag, 'title'),
+            htmlAttribute(tag, 'data-src') || htmlAttribute(tag, 'src')
+        ].filter(Boolean).forEach(value => parts.push(value));
+        return tag;
+    });
+    return parts.join(' ');
+}
+
+function htmlLinkMatchText(html) {
+    const parts = [];
+    String(html || '').replace(/<a\b[^>]*>/gi, tag => {
+        const href = htmlAttribute(tag, 'href');
+        if (href) parts.push(href);
+        return tag;
+    });
+    return parts.join(' ');
+}
+
+function htmlToLatestUpdateMatchText(html) {
+    return [htmlToPlainText(html), htmlImageMatchText(html), htmlLinkMatchText(html)].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+}
+
 function normalizeLatestUpdateMatchText(value) {
-    return stripMarkdown(String(value || ''), { preserveLineBreaks: false }).replace(/\s+/g, ' ').trim();
+    const raw = String(value || '');
+    return (stripMarkdown(raw, { preserveLineBreaks: false }) || summarizeMarkdownTargetLinks(raw))
+        .replace(/\s+/g, ' ')
+        .trim();
 }
 
 function compactLatestUpdateMatchText(value) {
@@ -207,6 +244,7 @@ function annotateLatestUpdateHtml(html, latestUpdate) {
             /(<tr\b[^>]*>)([\s\S]*?<\/tr>)/gi,
             /(<blockquote\b[^>]*>)([\s\S]*?<\/blockquote>)/gi,
             /(<figcaption\b[^>]*>)([\s\S]*?<\/figcaption>)/gi,
+            /(<figure\b[^>]*>)([\s\S]*?<\/figure>)/gi,
             /(<div\b[^>]*\bclass="[^"]*\bcallout\b[^"]*"[^>]*>)([\s\S]*?<\/div>)/gi,
             /(<pre\b[^>]*>)([\s\S]*?<\/pre>)/gi,
             /(<ul\b[^>]*>)([\s\S]*?<\/ul>)/gi,
@@ -218,7 +256,7 @@ function annotateLatestUpdateHtml(html, latestUpdate) {
             if (matched) break;
             annotatedHtml = annotatedHtml.replace(pattern, (match, openingTag, rest) => {
                 if (matched) return match;
-                const haystack = htmlToPlainText(match);
+                const haystack = htmlToLatestUpdateMatchText(match);
                 const compactHaystack = compactLatestUpdateMatchText(haystack);
                 const normalizedMatched = needle && (
                     haystack.indexOf(needle) !== -1

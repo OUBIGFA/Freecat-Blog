@@ -76,6 +76,65 @@ test('latest update paragraphs strip markdown before snapshotting', () => {
     );
 });
 
+test('latest update extraction keeps markdown target updates', () => {
+    const currentRaw = [
+        '---',
+        'title: Example',
+        'show_latest_update: true',
+        '---',
+        '',
+        '![](/image/new-cover.png)',
+        '',
+        '![封面](/image/cover.png "Hero")',
+        '',
+        '![](/image/titled-target.png "Hero")',
+        '',
+        '[](https://example.com/empty-link)',
+        '',
+        '[](https://example.com/titled-empty-link "Hero")',
+        '',
+        '[普通链接](https://example.com)'
+    ].join('\n');
+    const diff = [
+        '@@ -5,0 +6,9 @@',
+        '+![](/image/new-cover.png)',
+        '+',
+        '+![封面](/image/cover.png "Hero")',
+        '+',
+        '+![](/image/titled-target.png "Hero")',
+        '+',
+        '+[](https://example.com/empty-link)',
+        '+',
+        '+[](https://example.com/titled-empty-link "Hero")',
+        '+',
+        '+[普通链接](https://example.com)'
+    ].join('\n');
+
+    const update = extractLatestUpdateFromDiff(diff, currentRaw);
+    assert.deepEqual(
+        update.items,
+        [
+            '/image/new-cover.png',
+            '封面',
+            '/image/titled-target.png',
+            'https://example.com/empty-link',
+            'https://example.com/titled-empty-link',
+            '普通链接'
+        ]
+    );
+    assert.deepEqual(
+        update.targets.map(target => target.text),
+        [
+            '![](/image/new-cover.png)',
+            '![封面](/image/cover.png "Hero")',
+            '![](/image/titled-target.png "Hero")',
+            '[](https://example.com/empty-link)',
+            '[](https://example.com/titled-empty-link "Hero")',
+            '[普通链接](https://example.com)'
+        ]
+    );
+});
+
 test('latest update extraction ignores working tree whitespace-only body changes', (t) => {
     const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'freecat-latest-update-'));
     t.after(() => fs.rmSync(repoRoot, { recursive: true, force: true }));

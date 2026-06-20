@@ -403,6 +403,71 @@ test('post page binds latest update links to formatted list and table targets', 
     assert.match(html, /<li id="latest-update-4">[\s\S]*<code>all\/<\/code>[\s\S]*<code>README\.md<\/code>[\s\S]*<\/li>/);
 });
 
+test('post page binds latest update links to rendered image targets', () => {
+    const post = {
+        title: 'Latest Update Image Post',
+        tag: [],
+        link: '/posts/latest-update-image',
+        cover: '',
+        content: [
+            '![](/image/new-cover.png)',
+            '',
+            '![封面](/image/cover.png "Hero")'
+        ].join('\n'),
+        date: dayjs.tz('2026-05-02T09:00:00+08:00'),
+        modifiedDate: dayjs.tz('2026-05-03T09:00:00+08:00'),
+        postId: '2026050209000005',
+        latestUpdate: {
+            items: [
+                { text: '/image/new-cover.png', targetText: '![](/image/new-cover.png)' },
+                { text: '封面', targetText: '![封面](/image/cover.png "Hero")' }
+            ]
+        }
+    };
+    const template = '<!doctype html><html><head><!-- POST_SEO_HEAD --><!-- POST_JSONLD --></head><body><!-- LATEST_UPDATE_PLACEHOLDER --><!-- CONTENT_PLACEHOLDER --></body></html>';
+    const html = renderPostPage({
+        post,
+        template,
+        siteConfig: { site_name: 'Example', site_title: 'Example Blog', site_url: 'https://example.com' },
+        seoConfig: {}
+    });
+
+    assert.match(html, /href="#latest-update-1"/);
+    assert.match(html, /href="#latest-update-2"/);
+    assert.match(html, /<figure id="latest-update-1" class="post-image markdown-image-block[\s\S]*data-src="\/image\/new-cover\.png"[\s\S]*<\/figure>/);
+    assert.match(html, /<figure id="latest-update-2" class="post-image markdown-image-block[\s\S]*data-src="\/image\/cover\.png"[\s\S]*<\/figure>/);
+    assert.match(html, /<figure id="latest-update-2" class="post-image markdown-image-block[\s\S]*alt="封面"[\s\S]*<\/figure>/);
+});
+
+test('post page binds latest update links to rendered empty link targets', () => {
+    const post = {
+        title: 'Latest Update Empty Link Post',
+        tag: [],
+        link: '/posts/latest-update-empty-link',
+        cover: '',
+        content: '[](https://example.com/empty-link)',
+        date: dayjs.tz('2026-05-02T09:00:00+08:00'),
+        modifiedDate: dayjs.tz('2026-05-03T09:00:00+08:00'),
+        postId: '2026050209000006',
+        latestUpdate: {
+            items: [
+                { text: 'https://example.com/empty-link', targetText: '[](https://example.com/empty-link)' }
+            ]
+        }
+    };
+    const template = '<!doctype html><html><head><!-- POST_SEO_HEAD --><!-- POST_JSONLD --></head><body><!-- LATEST_UPDATE_PLACEHOLDER --><!-- CONTENT_PLACEHOLDER --></body></html>';
+    const html = renderPostPage({
+        post,
+        template,
+        siteConfig: { site_name: 'Example', site_title: 'Example Blog', site_url: 'https://example.com' },
+        seoConfig: {}
+    });
+
+    assert.match(html, /href="#latest-update-1"/);
+    assert.match(html, /data-latest-update-text="https:\/\/example\.com\/empty-link"/);
+    assert.match(html, /<p id="latest-update-1"[^>]*>[\s\S]*href="https:\/\/example\.com\/empty-link"[\s\S]*<\/p>/);
+});
+
 test('post page loads video player assets only when video content is present', () => {
     const baseTemplate = '<!doctype html><html><head><!-- POST_SEO_HEAD --><!-- POST_JSONLD --><!-- POST_MEDIA_CSS --><!-- POST_VIDEO_CSS --></head><body><!-- TITLE_PLACEHOLDER --><!-- TITLE_H1_PLACEHOLDER --><!-- TAGS_PLACEHOLDER --><!-- DATE_PLACEHOLDER --><!-- DATE_ISO_PLACEHOLDER --><!-- MODIFIED_PLACEHOLDER --><!-- CONTENT_PLACEHOLDER --><!-- TOC_PLACEHOLDER --><!-- POST_HIGHLIGHT_CSS --><!-- POST_KATEX_CSS --><!-- POST_HIGHLIGHT_JS --><!-- POST_CHART_JS --><!-- POST_MEDIA_JS --><!-- POST_AUDIO_CSS --><!-- POST_AUDIO_JS --><!-- POST_VIDEO_JS --></body></html>';
     const siteConfig = { site_name: 'Example', site_title: 'Example', site_url: 'https://example.com' };

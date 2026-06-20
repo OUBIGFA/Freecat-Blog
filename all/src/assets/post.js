@@ -628,6 +628,37 @@
         return String(value || '').replace(/\s+/g, ' ').trim();
     }
 
+    function imageCandidateText(candidate) {
+        var parts = [];
+        candidate.querySelectorAll('img').forEach(function (image) {
+            [
+                image.getAttribute('alt'),
+                image.getAttribute('title'),
+                image.getAttribute('data-src') || image.getAttribute('src')
+            ].filter(Boolean).forEach(function (value) {
+                parts.push(value);
+            });
+        });
+        return parts.join(' ');
+    }
+
+    function linkCandidateText(candidate) {
+        var parts = [];
+        candidate.querySelectorAll('a[href]').forEach(function (anchor) {
+            var href = anchor.getAttribute('href');
+            if (href) parts.push(href);
+        });
+        return parts.join(' ');
+    }
+
+    function latestUpdateCandidateText(candidate) {
+        return normalizeLatestUpdateText([
+            candidate.textContent,
+            imageCandidateText(candidate),
+            linkCandidateText(candidate)
+        ].filter(Boolean).join(' '));
+    }
+
     function findLatestUpdateTarget(text) {
         var needle = normalizeLatestUpdateText(text);
         var article = document.querySelector('article');
@@ -635,7 +666,7 @@
 
         var fallbackNeedle = needle.length > 40 ? needle.slice(0, 40) : needle;
         var candidateGroups = [
-            'h1,h2,h3,h4,h5,h6,p,li,tr,td,th,blockquote,figcaption,.callout,pre code',
+            'h1,h2,h3,h4,h5,h6,p,li,tr,td,th,blockquote,figcaption,figure,.callout,pre code',
             'ul,ol,table'
         ];
 
@@ -643,7 +674,7 @@
             var candidates = article.querySelectorAll(candidateGroups[groupIndex]);
             for (var i = 0; i < candidates.length; i += 1) {
                 var candidate = candidates[i];
-                var haystack = normalizeLatestUpdateText(candidate.textContent);
+                var haystack = latestUpdateCandidateText(candidate);
                 if (!haystack) continue;
                 if (haystack.indexOf(needle) !== -1 || haystack.indexOf(fallbackNeedle) !== -1) {
                     return candidate;

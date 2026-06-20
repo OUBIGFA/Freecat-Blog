@@ -121,7 +121,7 @@ test('article latest update panel mirrors the toc on the left when there is room
     assert.match(postCss, /\.freecat-post-latest-update-link\s*\{[\s\S]*white-space:\s*normal;/);
     assert.match(postJs, /function initLatestUpdateAnchors\(\)\s*\{/);
     assert.match(postJs, /\.freecat-post-latest-update-link\[href\^="#"\]/);
-    assert.match(postJs, /h1,h2,h3,h4,h5,h6,p,li,tr,td,th,blockquote,figcaption,\.callout,pre code/);
+    assert.match(postJs, /h1,h2,h3,h4,h5,h6,p,li,tr,td,th,blockquote,figcaption,figure,\.callout,pre code/);
     assert.match(postJs, /ul,ol,table/);
     assert.match(postJs, /findLatestUpdateTarget\(this\.getAttribute\('data-latest-update-text'\)\)/);
     assert.match(postJs, /getTocTargetScrollY\(targetElement,\s*article\)/);

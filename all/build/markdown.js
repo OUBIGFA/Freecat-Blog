@@ -42,6 +42,8 @@ const {
     escapeRenderedText,
     isLikelyImageUrl,
     normalizeMultilineVideoImages,
+    parseMarkdownInlineTarget,
+    parseMarkdownImages,
     hasVideoMarker,
     hasAudioMarker,
     isAudioUrl,
@@ -333,6 +335,34 @@ function stripMarkdown(text, options = {}) {
     if (hasAudio) clean = '🎶 ' + clean;
     else if (hasVideo) clean = '🎬 ' + clean;
     return clean;
+}
+
+function summarizeMarkdownTargetLinks(markdown) {
+    const raw = String(markdown || '');
+    const imageRanges = [];
+    const summaries = parseMarkdownImages(raw)
+        .map(image => stripMarkdown(image.alt, { preserveLineBreaks: false })
+            || image.href)
+        .map(text => String(text || '').replace(/\s+/g, ' ').trim())
+        .filter(Boolean);
+    raw.replace(/!\[([^\]]*)\]\(([\s\S]*?)\)/g, (match, alt, target, offset) => {
+        imageRanges.push([offset, offset + match.length]);
+        return match;
+    });
+
+    const linkRe = /\[([^\]]*)\]\(([\s\S]*?)\)/g;
+    let match;
+    while ((match = linkRe.exec(raw)) !== null) {
+        const offset = match.index;
+        if (imageRanges.some(([start, end]) => offset >= start && offset < end)) continue;
+        const target = parseMarkdownInlineTarget(match[2]);
+        const label = stripMarkdown(match[1], { preserveLineBreaks: false })
+            || target.href;
+        const normalized = String(label || '').replace(/\s+/g, ' ').trim();
+        if (normalized) summaries.push(normalized);
+    }
+
+    return summaries.join(' ');
 }
 
 // ===== marked 渲染器 / 扩展（callout / footnote / math） =====
@@ -860,6 +890,7 @@ module.exports = {
     addHeadingIds,
     parseImageStyleAudio,
     parseImageStyleAudioList,
+    summarizeMarkdownTargetLinks,
     stripMarkdown,
     slugify
 };
