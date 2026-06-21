@@ -302,7 +302,7 @@ function renderLatestUpdatePanel(post) {
                                     <div id="latest-update-container" class="h-full overflow-x-hidden">
                                         <div class="freecat-post-latest-update-content">
                                             <h3 class="freecat-sidebar-recent-heading text-sm tracking-wider text-slate-500 dark:text-slate-400 mb-3">
-                                                Update
+                                                Update <span class="freecat-post-latest-update-title-note">最后更新内容</span>
                                             </h3>
                                         <div class="freecat-post-latest-update-body">
                                             ${itemsHtml}

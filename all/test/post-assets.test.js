@@ -114,7 +114,13 @@ test('article latest update panel mirrors the toc on the left when there is room
     assert.match(postCss, /#latest-update-container\s*\{[\s\S]*overflow-y:\s*auto !important;/);
     assert.match(postCss, /#latest-update-container\s*\{[\s\S]*direction:\s*rtl;/);
     assert.match(postCss, /\.freecat-post-latest-update-content\s*\{[\s\S]*direction:\s*ltr;/);
-    assert.match(postCss, /\.freecat-post-latest-update-body\s*\{[\s\S]*border-right:\s*1px solid #e2e8f0;/);
+    assert.match(postCss, /\.freecat-post-latest-update-content\s*\{[\s\S]*background:\s*var\(--freecat-post-latest-update-block-bg\);/);
+    assert.doesNotMatch(postCss, /\.freecat-post-latest-update-content\s*\{[\s\S]*border:\s*1px solid/);
+    assert.match(postCss, /\.freecat-post-latest-update-title-note\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"/);
+    assert.match(postCss, /\.freecat-post-latest-update-title-note\s*\{[\s\S]*font-size:\s*0\.75rem;/);
+    assert.match(postCss, /\.freecat-post-latest-update-title-note\s*\{[\s\S]*font-weight:\s*400;/);
+    assert.match(postCss, /\.freecat-post-latest-update-body\s*\{[\s\S]*padding:\s*0\.35rem 0;/);
+    assert.doesNotMatch(postCss, /freecat-post-latest-update-body\s*\{[\s\S]*border-right:/);
     assert.doesNotMatch(postCss, /freecat-post-latest-update-date/);
     assert.match(postCss, /\.freecat-post-latest-update-link\s*\{[\s\S]*text-overflow:\s*ellipsis;/);
     assert.match(postCss, /\.freecat-post-latest-update-link\s*\{[\s\S]*-webkit-line-clamp:\s*3;/);
