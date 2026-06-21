@@ -34,6 +34,10 @@ function isNoiseLine(line) {
         || /^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?$/.test(text);
 }
 
+function isFenceLine(line) {
+    return /^(```+|~~~+)/.test(String(line || '').trim());
+}
+
 function extractAddedHunks(diff, currentRaw) {
     return extractAddedHunksWithLines(diff, currentRaw).map(hunk => hunk.map(entry => entry.text));
 }
@@ -100,11 +104,76 @@ function limitParagraphs(paragraphs, options = {}) {
 function plainParagraphEntries(lineEntries) {
     const paragraphs = [];
     let current = [];
+    let inFence = false;
 
     function flush() {
-        const lines = current.map(entry => entry.text);
+        const codeEntries = fencedCodeParagraphEntries(current);
+        const textEntries = codeEntries.length > 0 ? nonFencedLineEntries(current) : current;
+        const lines = textEntries.map(entry => entry.text);
         const text = plainParagraphs(lines)[0] || '';
-        const target = current.find(entry => !isNoiseLine(entry.text));
+        const target = textEntries.find(entry => !isNoiseLine(entry.text));
+        if (text && target) {
+            paragraphs.push({
+                text,
+                target: target.text,
+                lineNumber: target.lineNumber
+            });
+        }
+        codeEntries.forEach(entry => paragraphs.push(entry));
+        current = [];
+    }
+
+    for (const entry of lineEntries) {
+        if (isFenceLine(entry.text)) {
+            current.push(entry);
+            inFence = !inFence;
+        } else if (String(entry.text || '').trim() || inFence) {
+            current.push(entry);
+        } else {
+            flush();
+        }
+    }
+    flush();
+
+    return paragraphs;
+}
+
+function summarizeCodeUpdateText(lines) {
+    return lines
+        .map(line => String(line == null ? '' : line).trim())
+        .filter(Boolean)
+        .join('\n')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function nonFencedLineEntries(lineEntries) {
+    const kept = [];
+    let fence = '';
+
+    for (const entry of lineEntries) {
+        const match = /^(```+|~~~+)/.exec(String(entry.text || '').trim());
+        if (match) {
+            const marker = match[1].slice(0, 3);
+            if (!fence) fence = marker;
+            else if (marker === fence) fence = '';
+            continue;
+        }
+
+        if (!fence) kept.push(entry);
+    }
+
+    return kept;
+}
+
+function fencedCodeParagraphEntries(lineEntries) {
+    const paragraphs = [];
+    let fence = '';
+    let current = [];
+
+    function flushCodeBlock() {
+        const text = summarizeCodeUpdateText(current.map(entry => entry.text));
+        const target = current.find(entry => String(entry.text || '').trim());
         if (text && target) {
             paragraphs.push({
                 text,
@@ -116,14 +185,24 @@ function plainParagraphEntries(lineEntries) {
     }
 
     for (const entry of lineEntries) {
-        if (String(entry.text || '').trim()) {
-            current.push(entry);
-        } else {
-            flush();
+        const text = String(entry.text || '');
+        const match = /^(```+|~~~+)/.exec(text.trim());
+        if (match) {
+            const marker = match[1].slice(0, 3);
+            if (!fence) {
+                fence = marker;
+                current = [];
+            } else if (marker === fence) {
+                flushCodeBlock();
+                fence = '';
+            }
+            continue;
         }
-    }
-    flush();
 
+        if (fence) current.push(entry);
+    }
+
+    if (fence) flushCodeBlock();
     return paragraphs;
 }
 

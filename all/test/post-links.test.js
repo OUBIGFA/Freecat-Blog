@@ -404,6 +404,42 @@ test('post page binds latest update links to formatted list and table targets', 
     assert.match(html, /<li id="latest-update-4">[\s\S]*<code>all\/<\/code>[\s\S]*<code>README\.md<\/code>[\s\S]*<\/li>/);
 });
 
+test('post page binds latest update links to rendered code block targets', () => {
+    const post = {
+        title: 'Latest Update Code Post',
+        tag: [],
+        link: '/posts/latest-update-code',
+        cover: '',
+        content: [
+            '```js',
+            "const theme_system = 'auto';",
+            '',
+            'console.log(theme_system);',
+            '```'
+        ].join('\n'),
+        date: dayjs.tz('2026-05-02T09:00:00+08:00'),
+        modifiedDate: dayjs.tz('2026-05-03T09:00:00+08:00'),
+        postId: '2026050209000007',
+        latestUpdate: {
+            items: [{
+                text: "const theme_system = 'auto'; console.log(theme_system);",
+                targetText: "const theme_system = 'auto';"
+            }]
+        }
+    };
+    const template = '<!doctype html><html><head><!-- POST_SEO_HEAD --><!-- POST_JSONLD --></head><body><!-- LATEST_UPDATE_PLACEHOLDER --><!-- CONTENT_PLACEHOLDER --></body></html>';
+    const html = renderPostPage({
+        post,
+        template,
+        siteConfig: { site_name: 'Example', site_title: 'Example Blog', site_url: 'https://example.com' },
+        seoConfig: {}
+    });
+
+    assert.match(html, /href="#latest-update-1"/);
+    assert.match(html, /data-latest-update-text="const theme_system = &#39;auto&#39;; console\.log\(theme_system\);"/);
+    assert.match(html, /<pre id="latest-update-1"><code class="hljs language-js">[\s\S]*theme_system[\s\S]*console[\s\S]*<\/code><\/pre>/);
+});
+
 test('post page binds latest update links to rendered image targets', () => {
     const post = {
         title: 'Latest Update Image Post',

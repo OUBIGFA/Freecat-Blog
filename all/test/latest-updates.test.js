@@ -154,6 +154,38 @@ test('latest update extraction keeps markdown target updates inside formatted te
     );
 });
 
+test('latest update extraction keeps fenced code block content', () => {
+    const currentRaw = [
+        '---',
+        'title: Example',
+        '---',
+        '',
+        '```js',
+        "const theme_system = 'auto';",
+        '',
+        'console.log(theme_system);',
+        '```'
+    ].join('\n');
+    const diff = [
+        '@@ -4,0 +5,5 @@',
+        '+```js',
+        "+const theme_system = 'auto';",
+        '+',
+        '+console.log(theme_system);',
+        '+```'
+    ].join('\n');
+
+    const update = extractLatestUpdateFromDiff(diff, currentRaw);
+    assert.deepEqual(
+        update.items,
+        ["const theme_system = 'auto'; console.log(theme_system);"]
+    );
+    assert.deepEqual(
+        update.targets,
+        [{ text: "const theme_system = 'auto';", line: 6 }]
+    );
+});
+
 test('latest update extraction ignores working tree whitespace-only body changes', (t) => {
     const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'freecat-latest-update-'));
     t.after(() => fs.rmSync(repoRoot, { recursive: true, force: true }));
