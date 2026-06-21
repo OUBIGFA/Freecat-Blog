@@ -651,11 +651,21 @@
         return parts.join(' ');
     }
 
+    function embedCandidateText(candidate) {
+        var parts = [];
+        candidate.querySelectorAll('[data-embed-url]').forEach(function (embed) {
+            var url = embed.getAttribute('data-embed-url');
+            if (url) parts.push(url);
+        });
+        return parts.join(' ');
+    }
+
     function latestUpdateCandidateText(candidate) {
         return normalizeLatestUpdateText([
             candidate.textContent,
             imageCandidateText(candidate),
-            linkCandidateText(candidate)
+            linkCandidateText(candidate),
+            embedCandidateText(candidate)
         ].filter(Boolean).join(' '));
     }
 

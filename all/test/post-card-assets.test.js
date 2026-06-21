@@ -441,7 +441,7 @@ test('site text does not request unsupported bold weight', () => {
         paginationJs
     ].join('\n');
     const sourcesWithoutArticleRankBoost = sources.replace(
-        /\.prose:has\(\.article-heading-rank-2\) \.article-heading-rank-1\s*\{[\s\S]*?\}/,
+        /\.prose \.article-heading-rank-1\s*\{[\s\S]*?\}/,
         ''
     );
 

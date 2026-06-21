@@ -476,6 +476,41 @@ test('post page binds latest update links to rendered image targets', () => {
     assert.match(html, /<figure id="latest-update-2" class="post-image markdown-image-block[\s\S]*alt="封面"[\s\S]*<\/figure>/);
 });
 
+test('post page binds latest update links to rendered external embed targets', () => {
+    const post = {
+        title: 'Latest Update Embed Post',
+        tag: [],
+        link: '/posts/latest-update-embed',
+        cover: '',
+        content: [
+            '![](https://x.com/i/status/1712319024628162567)',
+            '',
+            '![](https://example.com/embed-card)'
+        ].join('\n'),
+        date: dayjs.tz('2026-05-02T09:00:00+08:00'),
+        modifiedDate: dayjs.tz('2026-05-03T09:00:00+08:00'),
+        postId: '2026050209000007',
+        latestUpdate: {
+            items: [
+                { text: 'https://x.com/i/status/1712319024628162567', targetText: '![](https://x.com/i/status/1712319024628162567)' },
+                { text: 'https://example.com/embed-card', targetText: '![](https://example.com/embed-card)' }
+            ]
+        }
+    };
+    const template = '<!doctype html><html><head><!-- POST_SEO_HEAD --><!-- POST_JSONLD --></head><body><!-- LATEST_UPDATE_PLACEHOLDER --><!-- CONTENT_PLACEHOLDER --></body></html>';
+    const html = renderPostPage({
+        post,
+        template,
+        siteConfig: { site_name: 'Example', site_title: 'Example Blog', site_url: 'https://example.com' },
+        seoConfig: {}
+    });
+
+    assert.match(html, /href="#latest-update-1"/);
+    assert.match(html, /href="#latest-update-2"/);
+    assert.match(html, /<figure id="latest-update-1" class="external-embed external-embed-twitter[\s\S]*data-embed-url="https:\/\/x\.com\/i\/status\/1712319024628162567"[\s\S]*<\/figure>/);
+    assert.match(html, /<figure id="latest-update-2" class="external-embed external-embed-link[\s\S]*href="https:\/\/example\.com\/embed-card"[\s\S]*<\/figure>/);
+});
+
 test('post page binds latest update links to rendered empty link targets', () => {
     const post = {
         title: 'Latest Update Empty Link Post',

@@ -210,7 +210,7 @@ test('article Chinese font weights use standard emphasis values', () => {
     assert.match(postCss, /\.prose summary\s*\{[\s\S]*font-weight:\s*600;/);
     assert.match(postCss, /\.post-title\s*\{[\s\S]*font-weight:\s*600\s*!important;/);
     assert.match(postCss, /\.prose \.article-heading\s*\{[\s\S]*font-weight:\s*600\s*!important;/);
-    assert.match(postCss, /\.prose:has\(\.article-heading-rank-2\) \.article-heading-rank-1\s*\{[\s\S]*font-weight:\s*700\s*!important;/);
+    assert.match(postCss, /\.prose \.article-heading-rank-1\s*\{[\s\S]*font-weight:\s*700\s*!important;/);
     assert.match(postCss, /\.prose strong,\s*\.prose b\s*\{[\s\S]*font-weight:\s*600\s*!important;/);
     assert.match(postCss, /\.prose li>strong:first-child\s*\{[\s\S]*font-weight:\s*600\s*!important;/);
     assert.doesNotMatch(postCss, /\.prose strong\s*\{[\s\S]*font-weight:\s*700\s*!important;/);
@@ -264,7 +264,7 @@ test('article body blocks with zero blank lines share compact group rhythm', () 
         .map(match => match[0]);
     const ordinaryBodyBlocks = ':is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)';
     const compactGroupRule = postCss.match(/\.prose :is\([^{}]*figure\.external-embed[\s\S]*?\)\+:is\([^{}]*figure\.external-embed[\s\S]*?\)\s*\{[\s\S]*?\}/)?.[0] || '';
-    const attachedBlockRule = postCss.match(/#freecat-article-body\.prose>\.markdown-attached-block\s*\{[\s\S]*?\}/)?.[0] || '';
+    const attachedBlockRule = postCss.match(/#freecat-article-body\.prose>\.markdown-attached-block:not\(\.article-heading\)\s*\{[\s\S]*?\}/)?.[0] || '';
     const extraGapRule = postCss.match(/\.prose \.markdown-gap\+:is\([^{}]*figure\.external-embed[\s\S]*?\)\s*\{[\s\S]*?\}/)?.[0] || '';
     const groupedListRule = postCss.match(/#freecat-article-body\.prose>\.markdown-list-lead\+\.markdown-attached-list\s*\{[\s\S]*?\}/)?.[0] || '';
 
@@ -276,6 +276,7 @@ test('article body blocks with zero blank lines share compact group rhythm', () 
     assert.equal(postCss.includes(`.prose ${ordinaryBodyBlocks}+${ordinaryBodyBlocks} {`), true);
     assert.match(compactGroupRule, /margin-block-start:\s*var\(--article-space-flow\)\s*!important;/);
     assert.match(attachedBlockRule, /margin-block-start:\s*var\(--article-space-group\)\s*!important;/);
+    assert.doesNotMatch(postCss, /#freecat-article-body\.prose>\.markdown-attached-block\s*\{/);
     assert.match(extraGapRule, /margin-block-start:\s*var\(--article-space-flow\)\s*!important;/);
     assert.match(groupedListRule, /margin-block-start:\s*var\(--article-space-list-attach\)\s*!important;/);
     assert.match(groupedListRule, /margin-inline-start:\s*var\(--article-list-indent\)\s*!important;/);
@@ -302,6 +303,20 @@ test('article headings keep peer spacing after any preceding body block', () => 
     assert.equal(postCss.includes(`#freecat-article-body.prose>${articleBodyBlock}+.markdown-gap+.article-heading-depth-2,`), true);
     assert.match(postCss, /#freecat-article-body\.prose>:where\(:not\(\.markdown-gap\):not\(\.article-heading\):not\(hr\):not\(script\):not\(style\):not\(template\)\)\+\.article-heading-depth-2,[\s\S]*?margin-block-start:\s*var\(--article-space-heading-peer-2\)\s*!important;/);
     assert.doesNotMatch(postCss, /\.prose :where\([^{}]*figure\.post-image[^{}]*\)\+\.article-heading-depth-2/);
+});
+
+test('underlined headings include the divider in their own box', () => {
+    const headingRule = postCss.match(/\.prose:not\(:has\(\.article-heading-rank-2\)\) \.article-heading-rank-1,\s*\.prose \.article-heading-rank-2\s*\{[\s\S]*?\}/)?.[0] || '';
+    const dividerRule = postCss.match(/\.prose:not\(:has\(\.article-heading-rank-2\)\) \.article-heading-rank-1::after,\s*\.prose \.article-heading-rank-2::after\s*\{[\s\S]*?\}/)?.[0] || '';
+
+    assert.match(headingRule, /padding-bottom:\s*calc\(0\.72rem \+ 2px\)\s*!important;/);
+    assert.match(dividerRule, /position:\s*absolute;/);
+    assert.match(dividerRule, /bottom:\s*0;/);
+    assert.match(dividerRule, /left:\s*0;/);
+    assert.match(dividerRule, /right:\s*0;/);
+    assert.doesNotMatch(dividerRule, /margin-top:/);
+    assert.doesNotMatch(postCss, /article-space-group-after-heading-rule/);
+    assert.doesNotMatch(postCss, /\.article-heading-rank-2\+\.markdown-attached-block/);
 });
 
 test('article heading spacing uses generic body adjacency around headings', () => {

@@ -189,8 +189,18 @@ function htmlLinkMatchText(html) {
     return parts.join(' ');
 }
 
+function htmlEmbedMatchText(html) {
+    const parts = [];
+    String(html || '').replace(/<[^>]+\bdata-embed-url=("[^"]*"|'[^']*')[^>]*>/gi, tag => {
+        const url = htmlAttribute(tag, 'data-embed-url');
+        if (url) parts.push(url);
+        return tag;
+    });
+    return parts.join(' ');
+}
+
 function htmlToLatestUpdateMatchText(html) {
-    return [htmlToPlainText(html), htmlImageMatchText(html), htmlLinkMatchText(html)].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+    return [htmlToPlainText(html), htmlImageMatchText(html), htmlLinkMatchText(html), htmlEmbedMatchText(html)].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
 }
 
 function normalizeLatestUpdateMatchText(value) {
@@ -235,6 +245,7 @@ function annotateLatestUpdateHtml(html, latestUpdate) {
         if (!needle && !compactNeedle) return { ...baseEntry, targetId: resolvedId };
 
         const blockPatterns = [
+            /(<figure\b[^>]*\bclass="[^"]*\bexternal-embed\b[^"]*"[^>]*>)([\s\S]*?<\/figure>)/gi,
             /(<h[1-6]\b[^>]*>)([\s\S]*?<\/h[1-6]>)/gi,
             /(<p\b[^>]*>)([\s\S]*?<\/p>)/gi,
             /(<li\b[^>]*>)([\s\S]*?<\/li>)/gi,

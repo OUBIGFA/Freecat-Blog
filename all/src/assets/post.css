@@ -904,13 +904,20 @@ article {
     border-top: 0 !important;
 }
 
+.prose:not(:has(.article-heading-rank-2)) .article-heading-rank-1,
+.prose .article-heading-rank-2 {
+    padding-bottom: calc(0.72rem + 2px) !important;
+}
+
 .prose:not(:has(.article-heading-rank-2)) .article-heading-rank-1::after,
 .prose .article-heading-rank-2::after {
     content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
     display: block;
-    width: 100%;
     height: 2px;
-    margin-top: 0.72rem;
     background: var(--article-heading-rule);
 }
 
@@ -973,8 +980,8 @@ article {
     border-top: 0;
 }
 
-/* When multiple heading levels exist, the top-level heading gets slightly more emphasis. */
-.prose:has(.article-heading-rank-2) .article-heading-rank-1 {
+/* 正文最高标题层级始终使用与多层级文章一致的粗字重。 */
+.prose .article-heading-rank-1 {
     font-weight: 700 !important;
 }
 
@@ -1162,7 +1169,7 @@ article {
     margin-block-start: var(--article-space-flow) !important;
 }
 
-#freecat-article-body.prose>.markdown-attached-block {
+#freecat-article-body.prose>.markdown-attached-block:not(.article-heading) {
     margin-block-start: var(--article-space-group) !important;
 }
 
