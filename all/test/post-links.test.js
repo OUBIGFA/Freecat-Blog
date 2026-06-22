@@ -312,8 +312,8 @@ test('post page renders latest update panel only when update snapshot exists', (
 
     assert.match(withUpdate, /freecat-post-latest-update-panel/);
     assert.match(withUpdate, /class="freecat-sidebar-recent-heading text-sm tracking-wider text-slate-500 dark:text-slate-400 mb-3"/);
-    assert.match(withUpdate, /freecat-post-latest-update-content[\s\S]*>\s*Update\s*<[\s\S]*freecat-post-latest-update-body/);
-    assert.match(withUpdate, />\s*Update\s*</);
+    assert.match(withUpdate, /freecat-post-latest-update-content[\s\S]*最后更新内容[\s\S]*freecat-post-latest-update-body/);
+    assert.match(withUpdate, />\s*最后更新内容\s*</);
     assert.match(withUpdate, /class="freecat-post-latest-update-title-note">最后更新内容<\/span>/);
     assert.match(withUpdate, /最后新增的正文内容/);
     assert.match(withUpdate, /class="freecat-post-latest-update-link"/);
@@ -402,6 +402,45 @@ test('post page binds latest update links to formatted list and table targets', 
     assert.match(html, /<li id="latest-update-2">[\s\S]*<code>theme_system<\/code>[\s\S]*<\/li>/);
     assert.match(html, /<tr id="latest-update-3">[\s\S]*<code>about_hero_avatar<\/code>[\s\S]*About page avatar[\s\S]*<\/tr>/);
     assert.match(html, /<li id="latest-update-4">[\s\S]*<code>all\/<\/code>[\s\S]*<code>README\.md<\/code>[\s\S]*<\/li>/);
+});
+
+test('post page binds latest update heading to exact title text', () => {
+    const post = {
+        title: 'Latest Update Heading Post',
+        tag: [],
+        link: '/posts/latest-update-heading',
+        cover: '',
+        content: [
+            '## 灵感必去网站',
+            '',
+            '旧内容',
+            '',
+            '## 灵感',
+            '',
+            '最后更新的标题'
+        ].join('\n'),
+        date: dayjs.tz('2026-05-02T09:00:00+08:00'),
+        modifiedDate: dayjs.tz('2026-05-03T09:00:00+08:00'),
+        postId: '2026050209000008',
+        latestUpdate: {
+            items: [{
+                text: '灵感',
+                targetText: '## 灵感'
+            }]
+        }
+    };
+    const template = '<!doctype html><html><head><!-- POST_SEO_HEAD --><!-- POST_JSONLD --></head><body><!-- LATEST_UPDATE_PLACEHOLDER --><!-- CONTENT_PLACEHOLDER --></body></html>';
+    const html = renderPostPage({
+        post,
+        template,
+        siteConfig: { site_name: 'Example', site_title: 'Example Blog', site_url: 'https://example.com' },
+        seoConfig: {}
+    });
+
+    assert.match(html, /href="#灵感"/);
+    assert.match(html, /<h3 id="灵感"[^>]*>\s*灵感\s*<\/h3>/);
+    assert.match(html, /<h3 id="灵感必去网站"[^>]*>\s*灵感必去网站\s*<\/h3>/);
+    assert.doesNotMatch(html, /href="#灵感必去网站"/);
 });
 
 test('post page binds latest update links to rendered code block targets', () => {

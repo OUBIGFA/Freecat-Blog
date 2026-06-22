@@ -120,7 +120,10 @@ function normalizeLatestUpdateSnapshot(raw) {
                 const targetText = target && typeof target === 'object'
                     ? String(target.text == null ? '' : target.text).trim()
                     : String(target == null ? '' : target).trim();
-                return text ? { text, targetText } : null;
+                const targetLine = target && typeof target === 'object' && Number.isFinite(Number(target.line))
+                    ? Number(target.line)
+                    : 0;
+                return text ? { text, targetText, targetLine } : null;
             })
             .filter(Boolean)
         : [];
@@ -141,6 +144,11 @@ function latestUpdateEntryTargetText(entry) {
 function latestUpdateEntryTargetId(entry, fallbackId) {
     if (entry && typeof entry === 'object' && entry.targetId) return String(entry.targetId);
     return fallbackId;
+}
+
+function latestUpdateEntryTargetLine(entry) {
+    if (entry && typeof entry === 'object' && Number.isFinite(Number(entry.targetLine))) return Number(entry.targetLine);
+    return 0;
 }
 
 function decodeHtmlText(value) {
@@ -213,9 +221,43 @@ function compactLatestUpdateMatchText(value) {
         .trim();
 }
 
+function isMarkdownHeadingText(value) {
+    return /^#{1,6}[ \t]+\S/.test(String(value || '').trim());
+}
+
+function isHtmlHeadingOpeningTag(openingTag) {
+    return /^<h[1-6]\b/i.test(String(openingTag || ''));
+}
+
+function exactLatestUpdateBlockMatched(openingTag, targetText, haystack, compactHaystack) {
+    if (!isHtmlHeadingOpeningTag(openingTag) || !isMarkdownHeadingText(targetText)) return true;
+    const exactNeedle = normalizeLatestUpdateMatchText(targetText);
+    const exactCompactNeedle = compactLatestUpdateMatchText(targetText);
+    return (exactNeedle && haystack === exactNeedle)
+        || (exactCompactNeedle && compactHaystack === exactCompactNeedle);
+}
+
 function openingTagId(openingTag) {
     const match = /\bid="([^"]+)"/i.exec(String(openingTag || ''));
     return match ? match[1] : '';
+}
+
+function elementLineRange(openingTag) {
+    const start = Number(htmlAttribute(openingTag, 'data-source-line'));
+    const end = Number(htmlAttribute(openingTag, 'data-source-line-end'));
+    if (!Number.isFinite(start) || start <= 0) return null;
+    return {
+        start,
+        end: Number.isFinite(end) && end >= start ? end : start
+    };
+}
+
+function lineMatchesElement(openingTag, targetLine) {
+    const line = Number(targetLine);
+    if (!Number.isFinite(line) || line <= 0) return true;
+    const range = elementLineRange(openingTag);
+    if (!range) return true;
+    return line >= range.start && line <= range.end;
 }
 
 function attachLatestUpdateId(openingTag, targetId) {
@@ -235,6 +277,7 @@ function annotateLatestUpdateHtml(html, latestUpdate) {
         const fallbackId = `latest-update-${index + 1}`;
         const targetId = latestUpdateEntryTargetId(entry, fallbackId);
         const targetText = latestUpdateEntryTargetText(entry) || latestUpdateEntryText(entry);
+        const targetLine = latestUpdateEntryTargetLine(entry);
         const needle = normalizeLatestUpdateMatchText(targetText);
         const compactNeedle = compactLatestUpdateMatchText(targetText);
         const fallbackNeedle = needle.length > 40 ? needle.slice(0, 40) : needle;
@@ -274,7 +317,10 @@ function annotateLatestUpdateHtml(html, latestUpdate) {
                     compactHaystack.indexOf(compactNeedle) !== -1
                     || compactHaystack.indexOf(compactFallbackNeedle) !== -1
                 );
-                if (!haystack || (!normalizedMatched && !compactMatched)) {
+                if (!haystack
+                    || (!normalizedMatched && !compactMatched)
+                    || !lineMatchesElement(openingTag, targetLine)
+                    || !exactLatestUpdateBlockMatched(openingTag, targetText, haystack, compactHaystack)) {
                     return match;
                 }
 
