@@ -145,22 +145,23 @@ function generateShellBootstrapScript() {
             if (window.self !== window.top) return;
             if (window.__FREECAT_SHELL_DOCUMENT__) return;
             // 搜索引擎渲染器会执行 JS：若在这里把内容页整页换成外壳，
-            // 渲染后的 DOM（含 canonical=/）会覆盖静态 HTML，导致全站文章
-            // 被搜索引擎按外壳页归并。爬虫/预览机器人一律停留在静态内容页。
-            if (/bot|spider|crawl|slurp|yandex|sogou|facebookexternalhit|whatsapp/i.test(navigator.userAgent)) return;
+            // 渲染后的 DOM 会覆盖静态 HTML，导致全站页面被搜索引擎按空壳归并。
+            // 爬虫 / 预览机器人 / 站长诊断工具（GSC URL 检查、Lighthouse）
+            // 一律停留在静态内容页，看到与普通抓取一致的完整内容。
+            if (/bot|spider|crawl|slurp|yandex|sogou|facebookexternalhit|whatsapp|google-inspectiontool|lighthouse/i.test(navigator.userAgent)) return;
 
             var path = window.location.pathname || '/';
             var publicPath = path + (window.location.search || '') + (window.location.hash || '');
-            if (path === '/' || path === '/index.html' || path === '/index') return;
 
-            if (path === '/home.html' || path === '/home') {
+            // /（index.html）与 /home 是同一份首页内容，统一归位到规范地址 /。
+            if (path === '/index.html' || path === '/index' || path === '/home.html' || path === '/home') {
                 publicPath = '/' + (window.location.search || '') + (window.location.hash || '');
                 try { history.replaceState(history.state, '', publicPath); } catch (e) {}
             }
 
             if (!/^\\/(?!\\/)/.test(publicPath)) return;
 
-            fetch('/', { credentials: 'same-origin' })
+            fetch('/shell', { credentials: 'same-origin' })
                 .then(function (response) {
                     if (!response.ok) throw new Error('HTTP ' + response.status);
                     return response.text();
@@ -470,4 +471,4 @@ function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, s
     return { loadTemplate, applySiteConfig, generateSocialLinks: () => socialLinks, shared };
 }
 
-module.exports = { createEngine, autoLineBreak, replacePlaceholder, replacePlaceholders };
+module.exports = { createEngine, autoLineBreak, replacePlaceholder, replacePlaceholders, generateShellBootstrapScript };

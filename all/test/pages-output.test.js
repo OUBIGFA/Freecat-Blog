@@ -85,22 +85,31 @@ test('generated home content and shell output keep separate roles', (t) => {
         outputDir: 'dist'
     });
 
+    const indexHtml = writes.get('index.html');
     const homeHtml = writes.get('home.html');
-    const shellHtml = writes.get('index.html');
+    const shellHtml = writes.get('shell.html');
 
-    assert.ok(homeHtml, 'home.html is generated as the real homepage content');
-    assert.ok(shellHtml, 'index.html is generated as the persistent shell');
+    assert.ok(indexHtml, 'index.html is generated as the crawlable homepage with real content');
+    assert.ok(homeHtml, 'home.html is generated as the iframe default content page');
+    assert.ok(shellHtml, 'shell.html is generated as the persistent shell');
 
-    assert.match(homeHtml, /<link rel="canonical" href="https:\/\/example\.com\/" \/>/);
-    assert.match(homeHtml, /"@type":"WebSite"/);
-    assert.match(homeHtml, /\/posts\/demo-post\//);
-    assert.match(homeHtml, /Demo Post/);
-    assert.doesNotMatch(homeHtml, /data-freecat-shell-root="true"/);
+    // `/` 是规范首页：真实内容直出，携带 WebSite 结构化数据，可被搜索引擎完整读取
+    assert.match(indexHtml, /<link rel="canonical" href="https:\/\/example\.com\/" \/>/);
+    assert.match(indexHtml, /"@type":"WebSite"/);
+    assert.match(indexHtml, /\/posts\/demo-post\//);
+    assert.match(indexHtml, /Demo Post/);
+    assert.doesNotMatch(indexHtml, /<meta name="robots" content="noindex/);
+    assert.doesNotMatch(indexHtml, /data-freecat-shell-root="true"/);
 
+    // /home 与 / 是同一份首页内容，canonical 归并到 /
+    assert.equal(homeHtml, indexHtml, 'home.html serves the same homepage document as index.html');
+
+    // 外壳退到 /shell：纯运行时容器，noindex，不再承载结构化数据
     assert.match(shellHtml, /data-freecat-shell-root="true"/);
     assert.match(shellHtml, /id="freecat-content-frame"/);
     assert.match(shellHtml, /src="\/home"/);
-    assert.match(shellHtml, /"@type":"WebSite"/);
+    assert.match(shellHtml, /<meta name="robots" content="noindex,follow" \/>/);
+    assert.doesNotMatch(shellHtml, /"@type":"WebSite"/);
 });
 
 test('generated search indexes contain build-time search fields', (t) => {

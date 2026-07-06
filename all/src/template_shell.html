@@ -39,7 +39,7 @@
 
     <!-- INCLUDE:header -->
 
-    <!-- 正文承载层：默认静态 src=/home（无 JS 也能看到首页列表 / 利于抓取；
+    <!-- 正文承载层：默认静态 src=/home（首页内容页；`/` 与 /home 同内容，
          无后缀是 Cloudflare Pages 的规范地址，/home.html 会被 308 多跳一次）；
          若外壳运行在 /posts/foo、/search 等干净路径下，下面的内联脚本在解析期
          就改写为目标页，保证只加载一次、不二次跳转。 -->
@@ -64,7 +64,7 @@
                 return;
             }
             if (url.origin !== window.location.origin) return;
-            if (url.pathname === '/' || url.pathname === '/index.html' || url.pathname === '/index' || url.pathname === '/home.html' || url.pathname === '/home') return;
+            if (url.pathname === '/' || url.pathname === '/index.html' || url.pathname === '/index' || url.pathname === '/home.html' || url.pathname === '/home' || url.pathname === '/shell.html' || url.pathname === '/shell') return;
 
             raw = url.pathname + url.search + url.hash;
             // 只接受站内根相对路径（/ 开头但非 //），其余一律回首页，避免被注入跨站地址。

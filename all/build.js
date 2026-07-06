@@ -273,8 +273,8 @@ fs.mkdirSync(path.join(DIRS.output, 'posts'));
 // ===== 6. 生成各页面 =====
 postPage.generateAll({ posts: allPosts, template: tplPost, siteConfig, seoConfig, outputDir: DIRS.output, assetVersion: ASSET_VERSION });
 indexPage.generateAll({ posts: allPosts, template: tplIndex, postsPerPage: POSTS_PER_PAGE, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarHomeWrapperHtml });
-// 外壳 index.html 必须在首页列表之后生成：首页列表现输出到 /home.html（供 iframe 加载），
-// 外壳占据 / 入口（顶栏 + 播放器 + 满视口 iframe），实现顶栏音频跨页无缝。
+// 首页内容直出到 /（index.html）与 /home（iframe 默认内容）两个地址；
+// 外壳输出到 /shell（noindex），真人浏览器在内容页上由 bootstrap 换壳启用顶栏音频无缝体验。
 shellPage.generate({ template: tplShell, siteConfig, seoConfig, outputDir: DIRS.output });
 allPage.generate({ posts: allPosts, template: tplIndexAll, siteConfig, seoConfig, outputDir: DIRS.output });
 searchPage.generate({ posts: allPosts, template: tplSearch, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarHomeWrapperHtml });

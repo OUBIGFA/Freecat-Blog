@@ -97,8 +97,11 @@ function generateAll({ posts, template, postsPerPage, siteConfig, seoConfig, out
         ]);
 
         if (page === 1) {
-            // 外壳占据 /（index.html）；首页文章列表输出到 /home.html，作为 iframe 默认内容，
-            // 同时是无 JS / 爬虫可直接访问的真实独立页（canonical 仍指向 /，归并到主页）。
+            // 首页内容同一份 HTML 落两个地址：
+            //   /     (index.html) —— 站点规范首页，内容直出，爬虫与无 JS 访客直接读到文章列表；
+            //   /home (home.html)  —— 外壳 iframe 的默认内容页，canonical 归并到 /。
+            // 真人浏览器访问任一地址时，由 SHELL_BOOTSTRAP_SCRIPT 换壳升级为外壳（顶栏音频无缝）体验。
+            fs.writeFileSync(path.join(outputDir, 'index.html'), outputHtml, 'utf-8');
             fs.writeFileSync(path.join(outputDir, 'home.html'), outputHtml, 'utf-8');
         } else {
             const pageDir = path.join(outputDir, 'page', String(page));

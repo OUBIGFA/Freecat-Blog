@@ -29,6 +29,10 @@
   Cache-Control: public, max-age=0, must-revalidate
   CDN-Cache-Control: public, max-age=86400, stale-while-revalidate=604800
 
+/shell
+  Cache-Control: public, max-age=0, must-revalidate
+  CDN-Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
 /posts/*
   Cache-Control: public, max-age=0, must-revalidate
   CDN-Cache-Control: public, max-age=86400, stale-while-revalidate=604800

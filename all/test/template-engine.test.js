@@ -96,7 +96,7 @@ test('content templates include the shell bootstrap for direct clean URLs', () =
 
     for (const html of [indexHtml, postHtml]) {
         assert.equal(html.includes('window.__FREECAT_SHELL_DOCUMENT__'), true);
-        assert.equal(html.includes("fetch('/', { credentials: 'same-origin' })"), true);
+        assert.equal(html.includes("fetch('/shell', { credentials: 'same-origin' })"), true);
         assert.equal(html.includes('data-freecat-shell-root="true"'), false);
         assert.equal(html.includes('data-freecat-shell[-]root'), true);
         assert.equal(html.includes('htmlText.indexOf(\'id="freecat-content-frame"\')'), false);
