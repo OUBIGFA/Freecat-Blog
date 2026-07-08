@@ -355,7 +355,9 @@ function splitMarkdownTableRow(line) {
 
 function isMarkdownTableDelimiterRow(line) {
     const cells = splitMarkdownTableRow(line);
-    return cells.length > 1 && cells.every(cell => /^:?-+:?$/.test(cell.trim()));
+    // GFM 单列表格的分隔行必须带显式管道（如 `| --- |`），否则是 hr / Setext 标题。
+    if (cells.length === 1 && !String(line || '').includes('|')) return false;
+    return cells.every(cell => /^:?-+:?$/.test(cell.trim()));
 }
 
 function markdownCellDisplayWidth(value) {
@@ -386,6 +388,11 @@ function collectMarkdownTableColumnWidths(content) {
 
         if (!lines[i].includes('|') || !isMarkdownTableDelimiterRow(lines[i + 1])) continue;
 
+        const columnCount = splitMarkdownTableRow(lines[i + 1]).length;
+        // GFM 要求表头与分隔行列数一致，否则 marked 不会渲染成表格；
+        // 收集器必须同步跳过，避免与渲染产物中的 <table> 顺序错位。
+        if (splitMarkdownTableRow(lines[i]).length !== columnCount) continue;
+
         const tableLines = [lines[i], lines[i + 1]];
         let j = i + 2;
         while (j < lines.length && lines[j].trim() && lines[j].includes('|')) {
@@ -393,7 +400,6 @@ function collectMarkdownTableColumnWidths(content) {
             j++;
         }
 
-        const columnCount = splitMarkdownTableRow(lines[i + 1]).length;
         const widths = Array(columnCount).fill(1);
         for (const tableLine of tableLines) {
             const cells = splitMarkdownTableRow(tableLine);

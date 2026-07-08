@@ -367,6 +367,35 @@ test('markdown tables preserve source column proportions as col widths', () => {
     assert.match(html, /<colgroup><col style="width:21\.053%"><col style="width:63\.158%"><col style="width:15\.789%"><\/colgroup>/);
 });
 
+test('single-column tables keep col widths aligned with following tables', () => {
+    const html = parseMarkdown([
+        '| ![](https://example.com/media/abc?format=jpg&name=large) |',
+        '| --------------------------------------------------------- |',
+        '',
+        '| lefty | right |',
+        '| ----- | ----- |'
+    ].join('\n'));
+
+    const widths = [...html.matchAll(/data-md-table-widths="([^"]+)"/g)].map(match => match[1]);
+    assert.deepEqual(widths, ['100.000%', '50.000%,50.000%']);
+});
+
+test('non-table pipe text and mismatched delimiter rows do not consume table widths', () => {
+    const html = parseMarkdown([
+        'a | b',
+        '---',
+        '',
+        '| a |',
+        '| --- | --- |',
+        '',
+        '| lefty | right |',
+        '| ----- | ----- |'
+    ].join('\n'));
+
+    const widths = [...html.matchAll(/data-md-table-widths="([^"]+)"/g)].map(match => match[1]);
+    assert.deepEqual(widths, ['50.000%,50.000%']);
+});
+
 test('code blocks are syntax-highlighted at build time with hljs token markup', () => {
     const html = parseMarkdown([
         '```js',
