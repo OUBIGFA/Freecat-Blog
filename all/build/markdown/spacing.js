@@ -110,8 +110,15 @@ function isStandaloneVisualBlockLine(line) {
     return false;
 }
 
+// 仅识别顶格围栏：缩进围栏可能是列表项的延续内容，
+// 在其旁插入顶层 markdown-gap 会把列表截断。
+function isUnindentedFenceLine(line) {
+    return /^(?:`{3,}|~{3,})/.test(String(line || ''));
+}
+
 function shouldPreserveAdjacentMarkdownGap(prevLine, nextLine) {
-    return isStandaloneVisualBlockLine(prevLine) || isStandaloneVisualBlockLine(nextLine);
+    return isStandaloneVisualBlockLine(prevLine) || isStandaloneVisualBlockLine(nextLine)
+        || isUnindentedFenceLine(prevLine) || isUnindentedFenceLine(nextLine);
 }
 
 function isMarkdownListItemLine(line) {

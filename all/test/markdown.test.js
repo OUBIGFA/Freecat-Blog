@@ -273,6 +273,19 @@ test('markdown horizontal rules suppress optional blank-line gap markers on both
     assert.equal(unevenHtml.includes('class="markdown-gap"'), false);
 });
 
+test('fenced code blocks keep visual gap markers beside headings and horizontal rules', () => {
+    const headingHtml = parseMarkdown('### 标题\n```\ncode\n```');
+    const dividerAfterHtml = parseMarkdown('```\ncode\n```\n---\n下一段');
+    const dividerBeforeHtml = parseMarkdown('上一段\n\n---\n```\ncode\n```');
+
+    assert.match(headingHtml, /<h3>标题<\/h3>\s*<div class="markdown-gap"[^>]*data-md-gap-lines="0"[^>]*><\/div>\s*<div class="code-block-container group"/);
+    assert.equal(headingHtml.includes('markdown-attached-block'), false);
+    assert.match(dividerAfterHtml, /<\/div>\s*<div class="markdown-gap"[^>]*data-md-gap-lines="0"[^>]*><\/div>\s*<hr>/);
+    assert.equal(dividerAfterHtml.includes('<hr class='), false);
+    assert.match(dividerBeforeHtml, /<hr>\s*<div class="markdown-gap"[^>]*data-md-gap-lines="0"[^>]*><\/div>\s*<div class="code-block-container group"/);
+    assert.equal(dividerBeforeHtml.includes('markdown-attached-block'), false);
+});
+
 test('blank lines outside blockquotes keep visual gap markers', () => {
     const html = parseMarkdown('> 🔗 https://example.com\n\n\n##### Next');
 
@@ -310,10 +323,10 @@ test('only source blocks with zero blank lines are marked as one body group', ()
         '> 引用内容'
     ].join('\n'));
 
-    assert.equal(directHtml.includes('class="markdown-gap"'), false);
+    assert.equal((directHtml.match(/class="markdown-gap"/g) || []).length, 1);
     assert.match(directHtml, /<p>第一段<\/p>\s*<blockquote class="markdown-attached-block">/);
     assert.match(directHtml, /<\/blockquote>\s*<p class="markdown-attached-block">第二段<\/p>/);
-    assert.match(directHtml, /<div class="code-block-container group markdown-attached-block"/);
+    assert.match(directHtml, /<p class="markdown-attached-block">第二段<\/p>\s*<div class="markdown-gap"[^>]*data-md-gap-lines="0"[^>]*><\/div>\s*<div class="code-block-container group"/);
     assert.equal(singleBlankHtml.includes('markdown-attached-block'), false);
     assert.equal(singleBlankHtml.includes('class="markdown-gap"'), false);
     assert.match(singleBlankHtml, /<p>第一段<\/p>\s*<p>第二段<\/p>/);
