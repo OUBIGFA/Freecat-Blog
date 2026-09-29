@@ -142,42 +142,60 @@ function generateThemeScript(siteConfig) {
 }
 
 function generateShellBootstrapScript() {
+    // Keep the initial document identical for visitors and renderers. Only a real
+    // playback click opts into the persistent shell; no user-agent sniffing.
     return `(function () {
-            if (window.self !== window.top) return;
-            if (window.__FREECAT_SHELL_DOCUMENT__) return;
-            // 搜索引擎渲染器会执行 JS：若在这里把内容页整页换成外壳，
-            // 渲染后的 DOM 会覆盖静态 HTML，导致全站页面被搜索引擎按空壳归并。
-            // 爬虫 / 预览机器人 / 站长诊断工具（GSC URL 检查、Lighthouse）
-            // 一律停留在静态内容页，看到与普通抓取一致的完整内容。
-            if (/bot|spider|crawl|slurp|yandex|sogou|facebookexternalhit|whatsapp|google-inspectiontool|lighthouse/i.test(navigator.userAgent)) return;
-
-            var path = window.location.pathname || '/';
-            var publicPath = path + (window.location.search || '') + (window.location.hash || '');
-
-            // /（index.html）与 /home 是同一份首页内容，统一归位到规范地址 /。
-            if (path === '/index.html' || path === '/index' || path === '/home.html' || path === '/home') {
-                publicPath = '/' + (window.location.search || '') + (window.location.hash || '');
-                try { history.replaceState(history.state, '', publicPath); } catch (e) {}
+        if (window.self !== window.top || window.__FREECAT_SHELL_DOCUMENT__) return;
+        // Keep old shared hash links working after removing the automatic shell upgrade.
+        var entryPath = window.location.pathname;
+        var legacy = (window.location.hash || "").slice(1);
+        if ((entryPath === "/" || entryPath === "/index.html" || entryPath === "/index") && legacy.startsWith("/") && !legacy.startsWith("//")) {
+            var target = new URL(legacy, window.location.origin);
+            if (target.origin === window.location.origin) {
+                window.location.replace(target.pathname + target.search + target.hash);
+                return;
             }
-
-            if (!/^\\/(?!\\/)/.test(publicPath)) return;
-
-            fetch('/shell', { credentials: 'same-origin' })
+        }
+        var loading = false;
+        document.addEventListener("click", function (event) {
+            var toggle = event.target.closest && event.target.closest("#nav-audio-toggle");
+            if (!toggle || !event.isTrusted || event.button !== 0) return;
+            // Already playing in an independent page (autoplay): keep pause usable.
+            if (toggle.getAttribute("aria-pressed") === "true") return;
+            if (!window.FreecatShared) return;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            if (loading) return;
+            loading = true;
+            var originalUrl = window.location.href;
+            fetch("/shell", { credentials: "same-origin", signal: AbortSignal.timeout(8000) })
                 .then(function (response) {
-                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    if (!response.ok) throw new Error("HTTP " + response.status);
                     return response.text();
                 })
                 .then(function (htmlText) {
-                    // Only the persistent shell carries this marker. Keep the
-                    // pattern split with [-] so content pages embedding this
-                    // bootstrap cannot contain the exact marker by accident.
-                    if (!/data-freecat-shell[-]root=["']true["']/.test(htmlText)) return;
+                    if (window.location.href !== originalUrl) return;
+                    var shell = new DOMParser().parseFromString(htmlText, "text/html");
+                    if (!shell.body || shell.body.getAttribute("data-freecat-shell-root") !== "true") {
+                        throw new Error("Invalid shell response");
+                    }
+                    window.FreecatShared.syncPageMetadata(shell, document);
+                    // Preserve the article reading position when enabling background music.
+                    if (window.FreecatRuntime) window.FreecatRuntime.saveScrollPosition();
+                    window.__FREECAT_START_NAV_AUDIO__ = true;
+                    window.__FREECAT_SHELL_INITIAL_SCROLL__ = window.scrollY || 0;
                     document.open();
-                    document.write(htmlText);
+                    document.write("<!DOCTYPE html>" + shell.documentElement.outerHTML);
                     document.close();
                 })
-                .catch(function () {});
-        })();`;
+                .catch(function (error) {
+                    console.warn("Continuous audio unavailable; using the page player.", error);
+                    // A synthetic click reaches the existing page player without re-entering here.
+                    toggle.click();
+                })
+                .finally(function () { loading = false; });
+        }, true);
+    })();`;
 }
 
 function generateLogoIcon(siteConfig) {

@@ -105,6 +105,7 @@
             unobserveDeferredImages(postsList);
             postsList.innerHTML = newPosts;
             paginationContainer.innerHTML = newPagination;
+            deps.shared.syncPageMetadata(doc, docNext);
             fitTagRows();
             initDeferredImages();
 

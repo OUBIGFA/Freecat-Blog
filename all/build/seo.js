@@ -24,8 +24,16 @@ function truncate(value, max = 160) {
 
 function normalizeBaseUrl(siteConfig) {
     const raw = text(siteConfig && siteConfig.site_url);
-    if (!/^https?:\/\//i.test(raw)) return '';
-    return raw.replace(/\/+$/, '');
+    if (!raw) return '';
+    // All generated routes start at /. Reject values that would publish wrong canonicals.
+    try {
+        const url = new URL(raw);
+        if (!/^https?:$/.test(url.protocol) || url.username || url.password ||
+            url.search || url.hash || /[^/]/.test(url.pathname)) throw new Error();
+        return url.origin;
+    } catch {
+        throw new Error('site_url 必须是完整网站域名，例如 https://example.com，不能含子路径、查询参数或登录信息。');
+    }
 }
 
 function absoluteUrl(siteConfig, url) {
@@ -136,7 +144,9 @@ function renderHeadTags({
     const lines = [];
 
     lines.push(`<meta name="description" content="${escapeAttr(desc)}" />`);
-    if (noindex) lines.push('<meta name="robots" content="noindex,follow" />');
+    lines.push(noindex
+        ? '<meta name="robots" content="noindex,follow" />'
+        : '<meta name="robots" content="index,follow,max-image-preview:large" />');
     if (canonical) lines.push(`<link rel="canonical" href="${escapeAttr(canonical)}" />`);
     if (pagination && pagination.prevUrl) {
         lines.push(`<link rel="prev" href="${escapeAttr(pagination.prevUrl)}" />`);
@@ -201,7 +211,7 @@ function renderWebsiteJsonLd({ siteConfig, seoConfig }) {
             }
         },
         {
-            '@type': author.url ? 'Person' : 'Organization',
+            '@type': 'Person',
             '@id': `${baseUrl}/#publisher`,
             name: author.name
         }
@@ -240,15 +250,15 @@ function renderFaqHtml(faqItems) {
 function renderArticleJsonLd({ post, siteConfig, seoConfig, canonical, ogImage, tags, faqItems }) {
     const baseUrl = normalizeBaseUrl(siteConfig);
     const author = getAuthor(siteConfig, seoConfig, post);
-    const publisher = baseUrl
-        ? { '@id': `${baseUrl}/#publisher` }
-        : { '@type': 'Organization', name: text(siteConfig.site_name || siteConfig.site_title || 'FreeCat') };
+    // Article pages must define their publisher without relying on the home page graph.
+    const publisher = getAuthor(siteConfig, seoConfig);
+    if (baseUrl) publisher['@id'] = `${baseUrl}/#publisher`;
     const wordCount = countWords(post.content || '');
     const readingMinutes = estimateReadingTime(post.content || '');
     const article = {
         '@type': 'BlogPosting',
         headline: post.title,
-        description: truncate(post.excerpt),
+        description: truncate(articleSummary(post)),
         datePublished: post.date.toISOString(),
         dateModified: post.modifiedDate.toISOString(),
         inLanguage: seoConfig.site_language || 'zh-CN',

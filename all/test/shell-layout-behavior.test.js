@@ -31,6 +31,7 @@ function createLayoutHarness() {
         addEventListener() {}
     };
     initShellRouter({
+        shared: require('../shared/shared.js'),
         window, document, contentFrame: frame,
         runtime: { setNavigate() {}, setSyncFrameHistory() {} },
         resolveThemeIsDark: () => false,

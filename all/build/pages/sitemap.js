@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const seo = require('../seo.js');
+const { getTotalPages } = require('../pagination.js');
 const { renderPostContent } = require('./post-content.js');
 
 // RSS / AI 检索文件的文章数上限。理由：
@@ -68,7 +69,7 @@ function prepareFeedHtml(html, baseUrl) {
     return output;
 }
 
-function generateSitemap({ posts, siteConfig, outputDir }) {
+function generateSitemap({ posts, siteConfig, outputDir, postsPerPage = 8 }) {
     const baseUrl = seo.normalizeBaseUrl(siteConfig);
     if (!baseUrl) {
         return;
@@ -104,6 +105,10 @@ function generateSitemap({ posts, siteConfig, outputDir }) {
     lines.push('    <priority>0.5</priority>');
     lines.push('  </url>');
 
+    for (let page = 2; page <= getTotalPages(posts.length, postsPerPage); page++) {
+        lines.push('  <url>', '    <loc>' + xmlEscape(baseUrl + '/page/' + page + '/') + '</loc>', '  </url>');
+    }
+
     indexedPosts.forEach(post => {
         lines.push('  <url>');
         lines.push(`    <loc>${xmlEscape(baseUrl + encodePath(post.link))}</loc>`);
@@ -122,9 +127,8 @@ function generateRobotsTxt({ siteConfig, seoConfig = {}, outputDir }) {
     const baseUrl = seo.normalizeBaseUrl(siteConfig);
     let robots = 'User-agent: *\nAllow: /\n';
 
-    if (seoConfig.allow_ai_crawlers !== false) {
+    { // AI access is independent from ordinary search crawling.
         const aiAgents = [
-            'Googlebot',
             'Google-Extended',
             'OAI-SearchBot',
             'GPTBot',
@@ -135,7 +139,8 @@ function generateRobotsTxt({ siteConfig, seoConfig = {}, outputDir }) {
             'Claude-SearchBot'
         ];
         robots += '\n';
-        robots += aiAgents.map(agent => `User-agent: ${agent}\nAllow: /\n`).join('\n');
+        const directive = seoConfig.allow_ai_crawlers === false ? 'Disallow' : 'Allow';
+        robots += aiAgents.map(agent => `User-agent: ${agent}\n${directive}: /\n`).join('\n');
     }
 
     if (baseUrl) robots += `\nSitemap: ${baseUrl}/sitemap.xml\n`;

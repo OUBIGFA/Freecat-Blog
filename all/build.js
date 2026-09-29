@@ -36,6 +36,7 @@ const { buildTailwindCss } = require('./build/tailwind.js');
 const { getTailwindContentGlobs } = require('./build/tailwind-sources.js');
 const { createBundler } = require('./build/bundle.js');
 const { minifyDist } = require('./build/minify.js');
+const { auditSeoOutput } = require('./build/seo-audit.js');
 const { writeCodeThemeAssets } = require('./build/code-themes.js');
 const postPage = require('./build/pages/post.js');
 const indexPage = require('./build/pages/index.js');
@@ -166,6 +167,12 @@ const seoConfig = loadConfig(DIRS.control, 'SEO', 'SEO_搜索优化.md', {
     enable_llms_txt: true
 });
 if (seoConfig.site_url) siteConfig.site_url = seoConfig.site_url;
+siteConfig.site_url = require('./build/seo.js').normalizeBaseUrl(siteConfig);
+if (!siteConfig.site_url) {
+    const message = '请在 Control/SEO_搜索优化.md 填写 site_url；未配置时无法生成 canonical 和站点地图。';
+    if (process.env.CF_PAGES || process.env.VERCEL) throw new Error(message);
+    console.warn('⚠️ ' + message);
+}
 if (hasConfiguredHeroAvatar) seoConfig.site_default_image = siteConfig.hero_avatar;
 
 console.log('👤 Loading about page configuration...');
@@ -257,13 +264,13 @@ fs.mkdirSync(path.join(DIRS.output, 'posts'));
 postPage.generateAll({ posts: allPosts, template: tplPost, siteConfig, seoConfig, outputDir: DIRS.output, assetVersion: ASSET_VERSION });
 indexPage.generateAll({ posts: allPosts, template: tplIndex, postsPerPage: POSTS_PER_PAGE, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarHomeWrapperHtml });
 // 首页内容直出到 /（index.html）与 /home（iframe 默认内容）两个地址；
-// 外壳输出到 /shell（noindex），真人浏览器在内容页上由 bootstrap 换壳启用顶栏音频无缝体验。
+// 外壳输出到 /shell（noindex）；仅在用户点击播放音乐时启用，继承文章收录信息。
 shellPage.generate({ template: tplShell, siteConfig, seoConfig, outputDir: DIRS.output });
 allPage.generate({ posts: allPosts, template: tplIndexAll, siteConfig, seoConfig, outputDir: DIRS.output });
 searchPage.generate({ posts: allPosts, template: tplSearch, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarHomeWrapperHtml });
 aboutPage.generate({ template: tplAbout, siteConfig, seoConfig, aboutConfig, outputDir: DIRS.output });
 notFoundPage.generateNotFoundPage({ template: tplNotFound, outputDir: DIRS.output });
-generateSitemap({ posts: allPosts, siteConfig, seoConfig, outputDir: DIRS.output });
+generateSitemap({ posts: allPosts, siteConfig, seoConfig, postsPerPage: POSTS_PER_PAGE, outputDir: DIRS.output });
 generateRobotsTxt({ siteConfig, seoConfig, outputDir: DIRS.output });
 generateLlmsTxt({ posts: allPosts, siteConfig, seoConfig, outputDir: DIRS.output });
 generateFeed({ posts: allPosts, siteConfig, seoConfig, outputDir: DIRS.output });
@@ -315,6 +322,8 @@ buildTailwindCss({
         await minifyDist(DIRS.output);
     }
 
+    const seoResult = auditSeoOutput({ outputDir: DIRS.output, siteConfig, posts: allPosts, postsPerPage: POSTS_PER_PAGE });
+    if (!seoResult.skipped) console.log('🔎 SEO 检查通过：' + seoResult.pages + ' 个页面，' + seoResult.articles + ' 篇可收录文章。');
     console.log('🚀 Build Complete: Posts & Index pages generated!');
 }).catch(err => {
     console.error('❌ Build failed:', err);

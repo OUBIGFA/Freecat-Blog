@@ -61,9 +61,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const FRAMED = window.self !== window.top;
     const contentFrame = document.getElementById('freecat-content-frame');
     const IS_SHELL = !FRAMED && !!contentFrame;
+    if (!FRAMED && !IS_SHELL) shellRouter.initStandaloneHistory({ window, runtime });
 
     function syncParentFrameHistory(options = {}) {
-        if (!FRAMED) return;
+        if (!FRAMED) {
+            if (!IS_SHELL) runtime.syncFrameHistory(options);
+            return;
+        }
         try {
             const parentRuntime = window.parent && window.parent.FreecatRuntime;
             if (parentRuntime && typeof parentRuntime.syncFrameHistory === 'function') {
@@ -255,6 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     seamlessPagination.init({
+        shared,
         window,
         document,
         platform,

@@ -5,6 +5,17 @@
         root.FreecatShellRouter = factory();
     }
 }(typeof self !== 'undefined' ? self : this, function () {
+    // Independent pages also use soft pagination/sorting. Back/forward must restore
+    // their HTML and metadata; hash-only article navigation remains native.
+    function initStandaloneHistory({ window, runtime }) {
+        const pageKey = () => window.location.pathname + window.location.search;
+        let renderedPage = pageKey();
+        runtime.setSyncFrameHistory(() => { renderedPage = pageKey(); });
+        window.addEventListener('popstate', () => {
+            if (pageKey() !== renderedPage) window.location.reload();
+        });
+    }
+
     function initFramedNavigationBridge({ window, document, runtime }) {
         document.addEventListener('click', (event) => {
             const link = event.target.closest && event.target.closest('a[href]');
@@ -198,6 +209,7 @@
         function syncHistoryToFrame(options = {}) {
             const framePath = getFramePath();
             if (!framePath) return;
+            shared.syncPageMetadata(document, frame.contentDocument);
             const publicPath = contentPathToPublicPath(framePath);
             if (publicPath === getPublicLocation()) return;
             const method = options.push ? 'pushState' : 'replaceState';
@@ -256,6 +268,7 @@
         }
 
         function onFrameLoad() {
+            if (!getFramePath()) return;
             try {
                 const t = frame.contentDocument && frame.contentDocument.title;
                 if (t) document.title = t;
@@ -263,6 +276,11 @@
             syncFrameTheme(resolveThemeIsDark());
             syncFrameOffset();
             syncHistoryToFrame();
+            // Enabling music must not jump the reader back to the article heading.
+            if (Number.isFinite(window.__FREECAT_SHELL_INITIAL_SCROLL__)) {
+                frame.contentWindow.scrollTo(0, window.__FREECAT_SHELL_INITIAL_SCROLL__);
+                delete window.__FREECAT_SHELL_INITIAL_SCROLL__;
+            }
         }
 
         function onShellLinkClick(event) {
@@ -310,5 +328,5 @@
         } catch (err) {}
     }
 
-    return { initFramedNavigationBridge, initShellRouter };
+    return { initStandaloneHistory, initFramedNavigationBridge, initShellRouter };
 }));

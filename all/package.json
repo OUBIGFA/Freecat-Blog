@@ -21,6 +21,7 @@
     "highlight.js": "^11.9.0",
     "html-minifier-terser": "^7.2.0",
     "katex": "^0.16.22",
+    "linkedom": "^0.18.13",
     "marked": "^12.0.0",
     "postcss": "^8.5.14",
     "subset-font": "^2.5.0",

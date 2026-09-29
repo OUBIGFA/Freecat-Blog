@@ -97,4 +97,9 @@ function generatePaginationHtml(currentPage, totalPages) {
     return html;
 }
 
-module.exports = { generatePaginationHtml };
+// Keep homepage generation, sitemap and verification on the same page-count convention.
+function getTotalPages(postCount, postsPerPage = 8) {
+    return postsPerPage === 0 ? 1 : Math.max(1, Math.ceil(postCount / postsPerPage));
+}
+
+module.exports = { generatePaginationHtml, getTotalPages };

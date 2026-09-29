@@ -1,127 +1,87 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-
+const { parseHTML, DOMParser } = require('linkedom');
+const shared = require('../shared/shared.js');
 const { generateShellBootstrapScript } = require('../build/template-engine.js');
 
-const SHELL_HTML = '<!DOCTYPE html><html><body data-freecat-shell-root="true"><iframe id="freecat-content-frame" src="/home"></iframe></body></html>';
-const CHROME_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
+const ARTICLE = '<html lang="zh-CN"><head><title>Article</title><link rel="canonical" href="https://example.com/posts/1/"/><meta name="description" content="Article summary"/><script type="application/ld+json">{"@type":"BlogPosting"}</script></head><body><button id="nav-audio-toggle">Play</button><article><h1>Article</h1><p>Full article text</p></article></body></html>';
+const SHELL = '<html><head><title>Shell</title><link rel="canonical" href="https://example.com/shell"/><meta name="robots" content="noindex,follow"/></head><body data-freecat-shell-root="true"><iframe id="freecat-content-frame"></iframe></body></html>';
 
-/**
- * 在最小浏览器 stub 中执行 SHELL_BOOTSTRAP_SCRIPT，记录副作用。
- * 覆盖真实执行路径：UA 分流 → 路径归一化 → fetch 外壳 → 标记校验 → document.write。
- */
-async function runBootstrap({
-    userAgent,
-    pathname,
-    search = '',
-    hash = '',
-    framed = false,
-    shellDocument = false,
-    fetchBody = SHELL_HTML,
-    fetchOk = true
-} = {}) {
-    const calls = { fetch: [], writes: [], replaceStates: [] };
-
-    const window = {
-        location: { pathname, search, hash },
-        __FREECAT_SHELL_DOCUMENT__: shellDocument || undefined
-    };
+// Run the generated script against a real DOM; isolate only network and document replacement.
+async function runBootstrap({ userAgent = 'Chrome', framed = false, action, response = SHELL, ok = true, url = 'https://example.com/posts/1/' } = {}) {
+    const { document } = parseHTML(ARTICLE);
+    const calls = { fetch: [], writes: [], warnings: [], redirects: [], prevented: 0 };
+    const listeners = new Map();
+    document.addEventListener = (type, callback) => listeners.set(type, callback);
+    document.open = () => {};
+    document.write = html => calls.writes.push(html);
+    document.close = () => {};
+    const window = { location: new URL(url), FreecatShared: shared };
+    window.location.replace = value => calls.redirects.push(value);
     window.self = window;
     window.top = framed ? {} : window;
-
-    const navigator = { userAgent };
-    const history = {
-        state: null,
-        replaceState(state, title, url) {
-            calls.replaceStates.push(url);
-        }
+    const fetch = async url => {
+        calls.fetch.push(url);
+        return { ok, status: ok ? 200 : 503, text: async () => response };
     };
-    const fetchImpl = (url, options) => {
-        calls.fetch.push({ url, options });
-        return Promise.resolve({
-            ok: fetchOk,
-            status: fetchOk ? 200 : 500,
-            text: () => Promise.resolve(fetchBody)
-        });
-    };
-    const document = {
-        open() { calls.writes.push('open'); },
-        write(html) { calls.writes.push(html); },
-        close() { calls.writes.push('close'); }
-    };
-
-    const script = generateShellBootstrapScript();
-    new Function('window', 'navigator', 'history', 'fetch', 'document', script)(
-        window, navigator, history, fetchImpl, document
+    const log = { warn: (...args) => calls.warnings.push(args) };
+    new Function('window', 'document', 'navigator', 'fetch', 'DOMParser', 'AbortSignal', 'console', generateShellBootstrapScript())(
+        window, document, { userAgent }, fetch, DOMParser, AbortSignal, log
     );
-
-    // fetch → text → write 有两层 promise，flush 两轮微任务
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
-
-    return calls;
+    if (action && listeners.has('click')) {
+        await listeners.get('click')({
+            isTrusted: action === 'play', button: 0,
+            target: document.getElementById('nav-audio-toggle'),
+            preventDefault() { calls.prevented++; }, stopImmediatePropagation() {}
+        });
+    }
+    await new Promise(resolve => setImmediate(resolve));
+    return { ...calls, document, window };
 }
 
-test('crawler user agents stay on the static content page for every path', async () => {
-    const crawlerAgents = [
-        'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
-        'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)',
-        'Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)',
-        'Google-InspectionTool/1.0',
-        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/126.0.0.0 Safari/537.36 Chrome-Lighthouse'
-    ];
-
-    for (const userAgent of crawlerAgents) {
-        for (const pathname of ['/', '/home', '/posts/2026053111535901/']) {
-            const calls = await runBootstrap({ userAgent, pathname });
-            assert.equal(calls.fetch.length, 0, `${userAgent} on ${pathname} must not fetch the shell`);
-            assert.equal(calls.writes.length, 0, `${userAgent} on ${pathname} must not rewrite the document`);
-        }
+test('first render retains the same complete article for all user agents', async () => {
+    for (const userAgent of ['Chrome', 'Googlebot', 'Google-InspectionTool', 'Unrecognized renderer']) {
+        const result = await runBootstrap({ userAgent });
+        assert.equal(result.fetch.length, 0);
+        assert.equal(result.writes.length, 0);
+        assert.equal(result.document.querySelector('article').textContent, 'ArticleFull article text');
     }
 });
 
-test('real browsers on the homepage upgrade to the shell fetched from /shell', async () => {
-    const calls = await runBootstrap({ userAgent: CHROME_UA, pathname: '/' });
-
-    assert.equal(calls.fetch.length, 1, 'homepage swaps to the shell for real visitors');
-    assert.equal(calls.fetch[0].url, '/shell');
-    assert.deepEqual(calls.writes, ['open', SHELL_HTML, 'close']);
+test('legacy shared hash URLs open the matching article without requiring audio playback', async () => {
+    const result = await runBootstrap({ url: 'https://example.com/#/posts/1/' });
+    assert.deepEqual(result.redirects, ['/posts/1/']);
+    assert.equal(result.fetch.length, 0);
+    const external = await runBootstrap({ url: 'https://example.com/#//other.example/post' });
+    assert.deepEqual(external.redirects, []);
 });
 
-test('homepage aliases normalize the address to / before the shell swap', async () => {
-    for (const pathname of ['/index.html', '/index', '/home.html', '/home']) {
-        const calls = await runBootstrap({ userAgent: CHROME_UA, pathname });
-        assert.deepEqual(calls.replaceStates, ['/'], `${pathname} normalizes to /`);
-        assert.equal(calls.fetch.length, 1);
-        assert.equal(calls.fetch[0].url, '/shell');
+test('trusted audio playback activates a shell carrying the article metadata', async () => {
+    const result = await runBootstrap({ action: 'play' });
+    assert.deepEqual(result.fetch, ['/shell']);
+    assert.equal(result.prevented, 1);
+    assert.equal(result.writes.length, 1);
+    const { document } = parseHTML(result.writes[0]);
+    assert.equal(document.title, 'Article');
+    assert.equal(document.querySelector('link[rel=canonical]').getAttribute('href'), 'https://example.com/posts/1/');
+    assert.equal(document.querySelector('meta[name=robots]'), null);
+    assert.equal(JSON.parse(document.querySelector('script[type="application/ld+json"]').textContent)['@type'], 'BlogPosting');
+    assert.equal(result.window.__FREECAT_START_NAV_AUDIO__, true);
+});
+
+test('synthetic clicks and embedded article documents cannot replace the document', async () => {
+    for (const options of [{ action: 'synthetic' }, { action: 'play', framed: true }]) {
+        const result = await runBootstrap(options);
+        assert.equal(result.fetch.length, 0);
+        assert.equal(result.writes.length, 0);
     }
 });
 
-test('real browsers on content pages keep swapping to the shell', async () => {
-    const calls = await runBootstrap({ userAgent: CHROME_UA, pathname: '/posts/2026053111535901/' });
-
-    assert.equal(calls.fetch.length, 1);
-    assert.equal(calls.fetch[0].url, '/shell');
-    assert.equal(calls.replaceStates.length, 0, 'content page URLs stay untouched');
-    assert.deepEqual(calls.writes, ['open', SHELL_HTML, 'close']);
-});
-
-test('framed documents and the shell itself never re-swap', async () => {
-    const framedCalls = await runBootstrap({ userAgent: CHROME_UA, pathname: '/posts/x/', framed: true });
-    assert.equal(framedCalls.fetch.length, 0, 'iframe content pages never swap');
-
-    const shellCalls = await runBootstrap({ userAgent: CHROME_UA, pathname: '/', shellDocument: true });
-    assert.equal(shellCalls.fetch.length, 0, 'the shell document never swaps itself');
-});
-
-test('a fetched document without the shell marker is never written', async () => {
-    const calls = await runBootstrap({
-        userAgent: CHROME_UA,
-        pathname: '/',
-        fetchBody: '<!DOCTYPE html><html><body>not the shell</body></html>'
-    });
-
-    assert.equal(calls.fetch.length, 1);
-    assert.equal(calls.writes.length, 0, 'unmarked responses must not replace the document');
+test('a failed or unexpected shell response keeps the article and reports the failure', async () => {
+    for (const options of [{ ok: false }, { response: ARTICLE }]) {
+        const result = await runBootstrap({ action: 'play', ...options });
+        assert.equal(result.writes.length, 0);
+        assert.equal(result.warnings.length, 1);
+        assert.ok(result.document.querySelector('article'));
+    }
 });

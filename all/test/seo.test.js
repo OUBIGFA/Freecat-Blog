@@ -2,6 +2,23 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const { defaultImage, renderHeadTags } = require('../build/seo.js');
+const { normalizeBaseUrl, renderArticleJsonLd } = require('../build/seo.js');
+
+test('canonical base accepts only a valid website origin', () => {
+    assert.equal(normalizeBaseUrl({ site_url: ' https://EXAMPLE.com/// ' }), 'https://example.com');
+    assert.equal(normalizeBaseUrl({ site_url: '' }), '');
+    for (const site_url of ['example.com', 'https://', 'https://example.com/blog', 'https://example.com?x=1', 'https://user:pass@example.com', 'https://example.com/#page']) {
+        assert.throws(() => normalizeBaseUrl({ site_url }), /site_url/);
+    }
+});
+
+test('article structured data uses its chosen summary and defines its publisher', () => {
+    const post = { title: 'Article', summary: 'Chosen summary', excerpt: 'Automatic excerpt', date: new Date('2026-01-01'), modifiedDate: new Date('2026-01-02') };
+    const html = renderArticleJsonLd({ post, siteConfig: { site_url: 'https://example.com', site_name: 'Author' }, seoConfig: {}, canonical: 'https://example.com/posts/1/', tags: [], faqItems: [] });
+    const graph = JSON.parse(html.slice(html.indexOf('>') + 1, html.lastIndexOf('</script>')))['@graph'];
+    assert.equal(graph[0].description, 'Chosen summary');
+    assert.equal(graph[0].publisher.name, 'Author');
+});
 
 test('default SEO image uses configured hero avatar when present', () => {
     const siteConfig = {

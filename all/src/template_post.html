@@ -2,13 +2,13 @@
 <html lang="<!-- SITE_LANGUAGE -->">
 
 <head>
+    <meta charset="utf-8" />
     <script><!-- THEME_SCRIPT --></script>
     <script><!-- SHELL_BOOTSTRAP_SCRIPT --></script>
     <!-- 显式接管 speculation rules slot，禁用 Chrome NavigationPredictor /
          Cloudflare Speed Brain 的投机性 prerender。
          详细原因见 partials/head-base.html 里的同款注释。 -->
     <script type="speculationrules">{"prefetch":[],"prerender":[]}</script>
-    <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <!-- 主题色：随系统浅/深色模式切换，影响移动端浏览器地址栏与 PWA 启动画面 -->
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />

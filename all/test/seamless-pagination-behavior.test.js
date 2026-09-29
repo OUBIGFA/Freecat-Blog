@@ -41,6 +41,7 @@ function createPaginationHarness({ framed = false } = {}) {
     });
     vm.runInContext(seamlessPaginationJs, context);
     context.FreecatSeamlessPagination.init({
+        shared: require('../shared/shared.js'),
         window: {
             location, scrollTo() {},
             history: {

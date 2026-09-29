@@ -206,6 +206,18 @@
         }).join('');
     }
 
+    // Replace page-specific metadata together with soft navigation content. Preserve
+    // shell assets and ownership markers; in particular never inherit noindex.
+    function syncPageMetadata(target, source) {
+        if (!target.head || !source.head) return;
+        const selector = 'meta[name="description"],meta[name="robots"],meta[name="author"],meta[name="keywords"],meta[property^="og:"],meta[property^="article:"],meta[name^="twitter:"],link[rel="canonical"],link[rel="prev"],link[rel="next"],script[type="application/ld+json"]';
+        const nodes = Array.from(source.head.querySelectorAll(selector), node => node.cloneNode(true));
+        target.head.querySelectorAll(selector).forEach(node => node.remove());
+        nodes.forEach(node => target.head.appendChild(node));
+        target.title = source.title;
+        target.documentElement.lang = source.documentElement.lang;
+    }
+
     function copyText(text) {
         if (typeof navigator !== 'undefined' && navigator.clipboard && typeof window !== 'undefined' && window.isSecureContext) {
             return navigator.clipboard.writeText(text);
@@ -241,6 +253,7 @@
         normalizeScrollPageKey,
         collectMenuTags,
         renderTagMenuItemsHtml,
+        syncPageMetadata,
         copyText
     };
 }));

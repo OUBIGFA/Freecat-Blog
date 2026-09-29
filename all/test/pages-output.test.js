@@ -141,7 +141,17 @@ test('generated home content and shell output keep separate roles', (t) => {
     // 外壳退到 /shell：纯运行时容器，noindex，不再承载结构化数据
     assert.match(shellHtml, /data-freecat-shell-root="true"/);
     assert.match(shellHtml, /id="freecat-content-frame"/);
-    assert.match(shellHtml, /src="\/home"/);
+    const { document } = require('linkedom').parseHTML(shellHtml);
+    assert.equal(document.getElementById('freecat-content-frame').hasAttribute('src'), false, 'no premature home request');
+    const routeScript = [...document.querySelectorAll('script')].find(node => node.textContent.includes("getElementById('freecat-content-frame')"));
+    for (const [route, expected] of [['/', '/home'], ['/posts/demo-post/', '/posts/demo-post/']]) {
+        const assigned = [];
+        const frame = { set src(value) { assigned.push(value); } };
+        new Function('window', 'document', 'URL', routeScript.textContent)(
+            { location: new URL('https://example.com' + route) }, { getElementById: () => frame }, URL
+        );
+        assert.deepEqual(assigned, [expected], 'the frame loads the intended route exactly once');
+    }
     assert.match(shellHtml, /<meta name="robots" content="noindex,follow" \/>/);
     assert.doesNotMatch(shellHtml, /"@type":"WebSite"/);
 });
