@@ -56,7 +56,8 @@ function generate({ posts, template, siteConfig, seoConfig, outputDir, recentPos
     });
     const tagIndex = {
         posts: tagPosts,
-        tags: {},
+        // 标签来自文章内容，__proto__ 等名称也必须作为普通键保存。
+        tags: Object.create(null),
         untagged: [],
         sorted: true
     };

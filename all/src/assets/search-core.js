@@ -175,6 +175,8 @@
     function createIndexLoaders({ platform }) {
         let searchIndex = null;
         let tagIndex = null;
+        let searchRequest = null;
+        let tagRequest = null;
 
         function markPresorted(posts) {
             if (Array.isArray(posts) && posts.freecatPresorted !== true) {
@@ -188,26 +190,45 @@
 
         async function loadSearchIndex() {
             if (searchIndex) return searchIndex;
-            try {
-                const response = await platform.fetch('/search-index.json');
-                searchIndex = markPresorted(await response.json());
-                return searchIndex;
-            } catch (err) {
-                console.error('Failed to load search index:', err);
-                return [];
+            // 打开面板与输入关键词可能同时加载；等待同一次请求，失败后允许重试。
+            if (!searchRequest) {
+                searchRequest = Promise.resolve().then(async () => {
+                    const response = await platform.fetch('/search-index.json');
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const index = await response.json();
+                    if (!Array.isArray(index)) throw new Error('Invalid search index');
+                    searchIndex = markPresorted(index);
+                    return searchIndex;
+                }).catch(err => {
+                    console.error('Failed to load search index:', err);
+                    return [];
+                }).finally(() => {
+                    searchRequest = null;
+                });
             }
+            return searchRequest;
         }
 
         async function loadTagIndex() {
             if (tagIndex) return tagIndex;
-            try {
-                const response = await platform.fetch('/tag-index.json');
-                tagIndex = await response.json();
-                return tagIndex;
-            } catch (err) {
-                console.error('Failed to load tag index:', err);
-                return null;
+            if (!tagRequest) {
+                tagRequest = Promise.resolve().then(async () => {
+                    const response = await platform.fetch('/tag-index.json');
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const index = await response.json();
+                    if (!index || !Array.isArray(index.posts) || !index.tags
+                        || typeof index.tags !== 'object' || Array.isArray(index.tags)
+                        || !Array.isArray(index.untagged)) throw new Error('Invalid tag index');
+                    tagIndex = index;
+                    return tagIndex;
+                }).catch(err => {
+                    console.error('Failed to load tag index:', err);
+                    return null;
+                }).finally(() => {
+                    tagRequest = null;
+                });
             }
+            return tagRequest;
         }
 
         return { loadSearchIndex, loadTagIndex };

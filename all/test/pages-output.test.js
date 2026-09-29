@@ -15,6 +15,7 @@ const indexPage = require('../build/pages/index.js');
 const shellPage = require('../build/pages/shell.js');
 const searchPage = require('../build/pages/search.js');
 const allPage = require('../build/pages/all.js');
+const searchCore = require('../src/assets/search-core.js');
 
 function createTestEngine() {
     const siteConfig = {
@@ -180,4 +181,25 @@ test('generated search indexes contain build-time search fields', (t) => {
     assert.equal(tagIndex.posts[0].desktopTitleSingleLine, true, 'tag index keeps the desktop title mode');
     assert.equal(tagIndex.posts[0].desktopTitleLines, undefined, 'tag index does not keep pre-split title text');
     assert.equal(tagIndex.posts[0].desktopPreviewLines, 7, 'tag index keeps desktop preview line count');
+});
+
+test('tag indexes preserve labels that match object prototype properties', (t) => {
+    const writes = new Map();
+    t.mock.method(fs, 'writeFileSync', (filePath, content) => writes.set(path.basename(filePath), content));
+    t.mock.method(console, 'log', () => {});
+    const { engine, siteConfig, seoConfig } = createTestEngine();
+    const tags = ['__proto__', 'constructor', 'Tech', 'TECH'];
+
+    searchPage.generate({
+        posts: [{ ...createPost(), tags }, { ...createPost(), link: '/posts/untagged/', tags: [] }],
+        template: engine.loadTemplate('template_index_search.html'),
+        siteConfig, seoConfig, outputDir: 'dist'
+    });
+
+    const index = JSON.parse(writes.get('tag-index.json'));
+    for (const tag of ['__proto__', 'constructor', 'tech']) {
+        assert.deepEqual(searchCore.getPostsByTag(tag, index).map(post => post.link), ['/posts/demo-post/']);
+    }
+    assert.deepEqual(searchCore.getPostsByTag('__untagged__', index).map(post => post.link), ['/posts/untagged/']);
+    assert.deepEqual(searchCore.getPostsByTag('missing', index), []);
 });

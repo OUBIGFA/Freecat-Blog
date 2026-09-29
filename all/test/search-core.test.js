@@ -12,6 +12,52 @@ const POSTS = [
     { title: 'Old Article', excerpt: 'archive', content: 'history alpha', tags: ['Life'], date: '2024-06-01', link: '/posts/d/' }
 ];
 
+for (const [method, payload] of [
+    ['loadSearchIndex', [{ title: 'Ready', tags: [], link: '/posts/ready/' }]],
+    ['loadTagIndex', { posts: [], tags: {}, untagged: [], sorted: true }]
+]) {
+    test(`${method} shares in-flight downloads and caches the parsed index`, async () => {
+        let requests = 0;
+        const loaders = searchCore.createIndexLoaders({
+            platform: {
+                async fetch() {
+                    requests += 1;
+                    return new Response(JSON.stringify(payload));
+                }
+            }
+        });
+        const results = await Promise.all([loaders[method](), loaders[method]()]);
+        assert.deepEqual(results[0], payload);
+        assert.strictEqual(results[0], results[1], 'concurrent consumers share one parsed result');
+        assert.strictEqual(await loaders[method](), results[0]);
+        assert.equal(requests, 1, 'opening search while typing must not redownload the index');
+    });
+
+    for (const failure of ['http', 'shape', 'network']) {
+        test(`${method} retries after a ${failure} failure instead of caching it`, async (t) => {
+            t.mock.method(console, 'error', () => {});
+            let requests = 0;
+            const loaders = searchCore.createIndexLoaders({
+                platform: {
+                    async fetch() {
+                        requests += 1;
+                        if (requests === 1) {
+                            if (failure === 'network') throw new Error('Offline');
+                            return failure === 'http'
+                                ? new Response(JSON.stringify(payload), { status: 503 })
+                                : new Response(JSON.stringify({ error: 'Index unavailable' }));
+                        }
+                        return new Response(JSON.stringify(payload));
+                    }
+                }
+            });
+            await loaders[method]();
+            assert.deepEqual(await loaders[method](), payload);
+            assert.equal(requests, 2, 'a failed download must leave the next attempt available');
+        });
+    }
+}
+
 test('searchPosts matches title, excerpt, content and tags case-insensitively', () => {
     assert.deepEqual(
         searchCore.searchPosts('hello', POSTS).map(p => p.link),
