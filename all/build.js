@@ -242,10 +242,10 @@ if (siteConfig.show_recent_posts === true) {
         return `<li><a href="${safeLink}" class="freecat-sidebar-recent-link">${safeTitle}</a></li>`;
     }).join('\n');
 
-    recentPostsSidebarInnerHtml = `<div>
-        <h2 class="freecat-sidebar-recent-heading">最近更新</h2>
+    recentPostsSidebarInnerHtml = `<details class="freecat-home-recent-details">
+        <summary class="freecat-sidebar-recent-heading">最近更新<svg class="freecat-home-recent-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
         <ul>${itemsHtml}</ul>
-    </div>`;
+    </details>`;
     recentPostsSidebarHomeWrapperHtml = recentPostsSidebarInnerHtml;
 }
 

@@ -8,7 +8,7 @@
     <!-- INCLUDE:home-layout-style -->
     <style>
         .freecat-all-page .layout-container {
-            padding: calc(var(--freecat-page-top-offset) + 1.25rem) 1.25rem 5rem;
+            padding: calc(var(--freecat-page-top-offset) + 1.25rem) var(--freecat-all-content-inset) 5rem;
         }
 
         .freecat-all-page .layout-content-container {
@@ -52,6 +52,12 @@
             height: 5.4em;
         }
 
+        /* 无封面时用正文补充预览信息，保持八行行高与原生省略号。 */
+        .freecat-all-grid .has-no-cover .home-post-excerpt {
+            -webkit-line-clamp: 8;
+            height: 14.4em;
+        }
+
         .freecat-all-page .freecat-home-list-heading {
             flex-wrap: wrap;
             row-gap: 1rem;
@@ -70,11 +76,6 @@
             }
         }
 
-        @media (min-width: 1280px) {
-            .freecat-all-page .layout-container {
-                padding-inline: var(--freecat-side-content-left);
-            }
-        }
     </style>
 </head>
 

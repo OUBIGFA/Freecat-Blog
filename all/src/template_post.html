@@ -62,7 +62,7 @@
                     <article class="freecat-post-article">
                         <header class="freecat-post-header">
                             <div class="freecat-post-eyebrow">
-                                <a href="/" data-go-back class="freecat-post-back">
+                                <a href="/" data-go-back class="freecat-post-back freecat-go-back-text">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                                         stroke="currentColor" stroke-width="1.5" width="18" height="18" aria-hidden="true">
                                         <path d="m14 6-6 6 6 6" />
@@ -82,14 +82,20 @@
                         <!-- LATEST_UPDATE_PLACEHOLDER -->
 
                         <aside class="freecat-post-toc-panel group/toc" aria-label="文章目录">
-                            <div class="freecat-post-toc">
-                                <h2 class="freecat-post-toc-title">目录</h2>
+                            <details class="freecat-post-toc">
+                                <summary id="toc-summary" class="freecat-post-toc-title" aria-controls="toc-container">目录
+                                    <svg class="freecat-update-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                                </summary>
                                 <div class="freecat-post-toc-scroll-shell">
                                     <div id="toc-container">
                                         <nav aria-label="章节"><!-- TOC_PLACEHOLDER --></nav>
                                     </div>
                                 </div>
-                            </div>
+                                <div id="toc-controls" class="freecat-toc-controls" hidden>
+                                    <button id="toc-more" type="button" aria-controls="toc-container">展开更多</button>
+                                    <button id="toc-collapse" type="button" aria-controls="toc-container">全部收起</button>
+                                </div>
+                            </details>
                         </aside>
 
                         <div
@@ -100,7 +106,7 @@
                         <!-- POST_COPY_SOURCE_PLACEHOLDER -->
 
                         <footer class="freecat-post-end">
-                            <a href="/" data-go-back class="freecat-post-back">← Back</a>
+                            <a href="/" data-go-back class="freecat-post-back freecat-go-back-text">← Back</a>
                             <button id="share-btn" type="button" aria-label="分享文章"
                                 class="t-btn t-btn-outline-subtle group relative inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full
                                        border text-sm font-medium">

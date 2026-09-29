@@ -355,7 +355,7 @@ function renderLatestUpdatePanel(post) {
 
     // 宽屏时显示在正文左侧，窄屏随正文排列；默认收起，避免抢占阅读空间。
     return `<details class="freecat-post-latest-update-shell">
-                <summary class="freecat-post-toc-title">Recent updates${renderIcon('chevron-down', 'freecat-update-chevron')}</summary>
+                <summary class="freecat-post-toc-title">查看最后更新${renderIcon('chevron-down', 'freecat-update-chevron')}</summary>
                 <div id="latest-update-container" class="freecat-post-latest-update-body">
                     ${itemsHtml}
                 </div>

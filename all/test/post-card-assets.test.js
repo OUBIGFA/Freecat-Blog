@@ -124,7 +124,7 @@ test('post card text uses build-time Figtree and Noto Sans SC font assets', () =
     assert.match(mainJs, /window\.addEventListener\('resize',\s*fitTagRows,\s*\{\s*passive:\s*true\s*\}\);/);
     assert.match(readProjectFile('shared', 'post-card-template.js'), /flex-nowrap items-center gap-x-3\.5/);
     assert.match(typographyCss, /\.freecat-nav-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*600;/);
-    assert.match(typographyCss, /\.freecat-go-back-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*800;/);
+    assert.match(typographyCss, /\.freecat-go-back-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*400;/);
     assert.match(typographyCss, /\.freecat-search-input\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
     assert.match(typographyCss, /\.freecat-update-sort-label\s*\{[\s\S]*font-family:\s*"Freecat Tag Noto Sans SC",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*500;/);
     assert.match(typographyCss, /\.freecat-brand-text\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*800;/);

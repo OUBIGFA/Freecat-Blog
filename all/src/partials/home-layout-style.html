@@ -1,24 +1,8 @@
 <style>
     :root {
-        --freecat-canvas: #ffffff;
-        --freecat-home-text: #1e293b;
-        --freecat-home-muted: #64748b;
-        --freecat-home-rule: #dce2ea;
-        --freecat-home-accent: #365f88;
-        --freecat-home-emphasis: #0f172a;
-        --freecat-home-pin-label: #deebf8;
         --freecat-home-sidebar-top: calc(var(--freecat-page-top-offset, 97px) + 2.5rem);
     }
 
-    .dark {
-        --freecat-canvas: #101622;
-        --freecat-home-text: #e2e8f0;
-        --freecat-home-muted: #a4b1c3;
-        --freecat-home-rule: #334155;
-        --freecat-home-accent: #a4c5e8;
-        --freecat-home-emphasis: #f1f5f9;
-        --freecat-home-pin-label: #27425f;
-    }
 
     .freecat-home-stage {
         background: var(--freecat-canvas);
@@ -122,9 +106,23 @@
     }
 
     .freecat-sidebar-recent-heading {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-height: 44px;
+        cursor: pointer;
+        list-style: none;
         font-size: 0.9375rem;
-        margin-bottom: 0.75rem;
         color: var(--freecat-home-text);
+    }
+
+    .freecat-sidebar-recent-heading::-webkit-details-marker { display: none; }
+    .freecat-home-recent-chevron { transition: transform 180ms ease-out; }
+    .freecat-home-recent-details[open] .freecat-home-recent-chevron { transform: rotate(180deg); }
+
+    @media (min-width: 1280px) {
+        .freecat-sidebar-recent-heading { min-height: 0; margin-bottom: 0.75rem; cursor: default; pointer-events: none; }
+        .freecat-home-recent-chevron { display: none; }
     }
 
     .freecat-sidebar-recent-link {
@@ -166,97 +164,6 @@
     }
 
     .freecat-home-post-list { border-top: 1px solid var(--freecat-home-rule); }
-
-    .home-post-entry {
-        --home-post-padding: 3.75rem;
-        position: relative;
-        display: grid;
-        grid-template-columns: minmax(0, 1fr);
-        gap: 1.75rem;
-        padding-block: var(--home-post-padding);
-        border-bottom: 1px solid var(--freecat-home-rule);
-        text-decoration: none;
-        color: var(--freecat-home-text);
-    }
-
-    /* 全部页沿用阅读条目，只通过容器变量将图文切换为上下排版。 */
-    .home-post-entry.has-cover { grid-template-columns: var(--home-post-cover-columns, minmax(0, 1fr) 10rem); }
-    .home-post-copy { min-width: 0; }
-
-    /* 更新时间与箭头一起换行；动效只在预留空间内发生，不推挤文字。 */
-    .home-post-update { display: inline-flex; align-items: center; gap: 0.5rem; }
-    .home-post-arrow {
-        display: inline-flex;
-        flex: 0 0 1rem;
-        color: var(--freecat-home-accent);
-        opacity: 0;
-        transform: translateX(-2px);
-        transition: opacity 180ms ease-out, transform 180ms ease-out;
-        pointer-events: none;
-    }
-
-    .home-post-entry:is(:hover, :focus-visible) .home-post-arrow {
-        opacity: 1;
-        transform: translateX(0);
-    }
-
-    .home-post-meta,
-    .home-post-tags {
-        display: flex;
-        align-items: baseline;
-        flex-wrap: wrap;
-        gap: 0.375rem 1rem;
-        font-size: 0.875rem;
-        line-height: 1.6;
-        color: var(--freecat-home-muted);
-    }
-
-    .home-post-pin {
-        display: inline-flex;
-        padding: 0.125rem 0.5rem;
-        border-radius: 4px;
-        background: var(--freecat-home-pin-label);
-        color: var(--freecat-home-accent);
-        font-weight: 500;
-    }
-
-    /* 整行保持透明，置顶底色仅属于文字徽标。 */
-    .home-post-title {
-        font-family: "Freecat Figtree", "Freecat Noto Sans SC", system-ui, sans-serif;
-        margin-top: 0.625rem;
-        font-size: 1.5rem;
-        font-weight: 600;
-        line-height: 1.5;
-        letter-spacing: -0.015em;
-        overflow-wrap: anywhere;
-        text-wrap: pretty;
-        transition: color 180ms ease-out;
-    }
-
-    .home-post-excerpt {
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 3;
-        overflow: hidden;
-        overflow-wrap: anywhere;
-        margin-top: 0.75rem;
-        font-size: 1.0625rem;
-        line-height: 1.8;
-        color: var(--freecat-home-muted);
-    }
-
-    .home-post-tags { margin-top: 1rem; gap: 0.375rem 0.75rem; }
-
-    .home-post-cover {
-        align-self: center;
-        aspect-ratio: 3 / 2;
-        overflow: hidden;
-        border-radius: 6px;
-    }
-
-    .home-post-entry:is(:hover, :focus-visible) .home-post-title {
-        color: var(--freecat-home-emphasis);
-    }
 
     .freecat-home-sidebar a:hover,
     .freecat-home-list-heading a:hover { color: var(--freecat-home-accent); }
@@ -303,21 +210,7 @@
         body:not([data-page="home"]) .freecat-home-sidebar { display: none; }
     }
 
-    @media (max-width: 1023px) {
-        .home-post-entry { --home-post-padding: 1.875rem; }
-    }
-
-    @media (max-width: 600px) {
-        .home-post-entry { --home-post-padding: 1.5rem; gap: 1rem; }
-        .home-post-entry.has-cover { grid-template-columns: minmax(0, 1fr); }
-        .home-post-title { font-size: 1.25rem; }
-        .home-post-excerpt { font-size: 1rem; }
-        /* 手机先读完整标题和摘要，封面放在文字之后，避免挤窄阅读宽度。 */
-        .home-post-cover { width: 100%; max-height: 10.5rem; aspect-ratio: 16 / 9; }
-    }
-
     @media (prefers-reduced-motion: reduce) {
-        .home-post-title,
-        .home-post-arrow { transition: none; }
+        .freecat-home-recent-chevron { transition: none; }
     }
 </style>

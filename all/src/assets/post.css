@@ -1823,7 +1823,7 @@ article {
     color: #94a3b8 !important;
 }
 
-/* 目录始终展开；仅最近更新保留折叠，宽屏两侧各使用独立留白。 */
+/* 宽屏目录常驻，窄屏使用原生折叠与分批显示，避免挡住正文。 */
 .freecat-post-toc-panel,
 .freecat-post-latest-update-shell {
     margin-bottom: 2rem;
@@ -1867,6 +1867,35 @@ details[open] > summary .freecat-update-chevron { transform: rotate(180deg); }
     overscroll-behavior: contain;
     scrollbar-width: thin;
     scrollbar-color: #94a3b8 transparent;
+    /* 两侧列表共用滚动条留白，不让文字贴住滚动轨道。 */
+    padding-right: 1rem;
+    scrollbar-gutter: stable;
+}
+
+#toc-container {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+    scrollbar-gutter: auto;
+}
+
+.freecat-toc-controls { gap: 0.5rem; margin-top: 0.75rem; }
+.freecat-toc-controls:not([hidden]) { display: flex; }
+.freecat-toc-controls button {
+    flex: 1;
+    min-height: 44px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--post-rule);
+    border-radius: 6px;
+    color: var(--post-accent);
+    background: transparent;
+    font-size: 0.9375rem;
+}
+
+@media (max-width: 1279px) {
+    #toc-container a { min-height: 44px; }
+    #toc-container a[hidden] { display: none; }
 }
 
 #toc-container nav {
@@ -1919,7 +1948,7 @@ details[open] > summary .freecat-update-chevron { transform: rotate(180deg); }
 
 .freecat-post-latest-update-link {
     display: block;
-    padding: 0.4rem 1rem;
+    padding: 0.4rem 0 0.4rem 1rem;
     color: var(--post-muted);
     font-size: 0.9375rem;
     line-height: 1.65;
@@ -1934,13 +1963,26 @@ details[open] > summary .freecat-update-chevron { transform: rotate(180deg); }
     .freecat-post-latest-update-shell {
         position: fixed;
         top: calc(var(--freecat-page-top-offset, 97px) + 3rem);
-        width: min(15rem, calc(50vw - 45rem / 2 - 5rem));
+        width: min(18rem, calc(50vw - 45rem / 2 - 4rem));
         margin-bottom: 0;
         z-index: 20;
     }
 
-    .freecat-post-toc-panel { left: calc(50% + 45rem / 2 + 3.5rem); }
-    .freecat-post-latest-update-shell { left: var(--freecat-side-content-left); }
+    .freecat-post-toc-panel {
+        left: calc(50% + 45rem / 2 + 2.5rem);
+    }
+    .freecat-post-latest-update-shell {
+        left: var(--freecat-side-content-left);
+    }
+
+    .freecat-post-toc > summary { cursor: default; pointer-events: none; }
+    .freecat-post-toc > summary .freecat-update-chevron { display: none; }
+    #toc-container {
+        height: 65dvh;
+        overflow-y: auto;
+        padding-right: 1rem;
+        scrollbar-gutter: stable;
+    }
 
     #toc-container,
     .freecat-post-latest-update-body {

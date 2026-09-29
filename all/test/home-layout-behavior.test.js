@@ -13,19 +13,21 @@ function style() {
 }
 
 // 使用真实测量模块，输入不同屏幕与内容高度；不依赖浏览器字体的固定像素。
-function createHarness() {
+function createHarness({ width = 1920 } = {}) {
     const frames = new Map();
     const events = new Map();
     const observers = [];
     let nextFrame = 0;
     const content = { scrollHeight: 1000 };
+    const recent = { open: false, querySelector: () => recentSummary, addEventListener() {} };
+    const recentSummary = { tabIndex: 0 };
     const sidebar = {
         style: style(),
         querySelector: () => content,
         getBoundingClientRect: () => ({ top: 137, left: 24, width: 230 })
     };
     const window = {
-        innerWidth: 1920, innerHeight: 1080,
+        innerWidth: width, innerHeight: 1080,
         requestAnimationFrame(fn) { frames.set(++nextFrame, fn); return nextFrame; },
         addEventListener(name, fn) {
             if (!events.has(name)) events.set(name, []);
@@ -39,6 +41,7 @@ function createHarness() {
         querySelector: selector => ({
             '.freecat-home-sidebar': sidebar,
             '.freecat-home-sidebar-content': content,
+            '.freecat-home-recent-details': recent,
             '.freecat-site-footer': { offsetHeight: 100 }
         })[selector] || null
     };
@@ -57,7 +60,7 @@ function createHarness() {
     }
     flush();
     return {
-        window, content, sidebar, observers, flush,
+        window, content, sidebar, observers, flush, recent,
         resize() { events.get('resize').forEach(fn => fn()); flush(); },
         scale: () => Number(sidebar.style.getPropertyValue('--freecat-sidebar-scale'))
     };
@@ -84,4 +87,17 @@ test('sidebar scale stays stable when window height shrinks and updates on a lar
     assert.ok(137 + 6 + 1400 * h.scale() <= 1200 - 100 - 24);
     h.window.innerWidth = 1024; h.resize();
     assert.equal(h.sidebar.style.getPropertyValue('--freecat-sidebar-scale'), '');
+});
+
+test('home recent updates start closed on mobile and remain open on desktop', () => {
+    const h = createHarness({ width: 390 });
+    assert.equal(h.recent.open, false);
+    h.recent.open = true;
+    h.resize();
+    assert.equal(h.recent.open, true, 'same breakpoint resizing preserves the reader choice');
+    h.window.innerWidth = 1440; h.resize();
+    assert.equal(h.recent.open, true);
+    h.window.innerWidth = 390; h.resize();
+    assert.equal(h.recent.open, false);
+    assert.equal(createHarness().recent.open, true);
 });

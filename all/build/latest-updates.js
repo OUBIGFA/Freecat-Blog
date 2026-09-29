@@ -207,6 +207,8 @@ function fencedCodeParagraphEntries(lineEntries) {
 }
 
 function extractLatestUpdateFromDiff(diff, currentRaw, options = {}) {
+    // 首次加入文件（包括暂存中的新文章）属于发表，不是对已有文章的更新。
+    if (/^--- \/dev\/null\r?$/m.test(String(diff || ''))) return { items: [], targets: [] };
     const hunks = extractAddedHunksWithLines(diff, currentRaw);
     const paragraphs = hunks.flatMap(hunk => plainParagraphEntries(hunk));
     const maxItems = Number(options.maxItems) > 0 ? Number(options.maxItems) : 0;

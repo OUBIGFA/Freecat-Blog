@@ -25,6 +25,8 @@
     --freecat-home-column-width: min(var(--freecat-home-reading-width), 50vw);
     --freecat-home-sidebar-gap: clamp(5rem, 6vw, 6rem);
     --freecat-side-content-left: max(1.25rem, calc((100% - var(--freecat-home-reading-width)) / 2));
+    /* 顶栏右侧与全部文章页共用边距，响应式切换时保持同一条边缘。 */
+    --freecat-all-content-inset: 1.25rem;
     /* ===== Button motion tokens ===== */
     --t-btn-dur: 280ms;
     --t-btn-hover-delay: 45ms;
@@ -56,6 +58,7 @@
 @media (min-width: 1280px) {
     :root {
         --freecat-side-content-left: max(1.875rem, calc(50% - var(--freecat-home-column-width) / 2 - var(--freecat-home-sidebar-gap) - 18.625rem));
+        --freecat-all-content-inset: var(--freecat-side-content-left);
     }
 }
 
@@ -1063,7 +1066,7 @@ header.fixed .header-blur-target {
     height: 100%;
     margin-inline: auto;
     padding-left: var(--freecat-side-content-left);
-    padding-right: max(2rem, calc((100% - 74rem) / 2 + 2rem));
+    padding-right: var(--freecat-all-content-inset);
 }
 
 .freecat-header-brand {
@@ -1142,20 +1145,34 @@ header.fixed .header-blur-target {
     flex: 1;
     min-width: 0;
     height: 44px;
-    padding: 0.625rem 0.875rem;
-    border: 1px solid var(--freecat-ui-rule);
-    border-radius: 6px;
-    background: var(--freecat-ui-surface);
+    padding: 0.625rem 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
     color: var(--freecat-ui-text);
-    font-size: 1rem;
+    font-size: 1.0625rem;
     box-shadow: none;
 }
 
 .freecat-header-search .freecat-search-input::placeholder { color: var(--freecat-ui-muted); }
+.freecat-header-search .freecat-search-input::-webkit-search-cancel-button { filter: grayscale(1); opacity: 0.65; cursor: pointer; }
 .freecat-header-search .freecat-search-input:focus {
-    outline: 1px solid var(--freecat-ui-accent);
-    border-color: var(--freecat-ui-accent);
+    outline: none;
+    box-shadow: none;
 }
+
+.freecat-search-symbol { display: inline-flex; color: var(--freecat-ui-muted); }
+.freecat-search-symbol svg { width: 20px; height: 20px; }
+.freecat-header-search .freecat-search-close { width: auto; min-width: 44px; padding-inline: 0.75rem; border-radius: 999px; font-size: 0.9375rem; }
+.freecat-search-results { max-width: 760px; margin-inline: auto; padding: 2rem 1.25rem 4rem; }
+.freecat-search-results-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-bottom: 1.5rem; }
+.freecat-search-results-heading h2 { font-size: 1.125rem; font-weight: 500; }
+.freecat-search-results-heading a { color: var(--freecat-ui-accent); font-size: 0.9375rem; }
+.freecat-search-count, .freecat-search-hint { color: var(--freecat-ui-muted); font-size: 0.9375rem; line-height: 1.75; }
+.freecat-search-count { margin-left: 0.5rem; font-weight: 400; }
+.freecat-search-result-list { border-top: 1px solid var(--freecat-ui-rule); }
+.freecat-search-result-list .home-post-entry { --home-post-padding: 2rem; }
+.freecat-search-result-list a:focus-visible { outline: 2px solid var(--freecat-ui-accent); outline-offset: 4px; }
 
 .freecat-site-footer {
     border-top: 1px solid var(--freecat-ui-rule);
@@ -1223,7 +1240,7 @@ header.fixed .header-blur-target {
 }
 
 @media (max-width: 767px) {
-    header.fixed .header-blur-target { gap: 0.75rem; padding-right: 0.75rem; }
+    header.fixed .header-blur-target { gap: 0.75rem; }
     .freecat-header-actions { gap: 0.75rem; }
     .freecat-header-tools { gap: 0.125rem; }
     .freecat-header-action { width: 36px; height: 40px; }
@@ -1257,9 +1274,12 @@ html.freecat-framed header.fixed {
     position: absolute;
     left: 50%;
     top: 50%;
-    width: min(760px, calc(100% - 2.5rem));
-    max-width: 760px;
-    gap: 0.5rem;
+    width: min(720px, calc(100% - 2.5rem));
+    max-width: 720px;
+    gap: 0.875rem;
+    padding: 0 0.375rem 0 1rem;
+    border: 1px solid var(--freecat-ui-rule);
+    border-radius: 999px;
     transform: translate(-50%, -50%);
     z-index: 80;
 }
@@ -1292,10 +1312,14 @@ html.freecat-framed header.fixed {
 
 .search-active .header-blur-target {
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
     /* 不加 transition：搜索打开时直接隐藏，关闭时也直接复位，
        避免取消搜索后导航栏图标延迟出现 */
 }
+
+/* 搜索覆盖正文时一并隐藏 iframe 的滚动条，关闭后保留原阅读位置。 */
+body.search-active #freecat-content-frame { visibility: hidden; }
 
 #search-results-overlay {
     position: fixed;
@@ -1305,8 +1329,9 @@ html.freecat-framed header.fixed {
     transition: none !important;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
-    background-color: #fff !important;
+    background-color: var(--freecat-ui-surface) !important;
     overflow-y: auto;
+    scrollbar-gutter: stable;
     pointer-events: auto;
 }
 
@@ -1316,13 +1341,14 @@ html.freecat-framed header.fixed {
 }
 
 .dark #search-results-overlay {
-    background-color: #0b0f1a !important;
+    background-color: var(--freecat-ui-surface) !important;
 }
 
 @media (max-width: 380px) {
-    header.fixed .header-blur-target { gap: 0.375rem; padding-right: 0.5rem; }
+    header.fixed .header-blur-target { gap: 0.375rem; }
     .freecat-header-brand .freecat-brand-text { font-size: 1rem; }
-    .freecat-header-actions { gap: 0.375rem; }
+    .freecat-header-actions { gap: 0.25rem; }
+    .freecat-header-tools { gap: 0; }
     .freecat-header-action { width: 28px; }
     #nav-links a { font-size: 0.875rem; }
 }

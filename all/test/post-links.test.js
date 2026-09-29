@@ -311,7 +311,7 @@ test('post page renders latest update panel only when update snapshot exists', (
     });
 
     assert.match(withUpdate, /<details class="freecat-post-latest-update-shell">/);
-    assert.match(withUpdate, /<summary class="freecat-post-toc-title">Recent updates<svg\b/);
+    assert.match(withUpdate, /<summary class="freecat-post-toc-title">查看最后更新<svg\b/);
     assert.doesNotMatch(withUpdate, /<details[^>]*\bopen\b/);
     assert.match(withUpdate, /最后新增的正文内容/);
     assert.match(withUpdate, /class="freecat-post-latest-update-link"/);

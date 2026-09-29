@@ -85,8 +85,14 @@
     bottom: 0;
     left: 0;
     display: block;
-    height: 3.25rem;
-    background: linear-gradient(to bottom, transparent, var(--code-surface) 86%);
+    /* 覆盖数行文字再进入纯色区域，避免裁切点看起来像一条硬边。 */
+    height: 7rem;
+    z-index: 1;
+    background: linear-gradient(to bottom,
+        color-mix(in srgb, var(--code-surface) 0%, transparent),
+        color-mix(in srgb, var(--code-surface) 35%, transparent) 30%,
+        color-mix(in srgb, var(--code-surface) 85%, transparent) 70%,
+        var(--code-surface) 92%);
     opacity: 0;
     pointer-events: none;
     transition: opacity 220ms cubic-bezier(0.22, 1, 0.36, 1);

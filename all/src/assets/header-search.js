@@ -18,7 +18,6 @@
         const navigateWithinSite = deps.navigateWithinSite;
         const isShell = !!deps.isShell;
         const contentFrame = deps.contentFrame;
-        const { escapeHtml } = shared;
 
         const searchToggle = doc.getElementById('search-toggle');
         const searchClose = doc.getElementById('search-close');
@@ -68,38 +67,26 @@
 
         function displaySearchResults(results, query) {
             const overlay = ensureSearchResultsOverlay();
-
             unobserveDeferredImages(overlay);
             if (results.length === 0) {
                 overlay.innerHTML = `
-                <div data-search-results-content class="max-w-[1200px] mx-auto px-6 sm:px-8 py-10 text-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"
-                        class="inline-block w-16 h-16 text-gray-300 dark:text-gray-600 mb-4">
-                        <path d="M2.39732 1.86908L4.15967 0.107422L23.2796 19.2273L21.5176 20.9897L18.0309 17.5031C16.4909 18.7351 14.5379 19.5 12.4 19.5C7.43168 19.5 3.4 15.4683 3.4 10.5C3.4 8.36211 4.16493 6.40911 5.39686 4.86908L2.39732 1.86908ZM6.81106 6.28332C5.95212 7.4458 5.4 8.91211 5.4 10.5C5.4 14.3675 8.5325 17.5 12.4 17.5C13.9879 17.5 15.4542 16.9479 16.6167 16.0889L6.81106 6.28332ZM12.4 1.5C17.3683 1.5 21.4 5.53168 21.4 10.5C21.4 12.4458 20.7888 14.2542 19.7556 15.7349L18.3115 14.2908C19.0606 13.2168 19.4 11.9035 19.4 10.5C19.4 6.6325 16.2675 3.5 12.4 3.5C10.9965 3.5 9.6832 3.83942 8.6092 4.58849L7.16511 3.14441C8.6458 2.11119 10.4542 1.5 12.4 1.5Z"/>
-                    </svg>
-                    <p class="text-gray-500 dark:text-gray-400 text-lg">No results found for "<strong>${escapeHtml(query)}</strong>"</p>
-                    <p class="text-gray-400 dark:text-gray-500 text-sm mt-2">Try different keywords</p>
-                </div>
-            `;
+                    <div data-search-results-content class="freecat-search-results">
+                        <div class="freecat-search-results-heading"><h2>没有找到相关文章</h2></div>
+                        <p class="freecat-search-hint">试试其他关键词。</p>
+                    </div>`;
                 return;
             }
 
-            const resultsHtml = searchCore.renderSearchResultCards(results);
-
+            // 与首页共用文章组件和样式，搜索只调整列表宽度与条目间距。
+            const resultsHtml = searchCore.renderSearchResultCards(results, { layout: 'reading-list' });
             overlay.innerHTML = `
-            <div data-search-results-content class="max-w-[1200px] mx-auto px-5 sm:px-6 md:px-8 pt-2 pb-10 md:pt-4 md:pb-12">
-                <div class="hidden md:flex md:flex-row md:items-center md:justify-between gap-2 mb-12">
-                    <h2 class="text-lg md:text-xl font-extrabold text-[#1e293b] dark:text-slate-200 flex items-center">
-                        Results for "${escapeHtml(query)}"
-                        <span class="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">(${results.length} found)</span>
-                    </h2>
-                    <a href="/search?q=${encodeURIComponent(query)}" class="text-sm text-primary hover:text-slate-950 dark:hover:text-slate-100 transition-colors">View all</a>
-                </div>
-                <div class="freecat-post-card-list">
-                    ${resultsHtml}
-                </div>
-            </div >
-            `;
+                <div data-search-results-content class="freecat-search-results">
+                    <div class="freecat-search-results-heading">
+                        <h2>搜索结果<span class="freecat-search-count">${results.length} 篇</span></h2>
+                        <a href="/search?q=${encodeURIComponent(query)}">查看全部</a>
+                    </div>
+                    <div class="freecat-search-result-list">${resultsHtml}</div>
+                </div>`;
             initDeferredImages();
             fitTagRows();
         }
@@ -271,7 +258,10 @@
             });
 
             if (searchClose) {
-                searchClose.addEventListener('click', () => closeHeaderSearch());
+                searchClose.addEventListener('click', () => {
+                    closeHeaderSearch();
+                    searchToggle.focus({ preventScroll: true });
+                });
             }
 
             // 实时搜索
@@ -299,6 +289,7 @@
             searchInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     closeHeaderSearch();
+                    searchToggle.focus({ preventScroll: true });
                 }
                 // 按 Enter 跳转到搜索页
                 if (e.key === 'Enter' && searchInput.value.trim()) {

@@ -393,9 +393,11 @@ test('markdown diagram blocks center rendered chart content', () => {
     assert.match(postCss, /\.prose [\s\S]*?\.diagram-block,[\s\S]*?\.katex-display/);
 });
 
-test('TOC is always open while article update details can still collapse', () => {
-    assert.match(postTemplate, /<div class="freecat-post-toc">\s*<h2 class="freecat-post-toc-title">目录<\/h2>/);
-    assert.doesNotMatch(postTemplate, /<details[^>]*class="freecat-post-toc"/);
+test('TOC has a native collapsed entry and accessible progressive disclosure controls', () => {
+    assert.match(postTemplate, /<details class="freecat-post-toc">/);
+    assert.match(postTemplate, /<summary[^>]*aria-controls="toc-container">目录/);
+    assert.match(postTemplate, /id="toc-more"[^>]*aria-controls="toc-container">展开更多/);
+    assert.match(postTemplate, /id="toc-collapse"[^>]*aria-controls="toc-container">全部收起/);
 });
 
 test('syntax highlighting happens at build time, never on the client', () => {

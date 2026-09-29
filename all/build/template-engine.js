@@ -454,7 +454,8 @@ function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, s
         out = replacePlaceholder(out, /<!-- SITE_FAVICON -->/g, safeFavicon);
         out = replacePlaceholder(out, /<!-- SITE_LOGO_ICON -->/g, logoIcon);
         for (const [marker, svg] of Object.entries(headerIcons)) {
-            out = replacePlaceholder(out, '<!-- ' + marker + ' -->', svg);
+            // 同一图标可同时用于导航入口和展开后的搜索栏。
+            out = replacePlaceholder(out, new RegExp('<!-- ' + marker + ' -->', 'g'), svg);
         }
         out = replacePlaceholder(out, /<!-- NAV_AUDIO_BUTTON -->/g, navAudioButton);
         out = replacePlaceholder(out, /<!-- THEME_SCRIPT -->/g, themeScript);

@@ -10,6 +10,19 @@
         const win = deps.window;
         const doc = deps.document;
         const framed = !!deps.framed;
+        const recent = doc.querySelector('.freecat-home-recent-details');
+        let recentIsDesktop = null;
+
+        // 只在跨越布局断点时重置，手机横竖屏切换保留读者的展开选择。
+        function syncHomeRecentDisclosure() {
+            if (!recent) return;
+            const desktop = win.innerWidth >= 1280;
+            if (desktop !== recentIsDesktop) {
+                recent.open = desktop;
+                recentIsDesktop = desktop;
+            }
+            recent.querySelector('summary').tabIndex = desktop ? -1 : 0;
+        }
 
         // ============================================================
         // [Fix] 固定顶栏遮挡内容：按实际 header 高度动态同步内容区上边距
@@ -122,6 +135,11 @@
         }
 
         // 初始测量 + 持续监听（从 main.js 的装配段整体迁入）。
+        syncHomeRecentDisclosure();
+        if (recent) recent.addEventListener('toggle', () => {
+            if (recentIsDesktop && !recent.open) recent.open = true;
+            scheduleHomeSidebarFooterAvoid();
+        });
         updateContentTopOffset();
         observeHeaderOffsetChanges();
         observeHomeHeroContentChanges();
@@ -133,6 +151,7 @@
             new ResizeObserver(scheduleHomeSidebarFooterAvoid).observe(sidebarContent);
         }
 
+        win.addEventListener('resize', syncHomeRecentDisclosure);
         win.addEventListener('resize', updateContentTopOffset);
         win.addEventListener('resize', scheduleHomeSidebarFooterAvoid);
         win.addEventListener('load', updateContentTopOffset);
