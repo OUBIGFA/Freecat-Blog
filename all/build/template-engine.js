@@ -4,6 +4,7 @@ const shared = require('../shared/shared.js');
 const seo = require('./seo.js');
 const { autoSpacing, parseImageStyleAudioList } = require('./markdown.js');
 const { SOCIAL_PLATFORM_ORDER } = require('./social-defaults.js');
+const { renderIcon } = require('./icons.js');
 
 /**
  * 模板引擎：partial 注入、SITE_* 占位替换、Logo / Theme / Social 渲染。
@@ -180,7 +181,7 @@ function generateShellBootstrapScript() {
 }
 
 function generateLogoIcon(siteConfig) {
-    const defaultIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><title>quill-pen-ai-fill</title><path d="m4.713 7.128l-.246.566a.506.506 0 0 1-.934 0l-.246-.566a4.36 4.36 0 0 0-2.22-2.25l-.759-.339a.53.53 0 0 1 0-.963l.717-.319A4.37 4.37 0 0 0 3.276.931L3.53.32a.506.506 0 0 1 .942 0l.253.61a4.37 4.37 0 0 0 2.25 2.327l.718.32a.53.53 0 0 1 0 .962l-.76.338a4.36 4.36 0 0 0-2.219 2.251m-1.65 14.485C4.09 15.422 6.312 1.997 21 1.997c-1.496 3-2.5 4.5-3.5 5.5l-1 1l1.5 1c-1 3-4 6.5-8 7q-4.003.5-5.002 5.5H3z"/></svg>`;
+    const defaultIcon = renderIcon('feather');
 
     const logoUrl = siteConfig.site_logo_icon && String(siteConfig.site_logo_icon).trim();
     if (logoUrl && /^https?:\/\//i.test(logoUrl)) {
@@ -190,8 +191,8 @@ function generateLogoIcon(siteConfig) {
     return defaultIcon;
 }
 
-const NAV_AUDIO_IDLE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M9 8.48216V15.518L15.0307 12.0001L9 8.48216ZM7.75194 5.43872L18.2596 11.5682C18.4981 11.7073 18.5787 12.0135 18.4396 12.252C18.3961 12.3265 18.3341 12.3885 18.2596 12.432L7.75194 18.5615C7.51341 18.7006 7.20725 18.62 7.06811 18.3815C7.0235 18.305 7 18.2181 7 18.1296V5.87061C7 5.59446 7.22386 5.37061 7.5 5.37061C7.58853 5.37061 7.67547 5.39411 7.75194 5.43872Z"></path></svg>`;
-const NAV_AUDIO_PLAYING_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 3V17C20 19.2091 18.2091 21 16 21C13.7909 21 12 19.2091 12 17C12 14.7909 13.7909 13 16 13C16.7286 13 17.4117 13.1948 18 13.5351V6H9V17C9 19.2091 7.20914 21 5 21C2.79086 21 1 19.2091 1 17C1 14.7909 2.79086 13 5 13C5.72857 13 6.41165 13.1948 7 13.5351V3H20Z"></path></svg>`;
+const NAV_AUDIO_IDLE_ICON = renderIcon('player-play');
+const NAV_AUDIO_PLAYING_ICON = renderIcon('player-pause');
 
 function parseBooleanControl(value) {
     if (value === true) return true;
@@ -234,14 +235,14 @@ function generateNavAudioButton(siteConfig) {
     const autoplay = parseBooleanControl(siteConfig.nav_audio_autoplay) ? 'true' : 'false';
     return `<div id="nav-audio-control" class="nav-audio-control" data-playing="false">
                 <button type="button" aria-label="Play audio" aria-pressed="false"
-                    class="t-btn-icon group relative flex items-center justify-center rounded-full size-9 md:size-10 bg-[#f0f2f4] dark:bg-gray-800 text-[#1e293b] dark:text-slate-200 hover:text-primary dark:hover:text-primary"
+                    class="freecat-header-action"
                     id="nav-audio-toggle"
                     data-audio-src="${safeSrc}"
                     data-audio-title="${safeTitle}"
                     data-audio-playlist="${safePlaylist}"
                     data-audio-autoplay="${autoplay}">
-                    <span class="nav-audio-icon nav-audio-icon-idle icon-breathe text-lg md:text-xl text-gray-700 dark:text-gray-400 group-hover:rotate-12" aria-hidden="true">${NAV_AUDIO_IDLE_ICON}</span>
-                    <span class="nav-audio-icon nav-audio-icon-playing icon-breathe hidden text-lg md:text-xl text-gray-700 dark:text-gray-400 group-hover:rotate-6" aria-hidden="true">${NAV_AUDIO_PLAYING_ICON}</span>
+                    <span class="nav-audio-icon nav-audio-icon-idle" aria-hidden="true">${NAV_AUDIO_IDLE_ICON}</span>
+                    <span class="nav-audio-icon nav-audio-icon-playing hidden" aria-hidden="true">${NAV_AUDIO_PLAYING_ICON}</span>
                 </button>
                 <div class="nav-audio-volume-slider-wrapper">
                     <input type="range" id="nav-audio-volume" class="nav-audio-volume-slider" min="0" max="1" step="0.01" value="0.5" aria-label="Audio volume">
@@ -286,7 +287,7 @@ function generateSocialLinks(socialConfig, siteConfig) {
         const iconHtml = isSafeIconUrl
             ? `<img src="${shared.escapeHtml(rawIconUrl)}" alt="${safeAria}" class="w-full h-full object-contain" loading="lazy" />`
             : platform.iconSvg;
-        return `<a class="block w-6 h-6 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-[color,opacity] duration-300 ease-out hover:opacity-95"
+        return `<a class="freecat-social-link"
                 href="${safeHref}"
                 aria-label="${safeAria}"
                 target="_blank"
@@ -427,6 +428,13 @@ function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, s
     const navAudioButton = generateNavAudioButton(siteConfig);
     const shellBootstrapScript = generateShellBootstrapScript();
     const partialsCache = loadPartialsCache(partialsDir);
+    const headerIcons = {
+        HEADER_SEARCH_ICON: renderIcon('search'),
+        HEADER_TAG_ICON: renderIcon('tag'),
+        HEADER_SUN_ICON: renderIcon('sun', 'freecat-theme-sun'),
+        HEADER_MOON_ICON: renderIcon('moon', 'freecat-theme-moon'),
+        HEADER_CLOSE_ICON: renderIcon('x')
+    };
 
     function applySiteConfig(template) {
         // 文本字段（出现在 HTML 文本节点 / title / meta content 中）必须 escape
@@ -445,6 +453,9 @@ function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, s
         out = replacePlaceholder(out, /<!-- HERO_AVATAR -->/g, safeAvatar);
         out = replacePlaceholder(out, /<!-- SITE_FAVICON -->/g, safeFavicon);
         out = replacePlaceholder(out, /<!-- SITE_LOGO_ICON -->/g, logoIcon);
+        for (const [marker, svg] of Object.entries(headerIcons)) {
+            out = replacePlaceholder(out, '<!-- ' + marker + ' -->', svg);
+        }
         out = replacePlaceholder(out, /<!-- NAV_AUDIO_BUTTON -->/g, navAudioButton);
         out = replacePlaceholder(out, /<!-- THEME_SCRIPT -->/g, themeScript);
         out = replacePlaceholder(out, /<!-- SHELL_BOOTSTRAP_SCRIPT -->/g, shellBootstrapScript);

@@ -1,13 +1,11 @@
-<!-- partials/footer.html · 标准页脚（含社交链接）。关于页用 footer-no-social.html 版本。 -->
-<footer
-    class="page-blur-target relative z-30 mt-auto w-full border-t border-[#f0f2f4] dark:border-gray-800 bg-white dark:bg-background-dark px-3 py-3 md:px-10 md:py-4 lg:px-40">
-    <div class="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
-        <div class="flex flex-col gap-1 text-center md:text-left">
-            <p class="freecat-brand-text text-[#1e293b] dark:text-slate-200 text-[17px]"><!-- SITE_NAME --></p>
-            <p class="freecat-footer-copyright text-[#616f89] dark:text-gray-500 text-[13px]"><!-- FOOTER_COPYRIGHT --></p>
+<footer class="freecat-site-footer page-blur-target relative z-30 mt-auto w-full">
+    <div class="freecat-footer-inner">
+        <div class="freecat-footer-info">
+            <a class="freecat-brand-text" href="/"><!-- SITE_NAME --></a>
+            <p class="freecat-footer-copyright"><!-- FOOTER_COPYRIGHT --></p>
         </div>
-        <div class="flex items-center gap-3">
+        <nav class="freecat-footer-social" aria-label="社交链接">
             <!-- SOCIAL_LINKS -->
-        </div>
+        </nav>
     </div>
 </footer>

@@ -153,10 +153,10 @@ test('post card text uses build-time Figtree and Noto Sans SC font assets', () =
     assert.match(html, /class="freecat-date-text">2026-05-31<\/span>/);
     assert.match(html, /\bfreecat-tag-text\b/);
     assert.doesNotMatch(html, /\bfont-black\b[^"]*"[^>]*>中文Tag/);
-    assert.match(html, /\bfreecat-tag-text\b[^"]*\bfont-medium\b/);
+    assert.match(html, /\bfreecat-tag-text\b[^"]*\bfreecat-tag-badge\b/);
     assert.doesNotMatch(html, /<h3 class="[^"]*\bpost-card-excerpt\b/);
     assert.match(postTemplate, /<time class="freecat-published-date-text"/);
-    assert.match(postTemplate, /最后编辑:\s*<span class="freecat-date-text">/);
+    assert.match(postTemplate, /更新于 \s*<span class="freecat-date-text">/);
     assert.match(header, /<input[^>]+id="search-input"[^>]+class="freecat-search-input\b/);
     assert.match(tailwindBuild, /'display':\s*\["'Freecat Figtree'",\s*"'Freecat Noto Sans SC'"/);
     assert.doesNotMatch(headBase, /font-display:\s*swap;/);
@@ -170,10 +170,25 @@ test('tag text preserves authored English casing', () => {
     assert.doesNotMatch(html, /\buppercase\b/);
 });
 
+test('tag badges activate the same filter with mouse, Enter and Space', () => {
+    const html = shared.renderTagSpan('Reading');
+    const click = new Function('event', 'window', html.match(/onclick="([^"]+)"/)[1]);
+    const keydown = new Function('event', html.match(/onkeydown="([^"]+)"/)[1]);
+    const navigations = [];
+    const event = { preventDefault() {}, stopPropagation() {} };
+    const window = { FreecatNavigate: (url) => navigations.push(url) };
+    const badge = { click: () => click(event, window) };
+    badge.click();
+    keydown.call(badge, { ...event, key: 'Enter' });
+    keydown.call(badge, { ...event, key: ' ' });
+    keydown.call(badge, { ...event, key: 'Tab' });
+    assert.deepEqual(navigations, Array(3).fill('/search?tag=Reading'));
+});
+
 test('sidebar and about text use build-time Figtree and Noto Sans SC font classes', () => {
     assert.match(typographyCss, /\.freecat-sidebar-slogan,\s*\.freecat-about-title\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*800;/);
     assert.match(typographyCss, /\.freecat-sidebar-description,\s*\.freecat-sidebar-recent-link,\s*\.freecat-about-description\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
-    assert.match(typographyCss, /\.freecat-sidebar-recent-heading\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*800;/);
+    assert.match(typographyCss, /\.freecat-sidebar-recent-heading\s*\{[\s\S]*font-family:\s*"Freecat Figtree"[\s\S]*font-weight:\s*500;/);
 
     assert.match(homeSidebar, /class="freecat-sidebar-slogan\b/);
     assert.doesNotMatch(homeSidebar, /freecat-sidebar-slogan[^"]*\bfont-semibold\b/);
@@ -187,12 +202,9 @@ test('sidebar and about text use build-time Figtree and Noto Sans SC font classe
 
     assert.match(buildJs, /class="freecat-sidebar-recent-link\b/);
     assert.match(buildJs, /DEFAULT_RECENT_POSTS_LIMIT\s*=\s*8;/);
-    assert.match(buildJs, /class="freecat-sidebar-recent-link[^"]*\btext-sm\b/);
     assert.doesNotMatch(buildJs, /class="freecat-sidebar-recent-link[^"]*\btext-\[13px\]\b/);
-    assert.match(buildJs, /class="freecat-sidebar-recent-heading\b[\s\S]*>\s*Update\s*</);
-    assert.match(buildJs, /class="freecat-sidebar-recent-heading[^"]*\btext-sm\b[\s\S]*>\s*Update\s*</);
+    assert.match(buildJs, /class="freecat-sidebar-recent-heading\b[\s\S]*>\s*最近更新\s*</);
     assert.doesNotMatch(buildJs, /class="freecat-sidebar-recent-heading[^"]*\btext-\[13px\]\b/);
-    assert.doesNotMatch(buildJs, />\s*最近更新\s*</);
 });
 
 test('about social links follow the home sidebar reveal rhythm', () => {
@@ -202,18 +214,17 @@ test('about social links follow the home sidebar reveal rhythm', () => {
     assert.doesNotMatch(aboutTemplate, /class="freecat-about-social[^"]*\bmt-10\b[^"]*\bmd:mt-14\b/);
 });
 
-test('header brand link only uses content-sized click target', () => {
-    const brandLinkClass = header.match(/<a href="\/" class="([^"]*)">[\s\S]*?freecat-brand-text/)?.[1] || '';
-
-    assert.match(brandLinkClass, /\binline-flex\b/);
-    assert.match(brandLinkClass, /\bshrink-0\b/);
-    assert.doesNotMatch(brandLinkClass, /\bflex-1\b/);
+test('header brand is a separate home link from navigation and tools', () => {
+    const brand = header.match(/<a class="freecat-header-brand"[^>]*>[\s\S]*?<\/a>/)?.[0] || '';
+    assert.match(brand, /href="\/"/);
+    assert.match(brand, /freecat-brand-text/);
+    assert.doesNotMatch(brand, /nav-links|search-toggle/);
 });
 
 test('go back and update sort labels use requested font assets', () => {
-    for (const template of [postTemplate, searchTemplate, allTemplate]) {
-        assert.match(template, /class="freecat-go-back-text text-sm">Go Back<\/span>/);
-        assert.doesNotMatch(template, /<span class="text-sm font-bold">Go Back<\/span>/);
+    for (const template of [searchTemplate, allTemplate]) {
+        assert.match(template, /class="freecat-go-back-text text-sm">Back<\/span>/);
+        assert.doesNotMatch(template, /<span class="text-sm font-bold">Back<\/span>/);
     }
 
     assert.match(updateSortControl, /class="freecat-update-sort-label">按更新排序<\/span>/);
@@ -354,58 +365,33 @@ test('pinned post cards render the pin badge in every card layout', () => {
     assert.doesNotMatch(typographyCss, /\.post-card-pinned\s*\{[\s\S]*box-sizing:\s*content-box;/);
 });
 
-test('home mobile hero uses safe side padding instead of a fixed text width', () => {
-    const homeLayoutStyle = readProjectFile('src/partials/home-layout-style.html');
-    const balancedTitleIndex = homeLayoutStyle.indexOf('text-wrap: balance;');
-    const subtitleWrapIndex = homeLayoutStyle.lastIndexOf('.freecat-home-sidebar-hero-text h2');
-
-    assert.match(homeLayoutStyle, /--freecat-mobile-hero-safe-inline:\s*clamp\(20px,\s*5vw,\s*36px\);/);
-    assert.match(homeLayoutStyle, /\.freecat-home-sidebar\s*\{[\s\S]*padding:\s*calc\(var\(--freecat-page-top-offset,\s*96px\) \+ 12px\) var\(--freecat-mobile-hero-safe-inline\) clamp\(8px,\s*2vw,\s*14px\);/);
-    assert.match(homeLayoutStyle, /\.freecat-home-sidebar-hero-text\s*\{[\s\S]*width:\s*100%;[\s\S]*max-width:\s*none;[\s\S]*margin-inline:\s*auto;/);
-    assert.equal(balancedTitleIndex > -1, true);
-    assert.equal(subtitleWrapIndex > balancedTitleIndex, true);
-    assert.match(homeLayoutStyle.slice(subtitleWrapIndex), /\.freecat-home-sidebar-hero-text h2\s*\{[\s\S]*text-wrap:\s*wrap;/);
-    assert.doesNotMatch(homeLayoutStyle, /max-width:\s*min\(100%,\s*19rem\)/);
+test('home reading entries preserve full titles, one cover, tags and a quiet pin label', () => {
+    const title = '一个必须完整显示、不能因为手机屏幕变窄而被截断的文章标题';
+    const html = postCardTemplate.renderPostCard({
+        layout: 'reading-list', titleHtml: title, excerptHtml: '简洁摘要',
+        link: '/posts/reading/', date: '2026-09-28', modifiedDate: '2026-09-29',
+        tags: ['阅读', '<安全>'], pinned: true, cover: '/cover.jpg'
+    });
+    assert.equal((html.match(/<h3/g) || []).length, 1);
+    assert.ok(html.includes(title));
+    assert.equal((html.match(/<img /g) || []).length, 1);
+    assert.match(html, /class="home-post-pin">置顶/);
+    assert.match(html, /data-sort-pinned="1"/);
+    assert.match(html, /更新于 2026-09-29/);
+    assert.match(html, /class="home-post-update">\s*<span>更新于 2026-09-29<\/span>\s*<span class="home-post-arrow"/);
+    assert.match(html, /&lt;安全&gt;/);
+    assert.doesNotMatch(html, /animate-fade-in-up|post-card-pinned-badge|style="[^"]*line-clamp/);
 });
 
-test('home and search mobile lists use the all-page single-column card gap with a home boundary gap', () => {
-    const homeLayoutStyle = readProjectFile('src/partials/home-layout-style.html');
-
-    assert.match(homeLayoutStyle, /\.freecat-home-posts\s*\{[\s\S]*padding:\s*clamp\(12px,\s*3\.5vw,\s*18px\) 0\.875rem 48px;/);
-    assert.match(homeLayoutStyle, /\.freecat-home-posts #posts-list,\s*\.freecat-home-posts #search-results\s*\{[\s\S]*display:\s*grid;[\s\S]*grid-template-columns:\s*1fr;[\s\S]*row-gap:\s*1\.25rem;/);
-    assert.match(indexTemplate, /<div id="posts-list" class="freecat-post-card-list">/);
-    assert.match(searchTemplate, /<div id="search-results" class="freecat-post-card-list">/);
-});
-
-test('home, all and search cards share the all-page mobile card contract', () => {
+test('legacy compact cards and search keep the mobile tag contract', () => {
     assert.deepEqual(postCardTemplate.ALL_PAGE_MOBILE_CARD_OPTIONS, {
         mobileTagsInline: true
     });
     assert.match(readProjectFile('build', 'pages', 'index.js'), /const \{ ALL_PAGE_MOBILE_CARD_OPTIONS \} = postCardTemplate;/);
     assert.match(readProjectFile('build', 'pages', 'index.js'), /mobileTagsInline:\s*ALL_PAGE_MOBILE_CARD_OPTIONS\.mobileTagsInline/);
-    assert.match(readProjectFile('build', 'pages', 'all.js'), /\.\.\.postCardTemplate\.ALL_PAGE_MOBILE_CARD_OPTIONS/);
     assert.match(readProjectFile('src', 'assets', 'search-core.js'), /postCardTemplate\.ALL_PAGE_MOBILE_CARD_OPTIONS/);
     assert.doesNotMatch(readProjectFile('src', 'assets', 'search-core.js'), /ALL_PAGE_MOBILE_CARD_OPTIONS\s*\|\|/);
     assert.match(readProjectFile('shared', 'post-card-template.js'), /function renderAllPageMobileCardInner/);
-});
-
-test('all page compact cards keep mobile height and desktop cover area stable', () => {
-    assert.match(allTemplate, /<div id="posts-list" class="freecat-post-card-list">/);
-    assert.match(allTemplate, /\.freecat-all-page #posts-list\s*\{[\s\S]*--freecat-all-card-height:\s*27rem;[\s\S]*grid-auto-rows:\s*var\(--freecat-all-card-height\);/);
-    assert.match(allTemplate, /\.freecat-all-page #posts-list \.post-card\s*\{[\s\S]*height:\s*var\(--freecat-all-card-height\);/);
-    assert.match(allTemplate, /\.freecat-all-page #posts-list \.post-card > div\s*\{[\s\S]*height:\s*100%;/);
-    assert.match(allTemplate, /\.freecat-all-page #posts-list \.post-card\.has-cover \.lazy-image-frame\s*\{[\s\S]*flex:\s*1 1 auto;[\s\S]*height:\s*auto;[\s\S]*min-height:\s*0;/);
-    assert.match(allTemplate, /\.freecat-all-page #posts-list \.post-card\.has-cover \.post-card-excerpt-lines-4\s*\{[\s\S]*min-height:\s*88px;/);
-    assert.match(allTemplate, /@media \(min-width:\s*1024px\)\s*\{[\s\S]*\.freecat-all-page #posts-list\s*\{[\s\S]*--freecat-all-card-height:\s*clamp\(31rem,\s*30vw,\s*32rem\);[\s\S]*grid-auto-rows:\s*var\(--freecat-all-card-height\);/);
-    assert.match(allTemplate, /@media \(min-width:\s*1024px\)\s*\{[\s\S]*\.freecat-all-page #posts-list \.post-card,[\s\S]*\.freecat-all-page #posts-list \.post-card > div\s*\{[\s\S]*height:\s*var\(--freecat-all-card-height\);/);
-    assert.doesNotMatch(allTemplate, /@media \(min-width:\s*1024px\)\s*\{[\s\S]*grid-auto-rows:\s*auto;/);
-    assert.doesNotMatch(allTemplate, /--freecat-all-cover-excerpt-height/);
-    assert.match(allTemplate, /@media \(min-width:\s*1024px\)\s*\{[\s\S]*\.freecat-all-page #posts-list \.post-card > div\s*\{[\s\S]*justify-content:\s*flex-start;/);
-    assert.match(allTemplate, /@media \(min-width:\s*1024px\)\s*\{[\s\S]*\.freecat-all-page #posts-list \.post-card\.has-cover \.lazy-image-frame\s*\{[\s\S]*flex:\s*1 1 auto;[\s\S]*width:\s*100%;[\s\S]*height:\s*auto;[\s\S]*min-height:\s*0;/);
-    assert.doesNotMatch(allTemplate, /\.freecat-all-page #posts-list \.post-card\.has-cover \.lazy-image-frame\s*\{[\s\S]*aspect-ratio:\s*16 \/ 9;/);
-    assert.match(allTemplate, /@media \(min-width:\s*1024px\)\s*\{[\s\S]*\.freecat-all-page #posts-list \.post-card\.has-no-cover \.post-card-excerpt-lines-13\s*\{[\s\S]*-webkit-line-clamp:\s*16;[\s\S]*max-height:\s*352px;/);
-    assert.doesNotMatch(allTemplate, /\.post-card\.has-no-cover \.post-card-excerpt-lines-13\s*\{[\s\S]*max-height:\s*none;/);
-    assert.doesNotMatch(allTemplate, /\.post-card\.has-no-cover \.post-card-excerpt-lines-13\s*\{[\s\S]*min-height:\s*calc/);
 });
 
 test('pagination text uses requested regular and active font weights', () => {

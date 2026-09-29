@@ -151,6 +151,7 @@
             sortDate: post.sortDate,
             sortModifiedDate: post.sortModifiedDate,
             tagsHtml: generateTagsHtml(post.tags),
+            tags: post.tags,
             cover: post.cover,
             coverWidth: post.coverWidth,
             coverHeight: post.coverHeight,

@@ -43,6 +43,10 @@
         const SCROLL_RESTORE_REQUEST_KEY = 'freecat-scroll-restore-requests-v1';
         const SHELL_HISTORY_INDEX_KEY = 'freecatShellIndex';
         const headerEl = document.querySelector('header.fixed');
+        let observedFrameRoot = null;
+        const frameSizeObserver = typeof window.ResizeObserver === 'function'
+            ? new window.ResizeObserver(syncFrameOffset)
+            : null;
 
         function getPublicLocation() {
             return window.location.pathname + window.location.search + window.location.hash;
@@ -235,6 +239,14 @@
             let doc;
             try { doc = frame.contentDocument; } catch (err) { return; }
             if (!doc || !doc.documentElement) return;
+            // stable gutter 可能缩小实际排版区域却不改变 clientWidth；用根元素的布局宽度同步顶栏。
+            const scrollbarWidth = Math.max(0, frame.contentWindow.innerWidth - doc.documentElement.getBoundingClientRect().width);
+            document.documentElement.style.setProperty('--freecat-frame-scrollbar-width', `${scrollbarWidth}px`);
+            if (frameSizeObserver && observedFrameRoot !== doc.documentElement) {
+                frameSizeObserver.disconnect();
+                observedFrameRoot = doc.documentElement;
+                frameSizeObserver.observe(observedFrameRoot);
+            }
             const h = normalizeHeaderHeight(Math.ceil(headerEl.getBoundingClientRect().height));
             const gap = window.innerWidth < 768 ? 16 : 24;
             const rs = doc.documentElement.style;

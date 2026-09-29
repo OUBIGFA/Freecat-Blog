@@ -310,18 +310,16 @@ test('post page renders latest update panel only when update snapshot exists', (
         seoConfig: {}
     });
 
-    assert.match(withUpdate, /freecat-post-latest-update-panel/);
-    assert.match(withUpdate, /class="freecat-sidebar-recent-heading text-sm tracking-wider text-slate-500 dark:text-slate-400 mb-3"/);
-    assert.match(withUpdate, /freecat-post-latest-update-content[\s\S]*最后更新内容[\s\S]*freecat-post-latest-update-body/);
-    assert.match(withUpdate, />\s*最后更新内容\s*</);
-    assert.match(withUpdate, /class="freecat-post-latest-update-title-note">最后更新内容<\/span>/);
+    assert.match(withUpdate, /<details class="freecat-post-latest-update-shell">/);
+    assert.match(withUpdate, /<summary class="freecat-post-toc-title">Recent updates<svg\b/);
+    assert.doesNotMatch(withUpdate, /<details[^>]*\bopen\b/);
     assert.match(withUpdate, /最后新增的正文内容/);
     assert.match(withUpdate, /class="freecat-post-latest-update-link"/);
     assert.match(withUpdate, /href="#latest-update-1"/);
     assert.match(withUpdate, /data-latest-update-text="最后新增的正文内容"/);
     assert.doesNotMatch(withUpdate, /title="最后新增的正文内容"/);
     assert.doesNotMatch(withUpdate, /freecat-post-latest-update-date/);
-    assert.doesNotMatch(withoutUpdate, /freecat-post-latest-update-panel/);
+    assert.doesNotMatch(withoutUpdate, /freecat-post-latest-update-shell/);
     assert.doesNotMatch(withoutUpdate, />\s*Update\s*</);
 });
 

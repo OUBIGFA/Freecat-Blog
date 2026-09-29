@@ -11,43 +11,46 @@
 </head>
 
 <body data-page="home"
-    class="bg-background-light dark:bg-background-dark font-display text-[#1e293b] dark:text-slate-200 transition-colors duration-200">
+    class="bg-white dark:bg-background-dark font-display text-[#1e293b] dark:text-slate-200 transition-colors duration-200">
     <div class="freecat-home-stage relative flex h-auto min-h-screen w-full flex-col">
 
         <!-- INCLUDE:header -->
 
-        <!-- 主内容区：freecat-home-hero 标记让 main.js 跳过 layout-container 的 margin-top，
-             左/右两块各自承担让位顶栏的 padding-top。 -->
-        <div data-floating-nav-container class="layout-container page-blur-target freecat-home-hero flex h-full grow flex-col">
+        <!-- 宽屏简介固定并按可用高度缩放，窄屏自然堆叠。 -->
+        <main data-floating-nav-container class="layout-container page-blur-target freecat-home-hero flex h-full grow flex-col">
             <div class="freecat-home-layout w-full">
 
                 <!-- INCLUDE:home-sidebar -->
 
-                <!-- 右侧文章列表区：inner 居中于视口，同时避开左侧 sidebar。 -->
-                <section class="freecat-home-posts">
+                <section class="freecat-home-posts" aria-labelledby="home-posts-title">
                     <div class="freecat-home-posts-inner w-full">
+                        <div class="freecat-home-tools">
+                            <div class="freecat-home-list-heading">
+                                <h2 id="home-posts-title">Posts <span class="freecat-home-count"><!-- HOME_POST_COUNT --></span></h2>
+                                <a href="/all">All posts →</a>
+                            </div>
+                        </div>
                         <div id="view-all-header"
                             class="flex items-baseline justify-start pb-2 pt-0 mb-5">
                             <!-- PAGINATION_PLACEHOLDER -->
                         </div>
                         <div class="freecat-home-posts-column w-full min-w-0">
                             <!-- === 动态文章注入区 === -->
-                            <div id="posts-list" class="freecat-post-card-list">
+                            <div id="posts-list" class="freecat-home-post-list">
                                 <!-- POSTS_LIST_PLACEHOLDER -->
                             </div>
                             <!-- ===================== -->
                         </div>
                     </div>
 
-                    <!-- 底部主要分页器：独立于 inner，跨整个视口居中，
-                         避免被 sidebar padding-left 推偏，也不受 inner 的 zoom 缩放影响。 -->
+                    <!-- 分页与文章列对齐，保留现有无刷新翻页行为。 -->
                     <div id="pagination-buttons" class="freecat-home-pagination flex justify-center">
                         <!-- PAGINATION_BUTTONS_PLACEHOLDER -->
                     </div>
                 </section>
 
             </div>
-        </div>
+        </main>
 
         <!-- INCLUDE:floating-nav -->
 

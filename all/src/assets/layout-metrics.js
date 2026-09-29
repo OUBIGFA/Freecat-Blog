@@ -1,5 +1,5 @@
 /* layout-metrics.js
- * 页面布局测量：顶栏高度同步、首页 hero 高度测量、侧栏底部清理。
+ * 页面布局测量：顶栏对齐、首页 hero 高度测量、侧栏完整显示。
  * 依赖全局：无（所有依赖经 init 注入）。
  * 由 main.js 在 DOMContentLoaded 后调用 init() 装配。
  */
@@ -90,16 +90,31 @@
         }
 
         // ============================================================
-        // [Fix] 首页 / 搜索页：fixed sidebar 始终铺满视口高度。
-        // footer 自身层级更高，会自然盖在 sidebar 背景之上；这里仅清理旧版
-        // 动态避让逻辑可能留下的 inline bottom，避免无感分页后高度卡住。
+        // 按完整窗口的高度等比缩放全部侧栏内容；保留页脚空间，不裁切或分页。
+        // 记录本次访问的最大高度，手动缩小窗口不会反复缩放侧栏。
         // ============================================================
         let sidebarFooterAvoidFrame = 0;
+        let sidebarMaxViewportHeight = win.innerHeight;
         function updateHomeSidebarFooterAvoid() {
             sidebarFooterAvoidFrame = 0;
             const sidebar = doc.querySelector('.freecat-home-sidebar');
             if (!sidebar) return;
             sidebar.style.bottom = '';
+            if (win.innerWidth < 1280) {
+                sidebar.style.removeProperty('--freecat-sidebar-scale');
+                return;
+            }
+            const content = sidebar.querySelector('.freecat-home-sidebar-content');
+            if (!content || !content.scrollHeight) return;
+            sidebarMaxViewportHeight = Math.max(sidebarMaxViewportHeight, win.innerHeight);
+            const footer = doc.querySelector('.freecat-site-footer');
+            const padding = parseFloat(win.getComputedStyle(sidebar).paddingTop) || 0;
+            const available = Math.max(1, sidebarMaxViewportHeight - sidebar.getBoundingClientRect().top
+                - padding - (footer ? footer.offsetHeight : 0) - 24);
+            const value = String(Math.min(1, available / content.scrollHeight));
+            if (sidebar.style.getPropertyValue('--freecat-sidebar-scale') !== value) {
+                sidebar.style.setProperty('--freecat-sidebar-scale', value);
+            }
         }
         function scheduleHomeSidebarFooterAvoid() {
             if (sidebarFooterAvoidFrame) return;
@@ -113,9 +128,13 @@
         scheduleHomeHeroMeasure();
         scheduleHomeSidebarFooterAvoid();
 
+        const sidebarContent = doc.querySelector('.freecat-home-sidebar-content');
+        if (sidebarContent && typeof ResizeObserver !== 'undefined') {
+            new ResizeObserver(scheduleHomeSidebarFooterAvoid).observe(sidebarContent);
+        }
+
         win.addEventListener('resize', updateContentTopOffset);
         win.addEventListener('resize', scheduleHomeSidebarFooterAvoid);
-        win.addEventListener('scroll', scheduleHomeSidebarFooterAvoid, { passive: true });
         win.addEventListener('load', updateContentTopOffset);
         win.addEventListener('load', scheduleHomeSidebarFooterAvoid);
         win.requestAnimationFrame(() => {
@@ -126,6 +145,7 @@
             doc.fonts.ready.then(() => {
                 updateContentTopOffset();
                 scheduleHomeHeroMeasure();
+                scheduleHomeSidebarFooterAvoid();
             });
         }
 

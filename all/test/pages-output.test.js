@@ -14,6 +14,7 @@ const { createEngine } = require('../build/template-engine.js');
 const indexPage = require('../build/pages/index.js');
 const shellPage = require('../build/pages/shell.js');
 const searchPage = require('../build/pages/search.js');
+const allPage = require('../build/pages/all.js');
 
 function createTestEngine() {
     const siteConfig = {
@@ -60,6 +61,34 @@ function createPost() {
     };
 }
 
+test('all articles retain title text, dates, tags and covers in the reading layout', (t) => {
+    const writes = new Map();
+    t.mock.method(fs, 'writeFileSync', (filePath, html) => writes.set(path.basename(filePath), html));
+    t.mock.method(console, 'log', () => {});
+    const { engine, siteConfig, seoConfig } = createTestEngine();
+    allPage.generate({
+        posts: [
+            { ...createPost(), title: '完整标题 <阅读> & 设计', pinned: true, cover: '/cover.jpg', coverWidth: 1200, coverHeight: 800 },
+            { ...createPost(), title: '没有封面的文章', link: '/posts/no-cover/', tags: ['<标签>'] }
+        ],
+        template: engine.loadTemplate('template_index_all.html'),
+        siteConfig, seoConfig, outputDir: 'dist'
+    });
+    const html = writes.get('all.html');
+    const entries = html.match(/<a\b[^>]*class="post-card [\s\S]*?<\/a>/g) || [];
+    assert.equal(entries.length, 2);
+    assert.match(entries[0], /<h3[^>]*>完整标题 &lt;阅读&gt; &amp; 设计<\/h3>/);
+    assert.match(entries[0], /<time datetime="2026-06-01">2026-06-01<\/time>/);
+    assert.match(entries[0], /更新于 2026-06-02/);
+    assert.match(entries[0], /data-sort-pinned="1"/);
+    assert.equal((entries[0].match(/<img /g) || []).length, 1);
+    assert.match(entries[0], /data-src="\/cover.jpg"/);
+    assert.match(entries[1], /href="\/posts\/no-cover\/"/);
+    assert.match(entries[1], /&lt;标签&gt;/);
+    assert.doesNotMatch(entries[1], /<img /);
+    assert.doesNotMatch(entries.join(''), /style="[^"]*line-clamp|post-card-pinned-badge/);
+});
+
 test('generated home content and shell output keep separate roles', (t) => {
     const writes = new Map();
     t.mock.method(fs, 'writeFileSync', (filePath, html) => {
@@ -98,6 +127,10 @@ test('generated home content and shell output keep separate roles', (t) => {
     assert.match(indexHtml, /"@type":"WebSite"/);
     assert.match(indexHtml, /\/posts\/demo-post\//);
     assert.match(indexHtml, /Demo Post/);
+    assert.match(indexHtml, /class="post-card home-post-entry/);
+    assert.doesNotMatch(indexHtml, /data-site-search/);
+    assert.match(indexHtml, /id="search-toggle"/);
+    assert.doesNotMatch(indexHtml, /<!-- HOME_POST_COUNT -->/);
     assert.doesNotMatch(indexHtml, /<meta name="robots" content="noindex/);
     assert.doesNotMatch(indexHtml, /data-freecat-shell-root="true"/);
 

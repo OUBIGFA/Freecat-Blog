@@ -42,9 +42,13 @@
         observed: false
     };
 
+    var echartsCharts = [];
+    var echartsResizeBound = false;
+    var diagramFontFamily = '"Freecat Figtree", "Freecat Noto Sans SC", Inter, ui-sans-serif, system-ui, sans-serif';
+
     function initMermaidBlocks() {
         renderMermaidBlocks();
-        observeMermaidThemeChanges();
+        observeDiagramThemeChanges();
     }
 
     // 把 base64 源码还原进各 mermaid 块，并给容器标注图类型；返回待渲染块列表。
@@ -87,12 +91,14 @@
             },
             gantt: {
                 useMaxWidth: false,
+                // 原始时间轴容纳短任务标签；显示时连同文字等比适配正文。
+                useWidth: 1200,
                 axisFormat: '%m-%d',
                 topPadding: 48,
                 leftPadding: 96,
                 gridLineStartPadding: 24,
-                fontSize: 12,
-                barHeight: 18,
+                fontSize: 15,
+                barHeight: 24,
                 barGap: 6
             }
         };
@@ -101,10 +107,8 @@
     function renderMermaidBlocks() {
         var blocks = Array.prototype.slice.call(document.querySelectorAll('.mermaid-block .mermaid'));
         if (!blocks.length) return;
-        var mermaidBlocks = prepareMermaidBlocks(blocks);
-        if (!mermaidBlocks.length) return;
         if (!window.mermaid) {
-            mermaidBlocks.forEach(function (block) {
+            blocks.forEach(function (block) {
                 renderChartError(block.closest('.diagram-block') || block, 'Mermaid library was not loaded.');
             });
             return;
@@ -113,6 +117,8 @@
             mermaidRenderState.pending = true;
             return;
         }
+        // 正在渲染时只排队，不能先清空原 SVG；主题切换完成后再还原源码。
+        var mermaidBlocks = prepareMermaidBlocks(blocks);
         mermaidRenderState.rendering = true;
         mermaidRenderState.pending = false;
 
@@ -175,15 +181,18 @@
         var root = document.documentElement;
         var isDark = !!(root && root.classList && root.classList.contains && root.classList.contains('dark'));
         return {
-            fontFamily: '"Freecat Figtree", "Freecat Noto Sans SC", Inter, ui-sans-serif, system-ui, sans-serif',
-            fontSize: '14px',
-            background: 'transparent',
+            fontFamily: diagramFontFamily,
+            fontSize: '16px',
+            darkMode: isDark,
+            background: isDark ? '#101622' : '#ffffff',
             primaryColor: 'transparent',
             primaryTextColor: isDark ? '#e7edf6' : '#0f172a',
             primaryBorderColor: isDark ? '#516176' : '#94a3b8',
             lineColor: isDark ? '#94a3b8' : '#64748b',
             secondaryColor: 'transparent',
             tertiaryColor: 'transparent',
+            textColor: isDark ? '#e7edf6' : '#233044',
+            titleColor: isDark ? '#e7edf6' : '#233044',
             actorBkg: 'transparent',
             actorBorder: isDark ? '#516176' : '#94a3b8',
             actorTextColor: isDark ? '#e5edf6' : '#0f172a',
@@ -206,6 +215,7 @@
             taskBkgColor: isDark ? '#4b5563' : '#dce6f2',
             taskTextColor: isDark ? '#ffffff' : '#233044',
             taskTextOutsideColor: isDark ? '#dbe4f0' : '#233044',
+            taskTextDarkColor: isDark ? '#e7edf6' : '#233044',
             taskBorderColor: isDark ? '#6b7280' : '#9aa8bc',
             activeTaskBkgColor: isDark ? '#5f6c7d' : '#c9d8e8',
             activeTaskBorderColor: isDark ? '#8b96a7' : '#8fa1b8',
@@ -372,7 +382,7 @@
         });
     }
 
-    function observeMermaidThemeChanges() {
+    function observeDiagramThemeChanges() {
         if (typeof MutationObserver === 'undefined' || !document.documentElement) return;
         if (mermaidRenderState.observed) return;
         mermaidRenderState.observed = true;
@@ -388,7 +398,10 @@
             var isDark = document.documentElement.classList.contains('dark');
             if (isDark === lastIsDark) return;
             lastIsDark = isDark;
-            requestAnimationFrame(renderMermaidBlocks);
+            requestAnimationFrame(function () {
+                renderMermaidBlocks();
+                initEchartsBlocks();
+            });
         });
         observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     }
@@ -399,7 +412,7 @@
         var paddingLeft = style ? parseFloat(style.paddingLeft) || 0 : 0;
         var paddingRight = style ? parseFloat(style.paddingRight) || 0 : 0;
         var innerWidth = container.clientWidth - paddingLeft - paddingRight;
-        return Math.max(240, Math.floor(innerWidth));
+        return Math.max(1, Math.floor(innerWidth));
     }
 
     function getSvgViewBoxWidth(svg) {
@@ -417,24 +430,66 @@
             var svg = block.querySelector('svg');
             if (!svg) return;
             var container = block.closest('.diagram-block');
-            var kind = container ? container.getAttribute('data-mermaid-kind') : '';
             var width = getSvgViewBoxWidth(svg);
             var availableWidth = getDiagramAvailableWidth(container);
-            var finalWidth = width;
-            if (kind === 'gantt' && availableWidth > 0) {
-                finalWidth = availableWidth;
-            } else if (availableWidth > 0 && width > 0) {
-                finalWidth = Math.min(width, availableWidth);
-            } else {
-                finalWidth = availableWidth || width;
-            }
+            // 保持布局比例，整张图缩进正文宽度，不增加内部滚动条。
+            var finalWidth = Math.min(width || availableWidth, availableWidth);
             if (finalWidth > 0) svg.style.width = finalWidth + 'px';
             svg.style.maxWidth = '100%';
-            if (container) {
-                container.scrollLeft = 0;
-                container.scrollTop = 0;
-            }
         });
+    }
+
+    function initMarkdownSizing() {
+        var mathBlocks = Array.prototype.slice.call(document.querySelectorAll('.prose .katex-display'));
+        var diagrams = Array.prototype.slice.call(document.querySelectorAll('.mermaid-block .mermaid'));
+        if (!mathBlocks.length && !diagrams.length) return;
+        var frame = 0;
+        function fit() {
+            frame = 0;
+            applyMermaidSvgSizes(diagrams);
+            mathBlocks.forEach(function (block) {
+                var formula = block.querySelector('.katex');
+                if (!formula) return;
+                // zoom 同时缩小公式和占位高度，避免裁切或残留一整块空白。
+                formula.style.zoom = '1';
+                var naturalWidth = formula.getBoundingClientRect().width;
+                if (naturalWidth > 0) formula.style.zoom = String(Math.min(1, block.clientWidth / naturalWidth));
+            });
+        }
+        function schedule() {
+            if (!frame) frame = window.requestAnimationFrame(fit);
+        }
+        schedule();
+        window.addEventListener('resize', schedule);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(schedule);
+    }
+
+    // 主题只提供默认视觉值，作者的轴、数据系列、颜色和交互配置仍由 setOption 优先应用。
+    function getEchartsTheme(isDark) {
+        var text = isDark ? '#dbe4f0' : '#334155';
+        var muted = isDark ? '#a4b1c3' : '#64748b';
+        var rule = isDark ? '#334155' : '#dce2ea';
+        var axis = {
+            axisLine: { lineStyle: { color: rule } },
+            axisTick: { show: false },
+            axisLabel: { color: muted, fontSize: 13 },
+            splitLine: { lineStyle: { color: rule, type: 'dashed' } },
+            nameTextStyle: { color: muted }
+        };
+        return {
+            darkMode: isDark,
+            color: isDark
+                ? ['#91b4d4', '#93b9aa', '#b3a2c8', '#cfb587', '#cd9d96', '#8dbec4']
+                : ['#557fa3', '#668e7d', '#8e7da7', '#ac8c56', '#ad776f', '#568f97'],
+            backgroundColor: 'transparent',
+            textStyle: { color: text, fontFamily: diagramFontFamily, fontSize: 15 },
+            title: { textStyle: { color: text, fontSize: 18, fontWeight: 500 }, subtextStyle: { color: muted } },
+            legend: { textStyle: { color: muted }, inactiveColor: rule },
+            tooltip: { backgroundColor: isDark ? '#182232' : '#ffffff', borderColor: rule, textStyle: { color: text } },
+            categoryAxis: axis, valueAxis: axis, timeAxis: axis, logAxis: axis,
+            line: { lineStyle: { width: 2 }, symbolSize: 6 },
+            bar: { itemStyle: { borderWidth: 0 } }
+        };
     }
 
     function initEchartsBlocks() {
@@ -447,7 +502,7 @@
             return;
         }
 
-        var charts = [];
+        echartsCharts = [];
         blocks.forEach(function (block) {
             var error = block.getAttribute('data-chart-error');
             if (error) {
@@ -467,24 +522,50 @@
             var canvas = block.querySelector('.echarts-canvas');
             if (!canvas) return;
             try {
-                var chart = window.echarts.init(canvas, null, { renderer: 'svg' });
-                chart.setOption(options);
-                charts.push(chart);
+                var previousChart = window.echarts.getInstanceByDom(canvas);
+                if (previousChart) previousChart.dispose();
+                var isDark = document.documentElement.classList.contains('dark');
+                var theme = getEchartsTheme(isDark);
+                var chart = window.echarts.init(canvas, theme, { renderer: 'svg' });
+                // 作者指定的图表字体优先；未指定时使用与文章一致的可读默认值。
+                chart.setOption(Object.assign({ backgroundColor: 'transparent', animation: false }, options, {
+                    textStyle: Object.assign({}, theme.textStyle, options.textStyle)
+                }));
+                echartsCharts.push(chart);
             } catch (err) {
                 renderChartError(block, err && err.message);
             }
         });
 
-        if (charts.length) {
+        if (echartsCharts.length && !echartsResizeBound) {
+            echartsResizeBound = true;
             window.addEventListener('resize', function () {
-                charts.forEach(function (chart) { chart.resize(); });
+                echartsCharts.forEach(function (chart) { chart.resize(); });
             });
         }
     }
 
     function initDiagramBlocks() {
-        initMermaidBlocks();
-        initEchartsBlocks();
+        var blocks = Array.prototype.slice.call(document.querySelectorAll('.diagram-block'));
+        if (!blocks.length) return;
+        var render = function () {
+            initMermaidBlocks();
+            initEchartsBlocks();
+        };
+        // SVG 创建前字体可能尚未被使用；显式加载图表所需字形，避免 ready 提前完成。
+        var fonts = document.fonts;
+        if (!fonts || typeof fonts.load !== 'function') { render(); return; }
+        var labels = blocks.map(function (block) {
+            return block.textContent || decodeBase64Utf8(block.getAttribute('data-chart-options'));
+        }).join('');
+        Promise.all([
+            fonts.load('15px "Freecat Figtree"', labels),
+            fonts.load('15px "Freecat Noto Sans SC"', labels)
+        ]).then(render, function (error) {
+            // 字体请求失败时沿用浏览器字体回退，图表数据仍须可用。
+            console.warn('Chart font loading failed; using browser fallback fonts.', error);
+            render();
+        });
     }
 
     function initShareButton() {
@@ -521,10 +602,10 @@
 
         function copyUrlToClipboard(url) {
             shared.copyText(url).then(function () {
-                flashShareState('copied', 'Copied');
+                flashShareState('copied', '链接已复制');
             }).catch(function (err) {
                 console.error('Copy failed:', err);
-                flashShareState('error', 'Copy failed');
+                flashShareState('error', '复制失败');
             });
         }
 
@@ -604,7 +685,92 @@
     }
 
     function initTocAnchors() {
-        document.querySelectorAll('nav a[href^="#"]').forEach(function (anchor) {
+        var toc = document.querySelector('.freecat-post-toc');
+        if (!toc || toc.getAttribute('data-reading-ready') === 'true') return;
+        toc.setAttribute('data-reading-ready', 'true');
+        var wideScreen = window.matchMedia('(min-width: 1280px)');
+        var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        var container = document.getElementById('toc-container');
+        var nav = container.querySelector('nav');
+        var article = document.querySelector('article');
+        var links = Array.prototype.slice.call(toc.querySelectorAll('nav a[href^="#"]'));
+        var sections = links.map(function (link) {
+            return { link: link, heading: document.getElementById(link.getAttribute('href').substring(1)) };
+        }).filter(function (section) { return section.heading; });
+        var activeLink = null;
+        var scrollFrame = 0;
+        var layoutDirty = true;
+        var headerOffset = 0;
+
+        function scheduleTocMeasure() {
+            layoutDirty = true;
+            scheduleCurrentSection();
+        }
+
+        function updateCurrentSection() {
+            scrollFrame = 0;
+            var measured = layoutDirty;
+            // 章节位置仅在布局变化时测量；滚动帧用缓存查找，避免长文反复触发布局读取。
+            if (layoutDirty) {
+                headerOffset = getTocHeaderOffset() + 24;
+                sections.forEach(function (section) { section.top = getElementPageTop(section.heading); });
+                layoutDirty = false;
+            }
+            var threshold = getCurrentScrollY() + headerOffset;
+            var low = 0;
+            var high = sections.length - 1;
+            while (low <= high) {
+                var middle = Math.floor((low + high) / 2);
+                if (sections[middle].top <= threshold) low = middle + 1;
+                else high = middle - 1;
+            }
+            var current = sections[Math.max(0, high)];
+            if (getCurrentScrollY() >= getDocumentMaxScrollY() - 2) current = sections[sections.length - 1];
+            if (!current) return;
+            var changed = current.link !== activeLink;
+            if (!changed && !measured) return;
+
+            var linkTop = current.link.offsetTop;
+            var linkHeight = current.link.offsetHeight;
+            var viewTop = container.scrollTop;
+            var viewHeight = container.clientHeight;
+            if (changed) {
+                if (activeLink) activeLink.removeAttribute('aria-current');
+                activeLink = current.link;
+                activeLink.setAttribute('aria-current', 'location');
+            }
+            // 复用同一根指示条，由 CSS 连续过渡位置，不在各链接间销毁、重建。
+            nav.style.setProperty('--toc-active-top', (linkTop + 8) + 'px');
+            nav.style.setProperty('--toc-active-height', Math.max(0, linkHeight - 16) + 'px');
+            // 只移动到可见边缘，避免整段目录突然居中；读者操作目录时不抢滚动。
+            if (wideScreen.matches && !toc.matches(':hover, :focus-within')) {
+                var targetTop = viewTop;
+                if (linkTop < viewTop + 24) targetTop = linkTop - 24;
+                else if (linkTop + linkHeight > viewTop + viewHeight - 24) targetTop = linkTop + linkHeight - viewHeight + 24;
+                if (Math.abs(targetTop - viewTop) > 1) container.scrollTo({
+                    top: Math.max(0, targetTop),
+                    behavior: reducedMotion.matches ? 'instant' : 'smooth'
+                });
+            }
+        }
+
+        function scheduleCurrentSection() {
+            if (!scrollFrame) scrollFrame = window.requestAnimationFrame(updateCurrentSection);
+        }
+
+        wideScreen.addEventListener('change', scheduleTocMeasure);
+        window.addEventListener('scroll', scheduleCurrentSection, { passive: true });
+        window.addEventListener('resize', scheduleTocMeasure);
+        // 图片、字体、表格及代码块展开会改变章节位置，统一让缓存失效。
+        if (typeof ResizeObserver === 'function' && article) {
+            var layoutObserver = new ResizeObserver(scheduleTocMeasure);
+            layoutObserver.observe(article);
+            layoutObserver.observe(nav);
+        }
+        if (document.fonts) document.fonts.ready.then(scheduleTocMeasure);
+        scheduleTocMeasure();
+
+        links.forEach(function (anchor) {
             if (anchor.getAttribute('data-toc-ready') === 'true') return;
             anchor.setAttribute('data-toc-ready', 'true');
             anchor.addEventListener('click', function (e) {
@@ -614,9 +780,11 @@
                 var article = document.querySelector('article');
 
                 if (targetElement && article) {
+                    targetElement.setAttribute('tabindex', '-1');
+                    targetElement.focus({ preventScroll: true });
                     window.scrollTo({
                         top: getTocTargetScrollY(targetElement, article),
-                        behavior: 'smooth'
+                        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
                     });
                     history.replaceState(null, null, '#' + targetId);
                 }
@@ -707,9 +875,13 @@
 
                 if (targetElement && article) {
                     if (!targetElement.id) targetElement.id = targetId;
+                    var updateDetails = this.closest('.freecat-post-latest-update-shell');
+                    if (updateDetails && !window.matchMedia('(min-width: 1280px)').matches) updateDetails.open = false;
+                    targetElement.setAttribute('tabindex', '-1');
+                    targetElement.focus({ preventScroll: true });
                     window.scrollTo({
                         top: getTocTargetScrollY(targetElement, article),
-                        behavior: 'smooth'
+                        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
                     });
                     history.replaceState(null, null, '#' + targetElement.id);
                 }
@@ -828,6 +1000,7 @@
 
     function initPostPage() {
         initDiagramBlocks();
+        initMarkdownSizing();
         codeFolding.init();
         initShareButton();
         initTocAnchors();

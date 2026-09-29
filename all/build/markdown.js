@@ -11,15 +11,14 @@ const { renderCopyButton } = require('./copy-button.js');
  */
 
 // ===== 代码块构建期折叠 / 占位尺寸常量 =====
-// 与 post-code.css 保持一致：pre code 字号 0.9rem(14.4px) × 行高 1.72 ≈ 24.77px/行，
-// .code-content 上下 padding 共 1.35rem × 2 = 43.2px（border-box）。
+// 与 post-code.css 桌面尺寸一致：16px × 1.75 行高，正文上下内边距共 36px。
 // 折叠阈值沿用旧运行时逻辑（内容高度 > 500px 折叠到 400px）。
-const CODE_LINE_HEIGHT_PX = 24.77;
-const CODE_CONTENT_PADDING_PX = 43.2;
+const CODE_LINE_HEIGHT_PX = 28;
+const CODE_CONTENT_PADDING_PX = 36;
 const CODE_FOLD_MIN_PX = 500;
 const CODE_COLLAPSED_MAX_HEIGHT_PX = 400;
-const CODE_BLOCK_CHROME_PX = 41; // 容器上下边框 2px + 头部行（min-height 38px + 底边框 1px）
-const CODE_COLLAPSED_CONTROLS_PX = 54; // 折叠态控件行（按钮约 28px + 上下 margin 0.7rem/0.9rem）
+const CODE_BLOCK_CHROME_PX = 46; // 容器上下边框与 44px 工具栏
+const CODE_COLLAPSED_CONTROLS_PX = 70; // 40px 按钮、控件边框及上下留白
 
 
 const {
@@ -617,14 +616,15 @@ const calloutBlockExtension = {
     },
     renderer(token) {
         const innerHtml = token.text ? marked.parse(prepareMarkdownSpacing(token.text)) : '';
+        // 恢复文章提示原有的细线图标，不添加外框装饰。
         const iconMap = {
-            note: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1010 10A10.011 10.011 0 0012 2zm1 15h-2v-6h2zm0-8h-2V7h2z"/></svg>',
-            tip: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M9 21h6v-1a3 3 0 00-3-3 3 3 0 00-3 3v1zm3-19a7 7 0 00-7 7c0 2.86 1.61 4.32 3 6h8c1.39-1.68 3-3.14 3-6a7 7 0 00-7-7z"/></svg>',
-            important: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L1 21h22L12 2zm1 15h-2v-2h2zm0-4h-2V9h2z"/></svg>',
-            warning: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2V9h2v5z"/></svg>',
-            caution: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5a7 7 0 017 7 7 7 0 11-7-7zm1 10h-2v-2h2zm0-4h-2V7h2z"/></svg>'
+            note: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v.01"/>',
+            tip: '<path d="M9 18h6m-5 3h4M8 14a6 6 0 1 1 8 0c-1 1-1 2-1 2H9s0-1-1-2Z"/>',
+            important: '<path d="M8 3h8l5 5v8l-5 5H8l-5-5V8Z M12 7v6m0 4v.01"/>',
+            warning: '<path d="m12 3 10 18H2L12 3Zm0 6v5m0 3v.01"/>',
+            caution: '<path d="m12 2 9 10-9 10L3 12 12 2Zm0 5v6m0 4v.01"/>'
         };
-        const svgIcon = iconMap[token.calloutType] || iconMap.note;
+        const svgIcon = `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${iconMap[token.calloutType] || iconMap.note}</svg>`;
         const safeTitle = escapeRenderedText(token.title);
         return `<div class="callout callout-${token.calloutType}" data-callout="${token.calloutType}"><div class="callout-title"><span class="callout-icon">${svgIcon}</span><span class="callout-title-inner">${safeTitle}</span></div><div class="callout-content">${innerHtml}</div></div>\n`;
     }
@@ -644,6 +644,12 @@ function isExternalLinkHref(href) {
 function buildRenderer() {
     const renderer = new marked.Renderer();
     const linkRenderer = renderer.link;
+    const tableRenderer = renderer.table;
+
+    // 表格独立横向滚动，保留原生表格语义和既有列宽；窄屏不把内容挤成竖排。
+    renderer.table = (header, body) => {
+        return `<div class="markdown-table-scroll" role="region" aria-label="表格">${tableRenderer.call(renderer, header, body)}</div>\n`;
+    };
 
     renderer.html = (html) => {
         return String(html || '');
@@ -680,12 +686,13 @@ function buildRenderer() {
         const dims = parseImageDimensions(title);
         const visibleTitle = dims.cleanTitle;
         const safeTitle = visibleTitle ? ` title="${escapeRenderedText(visibleTitle)}"` : '';
+        const dimensions = dims.width && dims.height ? ` width="${dims.width}" height="${dims.height}"` : '';
         const caption = visibleTitle || (text || '').trim();
         const enableCaption = Boolean(activePostOptions && activePostOptions.enableImageCaptions);
 
         return `
     <figure class="post-image markdown-image-block relative w-full">
-        <img class="post-image-img post-image-placeholder" src="${fallbackSrc}" data-src="${safeHref}" alt="${safeAlt}"${safeTitle} loading="lazy" decoding="async" />
+        <img class="post-image-img post-image-placeholder" src="${fallbackSrc}" data-src="${safeHref}" alt="${safeAlt}"${safeTitle}${dimensions} loading="lazy" decoding="async" />
         <div class="post-image-loader placeholder-loader" aria-hidden="true"><span class="loader"></span></div>
         ${(enableCaption && caption) ? `<figcaption class="image-caption block text-center text-sm text-slate-500 dark:text-slate-400">${escapeRenderedText(caption)}</figcaption>` : ''}
     </figure>`;
@@ -759,9 +766,8 @@ function buildRenderer() {
         if (normalizedLanguage && hljs.getLanguage(normalizedLanguage)) {
             return hljs.highlight(code, { language: normalizedLanguage, ignoreIllegals: true }).value;
         }
-        if (!normalizedLanguage) {
-            return hljs.highlightAuto(code).value;
-        }
+        // 恢复未标注代码的自动识别；作者可用 text/plaintext 显式关闭高亮。
+        if (!normalizedLanguage) return hljs.highlightAuto(code).value;
         // 未注册的语言：保持纯转义文本（与运行时 highlightAll 对未知语言的行为一致）
         return escapeHtml(code);
     }
@@ -795,13 +801,18 @@ function buildRenderer() {
         const langClass = language ? ` language-${escapeHtml(language)}` : '';
         const langLabel = language
             ? `<span class="code-language-label">${escapeHtml(language)}</span>`
-            : '<span class="code-language-label">code</span>';
+            : '<span class="code-language-label">Auto</span>';
 
         // 折叠判定也在构建期完成，运行时不再对每个代码块读 scrollHeight
         //（那会造成上百次强制同步重排，是大文章打开卡顿的另一来源）。
-        // pre-wrap 下实际渲染行数 ≥ 源码行数，因此「源码行高度估算 > 500px → 折叠」
-        // 不会误折短代码；个别短行数但换行很多的块保持展开，影响可忽略。
-        const lineCount = String(code || '').split('\n').length;
+        // 将长行的预计换行计入折叠高度，覆盖单行 JSON 和长提示词；
+        // 按桌面约 72 个等宽字符估算，不需要浏览器逐块测量。
+        const lineCount = String(code || '').split('\n').reduce((total, line) => {
+            const columns = Array.from(line).reduce((width, char) => {
+                return width + (char === '\t' ? 4 : /[\u2e80-\u9fff\uac00-\ud7af\uff01-\uff60]/u.test(char) ? 2 : 1);
+            }, 0);
+            return total + Math.max(1, Math.ceil(columns / 72));
+        }, 0);
         const contentHeightPx = CODE_CONTENT_PADDING_PX + lineCount * CODE_LINE_HEIGHT_PX;
         const folded = contentHeightPx > CODE_FOLD_MIN_PX;
         // contain-intrinsic-size 占位高度：让视口外代码块在 content-visibility: auto
@@ -820,13 +831,14 @@ function buildRenderer() {
                 <button class="code-nav-btn code-nav-top" type="button" data-code-nav="top" aria-label="Scroll to code block top">
                     <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M12 13.9142L16.7929 18.7071L18.2071 17.2929L12 11.0858L5.79289 17.2929L7.20711 18.7071L12 13.9142ZM6 7L18 7V9L6 9L6 7Z"></path></svg></span>
                 </button>
-                <button class="t-btn-icon fold-toggle-btn group relative flex items-center justify-center rounded-full size-10 bg-[#f8fafc] dark:bg-gray-800 text-[#1e293b] dark:text-slate-200 border border-slate-200 dark:border-gray-700 hover:text-primary dark:hover:text-primary" aria-label="Toggle code fold">
+                <button class="fold-toggle-btn" type="button" aria-label="展开内容" aria-expanded="false">
                     <span class="fold-icon-expand text-xl text-gray-600 dark:text-gray-400">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M18.2072 9.0428 12.0001 2.83569 5.793 9.0428 7.20721 10.457 12.0001 5.66412 16.793 10.457 18.2072 9.0428ZM5.79285 14.9572 12 21.1643 18.2071 14.9572 16.7928 13.543 12 18.3359 7.20706 13.543 5.79285 14.9572Z"></path></svg>
                     </span>
                     <span class="fold-icon-collapse hidden text-xl text-gray-600 dark:text-gray-400">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M5.79285 5.20718 12 11.4143 18.2071 5.20718 16.7928 3.79297 12 8.58586 7.20706 3.79297 5.79285 5.20718ZM18.2072 18.7928 12.0001 12.5857 5.793 18.7928 7.20721 20.207 12.0001 15.4141 16.793 20.207 18.2072 18.7928Z"></path></svg>
                     </span>
+                    <span class="fold-toggle-label">展开内容</span>
                 </button>
                 <button class="code-nav-btn code-nav-bottom" type="button" data-code-nav="bottom" aria-label="Scroll to code block bottom">
                     <span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M12 10.0858L7.20711 5.29291L5.79289 6.70712L12 12.9142L18.2071 6.70712L16.7929 5.29291L12 10.0858ZM18 17L6 17L6 15L18 15V17Z"></path></svg></span>
@@ -837,7 +849,7 @@ function buildRenderer() {
     <div class="${containerClass}" style="contain-intrinsic-size: auto ${intrinsicHeightPx}px">
         <div class="flex items-center justify-between">
             ${langLabel}
-            ${renderCopyButton()}
+            ${renderCopyButton({ className: 'code-copy-btn', ariaLabel: '复制代码', title: '复制代码', text: '复制' })}
         </div>
         <div class="code-wrapper relative">
             <div class="code-content"${contentStyle}>

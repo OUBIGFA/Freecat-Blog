@@ -75,10 +75,36 @@
 
         const imageMarkup = imageSrc
             ? `<img src="/image/404.png"${cover ? ` data-src="${cover}"` : ''}
-                    alt="Cover"
+                    alt="${layout === 'reading-list' ? '' : 'Cover'}"
                     class="w-full h-full object-cover"${coverDimAttrs}
                     loading="lazy" decoding="async" />${cover ? '<div class="placeholder-loader" aria-hidden="true"><span class="loader"></span></div>' : ''}`
             : '';
+
+        // 首页按阅读列表呈现，复用同一份文章数据与媒体；其它列表保留原有布局选项。
+        if (layout === 'reading-list') {
+            const readingTags = Array.isArray(post.tags)
+                ? post.tags.map(tag => shared.renderTagSpan(tag)).join('')
+                : '';
+            return `<a href="${link}" class="post-card home-post-entry ${imageMarkup ? 'has-cover' : 'has-no-cover'}"
+                data-sort-date="${sortDate}" data-sort-modified="${sortModifiedDate}" data-sort-pinned="${pinned ? '1' : '0'}">
+                <div class="home-post-copy">
+                    <div class="home-post-meta">
+                        ${pinned ? '<span class="home-post-pin">置顶</span>' : ''}
+                        <time datetime="${date}">${date}</time>
+                        <span class="home-post-update">
+                            ${modifiedDate && modifiedDate !== date ? `<span>更新于 ${modifiedDate}</span>` : ''}
+                            <span class="home-post-arrow" aria-hidden="true">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15m-6-6 6 6-6 6"/></svg>
+                            </span>
+                        </span>
+                    </div>
+                    <h3 class="post-card-title home-post-title">${titleHtml}</h3>
+                    ${excerptBodyHtml ? `<p class="post-card-excerpt home-post-excerpt">${mediaIconHtml}${excerptBodyHtml}</p>` : ''}
+                    ${readingTags ? `<div class="home-post-tags">${readingTags}</div>` : ''}
+                </div>
+                ${imageMarkup ? `<div class="home-post-cover lazy-image-frame">${imageMarkup}</div>` : ''}
+            </a>`;
+        }
         const desktopImageBlock = imageMarkup
             ? `<div class="post-card-default-desktop-media lazy-image-frame">
                         ${imageMarkup}

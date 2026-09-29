@@ -5,114 +5,92 @@
     <!-- INCLUDE:head-base -->
     <title>All Articles - <!-- SITE_TITLE --></title>
     <!-- ALL_SEO_HEAD -->
+    <!-- INCLUDE:home-layout-style -->
     <style>
         .freecat-all-page .layout-container {
-            padding-left: clamp(1rem, 3vw, 3rem);
-            padding-right: clamp(1rem, 3vw, 3rem);
+            padding: calc(var(--freecat-page-top-offset) + 1.25rem) 1.25rem 5rem;
         }
 
         .freecat-all-page .layout-content-container {
             max-width: 1560px;
+            color: var(--freecat-home-text);
         }
 
-        .freecat-all-page #posts-list {
-            --freecat-all-card-height: 27rem;
+        /* 三栏保持从左到右的阅读与排序顺序，封面随列宽等比缩放。 */
+        .freecat-all-grid {
+            --home-post-cover-columns: minmax(0, 1fr);
             display: grid;
-            grid-template-columns: 1fr;
-            grid-auto-rows: var(--freecat-all-card-height);
-            column-gap: 1rem;
-            row-gap: 1.25rem;
+            grid-template-columns: minmax(0, 1fr);
+            column-gap: clamp(2rem, 4vw, 3.5rem);
+            border-top: 1px solid var(--freecat-home-rule);
         }
 
-        .freecat-all-page #posts-list .post-card {
-            height: var(--freecat-all-card-height);
+        .freecat-all-grid .home-post-entry {
+            --home-post-padding: 3rem;
+            min-width: 0;
+            align-content: start;
         }
 
-        .freecat-all-page #posts-list .post-card > div {
-            height: 100%;
-        }
-
-        .freecat-all-page #posts-list .post-card.has-cover .lazy-image-frame {
-            flex: 1 1 auto;
+        .freecat-all-grid .home-post-cover {
+            grid-row: 1;
+            width: 100%;
             height: auto;
-            min-height: 0;
+            aspect-ratio: 3 / 2;
+            max-height: none;
         }
 
-        .freecat-all-page #posts-list .post-card.has-cover .post-card-excerpt-lines-4 {
-            min-height: 88px;
+        /* 沿用首页字号与行距；短标题也预留两行，长标题使用原生省略号。 */
+        .freecat-all-grid .home-post-title {
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            height: 3em;
+            overflow: hidden;
         }
 
-        @media (min-width: 720px) {
-            .freecat-all-page #posts-list {
+        .freecat-all-grid .home-post-excerpt {
+            height: 5.4em;
+        }
+
+        .freecat-all-page .freecat-home-list-heading {
+            flex-wrap: wrap;
+            row-gap: 1rem;
+            padding-block: 0.75rem 1.5rem;
+        }
+
+        @media (min-width: 760px) {
+            .freecat-all-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
-                column-gap: 1.125rem;
-                row-gap: 1.5rem;
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .freecat-all-page #posts-list {
-                --freecat-all-card-height: clamp(31rem, 30vw, 32rem);
-                grid-auto-rows: var(--freecat-all-card-height);
-            }
-
-            .freecat-all-page #posts-list .post-card,
-            .freecat-all-page #posts-list .post-card > div {
-                height: var(--freecat-all-card-height);
-            }
-
-            .freecat-all-page #posts-list .post-card > div {
-                justify-content: flex-start;
-            }
-
-            .freecat-all-page #posts-list .post-card.has-cover .lazy-image-frame {
-                flex: 1 1 auto;
-                width: 100%;
-                height: auto;
-                min-height: 0;
-            }
-
-            .freecat-all-page #posts-list .post-card.has-no-cover .post-card-excerpt-lines-13 {
-                -webkit-line-clamp: 16;
-                max-height: 352px;
             }
         }
 
         @media (min-width: 1120px) {
-            .freecat-all-page #posts-list {
+            .freecat-all-grid {
                 grid-template-columns: repeat(3, minmax(0, 1fr));
-                column-gap: 1.25rem;
-                row-gap: 1.75rem;
             }
         }
 
-        @media (max-width: 480px) {
+        @media (min-width: 1280px) {
             .freecat-all-page .layout-container {
-                padding-left: 0.875rem;
-                padding-right: 0.875rem;
+                padding-inline: var(--freecat-side-content-left);
             }
-
         }
     </style>
 </head>
 
 <body
-    class="freecat-all-page bg-background-light dark:bg-background-dark font-display text-[#1e293b] dark:text-slate-200 transition-colors duration-200">
-    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+    class="freecat-all-page bg-white dark:bg-background-dark font-display text-[#1e293b] dark:text-slate-200 transition-colors duration-200">
+    <div class="freecat-home-stage relative flex h-auto min-h-screen w-full flex-col">
 
         <!-- INCLUDE:header -->
 
-        <!-- 主内容区
-             用 CSS 变量 --freecat-page-top-offset（= header 高度 + 安全间距，
-             定义在 assets/transitions.css 中）作为 margin-top，
-             保证首屏渲染就避开固定顶栏；JS 仍会按真实 header 尺寸做实时同步。 -->
-        <div data-floating-nav-container
-            class="layout-container page-blur-target mt-[var(--freecat-page-top-offset)] flex h-full grow flex-col px-10 sm:px-12 md:px-20 lg:px-12 pt-3 pb-20 md:pt-4 md:pb-24">
-            <div class="layout-content-container relative flex flex-col max-w-[1200px] flex-1 mx-auto w-full">
-                <h1 class="sr-only">All Articles</h1>
+        <!-- 顶部留白沿用固定顶栏偏移，独立页面和外壳内的布局保持一致。 -->
+        <main data-floating-nav-container
+            class="layout-container page-blur-target flex h-full grow flex-col">
+            <div class="layout-content-container relative flex flex-col flex-1 mx-auto w-full">
 
                 <div data-all-toolbar
-                    class="freecat-list-toolbar flex items-center justify-between gap-4 pb-6 pt-6 mb-12">
+                    class="freecat-list-toolbar flex items-center justify-between gap-4 pb-4">
                     <a href="/" data-go-back
                         class="group inline-flex items-center gap-2 h-10 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors duration-150">
                         <svg class="text-xl t-btn-arrow-prev"
@@ -122,19 +100,23 @@
                                 d="M10.8284 12.0007L15.7782 16.9504L14.364 18.3646L8 12.0007L14.364 5.63672L15.7782 7.05093L10.8284 12.0007Z">
                             </path>
                         </svg>
-                        <span class="freecat-go-back-text text-sm">Go Back</span>
+                        <span class="freecat-go-back-text text-sm">Back</span>
                     </a>
+                </div>
+
+                <div class="freecat-home-list-heading">
+                    <h1>All posts <span class="freecat-home-count"><!-- ALL_POST_COUNT --></span></h1>
                     <!-- INCLUDE:update-sort-control -->
                 </div>
 
                 <!-- === 动态文章注入区（显示所有文章，无分页） === -->
-                <div id="posts-list" class="freecat-post-card-list">
+                <div id="posts-list" class="freecat-all-grid">
                     <!-- ALL_POSTS_LIST_PLACEHOLDER -->
                 </div>
                 <!-- ===================== -->
 
             </div>
-        </div>
+        </main>
 
         <!-- INCLUDE:floating-nav -->
 

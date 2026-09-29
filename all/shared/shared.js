@@ -90,14 +90,13 @@
         const encodedForClick = encodeTagQueryValue(tag);
         const searchUrl = '/search?tag=' + encodedForClick;
         const visibleText = options.escapeText === false ? tag : escapeHtml(tag);
-        const extraClass = options.darkHover ? ' dark:hover:brightness-110' : '';
         const themed = options.themed !== false;
         const tagSpanClass = themed ? 'tag-span ' : '';
         const styleAttr = themed
             ? 'style="' + renderTagThemeVars(colors) + '"'
             : 'style="background: ' + colors.bg + '; color: ' + colors.text + ';"';
         return (
-            '<span class="' + tagSpanClass + 'freecat-tag-text relative z-10 inline-flex items-center px-2.5 py-0.5 rounded-[4px] text-[10px] font-medium tracking-wider cursor-pointer hover:brightness-95' + extraClass + ' transition-[filter] duration-200 ease-out whitespace-nowrap" ' +
+            '<span class="' + tagSpanClass + 'freecat-tag-text freecat-tag-badge" role="link" tabindex="0" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();event.stopPropagation();this.click();}" ' +
             styleAttr + ' ' +
             "onclick=\"event.preventDefault(); event.stopPropagation(); if (window.FreecatNavigate) window.FreecatNavigate('" + searchUrl + "'); else window.location.href='" + searchUrl + "';\">" +
             visibleText +

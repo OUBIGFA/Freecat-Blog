@@ -9,6 +9,7 @@ const seo = require('../seo.js');
 const { replacePlaceholders } = require('../template-engine.js');
 const { normalizePostFrontmatter, normalizePostTags } = require('../article-model.js');
 const { renderCopyButton } = require('../copy-button.js');
+const { renderIcon } = require('../icons.js');
 const {
     contentFileSlug,
     isContentFile,
@@ -43,7 +44,7 @@ function removeEmptyTocAside(html, toc) {
 
     return html.replace(
         /\s*<aside\b[^>]*\bgroup\/toc\b[\s\S]*?<\/aside>/,
-        '\n                        <div class="w-72 2xl:w-80 flex-shrink-0" aria-hidden="true"></div>'
+        ''
     );
 }
 
@@ -352,24 +353,13 @@ function renderLatestUpdatePanel(post) {
         })
         .join('\n                                            ');
 
-    return `<div class="freecat-post-latest-update-shell">
-                        <aside class="freecat-post-latest-update-panel w-72 2xl:w-80 flex-shrink-0">
-                            <div class="h-full">
-                                <div class="freecat-post-latest-update-scroll h-full min-h-0">
-                                    <div id="latest-update-container" class="h-full overflow-x-hidden">
-                                        <div class="freecat-post-latest-update-content">
-                                            <h3 class="freecat-sidebar-recent-heading text-sm tracking-wider text-slate-500 dark:text-slate-400 mb-3">
-                                                <span class="freecat-post-latest-update-title-note">最后更新内容</span>
-                                            </h3>
-                                        <div class="freecat-post-latest-update-body">
-                                            ${itemsHtml}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </aside>
-                    </div>`;
+    // 宽屏时显示在正文左侧，窄屏随正文排列；默认收起，避免抢占阅读空间。
+    return `<details class="freecat-post-latest-update-shell">
+                <summary class="freecat-post-toc-title">Recent updates${renderIcon('chevron-down', 'freecat-update-chevron')}</summary>
+                <div id="latest-update-container" class="freecat-post-latest-update-body">
+                    ${itemsHtml}
+                </div>
+            </details>`;
 }
 
 /**
@@ -503,7 +493,6 @@ function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = 
     const ogImage = seo.absoluteUrl(siteConfig, rawCover || seo.defaultImage(siteConfig, seoConfig));
 
     // 按需加载：扫描渲染后的 HTML，只为真正用到的特性引入对应 CSS/JS
-    const needsHighlight = /<pre[^>]*><code/i.test(finalContentHtml);
     const needsKatex = /class="katex/i.test(finalContentHtml);
     const needsMermaid = /data-diagram-type="mermaid"|class="(?:[^"]*\s)?mermaid-block(?:\s[^"]*)?"/i.test(finalContentHtml);
     const needsEcharts = /class="(?:[^"]*\s)?echarts-block(?:\s[^"]*)?"|data-chart-options=/i.test(finalContentHtml);
@@ -517,9 +506,6 @@ function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = 
         needsMermaid ? '<script src="https://cdn.jsdelivr.net/npm/mermaid@11.15.0/dist/mermaid.min.js"></script>' : '',
         needsEcharts ? '<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>' : ''
     ].filter(Boolean).join('\n    ');
-    const highlightCss = needsHighlight
-        ? '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />'
-        : '';
     const katexCss = needsKatex
         ? '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" />'
         : '';
@@ -579,7 +565,8 @@ function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = 
         ['<!-- CONTENT_PLACEHOLDER -->', finalContentHtml],
         ['<!-- TOC_PLACEHOLDER -->', toc],
         ['<!-- POST_SEO_HEAD -->', seoHead],
-        ['<!-- POST_HIGHLIGHT_CSS -->', highlightCss],
+        ['<!-- POST_HIGHLIGHT_CSS -->', /<code\b[^>]*\bhljs\b/.test(finalContentHtml)
+            ? `<link rel="stylesheet" href="${versionedAssetUrl('/assets/code-highlight.css', assetVersion)}" />` : ''],
         ['<!-- POST_KATEX_CSS -->', katexCss],
         ['<!-- POST_FONT_PRELOADS -->', renderPostFontPreloads(post.postId, assetVersion)],
         ['<!-- POST_FONT_FACE_CSS -->', renderPostFontFaceCss(post.postId, assetVersion)],

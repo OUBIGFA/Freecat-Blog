@@ -37,7 +37,7 @@
 
     function renderSpeedOptions(kind) {
         return SPEEDS.map((speed) => (
-            '<div class="media-speed-option ' + kind + '-speed-option' + (speed === 1 ? ' active' : '') + '" data-speed="' + speed + '">' + speedLabel(speed) + '</div>'
+            '<button type="button" class="media-speed-option ' + kind + '-speed-option' + (speed === 1 ? ' active' : '') + '" data-speed="' + speed + '">' + speedLabel(speed) + '</button>'
         )).join('');
     }
 
@@ -81,14 +81,14 @@
                             ${VOLUME_ICON}
                         </button>
                         <div class="media-volume-slider-wrapper ${kind}-volume-slider-wrapper">
-                            <input type="range" class="media-volume-slider ${kind}-volume-slider" min="0" max="1" step="0.01" value="0.6">
+                            <input type="range" class="media-volume-slider ${kind}-volume-slider" aria-label="音量" min="0" max="1" step="0.01" value="0.6">
                         </div>
                     </div>
                 </div>
                 <div class="media-controls-right ${kind}-controls-right">
                     <div class="media-speed-control ${kind}-speed-control">
-                        <button class="media-speed-btn ${kind}-speed-btn" aria-label="Playback speed">1.0x</button>
-                        <div class="media-speed-dropdown ${kind}-speed-dropdown t-dropdown" data-origin="bottom-center">
+                        <button class="media-speed-btn ${kind}-speed-btn" aria-label="Playback speed" aria-expanded="false">1.0x</button>
+                        <div class="media-speed-dropdown ${kind}-speed-dropdown t-dropdown" data-origin="bottom-center" inert>
                             ${renderSpeedOptions(kind)}
                         </div>
                     </div>

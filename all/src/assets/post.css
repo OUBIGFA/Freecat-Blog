@@ -1,6 +1,6 @@
 .copy-btn-container {
     --color: var(--code-muted, #7b8797);
-    --size: 15px;
+    --size: 16px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -9,9 +9,9 @@
     font-size: var(--size);
     user-select: none;
     fill: var(--color);
-    width: 30px;
-    height: 30px;
-    opacity: 0.58;
+    width: 40px;
+    height: 40px;
+    opacity: 1;
     border-radius: 6px;
     border: 1px solid transparent;
     color: var(--color);
@@ -23,7 +23,7 @@
 
 .dark .copy-btn-container {
     --color: var(--code-muted, #8795a8);
-    opacity: 0.62;
+    opacity: 1;
 }
 
 .freecat-post-copy-btn {
@@ -126,27 +126,124 @@
 
 /* Article spacing is defined once in the Article Reading Hierarchy section below. */
 
-/* Post Title Responsive Styles */
-.post-title {
-    color: #1e293b !important;
-    line-height: 1.36 !important;
-    margin-top: 1.25rem !important;
-    margin-bottom: 1.5rem !important;
-    font-size: 1.75rem !important;
-    font-weight: 600 !important;
+/* 阅读栏宽度、页头和正文共用一条左边线，侧栏不参与居中计算。 */
+.freecat-post-page {
+    --post-muted: #64748b;
+    --post-rule: #dce2ea;
+    --post-accent: #365f88;
 }
 
-@media (min-width: 768px) {
-    .post-title {
-        margin-bottom: 3.5rem !important;
-        font-size: 2.5rem !important;
-        line-height: 1.4 !important;
-    }
+.dark .freecat-post-page {
+    --post-muted: #a4b1c3;
+    --post-rule: #334155;
+    --post-accent: #a4c5e8;
+}
+
+.freecat-post-layout {
+    padding: 1.5rem 1.25rem 5rem;
+}
+
+.freecat-post-article {
+    width: 100%;
+    max-width: 45rem;
+    min-width: 0;
+    margin-inline: auto;
+}
+
+.freecat-post-header {
+    padding-bottom: 1.75rem;
+    margin-bottom: 2.25rem;
+    border-bottom: 1px solid var(--post-rule);
+}
+
+.freecat-post-eyebrow,
+.freecat-post-meta,
+.freecat-post-tags,
+.freecat-post-end {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+}
+
+.freecat-post-eyebrow,
+.freecat-post-end {
+    justify-content: space-between;
+}
+
+.freecat-post-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-height: 44px;
+    color: var(--post-muted);
+    font-size: 0.9375rem;
+    text-decoration: none;
+}
+
+.freecat-post-back:hover {
+    color: var(--post-accent);
+}
+
+.freecat-post-tags {
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.freecat-post-tags:empty { display: none; }
+
+.freecat-post-meta {
+    color: var(--post-muted);
+    font-size: 0.9375rem;
+    line-height: 1.7;
+}
+
+.freecat-post-meta > span {
+    display: inline-block;
+}
+
+.post-title {
+    color: #1e293b;
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1.45;
+    letter-spacing: -0.025em;
+    overflow-wrap: anywhere;
+    text-wrap: pretty;
+    margin: 1.25rem 0 1.5rem;
 }
 
 .dark .post-title {
-    color: #e2e8f0 !important;
-    /* Slate-200 */
+    color: #e2e8f0;
+}
+
+.freecat-post-end {
+    border-top: 1px solid var(--post-rule);
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+}
+
+.freecat-post-article :is(a, button, summary):focus-visible,
+.copy-btn-container:has(input:focus-visible) {
+    outline: 2px solid var(--post-accent);
+    outline-offset: 4px;
+    border-radius: 3px;
+}
+
+@media (min-width: 768px) {
+    .freecat-post-layout {
+        padding: 2.25rem 2.5rem 6rem;
+    }
+
+    .post-title {
+        font-size: 2.25rem;
+        margin-top: 1.5rem;
+    }
+
+    .freecat-post-header {
+        margin-bottom: 2.75rem;
+        padding-bottom: 2rem;
+    }
 }
 
 article {
@@ -168,34 +265,21 @@ article {
 
 .prose .katex-display {
     color: #1e293b !important;
-    overflow-x: hidden;
-    overflow-y: hidden;
-    padding: 0.2rem 0;
+    overflow: visible;
+    padding: 0.5rem 0;
     margin: 2rem 0 !important;
     /* 数学公式块保留稳定的上下间距。 */
 }
 
 .dark .prose .katex-display {
-    color: #94a3b8 !important;
-}
-
-.prose .katex-display::-webkit-scrollbar {
-    height: 6px;
-}
-
-.prose .katex-display::-webkit-scrollbar-thumb {
-    background-color: rgba(100, 116, 139, .35);
-    border-radius: 8px;
-}
-
-.dark .prose .katex-display::-webkit-scrollbar-thumb {
-    background-color: rgba(148, 163, 184, .25);
+    color: #c5d0df !important;
 }
 
 .prose .katex-display>.katex {
-    max-width: 100%;
-    white-space: normal;
-    overflow-wrap: anywhere;
+    display: inline-block;
+    min-width: max-content;
+    white-space: nowrap;
+    overflow-wrap: normal;
 }
 
 /* 首个标题不需要额外顶部间距。 */
@@ -208,26 +292,29 @@ article {
     margin-top: 0 !important;
 }
 
-/* 正文链接：用下划线和灰色区分，悬停时只轻微变淡。 */
+/* 链接保留清晰下划线与低饱和蓝色，正文中可直接辨认。 */
 .prose a {
-    color: #6b7280 !important;
+    color: #365f88 !important;
     text-decoration: underline !important;
-    text-decoration-skip-ink: none !important;
+    text-decoration-thickness: 1px;
+    text-decoration-skip-ink: auto !important;
     text-underline-offset: 4px !important;
     white-space: normal !important;
     word-break: normal !important;
     overflow-wrap: anywhere !important;
-    transition: opacity 0.2s ease !important;
+    transition: color 180ms ease-out !important;
 }
 
 .dark .prose a {
-    color: #94a3b8 !important;
+    color: #a4c5e8 !important;
     /* Slate-400 */
 }
 
-.prose a:hover {
-    opacity: 0.8 !important;
+.prose a:is(:hover, :focus-visible) {
+    color: #1e293b !important;
 }
+
+.dark .prose a:is(:hover, :focus-visible) { color: #e2e8f0 !important; }
 
 /* 正文长词和长链接可自然换行。 */
 .prose {
@@ -326,16 +413,17 @@ article {
 }
 
 .prose figure.external-embed-link {
-    border: 1px solid #d8e0eb;
-    border-radius: 8px;
+    border: 0;
+    border-left: 2px solid #cbd5e1;
+    border-radius: 0;
     padding: 1rem 1.1rem;
-    background: #f8fafc;
+    background: transparent;
 }
 
 .dark .prose figure.external-embed-link,
 .dark .prose figure.external-embed iframe.external-embed-frame {
-    border-color: #233044;
-    background: #121a28;
+    border-color: #475569;
+    background: transparent;
 }
 
 .prose table :is(th, td):has(> figure.external-embed) {
@@ -380,20 +468,18 @@ article {
 
 /* 图片不溢出正文容器。 */
 .prose img {
-    width: 100% !important;
+    max-width: 100%;
     height: auto;
     border-radius: 8px;
     margin-top: 0 !important;
 }
 
-.prose .image-caption {
-    margin-top: 0.35rem !important;
-    line-height: 1.6 !important;
-}
+.prose img:not([width]):not([style*="width"]) { width: 100%; }
 
-/* 允许 Markdown 中残留的 HTML 标签保留必要的原生样式。 */
-.prose font {
-    font-family: inherit;
+.prose .image-caption {
+    font-size: 0.9375rem;
+    margin-top: 0.625rem !important;
+    line-height: 1.6 !important;
 }
 
 /* 兼容 Markdown 中嵌入的 center、table 和色块组合。 */
@@ -426,10 +512,10 @@ article {
     background-color: #f3f6fa !important;
     color: #334155 !important;
     padding: 0.08em 0.32em !important;
-    border: 1px solid #dbe4ee !important;
-    border-radius: 5px !important;
+    border: 0 !important;
+    border-radius: 3px !important;
     font-size: 0.9em !important;
-    font-family: inherit !important;
+    font-family: ui-monospace, "Cascadia Code", "SFMono-Regular", Consolas, monospace !important;
     font-weight: 400 !important;
 }
 
@@ -482,27 +568,23 @@ article {
 
 .prose .callout {
     --callout-accent: #64748b;
-    --callout-bg: #f8fafc;
-    --callout-border: #e2e8f0;
-    --callout-title: #0f172a;
+    --callout-bg: #f5f7fa;
     --callout-text: #1e293b;
     margin: 1.618em 0 !important;
-    padding: 1em 1.1em !important;
-    border-radius: 8px !important;
-    border: 1px solid var(--callout-border) !important;
-    border-left: 3px solid var(--callout-accent) !important;
+    padding: 1em 1.25em !important;
+    border-radius: 0 !important;
+    border: 0 !important;
+    border-left: 2px solid var(--callout-accent) !important;
     background-color: var(--callout-bg) !important;
     color: var(--callout-text) !important;
-    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04) !important;
-    font-size: calc(var(--article-body-size) * 0.85) !important;
+    box-shadow: none;
+    font-size: 1em !important;
 }
 
 .dark .prose .callout {
     --callout-bg: #121a28;
-    --callout-border: #233044;
-    --callout-title: #b6c2cf;
-    --callout-text: #94a3b8;
-    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.2) !important;
+    --callout-text: #c5d0df;
+    box-shadow: none;
 }
 
 .prose .callout-title {
@@ -510,14 +592,15 @@ article {
     align-items: center !important;
     gap: 0.5rem !important;
     font-weight: 600 !important;
-    font-size: 0.95em !important;
-    letter-spacing: 0.02em !important;
-    color: var(--callout-title) !important;
+    font-size: 1em !important;
+    letter-spacing: 0 !important;
+    color: var(--callout-accent) !important;
     margin-bottom: 0.6em !important;
 }
 
 .prose .callout-icon {
     display: inline-flex !important;
+    flex: 0 0 auto;
     align-items: center !important;
     justify-content: center !important;
     font-size: 1.05em !important;
@@ -525,43 +608,43 @@ article {
 }
 
 .prose .callout.callout-note {
-    --callout-accent: #3b82f6;
+    --callout-accent: #55779a;
 }
 
 .dark .prose .callout.callout-note {
-    --callout-accent: #60a5fa;
+    --callout-accent: #a0bddb;
 }
 
 .prose .callout.callout-tip {
-    --callout-accent: #10b981;
+    --callout-accent: #487d72;
 }
 
 .dark .prose .callout.callout-tip {
-    --callout-accent: #34d399;
+    --callout-accent: #97c7b8;
 }
 
 .prose .callout.callout-important {
-    --callout-accent: #8b5cf6;
+    --callout-accent: #78678b;
 }
 
 .dark .prose .callout.callout-important {
-    --callout-accent: #a78bfa;
+    --callout-accent: #c3afd8;
 }
 
 .prose .callout.callout-warning {
-    --callout-accent: #f59e0b;
+    --callout-accent: #92703b;
 }
 
 .dark .prose .callout.callout-warning {
-    --callout-accent: #fbbf24;
+    --callout-accent: #d9bc87;
 }
 
 .prose .callout.callout-caution {
-    --callout-accent: #ef4444;
+    --callout-accent: #a05e62;
 }
 
 .dark .prose .callout.callout-caution {
-    --callout-accent: #f87171;
+    --callout-accent: #dca2a6;
 }
 
 .prose .footnotes {
@@ -619,40 +702,51 @@ article {
 /* 任务列表（Checkbox）。 */
 .prose input[type="checkbox"] {
     margin-right: 0.5em !important;
-    accent-color: #6b7280 !important;
+    accent-color: #55779a !important;
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.1em;
 }
 
-/* ===== 表格样式 ===== */
+/* 表格按列比例在正文内换行，完整展示内容，不使用内部滚动。 */
+.prose .markdown-table-scroll {
+    max-width: 100%;
+    overflow: visible;
+    border-block: 1px solid var(--post-rule);
+}
+
 .prose table {
     width: 100% !important;
     max-width: 100% !important;
     display: table !important;
     table-layout: fixed !important;
     border-collapse: separate !important;
-    border-spacing: 1.2em 0 !important;
-    background-color: #f0f1f4 !important;
+    border-spacing: 0 !important;
+    background-color: transparent !important;
     margin: 1.618em 0 !important;
-    font-size: 0.88em !important;
-    line-height: 1.6 !important;
+    font-size: 0.9375rem !important;
+    line-height: 1.75 !important;
     overflow-x: hidden !important;
 }
 
 .dark .prose table {
-    background-color: #151c2a !important;
+    background-color: transparent !important;
 }
 
 .prose thead {
-    background-color: transparent !important;
+    background-color: #f1f5f9 !important;
 }
 
 .dark .prose thead {
-    background-color: transparent !important;
+    background-color: #f1f5f9 !important;
 }
 
 .prose th,
 .prose td {
     width: auto !important;
-    padding: 0.75em 0 !important;
+    min-width: 0;
+    vertical-align: top;
+    padding: 0.85em 1em !important;
     border: 0 !important;
     border-bottom: 1px solid #d8dee8 !important;
     text-align: left;
@@ -669,27 +763,22 @@ article {
 .dark .prose th,
 .dark .prose td {
     border-bottom-color: #475569 !important;
-    color: #94a3b8 !important;
+    color: #c5d0df !important;
 }
 
 .prose th {
-    border-bottom: 2px solid #c6cfdb !important;
+    border-bottom: 1px solid #c6cfdb !important;
     font-weight: 600 !important;
-    color: #64748b !important;
+    color: #334155 !important;
 }
 
 .dark .prose th {
-    border-bottom-color: #64748b !important;
+    border-bottom-color: #334155 !important;
     color: #c3d0dc !important;
 }
 
 .prose tbody tr:last-child th,
 .prose tbody tr:last-child td {
-    border-bottom: 0 !important;
-}
-
-.prose table:not(:has(tbody tr)) thead th,
-.prose table:has(tbody tr:only-child) thead th {
     border-bottom: 0 !important;
 }
 
@@ -720,65 +809,46 @@ article {
 .prose del,
 .prose s {
     text-decoration: line-through !important;
-    color: #94a3b8 !important;
+    color: var(--post-muted) !important;
 }
 
 .prose em {
     font-style: italic !important;
 }
 
-/* Dark Mode adaptation for legacy HTML table/font attributes. */
-.dark .prose td[bgcolor] {
-    background-color: #151c2a !important;
-    color: #b6c2cf !important;
-    border-radius: 8px;
-    border: 1px solid #1e293b;
-}
-
-.dark .prose font[color],
-.dark .prose font[size],
-.dark .prose font[face] {
-    color: inherit !important;
-}
-
-/* Light Mode Details/Summary Styling */
+/* 折叠内容用细分隔线表示边界，展开后仍与正文保持同样的阅读节奏。 */
 .prose details {
-    border: 1px solid #cbd5e1;
-    /* Slate-300 */
-    background-color: #f8fafc;
-    /* Slate-50 */
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
+    border-block: 1px solid var(--post-rule);
+    padding: 0.875rem 0;
     margin: 1em 0;
 }
 
 .prose summary {
     cursor: pointer;
     font-weight: 600;
+    min-height: 44px;
+    padding-block: 0.5rem;
     color: #1e293b !important;
-    /* Slate-800 */
 }
 
-.dark .prose details {
-    border-color: #475569;
-    background-color: #1e293b;
-    /* Slate-800 */
+.prose details[open] > summary {
+    margin-bottom: 0.75rem;
 }
 
 .dark .prose summary {
-    color: #94a3b8 !important;
+    color: #e2e8f0 !important;
 }
 
 .prose mark {
-    background-color: #fef08a !important;
+    background-color: #f3e9c8 !important;
     color: #1e293b !important;
-    padding: 0.1em 0.3em !important;
-    border-radius: 8px !important;
+    padding: 0.05em 0.15em !important;
+    border-radius: 2px !important;
 }
 
 .dark .prose mark {
-    background-color: rgba(245, 158, 11, 0.18) !important;
-    color: #b6c2cf !important;
+    background-color: #4b4230 !important;
+    color: #e2e8f0 !important;
 }
 
 /* ===== 脚注样式 ===== */
@@ -790,6 +860,26 @@ article {
 .prose sub {
     font-size: 0.75em !important;
     vertical-align: sub !important;
+}
+
+.prose kbd {
+    padding: 0.1em 0.4em;
+    border: 1px solid var(--post-rule);
+    border-bottom-width: 2px;
+    border-radius: 3px;
+    font: 0.9em ui-monospace, Consolas, monospace;
+    color: inherit;
+}
+
+.prose .footnotes > hr {
+    border: 0;
+    border-top: 1px solid var(--post-rule);
+    margin-bottom: 1.25rem;
+}
+
+.prose .footnotes li {
+    font-size: 1rem;
+    color: var(--post-muted) !important;
 }
 
 /* ===== 定义列表 ===== */
@@ -805,19 +895,18 @@ article {
 .prose dd {
     margin-left: 1.5em !important;
     margin-bottom: 1em !important;
-    color: #64748b !important;
+    color: #334155 !important;
 }
 
 .dark .prose dd {
-    color: #94a3b8 !important;
+    color: #c5d0df !important;
 }
 
-/* ===== Article Reading Hierarchy Override ===== */
+/* ===== 正文节奏：层级依靠字号与留白，不为每个标题增加横线。 ===== */
 .prose {
     --article-body-size: 1.0625rem;
-    --article-line-height: 1.82;
+    --article-line-height: 1.85;
     --article-rhythm: calc(var(--article-body-size) * var(--article-line-height));
-    --article-heading-rule: #d8e0eb;
     --article-quote-border: #cbd5e1;
     --article-quote-text: #334155;
     --article-space-tight: 0.42rem;
@@ -827,20 +916,20 @@ article {
     --article-space-list-item: 0.62rem;
     --article-list-indent: 1.15rem;
     --article-space-heading-to-content: 1.25rem;
-    --article-space-heading-parent-child: 1.99rem;
-    --article-space-heading-peer-1: 5.59rem;
-    --article-space-heading-peer-2: 4.11rem;
-    --article-space-heading-peer-3: 3.45rem;
-    --article-space-heading-peer-4: 2.8rem;
-    --article-space-heading-peer-5: 2.5rem;
-    --article-space-heading-peer-6: 2.28rem;
-    --article-space-divider: 80px;
-    --article-heading-h1: calc(var(--article-body-size) * 1.5);
-    --article-heading-h2: calc(var(--article-body-size) * 1.5);
-    --article-heading-h3: calc(var(--article-body-size) * 1.5);
-    --article-heading-h4: calc(var(--article-body-size) * 1.5);
-    --article-heading-h5: calc(var(--article-body-size) * 1.5);
-    --article-heading-h6: calc(var(--article-body-size) * 1.5);
+    --article-space-heading-parent-child: 1.5rem;
+    --article-space-heading-peer-1: 3.5rem;
+    --article-space-heading-peer-2: 2.75rem;
+    --article-space-heading-peer-3: 2.25rem;
+    --article-space-heading-peer-4: 2rem;
+    --article-space-heading-peer-5: 1.75rem;
+    --article-space-heading-peer-6: 1.5rem;
+    --article-space-divider: 3rem;
+    --article-heading-h1: calc(var(--article-body-size) * 1.65);
+    --article-heading-h2: calc(var(--article-body-size) * 1.4);
+    --article-heading-h3: calc(var(--article-body-size) * 1.2);
+    --article-heading-h4: calc(var(--article-body-size) * 1.1);
+    --article-heading-h5: calc(var(--article-body-size) * 1.05);
+    --article-heading-h6: calc(var(--article-body-size) * 1);
     font-size: var(--article-body-size) !important;
     line-height: var(--article-line-height) !important;
     color: #1e293b !important;
@@ -851,16 +940,15 @@ article {
 
 @media (min-width: 768px) {
     .prose {
-        --article-body-size: 1.1875rem;
+        --article-body-size: 1.125rem;
         --article-line-height: 1.9;
     }
 }
 
 .dark .prose {
-    --article-heading-rule: #334155;
     --article-quote-border: #475569;
     --article-quote-text: #cbd5e1;
-    color: #aebacc !important;
+    color: #c5d0df !important;
 }
 
 .prose p {
@@ -881,7 +969,7 @@ article {
 }
 
 .dark .prose p {
-    color: #aebacc !important;
+    color: #c5d0df !important;
 }
 
 .prose p.text-justify-cjk {
@@ -904,29 +992,11 @@ article {
     border-top: 0 !important;
 }
 
-.prose:not(:has(.article-heading-rank-2)) .article-heading-rank-1,
-.prose .article-heading-rank-2 {
-    padding-bottom: calc(0.72rem + 2px) !important;
-}
-
-.prose:not(:has(.article-heading-rank-2)) .article-heading-rank-1::after,
-.prose .article-heading-rank-2::after {
-    content: "";
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    display: block;
-    height: 2px;
-    background: var(--article-heading-rule);
-}
-
 .dark .prose .article-heading {
     color: #e2e8f0 !important;
 }
 
-.prose .article-heading a,
-.prose .article-heading a:hover {
+.prose .article-heading a {
     color: inherit !important;
     /* 标题内链接不显示正文链接的下划线。 */
     text-decoration: none !important;
@@ -945,44 +1015,39 @@ article {
     mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%3E%3Cpath%20d='M18.3638%2015.5355L16.9496%2014.1213L18.3638%2012.7071C20.3164%2010.7545%2020.3164%207.58866%2018.3638%205.63604C16.4112%203.68341%2013.2453%203.68341%2011.2927%205.63604L9.87849%207.05025L8.46428%205.63604L9.87849%204.22182C12.6122%201.48815%2017.0443%201.48815%2019.778%204.22182C22.5117%206.95549%2022.5117%2011.3876%2019.778%2014.1213L18.3638%2015.5355ZM15.5353%2018.364L14.1211%2019.7782C11.3875%2022.5118%206.95531%2022.5118%204.22164%2019.7782C1.48797%2017.0445%201.48797%2012.6123%204.22164%209.87868L5.63585%208.46446L7.05007%209.87868L5.63585%2011.2929C3.68323%2013.2455%203.68323%2016.4113%205.63585%2018.364C7.58847%2020.3166%2010.7543%2020.3166%2012.7069%2018.364L14.1211%2016.9497L15.5353%2018.364ZM14.8282%207.75736L16.2425%209.17157L9.17139%2016.2426L7.75717%2014.8284L14.8282%207.75736Z'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
-.prose .article-heading-depth-1 {
+.prose .article-heading-rank-1 {
     font-size: var(--article-heading-h1) !important;
-    line-height: 1.16 !important;
+    line-height: 1.5 !important;
 }
 
-.prose .article-heading-depth-2 {
+.prose .article-heading-rank-2 {
     font-size: var(--article-heading-h2) !important;
-    line-height: 1.22 !important;
+    line-height: 1.5 !important;
 }
 
-.prose .article-heading-depth-3 {
+.prose .article-heading-rank-3 {
     font-size: var(--article-heading-h3) !important;
-    line-height: 1.3 !important;
+    line-height: 1.5 !important;
 }
 
-.prose .article-heading-depth-4 {
+.prose .article-heading-rank-4 {
     font-size: var(--article-heading-h4) !important;
-    line-height: 1.34 !important;
+    line-height: 1.5 !important;
 }
 
-.prose .article-heading-depth-5 {
+.prose .article-heading-rank-5 {
     font-size: var(--article-heading-h5) !important;
-    line-height: 1.38 !important;
+    line-height: 1.5 !important;
 }
 
-.prose .article-heading-depth-6 {
+.prose .article-heading-rank-6 {
     font-size: var(--article-heading-h6) !important;
-    line-height: 1.42 !important;
+    line-height: 1.5 !important;
 }
 
 .prose>.article-heading:first-child {
     padding-top: 0;
     border-top: 0;
-}
-
-/* 正文最高标题层级始终使用与多层级文章一致的粗字重。 */
-.prose .article-heading-rank-1 {
-    font-weight: 700 !important;
 }
 
 .prose blockquote p {
@@ -1005,10 +1070,6 @@ article {
     color: #e2e8f0 !important;
 }
 
-.prose :not(pre)>code {
-    font-size: 0.86em !important;
-}
-
 .prose .markdown-gap {
     --md-gap-lines: 0;
     --md-gap-size: 0lh;
@@ -1028,9 +1089,9 @@ article {
 
 .prose .diagram-block {
     display: flex;
-    justify-content: center;
+    justify-content: safe center;
     width: 100%;
-    overflow-x: auto;
+    overflow: visible;
 }
 
 .prose .diagram-block > .mermaid,
@@ -1078,7 +1139,7 @@ article {
 
 .prose li {
     margin: 0 0 var(--article-space-list-item) !important;
-    line-height: 1.72 !important;
+    line-height: var(--article-line-height) !important;
     color: #1e293b !important;
 }
 
@@ -1088,7 +1149,7 @@ article {
 
 .prose li > p {
     margin: 0 !important;
-    line-height: 1.72 !important;
+    line-height: var(--article-line-height) !important;
 }
 
 .prose li li {
@@ -1096,7 +1157,7 @@ article {
 }
 
 .prose li::marker {
-    color: #94a3b8 !important;
+    color: #75849a !important;
 }
 
 .dark .prose li {
@@ -1117,7 +1178,7 @@ article {
 }
 
 .prose>hr {
-    height: 3px !important;
+    height: 1px !important;
     border: 0 !important;
     background: #d8e0eb !important;
     margin: 0 !important;
@@ -1138,6 +1199,7 @@ article {
 .prose blockquote,
 .prose hr,
 .prose table,
+.prose .markdown-table-scroll,
 .prose .article-heading,
 .prose .article-heading-depth-1,
 .prose .article-heading-depth-2,
@@ -1165,7 +1227,7 @@ article {
     margin: 0 !important;
 }
 
-.prose :is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+:is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player) {
+.prose :is(p, ul, ol, dl, blockquote, table, .markdown-table-scroll, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)+:is(p, ul, ol, dl, blockquote, table, .markdown-table-scroll, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player) {
     margin-block-start: var(--article-space-flow) !important;
 }
 
@@ -1179,7 +1241,7 @@ article {
     padding: 0 0 0.18rem 1.5rem !important;
 }
 
-.prose .markdown-gap+:is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player) {
+.prose .markdown-gap+:is(p, ul, ol, dl, blockquote, table, .markdown-table-scroll, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player) {
     margin-block-start: var(--article-space-flow) !important;
 }
 
@@ -1206,7 +1268,7 @@ article {
 
 .prose blockquote blockquote {
     margin-block-start: calc(var(--article-rhythm) * 0.32) !important;
-    margin-left: 0.8em !important;
+    margin-left: 0 !important;
     padding: 0 0 0 1em !important;
     border-left-width: 2px !important;
     border-left-color: var(--article-quote-border) !important;
@@ -1221,7 +1283,7 @@ article {
 }
 
 .prose blockquote blockquote blockquote {
-    margin-left: 0.8em !important;
+    margin-left: 0 !important;
     border-left-color: var(--article-quote-border) !important;
     color: var(--article-quote-text) !important;
     background: transparent !important;
@@ -1370,7 +1432,7 @@ article {
     --diagram-border: #cbd5e1;
     --diagram-line: #64748b;
     display: flex !important;
-    justify-content: center !important;
+    justify-content: safe center !important;
     align-items: center !important;
     width: 100% !important;
     max-width: min(100%, calc(100vw - 2rem)) !important;
@@ -1379,13 +1441,10 @@ article {
     border-radius: 0 !important;
     padding: 0 !important;
     margin: 2rem auto !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
+    overflow: visible !important;
     min-height: 0;
     box-shadow: none !important;
     box-sizing: border-box;
-    scrollbar-width: thin;
-    scrollbar-color: color-mix(in srgb, var(--diagram-line) 45%, transparent) transparent;
 }
 
 .dark .diagram-block {
@@ -1436,20 +1495,23 @@ article {
     flex: 0 0 auto;
     display: block;
     height: auto !important;
-    max-width: 100% !important;
+    max-width: 100%;
 }
 
 .diagram-block foreignObject {
     overflow: visible;
 }
 
+.prose .article-heading a:is(:hover, :focus-visible) { color: #0f172a !important; }
+.dark .prose .article-heading a:is(:hover, :focus-visible) { color: #f1f5f9 !important; }
+
 .diagram-block .edgeLabel {
     white-space: nowrap;
 }
 
 .mermaid-block g.cluster rect {
-    fill: color-mix(in srgb, var(--diagram-surface) 46%, transparent) !important;
-    stroke: color-mix(in srgb, var(--diagram-line) 30%, transparent) !important;
+    fill: color-mix(in srgb, var(--diagram-surface) 46%, transparent);
+    stroke: color-mix(in srgb, var(--diagram-line) 30%, transparent);
     stroke-width: 0.5px !important;
     rx: 6px;
     ry: 6px;
@@ -1459,16 +1521,16 @@ article {
 .mermaid-block .cluster-label div,
 .mermaid-block .cluster-label span,
 .mermaid-block .cluster-label p {
-    color: #0f172a !important;
-    font-size: 13px !important;
-    font-weight: 400 !important;
+    color: #0f172a;
+    font-size: 15px;
+    font-weight: 400;
 }
 
 .mermaid-block .cluster-label div {
     display: inline-block !important;
     width: auto !important;
     padding: 1px 7px !important;
-    background: var(--diagram-bg) !important;
+    background: var(--diagram-bg);
     border-radius: 8px !important;
     line-height: 1.35 !important;
 }
@@ -1479,7 +1541,7 @@ article {
 
 .mermaid-block .freecat-mermaid-cluster-label div {
     padding: 2px 8px !important;
-    background: color-mix(in srgb, var(--diagram-bg) 92%, var(--diagram-surface)) !important;
+    background: color-mix(in srgb, var(--diagram-bg) 92%, var(--diagram-surface));
     border: 0.5px solid color-mix(in srgb, var(--diagram-line) 20%, transparent) !important;
 }
 
@@ -1487,15 +1549,15 @@ article {
 .mermaid-block .node polygon,
 .mermaid-block rect.actor,
 .mermaid-block rect.labelBox {
-    fill: color-mix(in srgb, var(--diagram-surface) 56%, transparent) !important;
-    stroke: var(--diagram-line) !important;
+    fill: color-mix(in srgb, var(--diagram-surface) 56%, transparent);
+    stroke: var(--diagram-line);
     stroke-width: 0.55px !important;
 }
 
 .mermaid-block .node circle,
 .mermaid-block .node ellipse {
-    fill: color-mix(in srgb, var(--diagram-surface) 56%, transparent) !important;
-    stroke: var(--diagram-line) !important;
+    fill: color-mix(in srgb, var(--diagram-surface) 56%, transparent);
+    stroke: var(--diagram-line);
     stroke-width: 0.55px !important;
 }
 
@@ -1508,14 +1570,14 @@ article {
 .mermaid-block .relation,
 .mermaid-block .state-start,
 .mermaid-block .state-end {
-    stroke: var(--diagram-line) !important;
+    stroke: var(--diagram-line);
     stroke-width: 0.75px !important;
 }
 
 .mermaid-block marker path,
 .mermaid-block .arrowheadPath {
-    fill: var(--diagram-line) !important;
-    stroke: var(--diagram-line) !important;
+    fill: var(--diagram-line);
+    stroke: var(--diagram-line);
 }
 
 .diagram-block .actor,
@@ -1529,7 +1591,7 @@ article {
 .diagram-block .loopText,
 .diagram-block .actor>text,
 .diagram-block .labelText {
-    font-weight: 400 !important;
+    font-weight: 400;
 }
 
 .mermaid-block .actor>text,
@@ -1542,39 +1604,39 @@ article {
 .mermaid-block .loopText tspan,
 .mermaid-block .labelText,
 .mermaid-block .labelText tspan {
-    fill: #0f172a !important;
-    stroke: none !important;
+    fill: #0f172a;
+    stroke: none;
 }
 
 .mermaid-block .edgeLabel,
 .mermaid-block .edgeLabel p,
 .mermaid-block .edgeLabel span {
-    color: #0f172a !important;
+    color: #0f172a;
 }
 
 .mermaid-block .freecat-mermaid-sequence-number-bg {
-    fill: #334155 !important;
-    stroke: none !important;
+    fill: #334155;
+    stroke: none;
     stroke-width: 0 !important;
 }
 
 .mermaid-block .freecat-mermaid-sequence-number {
-    fill: #ffffff !important;
-    stroke: none !important;
+    fill: #ffffff;
+    stroke: none;
     stroke-width: 0 !important;
-    font-size: 10px !important;
-    font-weight: 500 !important;
+    font-size: 13px;
+    font-weight: 500;
 }
 
 .mermaid-block .labelBkg {
-    background-color: #f8fafc !important;
+    background-color: #f8fafc;
     border: 0.7px solid #9aa8bc !important;
     border-radius: 8px;
-    color: #0f172a !important;
+    color: #0f172a;
 }
 
 .mermaid-block .labelBkg * {
-    background: transparent !important;
+    background: transparent;
     border: 0 !important;
     box-shadow: none !important;
     margin: 0 !important;
@@ -1582,44 +1644,44 @@ article {
 }
 
 .mermaid-block rect.note {
-    fill: #fff7c2 !important;
-    stroke: #d8ca70 !important;
+    fill: #fff7c2;
+    stroke: #d8ca70;
 }
 
 .mermaid-block :is(.task, .taskText, .section, .sectionTitle, .grid .tick text, .today),
 .mermaid-block :is(.classText, .state-title, .entityLabel, .relationshipLabel, .pieTitleText, .slice, .legend text) {
-    font-weight: 400 !important;
+    font-weight: 400;
 }
 
 .mermaid-block :is(.taskText, .sectionTitle, .grid .tick text, .classText, .state-title, .entityLabel, .relationshipLabel, .pieTitleText, .slice, .legend text) {
-    fill: #0f172a !important;
-    color: #0f172a !important;
+    fill: #0f172a;
+    color: #0f172a;
 }
 
 .mermaid-block :is(.task, .section, .classGroup rect, .stateGroup rect, .entityBox) {
-    stroke: var(--diagram-line) !important;
+    stroke: var(--diagram-line);
 }
 
 .mermaid-block[data-mermaid-kind="gantt"] .task {
-    fill: #dce6f2 !important;
-    stroke: #9aa8bc !important;
+    fill: #dce6f2;
+    stroke: #9aa8bc;
     stroke-width: 0.8px !important;
 }
 
 .mermaid-block[data-mermaid-kind="gantt"] .taskText,
 .mermaid-block[data-mermaid-kind="gantt"] .taskTextOutsideRight,
 .mermaid-block[data-mermaid-kind="gantt"] .taskTextOutsideLeft {
-    fill: #233044 !important;
-    color: #233044 !important;
-    font-weight: 400 !important;
+    fill: #233044;
+    color: #233044;
+    font-weight: 400;
 }
 
 .mermaid-block[data-mermaid-kind="gantt"] .section {
-    stroke: #d7dee8 !important;
+    stroke: #d7dee8;
 }
 
 .mermaid-block[data-mermaid-kind="gantt"] .grid .tick line {
-    stroke: #d7dee8 !important;
+    stroke: #d7dee8;
 }
 
 .dark .mermaid-block .node rect,
@@ -1628,7 +1690,7 @@ article {
 .dark .mermaid-block rect.labelBox,
 .dark .mermaid-block .node circle,
 .dark .mermaid-block .node ellipse {
-    stroke: #9aa8bc !important;
+    stroke: #9aa8bc;
 }
 
 .dark .mermaid-block .flowchart-link,
@@ -1640,18 +1702,18 @@ article {
 .dark .mermaid-block .relation,
 .dark .mermaid-block .state-start,
 .dark .mermaid-block .state-end {
-    stroke: #94a3b8 !important;
+    stroke: #94a3b8;
 }
 
 .dark .mermaid-block marker path,
 .dark .mermaid-block .arrowheadPath {
-    fill: #94a3b8 !important;
-    stroke: #94a3b8 !important;
+    fill: #94a3b8;
+    stroke: #94a3b8;
 }
 
 .dark .mermaid-block g.cluster rect {
-    fill: rgba(30, 41, 59, 0.28) !important;
-    stroke: rgba(148, 163, 184, 0.3) !important;
+    fill: rgba(30, 41, 59, 0.28);
+    stroke: rgba(148, 163, 184, 0.3);
     stroke-width: 0.5px !important;
 }
 
@@ -1659,27 +1721,27 @@ article {
 .dark .mermaid-block .cluster-label div,
 .dark .mermaid-block .cluster-label span,
 .dark .mermaid-block .cluster-label p {
-    color: #e7edf6 !important;
+    color: #e7edf6;
 }
 
 .dark .mermaid-block .cluster-label div {
-    background: var(--diagram-bg) !important;
+    background: var(--diagram-bg);
 }
 
 .dark .mermaid-block .freecat-mermaid-cluster-label div {
-    background: color-mix(in srgb, var(--diagram-bg) 88%, var(--diagram-surface)) !important;
+    background: color-mix(in srgb, var(--diagram-bg) 88%, var(--diagram-surface));
     border-color: rgba(148, 163, 184, 0.18) !important;
 }
 
 .dark .mermaid-block .labelBkg {
-    background-color: #172033 !important;
+    background-color: #172033;
     border-color: #718096 !important;
-    color: #e7edf6 !important;
+    color: #e7edf6;
 }
 
 .dark .mermaid-block rect.note {
-    fill: rgba(30, 41, 59, 0.78) !important;
-    stroke: #64748b !important;
+    fill: rgba(30, 41, 59, 0.78);
+    stroke: #64748b;
 }
 
 .dark .mermaid-block .actor>text,
@@ -1692,56 +1754,57 @@ article {
 .dark .mermaid-block .loopText tspan,
 .dark .mermaid-block .labelText,
 .dark .mermaid-block .labelText tspan {
-    fill: #e7edf6 !important;
-    stroke: none !important;
+    fill: #e7edf6;
+    stroke: none;
 }
 
 .dark .mermaid-block .edgeLabel,
 .dark .mermaid-block .edgeLabel p,
 .dark .mermaid-block .edgeLabel span {
-    color: #e7edf6 !important;
+    color: #e7edf6;
 }
 
 .dark .mermaid-block .freecat-mermaid-sequence-number-bg {
-    fill: #dbe4f0 !important;
-    stroke: none !important;
+    fill: #dbe4f0;
+    stroke: none;
 }
 
 .dark .mermaid-block .freecat-mermaid-sequence-number {
-    fill: #101622 !important;
-    stroke: none !important;
+    fill: #101622;
+    stroke: none;
 }
 
 .dark .mermaid-block :is(.taskText, .sectionTitle, .grid .tick text, .classText, .state-title, .entityLabel, .relationshipLabel, .pieTitleText, .slice, .legend text) {
-    fill: #e7edf6 !important;
-    color: #e7edf6 !important;
+    fill: #e7edf6;
+    color: #e7edf6;
 }
 
 .dark .mermaid-block[data-mermaid-kind="gantt"] .task {
-    fill: #4b5563 !important;
-    stroke: #8b96a7 !important;
+    fill: #4b5563;
+    stroke: #8b96a7;
 }
 
 .dark .mermaid-block[data-mermaid-kind="gantt"] .taskText,
 .dark .mermaid-block[data-mermaid-kind="gantt"] .taskTextOutsideRight,
 .dark .mermaid-block[data-mermaid-kind="gantt"] .taskTextOutsideLeft {
-    fill: #ffffff !important;
-    color: #ffffff !important;
+    fill: #ffffff;
+    color: #ffffff;
 }
 
 .dark .mermaid-block[data-mermaid-kind="gantt"] .section {
-    stroke: #2f3d51 !important;
+    stroke: #2f3d51;
 }
+
 
 .echarts-block {
     min-height: 420px;
     align-items: center !important;
-    overflow: hidden !important;
+    overflow: visible !important;
 }
 
 .echarts-canvas {
     width: 100%;
-    min-width: min(100%, 520px);
+    min-width: 0;
     height: 380px;
 }
 
@@ -1760,209 +1823,127 @@ article {
     color: #94a3b8 !important;
 }
 
+/* 目录始终展开；仅最近更新保留折叠，宽屏两侧各使用独立留白。 */
+.freecat-post-toc-panel,
 .freecat-post-latest-update-shell {
-    display: none;
+    margin-bottom: 2rem;
+    color: var(--post-muted);
+    font-size: 0.9375rem;
 }
+
+.freecat-post-toc-title {
+    min-height: 44px;
+    padding-block: 0.625rem;
+    line-height: 1.6;
+}
+
+summary.freecat-post-toc-title {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    list-style: none;
+}
+
+summary.freecat-post-toc-title::-webkit-details-marker { display: none; }
+.freecat-update-chevron {
+    flex: 0 0 auto;
+    width: 1rem;
+    height: 1rem;
+    stroke-width: 1.5;
+    transition: transform 180ms ease-out;
+}
+details[open] > summary .freecat-update-chevron { transform: rotate(180deg); }
+
+@media (prefers-reduced-motion: reduce) {
+    .freecat-update-chevron { transition: none; }
+}
+
+#toc-container,
+.freecat-post-latest-update-body {
+    max-height: 50vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #94a3b8 transparent;
+}
+
+#toc-container nav {
+    position: relative;
+    border-left: 1px solid var(--post-rule);
+    padding-block: 0.25rem;
+}
+
+#toc-container a {
+    position: relative;
+    max-width: 100%;
+    padding-block: 0.4rem;
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--post-muted);
+    overflow-wrap: anywhere;
+    text-decoration: none;
+}
+
+#toc-container a:hover,
+#toc-container a[aria-current="location"] {
+    color: var(--post-accent);
+}
+
+#toc-container nav::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -1px;
+    width: 2px;
+    height: var(--toc-active-height, 0px);
+    background: var(--post-accent);
+    transform: translateY(var(--toc-active-top, 0px));
+    transition: transform 200ms ease-out, height 200ms ease-out;
+    pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #toc-container nav::before {
+        transition: none;
+    }
+}
+
+.freecat-post-latest-update-body {
+    padding-block: 0.25rem;
+    border-left: 1px solid var(--post-rule);
+}
+
+.freecat-post-latest-update-body p { margin: 0; }
+
+.freecat-post-latest-update-link {
+    display: block;
+    padding: 0.4rem 1rem;
+    color: var(--post-muted);
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+    text-decoration: none;
+}
+
+.freecat-post-latest-update-link:hover { color: var(--post-accent); }
 
 @media (min-width: 1280px) {
-    .freecat-post-toc-panel {
-        --freecat-post-toc-top: 16rem;
-        --freecat-post-toc-bottom-gap: 10.1875rem;
-        --freecat-post-toc-scrollbar: rgba(148, 163, 184, 0.46);
+    .freecat-post-toc-panel,
+    .freecat-post-latest-update-shell {
         position: fixed;
-        top: var(--freecat-post-toc-top);
-        height: calc(100vh - var(--freecat-post-toc-top) - var(--freecat-post-toc-bottom-gap));
+        top: calc(var(--freecat-page-top-offset, 97px) + 3rem);
+        width: min(15rem, calc(50vw - 45rem / 2 - 5rem));
+        margin-bottom: 0;
         z-index: 20;
-        overflow-x: hidden;
     }
 
-    .freecat-post-toc-panel {
-        /* Article is 900px wide and centered on the viewport: 450px half-width + 48px visual gap. */
-        left: calc(50% + 498px);
-    }
-
-    .dark .freecat-post-toc-panel {
-        --freecat-post-toc-scrollbar: rgba(100, 116, 139, 0.48);
-    }
-
-    .freecat-post-toc-scroll-shell {
-        position: relative;
-    }
+    .freecat-post-toc-panel { left: calc(50% + 45rem / 2 + 3.5rem); }
+    .freecat-post-latest-update-shell { left: var(--freecat-side-content-left); }
 
     #toc-container,
-    #toc-container nav,
-    #toc-container a {
-        max-width: 100%;
-        min-width: 0;
-    }
-
-    #toc-container {
-        overflow-y: scroll !important;
-        scrollbar-gutter: stable;
-        scrollbar-width: thin;
-        scrollbar-color: var(--freecat-post-toc-scrollbar) transparent;
-    }
-
-    #toc-container::-webkit-scrollbar {
-        width: 0.375rem;
-    }
-
-    #toc-container::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    #toc-container::-webkit-scrollbar-thumb {
-        min-height: 2rem;
-        border-radius: 999px;
-        background-color: var(--freecat-post-toc-scrollbar);
-    }
-
-    #toc-container nav {
-        padding-top: 0.35rem;
-        padding-bottom: 0.35rem;
-    }
-
-    #toc-container a {
-        overflow-wrap: anywhere;
-        word-break: break-word;
-    }
-}
-
-@media (min-width: 1600px) {
-    .freecat-post-latest-update-shell {
-        display: block;
-    }
-
-    .freecat-post-latest-update-panel {
-        --freecat-post-latest-update-top: 16rem;
-        --freecat-post-latest-update-bottom-gap: 10.1875rem;
-        --freecat-post-latest-update-scrollbar: rgba(148, 163, 184, 0.46);
-        --freecat-post-latest-update-block-bg: #ffffff;
-        position: fixed;
-        top: var(--freecat-post-latest-update-top);
-        right: calc(50% + 498px);
-        height: calc(100vh - var(--freecat-post-latest-update-top) - var(--freecat-post-latest-update-bottom-gap));
-        z-index: 20;
-        overflow-x: hidden;
-    }
-
-    .dark .freecat-post-latest-update-panel {
-        --freecat-post-latest-update-scrollbar: rgba(100, 116, 139, 0.48);
-        --freecat-post-latest-update-block-bg: rgba(15, 23, 42, 0.78);
-    }
-
-    .freecat-post-latest-update-scroll {
-        position: relative;
-    }
-
-    #latest-update-container,
-    .freecat-post-latest-update-content,
-    .freecat-post-latest-update-body,
-    .freecat-post-latest-update-body p,
-    .freecat-post-latest-update-link {
-        max-width: 100%;
-        min-width: 0;
-    }
-
-    #latest-update-container {
-        direction: rtl;
-        overflow-y: auto !important;
-        padding-right: 0;
-        padding-left: 0.5rem;
-        scrollbar-gutter: stable;
-        scrollbar-width: thin;
-        scrollbar-color: var(--freecat-post-latest-update-scrollbar) transparent;
-    }
-
-    #latest-update-container::-webkit-scrollbar {
-        width: 0.375rem;
-    }
-
-    #latest-update-container::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    #latest-update-container::-webkit-scrollbar-thumb {
-        min-height: 2rem;
-        border-radius: 999px;
-        background-color: var(--freecat-post-latest-update-scrollbar);
-    }
-
-    .freecat-post-latest-update-content {
-        box-sizing: border-box;
-        direction: ltr;
-        padding: 0.8rem 0.875rem 0.85rem;
-        border-radius: 0.5rem;
-        background: var(--freecat-post-latest-update-block-bg);
-    }
-
-    .freecat-post-latest-update-panel .freecat-post-toc-title {
-        margin-top: 0;
-    }
-
-    .freecat-post-latest-update-title-note {
-        margin-left: 0;
-        color: #94a3b8;
-        font-family: "Freecat Figtree", "Freecat Noto Sans SC", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", sans-serif;
-        font-size: 0.75rem;
-        font-weight: 400;
-        line-height: 1;
-        letter-spacing: 0;
-    }
-
-    .dark .freecat-post-latest-update-title-note {
-        color: #64748b;
-    }
-
     .freecat-post-latest-update-body {
-        padding: 0.35rem 0;
-    }
-
-    .freecat-post-latest-update-body p {
-        margin: 0 0 0.8rem;
-    }
-
-    .freecat-post-latest-update-link {
-        display: -webkit-box;
-        color: #64748b;
-        font-size: 0.875rem;
-        line-height: 1.7;
-        overflow: hidden;
-        overflow-wrap: anywhere;
-        text-overflow: ellipsis;
-        white-space: normal;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 3;
-        line-clamp: 3;
-        text-decoration: none;
-        transition: color 150ms ease;
-    }
-
-    .freecat-post-latest-update-link:hover,
-    .freecat-post-latest-update-link:focus-visible {
-        color: #1e293b;
-    }
-
-    .freecat-post-latest-update-body p:last-child {
-        margin-bottom: 0;
-    }
-
-    .dark .freecat-post-latest-update-link {
-        color: #94a3b8;
-    }
-
-    .dark .freecat-post-latest-update-link:hover,
-    .dark .freecat-post-latest-update-link:focus-visible {
-        color: #e2e8f0;
-    }
-}
-
-@media (min-width: 1760px) {
-    .freecat-post-toc-panel {
-        left: calc(50% + 498px);
-    }
-
-    .freecat-post-latest-update-panel {
-        right: calc(50% + 498px);
+        max-height: calc(100dvh - var(--freecat-page-top-offset, 97px) - 12rem);
     }
 }

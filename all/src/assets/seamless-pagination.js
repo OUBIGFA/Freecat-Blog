@@ -114,7 +114,10 @@
                 postsList.classList.remove('page-transitioning-in');
             }, pageTransitionInMs + 40);
 
-            applyStaggeredAnimations('#posts-list .post-card');
+            // 阅读列表只保留整体翻页过渡，不逐项推入文字。
+            if (!postsList.classList.contains('freecat-home-post-list')) {
+                applyStaggeredAnimations('#posts-list .post-card');
+            }
 
             // 更新浏览器地址栏，并同步外壳历史；这样从文章页返回时能回到当前分页。
             // 外壳模式下历史条目只能由外壳创建（syncParentFrameHistory push），

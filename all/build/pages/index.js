@@ -25,7 +25,7 @@ function renderPostCardForList(post, index = 0, options = {}) {
         ? Number(cardOptions.animationDelayStep)
         : 50;
     const previewText = post.preview || post.excerpt;
-    const desktopTitleLayout = cardOptions.layout === 'compact-grid'
+    const desktopTitleLayout = cardOptions.layout === 'compact-grid' || cardOptions.layout === 'reading-list'
         ? null
         : getDesktopTitleLayout(post.title, { hasCover: !!post.cover });
 
@@ -42,6 +42,7 @@ function renderPostCardForList(post, index = 0, options = {}) {
         sortDate: post.date.valueOf(),
         sortModifiedDate: post.modifiedDate.valueOf(),
         tagsHtml,
+        tags,
         cover: post.cover,
         coverWidth: post.coverWidth,
         coverHeight: post.coverHeight,
@@ -59,7 +60,7 @@ function generateAll({ posts, template, postsPerPage, siteConfig, seoConfig, out
         const start = (page - 1) * postsPerPage;
         const pagePosts = postsPerPage === 0 ? posts : posts.slice(start, start + postsPerPage);
 
-        const postsHtml = pagePosts.map(renderPostCardForList).join('');
+        const postsHtml = pagePosts.map((post, index) => renderPostCardForList(post, index, { layout: 'reading-list' })).join('');
         const paginationBtns = generatePaginationHtml(page, totalPages);
         const title = page === 1
             ? (siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog')
@@ -91,6 +92,7 @@ function generateAll({ posts, template, postsPerPage, siteConfig, seoConfig, out
             ['<!-- HOME_SEO_HEAD -->', seoHead],
             ['<!-- HOME_JSONLD -->', jsonLd],
             ['<!-- POSTS_LIST_PLACEHOLDER -->', postsHtml],
+            ['<!-- HOME_POST_COUNT -->', String(posts.length)],
             ['<!-- PAGINATION_BUTTONS_PLACEHOLDER -->', paginationBtns],
             ['<!-- PAGINATION_PLACEHOLDER -->', ''],
             ['<!-- RECENT_POSTS_SIDEBAR_PLACEHOLDER -->', recentPostsSidebarHtml || '']

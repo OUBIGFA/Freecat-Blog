@@ -378,6 +378,8 @@ test('markdown tables preserve source column proportions as col widths', () => {
 
     assert.match(html, /<table data-md-table-widths="21\.053%,63\.158%,15\.789%">/);
     assert.match(html, /<colgroup><col style="width:21\.053%"><col style="width:63\.158%"><col style="width:15\.789%"><\/colgroup>/);
+    assert.match(html, /<div class="markdown-table-scroll" role="region" aria-label="表格"><table/);
+    assert.match(html, /<\/table>\s*<\/div>/);
 });
 
 test('single-column tables keep col widths aligned with following tables', () => {
@@ -421,7 +423,7 @@ test('code blocks are syntax-highlighted at build time with hljs token markup', 
     assert.doesNotMatch(html, /<code class="language-js">const total/);
 });
 
-test('code blocks without a known language stay escaped plain text', () => {
+test('auto-detected and unknown code languages safely escape HTML', () => {
     const autoHtml = parseMarkdown([
         '```',
         'just some words & <tags>',
@@ -458,6 +460,41 @@ test('short code blocks stay expanded without fold controls', () => {
     assert.doesNotMatch(html, /code-fold-controls/);
     assert.doesNotMatch(html, /max-height:400px/);
     assert.match(html, /style="contain-intrinsic-size: auto \d+px"/);
+});
+
+test('long single-line prompts and JSON fold after estimated wrapping without losing their content', () => {
+    for (const [language, content] of [
+        ['', '保持阅读清晰。'.repeat(300)],
+        ['json', JSON.stringify({ prompt: 'readable '.repeat(400) })]
+    ]) {
+        const html = parseMarkdown('```' + language + '\n' + content + '\n```');
+        assert.match(html, /code-fold collapsed-code/);
+        assert.match(html, /aria-label="展开内容" aria-expanded="false"/);
+        assert.match(html, /class="fold-toggle-label">展开内容/);
+        assert.match(html, /class="copy-btn-text">复制/);
+        assert.ok(html.includes(language ? 'readable '.repeat(100) : '保持阅读清晰。'.repeat(100)));
+    }
+});
+
+test('unlabelled code is highlighted while explicit plaintext preserves prose', () => {
+    const code = 'function greet(name) { return "Hello, " + name; }';
+    const html = parseMarkdown('```\n' + code + '\n```');
+    assert.match(html, /class="hljs-/);
+    assert.match(html, /class="code-language-label">Auto/);
+    for (const language of ['text', 'plaintext']) {
+        const plain = parseMarkdown('```' + language + '\nCreate a poster. class Title { return <text> & words; }\n```');
+        assert.doesNotMatch(plain, /class="hljs-/);
+        assert.match(plain, /&lt;text&gt; &amp; words/);
+    }
+});
+
+test('markdown image dimensions and visible captions are retained', () => {
+    for (const title of ['Caption 320x240', 'Caption width=320 height=240', 'Caption height=240 width=320']) {
+        const html = parseMarkdown('![Photo](/image/photo.png "' + title + '")');
+        assert.match(html, /<img\b[^>]*width="320" height="240"/);
+        assert.match(html, /title="Caption"/);
+        assert.doesNotMatch(html, /Caption (?:320x240|width=|height=)/);
+    }
 });
 
 test('mermaid code blocks render as diagram containers with detected kinds', () => {

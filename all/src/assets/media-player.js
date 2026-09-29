@@ -182,11 +182,15 @@
         const dropdownCloseMs = 150;
 
         function openSpeedDropdown() {
+            speedDropdown.inert = false;
+            speedBtn.setAttribute('aria-expanded', 'true');
             speedDropdown.classList.remove('is-closing');
             speedDropdown.classList.add('is-open');
         }
 
         function closeSpeedDropdown() {
+            speedDropdown.inert = true;
+            speedBtn.setAttribute('aria-expanded', 'false');
             speedDropdown.classList.remove('is-open');
             speedDropdown.classList.add('is-closing');
             setTimeout(function () {
@@ -201,6 +205,11 @@
         });
 
         document.addEventListener('click', closeSpeedDropdown);
+        speedDropdown.addEventListener('keydown', function (event) {
+            if (event.key !== 'Escape') return;
+            closeSpeedDropdown();
+            speedBtn.focus();
+        });
 
         speedOptions.forEach(function (option) {
             option.addEventListener('click', function (event) {
@@ -213,6 +222,7 @@
                 });
                 option.classList.add('active');
                 closeSpeedDropdown();
+                speedBtn.focus();
             });
         });
 

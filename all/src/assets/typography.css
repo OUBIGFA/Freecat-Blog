@@ -169,7 +169,7 @@
 }
 
 .freecat-nav-text {
-    font-family: "Freecat Figtree", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: "Freecat Figtree", "Freecat Noto Sans SC", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     font-weight: 600;
     font-synthesis-weight: none;
 }
@@ -223,8 +223,15 @@
 .freecat-sidebar-slogan,
 .freecat-about-title {
     font-family: "Freecat Figtree", "Freecat Noto Sans SC", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", sans-serif;
-    font-weight: 800;
     font-synthesis-weight: none;
+}
+
+.freecat-sidebar-slogan {
+    font-weight: 600;
+}
+
+.freecat-about-title {
+    font-weight: 800;
 }
 
 .freecat-sidebar-description,
@@ -236,8 +243,8 @@
 }
 
 .freecat-sidebar-recent-heading {
-    font-family: "Freecat Figtree", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-weight: 800;
+    font-family: "Freecat Figtree", "Freecat Noto Sans SC", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-weight: 500;
     font-synthesis-weight: none;
 }
 

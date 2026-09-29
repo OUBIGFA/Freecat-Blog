@@ -2,12 +2,12 @@
     margin: 1.618em 0;
     padding: 1.25rem;
     background: transparent;
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    border: 1px solid #d8e0e9;
     border-radius: 8px;
 }
 
 .dark .media-player-container {
-    border-color: rgba(255, 255, 255, 0.1);
+    border-color: #334155;
 }
 
 .media-player-loading {
@@ -32,8 +32,8 @@
     min-width: 0;
     overflow: hidden;
     color: #1e293b;
-    font-size: 0.95rem;
-    font-weight: 600;
+    font-size: 1rem;
+    font-weight: 500;
     line-height: 1.5;
     text-decoration: none;
     text-overflow: ellipsis;
@@ -91,8 +91,8 @@
 }
 
 .media-player-loading-play {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border: 1px solid rgba(15, 23, 42, 0.18);
     border-radius: 50%;
 }
@@ -120,7 +120,7 @@
     padding: 0 0.75rem;
     border-radius: 999px;
     color: #64748b;
-    font-size: 0.85rem;
+    font-size: 0.9375rem;
     font-weight: 500;
 }
 
@@ -132,10 +132,11 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.5rem;
+    gap: 0.75rem;
+    flex-wrap: wrap;
     margin-bottom: 1rem;
-    font-size: 0.95rem;
-    font-weight: 600;
+    font-size: 1rem;
+    font-weight: 500;
     color: #1e293b;
 }
 
@@ -153,7 +154,9 @@
 .media-player-title-left>span:last-child {
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.6;
 }
 
 .media-player-icon {
@@ -259,7 +262,7 @@
     color: white;
     padding: 0.2rem 0.45rem;
     border-radius: 4px;
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     font-weight: 400;
     white-space: nowrap;
     pointer-events: none;
@@ -293,6 +296,7 @@
 
 .media-controls {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
@@ -305,9 +309,13 @@
     gap: 0.75rem;
 }
 
+.media-controls-right {
+    margin-left: auto;
+}
+
 .media-play-btn {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border: 1px solid rgba(15, 23, 42, 0.18);
     border-radius: 50%;
     background: transparent;
@@ -329,7 +337,7 @@
 }
 
 .media-time {
-    font-size: 0.85rem;
+    font-size: 0.9375rem;
     color: #64748b;
     font-weight: 500;
     font-variant-numeric: tabular-nums;
@@ -348,6 +356,9 @@
 
 .media-volume-btn,
 .media-fullscreen-btn {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 auto;
     background: none;
     border: none;
     padding: 0;
@@ -431,12 +442,13 @@
 }
 
 .media-speed-btn {
+    min-height: 40px;
     padding: 0.3rem 0.4rem;
     border: none;
     border-radius: 4px;
     background: transparent;
     color: #64748b;
-    font-size: 0.85rem;
+    font-size: 0.9375rem;
     font-weight: 500;
     cursor: pointer;
     transition: color 0.2s ease, background-color 0.2s ease;
@@ -462,10 +474,11 @@
     position: absolute;
     bottom: calc(100% + 0.5rem);
     left: 50%;
+    max-height: 18rem;
+    overflow-y: auto;
     background: white;
     border: 1px solid #cbd5e1;
     border-radius: 6px;
-    overflow: hidden;
     opacity: 0;
     pointer-events: none;
     transform: translateX(-50%) scale(0.97);
@@ -498,8 +511,14 @@
 }
 
 .media-speed-option {
+    display: block;
+    width: 100%;
+    min-height: 40px;
+    text-align: left;
+    border: 0;
+    background: transparent;
     padding: 0.5rem 1rem;
-    font-size: 0.85rem;
+    font-size: 0.9375rem;
     color: #475569;
     cursor: pointer;
     transition: color 0.2s ease, background-color 0.2s ease;
@@ -507,6 +526,12 @@
 }
 
 .dark .media-speed-option {
+    display: block;
+    width: 100%;
+    min-height: 40px;
+    text-align: left;
+    border: 0;
+    background: transparent;
     color: #cbd5e1;
 }
 
@@ -523,7 +548,7 @@
 .media-speed-option.active {
     background: #f1f5f9;
     color: #0f172a;
-    font-weight: 600;
+    font-weight: 500;
 }
 
 .dark .media-speed-option.active {
@@ -537,22 +562,36 @@
     }
 
     .media-player-title {
-        font-size: 0.875rem;
+        font-size: 1rem;
     }
 
     .media-time {
-        font-size: 0.75rem;
+        font-size: 0.875rem;
     }
 
     .media-speed-btn {
         padding: 0.35rem 0.6rem;
-        font-size: 0.75rem;
+        font-size: 0.875rem;
     }
 
     .media-controls,
     .media-controls-left,
     .media-controls-right {
         gap: 0.5rem;
+    }
+}
+
+/* 进度与音量均可使用键盘，焦点轮廓不依赖颜色变化。 */
+.media-player-container :is(button, input, [role="slider"]):focus-visible {
+    outline: 2px solid #55779a;
+    outline-offset: 3px;
+}
+
+@media (hover: none) {
+    .media-volume-slider-wrapper {
+        width: 3rem;
+        margin-left: 0.25rem;
+        opacity: 1;
     }
 }
 

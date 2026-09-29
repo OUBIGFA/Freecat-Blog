@@ -1,15 +1,15 @@
 /* ===== Refined code block surface ===== */
 .prose .code-block-container {
-    --code-surface: #f8fafc;
-    --code-surface-soft: #f3f6fa;
-    --code-border: #d8e1eb;
+    --code-surface: #fafafb;
+    --code-surface-soft: #f7f8fa;
+    --code-border: #d8e0e9;
     --code-rule: #e5ebf2;
     --code-text: #182233;
-    --code-muted: #6f7b8c;
+    --code-muted: #596a80;
     --code-shadow: none;
     position: relative;
     overflow: hidden !important;
-    border: 1px solid var(--code-border) !important;
+    border: 1px solid var(--code-rule) !important;
     border-radius: 8px !important;
     background: var(--code-surface) !important;
     box-shadow: var(--code-shadow) !important;
@@ -22,7 +22,7 @@
     --code-border: #2a3648;
     --code-rule: #253244;
     --code-text: #d9e2ee;
-    --code-muted: #8c9aad;
+    --code-muted: #a4b1c3;
     --code-shadow: none;
 }
 
@@ -44,9 +44,9 @@
 }
 
 .prose .code-block-container > .flex:first-child {
-    min-height: 38px;
+    min-height: 44px;
     padding: 0 10px 0 18px !important;
-    background: var(--code-surface-soft) !important;
+    background: var(--code-surface) !important;
     border-bottom: 1px solid var(--code-rule) !important;
 }
 
@@ -54,7 +54,7 @@
 .prose .code-block-container > .flex:first-child > span:first-child {
     color: var(--code-muted) !important;
     font-family: inherit !important;
-    font-size: 0.68rem !important;
+    font-size: 0.875rem !important;
     line-height: 1 !important;
     font-weight: 500 !important;
     letter-spacing: 0.04em !important;
@@ -66,18 +66,14 @@
 }
 
 .prose .code-content {
-    --code-fold-duration: 420ms;
+    --code-fold-duration: 220ms;
     --code-fold-ease: cubic-bezier(0.22, 1, 0.36, 1);
     position: relative;
-    padding: 1.35rem 1.55rem !important;
+    padding: 1.125rem 1.25rem !important;
     background: var(--code-surface) !important;
-    scrollbar-color: #c5cfdb transparent;
-    scrollbar-width: thin;
-    transition:
-        max-height var(--code-fold-duration) var(--code-fold-ease),
-        scrollbar-color 220ms ease-out !important;
+    transition: max-height var(--code-fold-duration) var(--code-fold-ease) !important;
     box-sizing: border-box;
-    overflow-x: hidden !important;
+    overflow: clip !important;
     overflow-anchor: none;
     will-change: max-height;
 }
@@ -89,26 +85,20 @@
     bottom: 0;
     left: 0;
     display: block;
-    height: 5.25rem;
-    background: linear-gradient(to bottom, rgba(247, 249, 252, 0), var(--code-surface) 86%);
+    height: 3.25rem;
+    background: linear-gradient(to bottom, transparent, var(--code-surface) 86%);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 260ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition: opacity 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .prose .collapsed-code .code-content::after {
     opacity: 1;
 }
 
-.dark .prose .code-content::after {
-    background: linear-gradient(to bottom, rgba(15, 23, 36, 0), var(--code-surface) 86%);
-}
-
 .prose .expanded-code .code-content {
     padding-bottom: 5.2rem !important;
-    overflow-x: hidden !important;
-    overflow-y: visible !important;
-    scrollbar-width: none;
+    overflow: visible !important;
 }
 
 .prose .code-expanding .code-content {
@@ -119,35 +109,13 @@
     overflow: hidden !important;
 }
 
-.dark .prose .code-content {
-    scrollbar-color: #3a4a61 transparent;
-}
-
-.prose .expanded-code .code-content::-webkit-scrollbar {
-    display: none;
-}
-
 .prose .expanded-code .code-content pre {
     overflow: visible !important;
 }
 
-.prose .code-content::-webkit-scrollbar {
-    height: 8px;
-}
-
-.prose .code-content::-webkit-scrollbar-thumb {
-    border: 2px solid var(--code-surface);
-    border-radius: 999px;
-    background: #c5cfdb;
-}
-
-.dark .prose .code-content::-webkit-scrollbar-thumb {
-    background: #3a4a61;
-}
-
 .prose .code-content pre {
     color: var(--code-text) !important;
-    font-family: inherit !important;
+    font-family: ui-monospace, "Cascadia Code", "SFMono-Regular", Consolas, monospace !important;
     width: auto;
     min-width: 0;
     max-width: 100%;
@@ -158,9 +126,9 @@
 
 .prose .code-content pre code {
     color: var(--code-text) !important;
-    font-family: inherit !important;
-    font-size: 0.9rem !important;
-    line-height: 1.72 !important;
+    font-family: ui-monospace, "Cascadia Code", "SFMono-Regular", Consolas, monospace !important;
+    font-size: 1rem !important;
+    line-height: 1.75 !important;
     font-weight: 400 !important;
     white-space: pre-wrap !important;
     overflow-wrap: anywhere !important;
@@ -175,12 +143,7 @@
 .prose .code-fold-controls {
     gap: 0;
     background:
-        linear-gradient(to top, var(--code-surface) 16%, rgba(247, 249, 252, 0.92) 58%, rgba(247, 249, 252, 0)) !important;
-}
-
-.dark .prose .code-fold-controls {
-    background:
-        linear-gradient(to top, var(--code-surface) 16%, rgba(15, 23, 36, 0.92) 58%, rgba(15, 23, 36, 0)) !important;
+        linear-gradient(to top, var(--code-surface) 16%, color-mix(in srgb, var(--code-surface) 92%, transparent) 58%, transparent) !important;
 }
 
 .prose .code-fold-controls:not(.absolute) {
@@ -252,9 +215,9 @@
 .prose .code-fold-controls.code-controls-opening {
     transition:
         opacity 180ms ease-out,
-        top 420ms cubic-bezier(0.22, 1, 0.36, 1),
-        left 420ms cubic-bezier(0.22, 1, 0.36, 1),
-        transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+        top 220ms cubic-bezier(0.22, 1, 0.36, 1),
+        left 220ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
         background-color 180ms ease-out,
         border-color 180ms ease-out;
 }
@@ -280,15 +243,15 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 26px;
-    min-width: 38px;
+    height: 40px;
+    min-width: 40px;
     margin: 0 1px;
     padding: 0 0.65rem;
     border: 0;
     border-radius: 999px;
     color: var(--code-muted);
     background: transparent;
-    font-size: 0.76rem;
+    font-size: 0.875rem;
     line-height: 1;
     font-weight: 400;
     letter-spacing: 0;
@@ -333,7 +296,6 @@
 .prose .code-fold-controls .fold-toggle-btn:focus-visible {
     color: var(--code-text) !important;
     background: transparent !important;
-    outline: none;
 }
 
 .dark .prose .code-nav-btn {
@@ -346,12 +308,17 @@
 .dark .prose .code-fold-controls .fold-toggle-btn:focus-visible {
     color: #e2e8f0 !important;
     background: transparent !important;
-    outline: none;
 }
 
 .prose .fold-toggle-btn {
-    width: 30px !important;
-    height: 26px !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    width: auto !important;
+    min-width: 40px;
+    padding: 0 0.75rem;
+    height: 40px !important;
     margin: 0 1px !important;
     color: var(--code-muted) !important;
     border: 0 !important;
@@ -374,7 +341,24 @@
 
 .prose .fold-toggle-btn span {
     color: currentColor !important;
-    font-size: 0.98rem !important;
+    font-size: 0.875rem !important;
+    white-space: nowrap;
+}
+
+/* 键盘焦点有独立轮廓，不依赖轻微颜色变化。 */
+.prose .code-fold-controls :is(.code-nav-btn, .fold-toggle-btn):focus-visible {
+    outline: 2px solid var(--code-text);
+    outline-offset: 2px;
+}
+
+@media (max-width: 767px) {
+    .prose .code-content {
+        padding: 1rem !important;
+    }
+
+    .prose .code-content pre code {
+        font-size: 0.9375rem !important;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -395,4 +379,21 @@
 
 .prose .collapsed-code .code-fold-controls {
     display: flex !important;
+}
+
+/* 代码工具与语法配色统一在本地定义，深浅主题使用同一层级。 */
+.code-copy-btn {
+    width: auto;
+    padding: 0 0.625rem;
+    gap: 0.375rem;
+}
+
+.code-copy-btn :is(.clipboard, .clipboard-check) {
+    left: 0.625rem;
+}
+
+.copy-btn-text {
+    padding-left: 1.25rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
 }

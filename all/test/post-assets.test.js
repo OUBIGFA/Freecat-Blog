@@ -104,35 +104,13 @@ test('article table of contents uses requested Chinese and Latin font assets', (
     assert.match(typographyCss, /#toc-container a\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
 });
 
-test('article latest update panel mirrors the toc on the left when there is room', () => {
-    assert.match(postTemplate, /<!-- LATEST_UPDATE_PLACEHOLDER -->/);
-    assert.match(typographyCss, /\.freecat-sidebar-recent-heading\s*\{[\s\S]*font-family:\s*"Freecat Figtree", Inter/);
-    assert.match(typographyCss, /\.freecat-sidebar-recent-heading\s*\{[\s\S]*font-weight:\s*800;/);
-    assert.match(postCss, /\.freecat-post-latest-update-shell\s*\{[\s\S]*display:\s*none;/);
-    assert.match(postCss, /@media \(min-width:\s*1600px\)\s*\{[\s\S]*\.freecat-post-latest-update-shell\s*\{[\s\S]*display:\s*block;/);
-    assert.match(postCss, /\.freecat-post-latest-update-panel\s*\{[\s\S]*right:\s*calc\(50% \+ 498px\);/);
-    assert.match(postCss, /#latest-update-container\s*\{[\s\S]*overflow-y:\s*auto !important;/);
-    assert.match(postCss, /#latest-update-container\s*\{[\s\S]*direction:\s*rtl;/);
-    assert.match(postCss, /\.freecat-post-latest-update-content\s*\{[\s\S]*direction:\s*ltr;/);
-    assert.match(postCss, /\.freecat-post-latest-update-content\s*\{[\s\S]*background:\s*var\(--freecat-post-latest-update-block-bg\);/);
-    assert.doesNotMatch(postCss, /\.freecat-post-latest-update-content\s*\{[\s\S]*border:\s*1px solid/);
-    assert.match(postCss, /\.freecat-post-latest-update-title-note\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"/);
-    assert.match(postCss, /\.freecat-post-latest-update-title-note\s*\{[\s\S]*font-size:\s*0\.75rem;/);
-    assert.match(postCss, /\.freecat-post-latest-update-title-note\s*\{[\s\S]*font-weight:\s*400;/);
-    assert.match(postCss, /\.freecat-post-latest-update-body\s*\{[\s\S]*padding:\s*0\.35rem 0;/);
-    assert.doesNotMatch(postCss, /freecat-post-latest-update-body\s*\{[\s\S]*border-right:/);
-    assert.doesNotMatch(postCss, /freecat-post-latest-update-date/);
-    assert.match(postCss, /\.freecat-post-latest-update-link\s*\{[\s\S]*text-overflow:\s*ellipsis;/);
-    assert.match(postCss, /\.freecat-post-latest-update-link\s*\{[\s\S]*-webkit-line-clamp:\s*3;/);
-    assert.match(postCss, /\.freecat-post-latest-update-link\s*\{[\s\S]*white-space:\s*normal;/);
+test('article latest update anchors reuse content matching and header offsets', () => {
     assert.match(postJs, /function initLatestUpdateAnchors\(\)\s*\{/);
     assert.match(postJs, /\.freecat-post-latest-update-link\[href\^="#"\]/);
     assert.match(postJs, /h1,h2,h3,h4,h5,h6,p,li,tr,td,th,blockquote,figcaption,figure,\.callout,pre code/);
     assert.match(postJs, /ul,ol,table/);
     assert.match(postJs, /findLatestUpdateTarget\(this\.getAttribute\('data-latest-update-text'\)\)/);
     assert.match(postJs, /getTocTargetScrollY\(targetElement,\s*article\)/);
-    assert.match(floatingNavJs, /\.freecat-post-latest-update-panel/);
-    assert.match(floatingNavJs, /getElementById\('latest-update-container'\)/);
 });
 
 test('article toc anchor scrolling respects the shell header offset when framed', () => {
@@ -162,28 +140,12 @@ test('article video players default to 16:9 before metadata and then use real vi
     assert.match(mediaPlayerCss, /\.media-speed-dropdown\.is-open\s*\{[\s\S]*transform:\s*translateX\(-50%\) scale\(1\);/);
 });
 
-test('second-largest article heading rank renders the divider rule when multiple ranks exist', () => {
-    assert.match(postCss, /\.prose:not\(:has\(\.article-heading-rank-2\)\) \.article-heading-rank-1::after,\s*\.prose \.article-heading-rank-2::after\s*\{/);
-    assert.doesNotMatch(postCss, /\.prose \.article-heading::after\s*\{/);
-    assert.doesNotMatch(postCss, /\.prose \.article-heading-depth-1::after/);
-    assert.doesNotMatch(postCss, /\.prose \.article-heading-depth-2::after/);
-    assert.match(postCss, /width:\s*100%;/);
-    assert.match(postCss, /height:\s*2px;/);
-    assert.match(postCss, /background:\s*var\(--article-heading-rule\);/);
-});
-
-test('single-rank articles keep a thick divider on their only heading level', () => {
-    assert.match(postCss, /\.prose:not\(:has\(\.article-heading-rank-2\)\) \.article-heading-rank-1::after,\s*\.prose \.article-heading-rank-2::after\s*\{[\s\S]*height:\s*2px;/);
-    assert.doesNotMatch(postCss, /\.prose \.article-heading-rank-1::after\s*\{[\s\S]*height:\s*2px;/);
-    assert.doesNotMatch(postCss, /\.prose \.article-heading-rank-1::after,\s*\.prose \.article-heading-rank-2::after\s*\{[\s\S]*height:\s*1px;/);
-});
-
 test('article heading links inherit the heading color', () => {
-    assert.match(postCss, /\.prose \.article-heading a,\s*\.prose \.article-heading a:hover\s*\{[\s\S]*color:\s*inherit\s*!important;/);
+    assert.match(postCss, /\.prose \.article-heading a\s*\{[\s\S]*color:\s*inherit\s*!important;/);
 });
 
 test('article heading links drop the body link underline', () => {
-    assert.match(postCss, /\.prose \.article-heading a,\s*\.prose \.article-heading a:hover\s*\{[\s\S]*text-decoration:\s*none\s*!important;/);
+    assert.match(postCss, /\.prose \.article-heading a\s*\{[\s\S]*text-decoration:\s*none\s*!important;/);
 });
 
 test('article body links can wrap while keeping continuous underlines', () => {
@@ -191,7 +153,7 @@ test('article body links can wrap while keeping continuous underlines', () => {
 
     assert.match(rule, /white-space:\s*normal\s*!important;/);
     assert.match(rule, /overflow-wrap:\s*anywhere\s*!important;/);
-    assert.match(rule, /text-decoration-skip-ink:\s*none\s*!important;/);
+    assert.match(rule, /text-decoration-skip-ink:\s*auto\s*!important;/);
     assert.doesNotMatch(rule, /white-space:\s*nowrap\s*!important;/);
 });
 
@@ -208,9 +170,8 @@ test('article heading links are prefixed with a currentColor link icon', () => {
 test('article Chinese font weights use standard emphasis values', () => {
     assert.match(postCss, /\.prose \.callout-title\s*\{[\s\S]*font-weight:\s*600\s*!important;/);
     assert.match(postCss, /\.prose summary\s*\{[\s\S]*font-weight:\s*600;/);
-    assert.match(postCss, /\.post-title\s*\{[\s\S]*font-weight:\s*600\s*!important;/);
+    assert.match(postCss, /\.post-title\s*\{[\s\S]*font-weight:\s*600;/);
     assert.match(postCss, /\.prose \.article-heading\s*\{[\s\S]*font-weight:\s*600\s*!important;/);
-    assert.match(postCss, /\.prose \.article-heading-rank-1\s*\{[\s\S]*font-weight:\s*700\s*!important;/);
     assert.match(postCss, /\.prose strong,\s*\.prose b\s*\{[\s\S]*font-weight:\s*600\s*!important;/);
     assert.match(postCss, /\.prose li>strong:first-child\s*\{[\s\S]*font-weight:\s*600\s*!important;/);
     assert.doesNotMatch(postCss, /\.prose strong\s*\{[\s\S]*font-weight:\s*700\s*!important;/);
@@ -231,15 +192,16 @@ test('article Chinese font weights use standard emphasis values', () => {
     );
 });
 
-test('article headings use one and a half times the body reading size across breakpoints', () => {
-    assert.match(postCss, /\.post-title\s*\{[\s\S]*font-size:\s*1\.75rem\s*!important;/);
-    assert.match(postCss, /@media \(min-width: 768px\)\s*\{[\s\S]*\.post-title\s*\{[\s\S]*font-size:\s*2\.5rem\s*!important;/);
+test('article heading sizes distinguish reading levels across breakpoints', () => {
+    assert.match(postCss, /\.post-title\s*\{[\s\S]*font-size:\s*1\.75rem;/);
+    assert.match(postCss, /@media \(min-width: 768px\)\s*\{[\s\S]*\.post-title\s*\{[\s\S]*font-size:\s*2\.25rem;/);
     assert.match(postCss, /\.prose\s*\{[\s\S]*--article-body-size:\s*1\.0625rem;/);
-    assert.match(postCss, /@media \(min-width: 768px\)\s*\{[\s\S]*\.prose\s*\{[\s\S]*--article-body-size:\s*1\.1875rem;/);
+    assert.match(postCss, /@media \(min-width: 768px\)\s*\{[\s\S]*\.prose\s*\{[\s\S]*--article-body-size:\s*1\.125rem;/);
 
-    for (let level = 1; level <= 6; level += 1) {
-        assert.match(postCss, new RegExp(`--article-heading-h${level}:\\s*calc\\(var\\(--article-body-size\\) \\* 1\\.5\\);`));
-    }
+    const scales = [1.65, 1.4, 1.2, 1.1, 1.05, 1];
+    scales.forEach((scale, index) => {
+        assert.ok(postCss.includes(`--article-heading-h${index + 1}: calc(var(--article-body-size) * ${scale});`));
+    });
 
     assert.doesNotMatch(postCss, /--article-heading-h[1-6]:\s*var\(--article-body-size\);/);
 });
@@ -252,7 +214,9 @@ test('markdown image blocks center without shrinking regular images', () => {
 
     assert.match(centerRule, /margin-inline:\s*auto\s*!important;/);
     assert.match(postImageRule, /width:\s*100%;/);
-    assert.match(imageRule, /width:\s*100%\s*!important;/);
+    assert.match(imageRule, /max-width:\s*100%;/);
+    assert.doesNotMatch(imageRule, /(?<!-)width:\s*100%/);
+    assert.match(postCss, /\.prose img:not\(\[width\]\):not\(\[style\*="width"\]\)\s*\{\s*width:\s*100%;/);
     assert.doesNotMatch(postImageRule, /max-width:\s*(?:max-content|fit-content|none)/);
     assert.doesNotMatch(postImageRule, /width:\s*auto/);
     assert.match(externalRule, /margin:\s*0 0 2rem 0\s*!important;/);
@@ -262,7 +226,7 @@ test('markdown image blocks center without shrinking regular images', () => {
 test('article body blocks with zero blank lines share compact group rhythm', () => {
     const listPaddingRules = [...postCss.matchAll(/\.prose ul,\s*\.prose ol\s*\{[\s\S]*?\}/g)]
         .map(match => match[0]);
-    const ordinaryBodyBlocks = ':is(p, ul, ol, dl, blockquote, table, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)';
+    const ordinaryBodyBlocks = ':is(p, ul, ol, dl, blockquote, table, .markdown-table-scroll, .code-block-container, .relative.w-full.inline-block, figure.post-image, figure.external-embed, details, .callout, .diagram-block, .media-player-container, .katex-display, center, .mermaid, pre, .footnotes, iframe, video, picture, .audio-player)';
     const compactGroupRule = postCss.match(/\.prose :is\([^{}]*figure\.external-embed[\s\S]*?\)\+:is\([^{}]*figure\.external-embed[\s\S]*?\)\s*\{[\s\S]*?\}/)?.[0] || '';
     const attachedBlockRule = postCss.match(/#freecat-article-body\.prose>\.markdown-attached-block:not\(\.article-heading\)\s*\{[\s\S]*?\}/)?.[0] || '';
     const extraGapRule = postCss.match(/\.prose \.markdown-gap\+:is\([^{}]*figure\.external-embed[\s\S]*?\)\s*\{[\s\S]*?\}/)?.[0] || '';
@@ -272,7 +236,7 @@ test('article body blocks with zero blank lines share compact group rhythm', () 
     assert.match(postCss, /--article-space-list-attach:\s*0\.32rem;/);
     assert.match(postCss, /--article-space-list-item:\s*0\.62rem;/);
     assert.equal(listPaddingRules.some(rule => /padding-left:\s*1\.7em\s*!important;/.test(rule)), true);
-    assert.match(postCss, /\.prose li\s*\{[\s\S]*margin:\s*0 0 var\(--article-space-list-item\)\s*!important;[\s\S]*line-height:\s*1\.72\s*!important;/);
+    assert.match(postCss, /\.prose li\s*\{[\s\S]*margin:\s*0 0 var\(--article-space-list-item\)\s*!important;[\s\S]*line-height:\s*var\(--article-line-height\)\s*!important;/);
     assert.equal(postCss.includes(`.prose ${ordinaryBodyBlocks}+${ordinaryBodyBlocks} {`), true);
     assert.match(compactGroupRule, /margin-block-start:\s*var\(--article-space-flow\)\s*!important;/);
     assert.match(attachedBlockRule, /margin-block-start:\s*var\(--article-space-group\)\s*!important;/);
@@ -305,20 +269,6 @@ test('article headings keep peer spacing after any preceding body block', () => 
     assert.doesNotMatch(postCss, /\.prose :where\([^{}]*figure\.post-image[^{}]*\)\+\.article-heading-depth-2/);
 });
 
-test('underlined headings include the divider in their own box', () => {
-    const headingRule = postCss.match(/\.prose:not\(:has\(\.article-heading-rank-2\)\) \.article-heading-rank-1,\s*\.prose \.article-heading-rank-2\s*\{[\s\S]*?\}/)?.[0] || '';
-    const dividerRule = postCss.match(/\.prose:not\(:has\(\.article-heading-rank-2\)\) \.article-heading-rank-1::after,\s*\.prose \.article-heading-rank-2::after\s*\{[\s\S]*?\}/)?.[0] || '';
-
-    assert.match(headingRule, /padding-bottom:\s*calc\(0\.72rem \+ 2px\)\s*!important;/);
-    assert.match(dividerRule, /position:\s*absolute;/);
-    assert.match(dividerRule, /bottom:\s*0;/);
-    assert.match(dividerRule, /left:\s*0;/);
-    assert.match(dividerRule, /right:\s*0;/);
-    assert.doesNotMatch(dividerRule, /margin-top:/);
-    assert.doesNotMatch(postCss, /article-space-group-after-heading-rule/);
-    assert.doesNotMatch(postCss, /\.article-heading-rank-2\+\.markdown-attached-block/);
-});
-
 test('article heading spacing uses generic body adjacency around headings', () => {
     const resetRule = postCss.match(/\.prose p,[\s\S]*?\{\s*margin:\s*0\s*!important;\s*\}/)?.[0] || '';
     const flowRule = postCss.match(/\.prose :is\([^{}]*figure\.external-embed[\s\S]*?margin-block-start:\s*var\(--article-space-flow\)\s*!important;\s*\}/)?.[0] || '';
@@ -345,10 +295,10 @@ test('article heading spacing uses generic body adjacency around headings', () =
     assert.doesNotMatch(postCss, /figure\.external-embed[^{}]*\)\+\.article-heading-depth-5/);
 });
 
-test('markdown horizontal rules render as thick article dividers', () => {
+test('markdown horizontal rules render as quiet article dividers', () => {
     const hrBlocks = postCss.match(/(?:\.dark )?\.prose>hr\s*\{[^}]*\}/g) || [];
 
-    assert.match(postCss, /\.prose>hr\s*\{[\s\S]*height:\s*3px\s*!important;/);
+    assert.match(postCss, /\.prose>hr\s*\{[\s\S]*height:\s*1px\s*!important;/);
     assert.match(postCss, /\.prose>hr\s*\{[\s\S]*background:\s*#d8e0eb\s*!important;/);
     assert.match(postCss, /\.dark \.prose>hr\s*\{[\s\S]*background:\s*#475569\s*!important;/);
     assert.doesNotMatch(postCss, /\.prose hr\s*\{[\s\S]*border-top:\s*2px solid/);
@@ -360,7 +310,7 @@ test('markdown horizontal rule spacing stays centered around any adjacent elemen
     const headingSpacingAt = postCss.indexOf('#freecat-article-body.prose>.article-heading-depth-5+:where');
     const dividerSpacingAt = postCss.indexOf('#freecat-article-body.prose>:not(.markdown-gap)+hr,');
 
-    assert.match(postCss, /--article-space-divider:\s*80px;/);
+    assert.match(postCss, /--article-space-divider:\s*3rem;/);
     assert.doesNotMatch(postCss, /--article-space-divider-(?:before|after):/);
     assert.match(postCss, /\.prose>hr\s*\{[^}]*margin:\s*0\s*!important;/);
     assert.equal(dividerSpacingAt > headingSpacingAt, true);
@@ -377,17 +327,16 @@ test('markdown tables use horizontal rules without vertical borders', () => {
     const cellRule = postCss.match(/\.prose th,\s*\.prose td\s*\{[\s\S]*?\}/)?.[0] || '';
     const headerRule = postCss.match(/\.prose th\s*\{[\s\S]*?\}/)?.[0] || '';
 
-    assert.match(postCss, /\.prose table\s*\{[\s\S]*background-color:\s*#f0f1f4\s*!important;/);
+    assert.match(postCss, /\.prose table\s*\{[\s\S]*background-color:\s*transparent\s*!important;/);
     assert.match(postCss, /\.prose table\s*\{[\s\S]*border-collapse:\s*separate\s*!important;/);
-    assert.match(postCss, /\.prose table\s*\{[\s\S]*border-spacing:\s*1\.2em 0\s*!important;/);
-    assert.match(postCss, /\.dark \.prose table\s*\{[\s\S]*background-color:\s*#151c2a\s*!important;/);
+    assert.match(postCss, /\.prose table\s*\{[\s\S]*border-spacing:\s*0\s*!important;/);
+    assert.match(postCss, /\.dark \.prose table\s*\{[\s\S]*background-color:\s*transparent\s*!important;/);
     assert.doesNotMatch(tableRule, /border-bottom:\s*2px solid/);
-    assert.match(cellRule, /padding:\s*0\.75em 0\s*!important;/);
+    assert.match(cellRule, /padding:\s*0\.85em 1em\s*!important;/);
     assert.match(cellRule, /border:\s*0\s*!important;/);
     assert.match(cellRule, /border-bottom:\s*1px solid #d8dee8\s*!important;/);
-    assert.match(headerRule, /border-bottom:\s*2px solid #c6cfdb\s*!important;/);
+    assert.match(headerRule, /border-bottom:\s*1px solid #c6cfdb\s*!important;/);
     assert.match(postCss, /\.prose tbody tr:last-child th,\s*\.prose tbody tr:last-child td\s*\{[\s\S]*border-bottom:\s*0\s*!important;/);
-    assert.match(postCss, /\.prose table:not\(:has\(tbody tr\)\) thead th,\s*\.prose table:has\(tbody tr:only-child\) thead th\s*\{[\s\S]*border-bottom:\s*0\s*!important;/);
     assert.doesNotMatch(cellRule, /border:\s*1px solid/);
 });
 
@@ -405,12 +354,12 @@ test('nested article blockquotes stay quiet and aligned', () => {
     assert.match(finalQuoteRule, /font-style:\s*normal\s*!important;/);
     assert.match(finalQuoteRule, /background:\s*transparent\s*!important;/);
     assert.match(lastChildRule, /margin-bottom:\s*0\s*!important;/);
-    assert.match(nestedQuoteRule, /margin-left:\s*0\.8em\s*!important;/);
+    assert.match(nestedQuoteRule, /margin-left:\s*0\s*!important;/);
     assert.match(nestedQuoteRule, /padding:\s*0 0 0 1em\s*!important;/);
     assert.match(nestedQuoteRule, /border-left-width:\s*2px\s*!important;/);
     assert.match(nestedQuoteRule, /border-left-color:\s*var\(--article-quote-border\)\s*!important;/);
     assert.match(nestedQuoteRule, /background:\s*transparent\s*!important;/);
-    assert.match(thirdLevelQuoteRule, /margin-left:\s*0\.8em\s*!important;/);
+    assert.match(thirdLevelQuoteRule, /margin-left:\s*0\s*!important;/);
     assert.match(thirdLevelQuoteRule, /border-left-color:\s*var\(--article-quote-border\)\s*!important;/);
     assert.match(thirdLevelQuoteRule, /background:\s*transparent\s*!important;/);
     assert.doesNotMatch(nestedQuoteRule, /background(?:-color)?:\s*#(?:f1f5f9|e2e8f0|0f172a|0b1220)/);
@@ -438,27 +387,15 @@ test('markdown diagram blocks center rendered chart content', () => {
     const diagramContentRule = postCss.match(/\.prose \.diagram-block > \.mermaid,[\s\S]*?\.prose \.diagram-block \.echarts-canvas\s*\{[\s\S]*?\}/)?.[0] || '';
     const diagramSvgRule = postCss.match(/\.prose \.diagram-block svg\s*\{[\s\S]*?\}/)?.[0] || '';
 
-    assert.match(diagramBlockRule, /justify-content:\s*center;/);
+    assert.match(diagramBlockRule, /justify-content:\s*safe center;/);
     assert.match(diagramContentRule, /margin-inline:\s*auto\s*!important;/);
     assert.match(diagramSvgRule, /display:\s*block;/);
     assert.match(postCss, /\.prose [\s\S]*?\.diagram-block,[\s\S]*?\.katex-display/);
 });
 
-test('mermaid light theme avoids heavy sequence and gantt blocks', () => {
-    const sequenceNumberBgRule = postCss.match(/\.mermaid-block \.freecat-mermaid-sequence-number-bg\s*\{[\s\S]*?\}/)?.[0] || '';
-    const sequenceNumberRule = postCss.match(/\.mermaid-block \.freecat-mermaid-sequence-number\s*\{[\s\S]*?\}/)?.[0] || '';
-
-    assert.match(postJs, /taskBkgColor:\s*isDark \? '#4b5563' : '#dce6f2'/);
-    assert.match(postJs, /taskTextColor:\s*isDark \? '#ffffff' : '#233044'/);
-    assert.match(postJs, /rect\.setAttribute\('class', 'freecat-mermaid-sequence-number-bg'\)/);
-    assert.match(sequenceNumberBgRule, /fill:\s*#334155\s*!important;/);
-    assert.match(sequenceNumberBgRule, /stroke:\s*none\s*!important;/);
-    assert.match(sequenceNumberBgRule, /stroke-width:\s*0\s*!important;/);
-    assert.match(sequenceNumberRule, /fill:\s*#ffffff\s*!important;/);
-    assert.match(sequenceNumberRule, /stroke:\s*none\s*!important;/);
-    assert.match(sequenceNumberRule, /stroke-width:\s*0\s*!important;/);
-    assert.match(postCss, /\.mermaid-block\[data-mermaid-kind="gantt"\] \.task\s*\{[\s\S]*fill:\s*#dce6f2\s*!important;[\s\S]*stroke:\s*#9aa8bc\s*!important;/);
-    assert.match(postCss, /\.mermaid-block\[data-mermaid-kind="gantt"\] \.taskText,[\s\S]*\.taskTextOutsideRight,[\s\S]*\.taskTextOutsideLeft\s*\{[\s\S]*fill:\s*#233044\s*!important;/);
+test('TOC is always open while article update details can still collapse', () => {
+    assert.match(postTemplate, /<div class="freecat-post-toc">\s*<h2 class="freecat-post-toc-title">目录<\/h2>/);
+    assert.doesNotMatch(postTemplate, /<details[^>]*class="freecat-post-toc"/);
 });
 
 test('syntax highlighting happens at build time, never on the client', () => {
@@ -467,7 +404,9 @@ test('syntax highlighting happens at build time, never on the client', () => {
 
     assert.match(buildMarkdownJs, /require\('highlight\.js'\)/);
     assert.doesNotMatch(postPageJs, /highlight\.min\.js/);
-    assert.match(postPageJs, /highlight\.js\/11\.9\.0\/styles\/github\.min\.css/, 'token color stylesheet still ships');
+    assert.match(postPageJs, /versionedAssetUrl\('\/assets\/code-highlight\.css', assetVersion\)/);
+    assert.ok(postTemplate.indexOf('POST_HIGHLIGHT_CSS') > postTemplate.indexOf('/assets/post-code.css'));
+    assert.doesNotMatch(postPageJs, /highlight\.js\/11\.9\.0\/styles\/github\.min\.css/);
     assert.doesNotMatch(postTemplate, /POST_HIGHLIGHT_JS/);
     assert.doesNotMatch(postJs, /highlightAll/);
     assert.doesNotMatch(postJs, /window\.hljs/);
@@ -495,7 +434,7 @@ test('code folding uses a smooth height transition with fading mask cleanup', ()
     assert.match(codeFoldingJs, /function setCodeControlsInlineLayout\(controls\)/);
     assert.doesNotMatch(codeFoldingJs, /function setCollapsedCodeControlsLayout\(controls\)/);
     assert.doesNotMatch(codeFoldingJs, /function setExpandedCodeControlsLayout\(controls\)/);
-    assert.match(codeFoldingJs, /var CODE_FOLD_TRANSITION_MS = 420;/);
+    assert.match(codeFoldingJs, /var CODE_FOLD_TRANSITION_MS = 220;/);
     assert.match(codeFoldingJs, /setTimeout\(finish, CODE_FOLD_TRANSITION_MS \+ 80\);/);
     assert.match(codeFoldingJs, /function settleCollapsedCodeHeight\(content, container\)/);
     assert.match(codeFoldingJs, /foldContainer\.classList\.add\('code-collapsing'\)/);
@@ -506,14 +445,14 @@ test('code folding uses a smooth height transition with fading mask cleanup', ()
     assert.match(codeFoldingJs, /if \(mode === 'pinned-bottom'\) \{\s*top = Math\.max\(minTop, maxBottom - controlsHeight\);/);
     assert.doesNotMatch(codeFoldingJs, /if \(openingTarget\.mode === 'pinned-bottom'\) \{[\s\S]*?controls\.classList\.add\('code-controls-pinned-bottom'\);[\s\S]*?controls\.style\.removeProperty\('--code-controls-top'\);[\s\S]*?\} else \{/);
     assert.match(codeFoldingJs, /controls\.classList\.remove\('code-controls-pinned-bottom'\);[\s\S]*controls\.classList\.add\('code-controls-opening'\);/);
-    assert.match(codeContentRule, /--code-fold-duration:\s*420ms;/);
+    assert.match(codeContentRule, /--code-fold-duration:\s*220ms;/);
     assert.match(codeContentRule, /--code-fold-ease:\s*cubic-bezier\(0\.22,\s*1,\s*0\.36,\s*1\);/);
     assert.match(codeContentRule, /max-height var\(--code-fold-duration\) var\(--code-fold-ease\)/);
     assert.doesNotMatch(codeContentRule, /padding-bottom\s+\d+ms/);
     assert.match(codeMaskRule, /opacity:\s*0;/);
-    assert.match(codeMaskRule, /transition:\s*opacity 260ms cubic-bezier\(0\.22,\s*1,\s*0\.36,\s*1\);/);
+    assert.match(codeMaskRule, /transition:\s*opacity 220ms cubic-bezier\(0\.22,\s*1,\s*0\.36,\s*1\);/);
     assert.match(collapsedMaskRule, /opacity:\s*1;/);
-    assert.match(openingControlsRule, /top 420ms cubic-bezier\(0\.22,\s*1,\s*0\.36,\s*1\)/);
+    assert.match(openingControlsRule, /top 220ms cubic-bezier\(0\.22,\s*1,\s*0\.36,\s*1\)/);
     assert.match(reducedMotionRule, /transition:\s*none !important;/);
 });
 

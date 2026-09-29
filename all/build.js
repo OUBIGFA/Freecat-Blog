@@ -36,6 +36,7 @@ const { buildTailwindCss } = require('./build/tailwind.js');
 const { getTailwindContentGlobs } = require('./build/tailwind-sources.js');
 const { createBundler } = require('./build/bundle.js');
 const { minifyDist } = require('./build/minify.js');
+const { writeCodeThemeAssets } = require('./build/code-themes.js');
 const postPage = require('./build/pages/post.js');
 const indexPage = require('./build/pages/index.js');
 const allPage = require('./build/pages/all.js');
@@ -234,36 +235,18 @@ if (siteConfig.show_recent_posts === true) {
         .sort((a, b) => b.modifiedDate.valueOf() - a.modifiedDate.valueOf())
         .slice(0, DEFAULT_RECENT_POSTS_LIMIT);
 
-    // 入场动画延迟：Update 紧跟简介出现，列表项仍保持轻微错峰。
-    const HEADING_DELAY = 150;
-    const ITEM_DELAY_STEP = 50;
-
-    const itemsHtml = recentPosts.map((post, i) => {
+    // 最近更新以简洁链接列表呈现，不通过逐项动画延迟文字出现。
+    const itemsHtml = recentPosts.map((post) => {
         const safeTitle = engine.shared.escapeHtml(post.title);
         const safeLink = engine.shared.escapeHtml(engine.shared.encodeSitePath(post.link));
-        const delay = HEADING_DELAY + (i + 1) * ITEM_DELAY_STEP;
-        return `
-                            <li class="py-3 animate-fade-in-up" style="animation-delay: ${delay}ms">
-                                <a href="${safeLink}" class="freecat-sidebar-recent-link block text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors duration-150 line-clamp-2">
-                                    ${safeTitle}
-                                </a>
-                            </li>`;
+        return `<li><a href="${safeLink}" class="freecat-sidebar-recent-link">${safeTitle}</a></li>`;
     }).join('\n');
 
-    recentPostsSidebarInnerHtml = `
-                        <div class="flex flex-col flex-shrink-0 mt-8">
-                            <h3 class="freecat-sidebar-recent-heading text-sm tracking-wider text-slate-600 dark:text-slate-300 mb-4 animate-fade-in-up" style="animation-delay: ${HEADING_DELAY}ms">
-                                Update
-                            </h3>
-                            <ul class="flex flex-col divide-y divide-slate-200 dark:divide-slate-700">
-                                ${itemsHtml.trim()}
-                            </ul>
-                        </div>`;
-
-    // 首页 / 搜索页改版后：最近更新直接渲染到左侧栏底部容器内。
-    // 不再需要额外的 absolute/sticky shell 包裹，直接复用 inner 结构。
-    recentPostsSidebarHomeWrapperHtml = recentPostsSidebarInnerHtml.replace(' mt-8', '').trim();
-
+    recentPostsSidebarInnerHtml = `<div>
+        <h2 class="freecat-sidebar-recent-heading">最近更新</h2>
+        <ul>${itemsHtml}</ul>
+    </div>`;
+    recentPostsSidebarHomeWrapperHtml = recentPostsSidebarInnerHtml;
 }
 
 // ===== 1. 清理输出目录 =====
@@ -292,6 +275,7 @@ buildArticleFontSubset({ rootDir: __dirname, refresh: true });
 
 console.log('📦 Moving assets and configs...');
 if (fs.existsSync(DIRS.assets)) copyDir(DIRS.assets, path.join(DIRS.output, 'assets'), { ignore: ['posts'] });
+writeCodeThemeAssets(path.join(DIRS.output, 'assets'), siteConfig);
 if (fs.existsSync(DIRS.shared)) copyDir(DIRS.shared, path.join(DIRS.output, 'assets'));
 if (fs.existsSync(DIRS.images)) copyDir(DIRS.images, path.join(DIRS.output, 'image'));
 
