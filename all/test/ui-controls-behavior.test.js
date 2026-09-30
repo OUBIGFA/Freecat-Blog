@@ -39,6 +39,29 @@ test('tabs switch panels with arrow keys and keep one tab in the keyboard sequen
     assert.equal(h.focused().id, 'b');
 });
 
+test('a single reading tab stays visible and selected on desktop', () => {
+    const h = browser('<aside data-tabs data-tabs-desktop><div role="tablist"><button id="toc" role="tab" aria-selected="true" aria-controls="toc-panel">目录</button></div><div id="toc-panel" role="tabpanel" data-desktop-only>目录内容</div></aside>');
+    h.run('tabs.js');
+    const list = h.document.querySelector('[role="tablist"]');
+    const tab = h.document.getElementById('toc');
+    const panel = h.document.getElementById('toc-panel');
+    assert.equal(list.hidden, false);
+    assert.equal(tab.getAttribute('aria-selected'), 'true');
+    assert.equal(tab.getAttribute('tabindex'), '0');
+    assert.equal(panel.hidden, false);
+    assert.equal(panel.getAttribute('aria-labelledby'), 'toc');
+    const event = new h.window.Event('keydown', { bubbles: true, cancelable: true });
+    event.key = 'ArrowRight';
+    tab.dispatchEvent(event);
+    assert.equal(h.focused(), tab);
+    assert.equal(panel.hidden, false);
+    h.resize(false);
+    assert.equal(list.hidden, true);
+    h.resize(true);
+    assert.equal(list.hidden, false);
+    assert.equal(panel.hidden, false);
+});
+
 test('reading tabs hide the mobile TOC and preserve the selected desktop panel after resizing', () => {
     const h = browser('<aside data-tabs data-tabs-desktop><div role="tablist"><button id="toc" role="tab" aria-selected="true" aria-controls="toc-panel">目录</button><button id="updates" role="tab" aria-selected="false" aria-controls="updates-panel">最近更新</button></div><div id="toc-panel" role="tabpanel" data-desktop-only>目录内容</div><div id="updates-panel" role="tabpanel" hidden><details><summary>最近更新</summary>更新内容</details></div></aside>', false);
     h.run('tabs.js');

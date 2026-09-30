@@ -34,10 +34,10 @@ async function buildTailwindCss({ contentGlobs, outputPath, minify = true }) {
                 },
                 // Base elements and utilities share the bundled font set.
                 fontFamily: {
-                    sans: ['"Freecat Figtree"', '"Freecat Noto Sans SC"', 'sans-serif'],
-                    'display': ["'Freecat Figtree'", "'Freecat Noto Sans SC'", 'sans-serif'],
-                    serif: ['"Freecat Figtree"', '"Freecat Noto Sans SC"', 'sans-serif'],
-                    mono: ['"Freecat JetBrains Mono"', '"Freecat Noto Sans SC"', 'monospace']
+                    sans: ['"Freecat Figtree"', '"Freecat Noto Sans SC"', '"Freecat Noto Emoji"', '"Freecat Noto Symbols"', 'sans-serif'],
+                    'display': ["'Freecat Figtree'", "'Freecat Noto Sans SC'", '"Freecat Noto Emoji"', '"Freecat Noto Symbols"', 'sans-serif'],
+                    serif: ['"Freecat Figtree"', '"Freecat Noto Sans SC"', '"Freecat Noto Emoji"', '"Freecat Noto Symbols"', 'sans-serif'],
+                    mono: ['"Freecat JetBrains Mono"', '"Freecat Noto Sans SC"', '"Freecat Noto Emoji"', '"Freecat Noto Symbols"', 'monospace']
                 },
                 borderRadius: {
                     'none': '0px',

@@ -121,7 +121,7 @@
 
 .prose .code-content pre {
     color: var(--code-text) !important;
-    font-family: "Freecat JetBrains Mono", "Freecat Noto Sans SC", monospace !important;
+    font-family: "Freecat JetBrains Mono", "Freecat Noto Sans SC", "Freecat Noto Emoji", "Freecat Noto Symbols", monospace !important;
     width: auto;
     min-width: 0;
     max-width: 100%;
@@ -132,7 +132,7 @@
 
 .prose .code-content pre code {
     color: var(--code-text) !important;
-    font-family: "Freecat JetBrains Mono", "Freecat Noto Sans SC", monospace !important;
+    font-family: "Freecat JetBrains Mono", "Freecat Noto Sans SC", "Freecat Noto Emoji", "Freecat Noto Symbols", monospace !important;
     font-size: 1rem !important;
     line-height: 1.75 !important;
     font-weight: 400 !important;

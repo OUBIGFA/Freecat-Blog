@@ -244,7 +244,7 @@
 }
 
 article {
-    font-family: "Freecat Figtree", "Freecat Noto Sans SC", sans-serif;
+    font-family: "Freecat Figtree", "Freecat Noto Sans SC", "Freecat Noto Emoji", "Freecat Noto Symbols", sans-serif;
 }
 
 /* Soft line breaks keep normal line-height without extra spacing. */
@@ -512,7 +512,7 @@ article {
     border: 0 !important;
     border-radius: 3px !important;
     font-size: 0.9em !important;
-    font-family: "Freecat JetBrains Mono", "Freecat Noto Sans SC", monospace !important;
+    font-family: "Freecat JetBrains Mono", "Freecat Noto Sans SC", "Freecat Noto Emoji", "Freecat Noto Symbols", monospace !important;
     font-weight: 400 !important;
 }
 
@@ -864,7 +864,7 @@ article {
     border: 1px solid var(--post-rule);
     border-bottom-width: 2px;
     border-radius: 3px;
-    font: 0.9em "Freecat JetBrains Mono", "Freecat Noto Sans SC", monospace;
+    font: 0.9em "Freecat JetBrains Mono", "Freecat Noto Sans SC", "Freecat Noto Emoji", "Freecat Noto Symbols", monospace;
     color: inherit;
 }
 
@@ -1826,8 +1826,9 @@ article {
     color: var(--post-muted);
     font-size: 0.9375rem;
 }
-.freecat-post-reading-panel .freecat-tabs { margin-bottom: 1rem; }
-.freecat-post-reading-panel .freecat-tab { padding-inline: 0.75rem; }
+/* One or two tabs share the full sidebar width; labels keep the shared centered alignment. */
+.freecat-post-reading-panel .freecat-tabs { width: 100%; margin-bottom: 1rem; }
+.freecat-post-reading-panel .freecat-tab { flex: 1; padding-inline: 0.75rem; }
 .freecat-post-toc-title {
     min-height: 44px;
     padding-block: 0.625rem;
@@ -1908,7 +1909,7 @@ details[open] > summary .freecat-update-chevron { transform: rotate(180deg); }
         margin-bottom: 0;
         z-index: 20;
     }
-    .freecat-post-reading-panel[data-tabs-count="2"] .freecat-post-toc-title { display: none; }
+    .freecat-post-reading-panel .freecat-post-toc-title { display: none; }
     .freecat-post-reading-panel .freecat-update-chevron { display: none; }
     #toc-container, .freecat-post-latest-update-body {
         max-height: calc(100dvh - var(--freecat-page-top-offset, 97px) - 12rem);

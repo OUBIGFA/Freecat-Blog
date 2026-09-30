@@ -71,7 +71,7 @@ function fontFace(family, href, weight, options = {}) {
     const unicodeRange = options.unicodeRange ? `\n        unicode-range: ${options.unicodeRange};` : '';
     return `@font-face {
         font-family: "${family}";
-        src: url("${href}") format("woff2");
+        src: url("${href}") format("${options.format || 'woff2'}");
         font-weight: ${weight};
         font-style: normal;
         font-display: block;${unicodeRange}
@@ -99,7 +99,9 @@ function renderPostFontFaceCss(postId, assetVersion = '') {
         fontFace('Freecat Noto Sans SC', extraBold, '750 849'),
         fontFace('Freecat Tag Noto Sans SC', medium, '500'),
         fontFace('Freecat JetBrains Mono', versionedAssetUrl('/assets/fonts/freecat-jetbrains-mono-regular.woff2', assetVersion), '400'),
-        fontFace('Freecat JetBrains Mono', versionedAssetUrl('/assets/fonts/freecat-jetbrains-mono-semi-bold.woff2', assetVersion), '600')
+        fontFace('Freecat JetBrains Mono', versionedAssetUrl('/assets/fonts/freecat-jetbrains-mono-semi-bold.woff2', assetVersion), '600'),
+        fontFace('Freecat Noto Emoji', versionedAssetUrl('/assets/fonts/freecat-noto-emoji.ttf', assetVersion), '400', { format: 'truetype' }),
+        fontFace('Freecat Noto Symbols', versionedAssetUrl('/assets/fonts/freecat-noto-symbols.ttf', assetVersion), '400', { format: 'truetype' })
     ].join('\n\n    ');
 }
 

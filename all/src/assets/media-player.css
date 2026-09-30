@@ -195,6 +195,7 @@
     border-color: var(--freecat-ui-accent);
     background: var(--freecat-ui-hover);
 }
+/* Keep the same default digit shapes in timestamps, tooltips and playback speeds. */
 .media-progress-tooltip {
     position: absolute;
     bottom: calc(100% - 2px);
@@ -206,7 +207,7 @@
     color: #f8fafc;
     font-size: 0.875rem;
     line-height: 1.5;
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: normal;
     white-space: nowrap;
     pointer-events: none;
     opacity: 0;
@@ -250,7 +251,7 @@
     font-size: 0.875rem;
     color: var(--freecat-ui-muted);
     font-weight: 400;
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: normal;
     white-space: nowrap;
 }
 .media-volume-control { display: flex; align-items: center; }
@@ -300,7 +301,7 @@
     background: var(--freecat-ui-surface);
 }
 .media-speed-control { position: relative; }
-.media-speed-btn { padding-inline: 0.625rem; font: inherit; font-size: 0.9375rem; font-variant-numeric: tabular-nums; }
+.media-speed-btn { padding-inline: 0.625rem; font: inherit; font-size: 0.9375rem; font-variant-numeric: normal; }
 .media-speed-dropdown {
     position: absolute;
     bottom: calc(100% + 0.5rem);

@@ -44,7 +44,7 @@
 
     var echartsCharts = [];
     var echartsResizeBound = false;
-    var diagramFontFamily = '"Freecat Figtree", "Freecat Noto Sans SC", sans-serif';
+    var diagramFontFamily = '"Freecat Figtree", "Freecat Noto Sans SC", "Freecat Noto Emoji", "Freecat Noto Symbols", sans-serif';
 
     function initMermaidBlocks() {
         renderMermaidBlocks();

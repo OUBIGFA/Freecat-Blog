@@ -23,7 +23,8 @@
         }
 
         function render() {
-            list.hidden = !wide || tabs.length < 2;
+            // A single panel keeps its selected tab so the navigation style stays consistent.
+            list.hidden = !wide || tabs.length === 0;
             tabs.forEach(tab => {
                 tab.setAttribute('aria-selected', String(tab === active));
                 tab.setAttribute('tabindex', tab === active ? '0' : '-1');

@@ -80,7 +80,7 @@ test('chart theme keeps authored data and sizing while using bundled fonts', asy
     assert.equal(chart.theme.textStyle.color, '#dbe4f0');
     assert.equal(chart.renderOptions.renderer, 'svg');
     assert.equal(chart.options.color[0], '#123456');
-    assert.equal(chart.options.textStyle.fontFamily, '"Freecat Figtree", "Freecat Noto Sans SC", sans-serif');
+    assert.equal(chart.options.textStyle.fontFamily, '"Freecat Figtree", "Freecat Noto Sans SC", "Freecat Noto Emoji", "Freecat Noto Symbols", sans-serif');
     assert.equal(chart.options.series[0].label.fontFamily, chart.options.textStyle.fontFamily);
     assert.equal(chart.theme.title.textStyle.fontFamily, chart.options.textStyle.fontFamily);
     assert.equal(chart.options.textStyle.fontSize, 22);

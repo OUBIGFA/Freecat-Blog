@@ -114,6 +114,23 @@
         font-display: block;
     }
 
+    /* Symbols and emoji need a local fallback after the text fonts. */
+    @font-face {
+        font-family: "Freecat Noto Emoji";
+        src: url("/assets/fonts/freecat-noto-emoji.ttf") format("truetype");
+        font-weight: 400;
+        font-style: normal;
+        font-display: block;
+    }
+
+    @font-face {
+        font-family: "Freecat Noto Symbols";
+        src: url("/assets/fonts/freecat-noto-symbols.ttf") format("truetype");
+        font-weight: 400;
+        font-style: normal;
+        font-display: block;
+    }
+
     /* Code and keyboard hints use local fonts, loaded on demand. */
     @font-face {
         font-family: "Freecat JetBrains Mono";
