@@ -61,7 +61,7 @@
                 if (el.style.marginTop) el.style.marginTop = '';
             });
             scheduleHomeHeroMeasure();
-            scheduleHomeSidebarFooterAvoid();
+            scheduleSidebarFooterAvoid();
         }
 
         function observeHeaderOffsetChanges() {
@@ -103,23 +103,33 @@
         }
 
         // ============================================================
-        // 按完整窗口的高度等比缩放全部侧栏内容；保留页脚空间，不裁切或分页。
+        // 按完整窗口的高度等比缩放侧栏；保留页脚空间，文章列表仍在侧栏内滚动。
         // 记录本次访问的最大高度，手动缩小窗口不会反复缩放侧栏。
         // ============================================================
         let sidebarFooterAvoidFrame = 0;
         let sidebarMaxViewportHeight = win.innerHeight;
-        function updateHomeSidebarFooterAvoid() {
+        const readingPanel = doc.querySelector('.freecat-post-reading-panel');
+        const sidebar = doc.querySelector('.freecat-home-sidebar') || readingPanel;
+        // 首页缩放内层；文章页现有面板已包含切换按钮和列表，可直接整体缩放。
+        const sidebarContent = doc.querySelector('.freecat-home-sidebar-content') || readingPanel;
+        function updateSidebarFooterAvoid() {
             sidebarFooterAvoidFrame = 0;
-            const sidebar = doc.querySelector('.freecat-home-sidebar');
             if (!sidebar) return;
             sidebar.style.bottom = '';
             if (win.innerWidth < 1280) {
                 sidebar.style.removeProperty('--freecat-sidebar-scale');
+                sidebar.style.removeProperty('--freecat-sidebar-viewport-height');
                 return;
             }
-            const content = sidebar.querySelector('.freecat-home-sidebar-content');
-            if (!content || !content.scrollHeight) return;
+            const content = sidebarContent;
+            if (!content) return;
             sidebarMaxViewportHeight = Math.max(sidebarMaxViewportHeight, win.innerHeight);
+            // 滚动列表的高度也沿用最大窗口，避免缩矮窗口时改变比例。
+            const viewportHeight = `${sidebarMaxViewportHeight}px`;
+            if (readingPanel && sidebar.style.getPropertyValue('--freecat-sidebar-viewport-height') !== viewportHeight) {
+                sidebar.style.setProperty('--freecat-sidebar-viewport-height', viewportHeight);
+            }
+            if (!content.scrollHeight) return;
             const footer = doc.querySelector('.freecat-site-footer');
             const padding = parseFloat(win.getComputedStyle(sidebar).paddingTop) || 0;
             const available = Math.max(1, sidebarMaxViewportHeight - sidebar.getBoundingClientRect().top
@@ -129,33 +139,32 @@
                 sidebar.style.setProperty('--freecat-sidebar-scale', value);
             }
         }
-        function scheduleHomeSidebarFooterAvoid() {
+        function scheduleSidebarFooterAvoid() {
             if (sidebarFooterAvoidFrame) return;
-            sidebarFooterAvoidFrame = win.requestAnimationFrame(updateHomeSidebarFooterAvoid);
+            sidebarFooterAvoidFrame = win.requestAnimationFrame(updateSidebarFooterAvoid);
         }
 
         // 初始测量 + 持续监听（从 main.js 的装配段整体迁入）。
         syncHomeRecentDisclosure();
         if (recent) recent.addEventListener('toggle', () => {
             if (recentIsDesktop && !recent.open) recent.open = true;
-            scheduleHomeSidebarFooterAvoid();
+            scheduleSidebarFooterAvoid();
         });
         updateContentTopOffset();
         observeHeaderOffsetChanges();
         observeHomeHeroContentChanges();
         scheduleHomeHeroMeasure();
-        scheduleHomeSidebarFooterAvoid();
+        scheduleSidebarFooterAvoid();
 
-        const sidebarContent = doc.querySelector('.freecat-home-sidebar-content');
         if (sidebarContent && typeof ResizeObserver !== 'undefined') {
-            new ResizeObserver(scheduleHomeSidebarFooterAvoid).observe(sidebarContent);
+            new ResizeObserver(scheduleSidebarFooterAvoid).observe(sidebarContent);
         }
 
         win.addEventListener('resize', syncHomeRecentDisclosure);
         win.addEventListener('resize', updateContentTopOffset);
-        win.addEventListener('resize', scheduleHomeSidebarFooterAvoid);
+        win.addEventListener('resize', scheduleSidebarFooterAvoid);
         win.addEventListener('load', updateContentTopOffset);
-        win.addEventListener('load', scheduleHomeSidebarFooterAvoid);
+        win.addEventListener('load', scheduleSidebarFooterAvoid);
         win.requestAnimationFrame(() => {
             updateContentTopOffset();
             win.requestAnimationFrame(updateContentTopOffset);
@@ -164,14 +173,14 @@
             doc.fonts.ready.then(() => {
                 updateContentTopOffset();
                 scheduleHomeHeroMeasure();
-                scheduleHomeSidebarFooterAvoid();
+                scheduleSidebarFooterAvoid();
             });
         }
 
         return {
             updateContentTopOffset,
             scheduleHomeHeroMeasure,
-            scheduleHomeSidebarFooterAvoid
+            scheduleSidebarFooterAvoid
         };
     }
 

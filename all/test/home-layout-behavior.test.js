@@ -13,7 +13,7 @@ function style() {
 }
 
 // 使用真实测量模块，输入不同屏幕与内容高度；不依赖浏览器字体的固定像素。
-function createHarness({ width = 1920 } = {}) {
+function createHarness({ width = 1920, height = 1080, post = false } = {}) {
     const frames = new Map();
     const events = new Map();
     const observers = [];
@@ -24,10 +24,11 @@ function createHarness({ width = 1920 } = {}) {
     const sidebar = {
         style: style(),
         querySelector: () => content,
+        get scrollHeight() { return content.scrollHeight; },
         getBoundingClientRect: () => ({ top: 137, left: 24, width: 230 })
     };
     const window = {
-        innerWidth: width, innerHeight: 1080,
+        innerWidth: width, innerHeight: height,
         requestAnimationFrame(fn) { frames.set(++nextFrame, fn); return nextFrame; },
         addEventListener(name, fn) {
             if (!events.has(name)) events.set(name, []);
@@ -39,9 +40,10 @@ function createHarness({ width = 1920 } = {}) {
         documentElement: { style: style() },
         getElementById: () => null,
         querySelector: selector => ({
-            '.freecat-home-sidebar': sidebar,
-            '.freecat-home-sidebar-content': content,
-            '.freecat-home-recent-details': recent,
+            '.freecat-home-sidebar': post ? null : sidebar,
+            '.freecat-home-sidebar-content': post ? null : content,
+            '.freecat-post-reading-panel': post ? sidebar : null,
+            '.freecat-home-recent-details': post ? null : recent,
             '.freecat-site-footer': { offsetHeight: 100 }
         })[selector] || null
     };
@@ -75,8 +77,9 @@ test('all sidebar content fits above the footer without paging or clipping', () 
     assert.equal(h.scale(), 1, 'short sidebars are not enlarged');
 });
 
-test('sidebar scale stays stable when window height shrinks and updates on a larger screen', () => {
-    const h = createHarness();
+for (const post of [false, true]) {
+test(`${post ? 'article' : 'home'} sidebar scale stays stable when window height shrinks and updates on a larger screen`, () => {
+    const h = createHarness({ post });
     const original = h.scale();
     h.window.innerHeight = 720; h.resize();
     assert.equal(h.scale(), original);
@@ -88,6 +91,7 @@ test('sidebar scale stays stable when window height shrinks and updates on a lar
     h.window.innerWidth = 1024; h.resize();
     assert.equal(h.sidebar.style.getPropertyValue('--freecat-sidebar-scale'), '');
 });
+}
 
 test('home recent updates start closed on mobile and remain open on desktop', () => {
     const h = createHarness({ width: 390 });
@@ -100,4 +104,19 @@ test('home recent updates start closed on mobile and remain open on desktop', ()
     h.window.innerWidth = 390; h.resize();
     assert.equal(h.recent.open, false);
     assert.equal(createHarness().recent.open, true);
+});
+
+test('article reading navigation fits above the footer and refits when the selected panel changes', () => {
+    const h = createHarness({ post: true, height: 720 });
+    assert.equal(h.scale(), 0.453, 'the entire reading navigation reserves footer space');
+    h.content.scrollHeight = 1500;
+    h.observers.forEach(callback => callback()); h.flush();
+    assert.equal(h.scale(), 0.302, 'a longer updates panel also fits');
+    h.content.scrollHeight = 300;
+    h.observers.forEach(callback => callback()); h.flush();
+    assert.equal(h.scale(), 1, 'short panels retain their natural size');
+    h.window.innerWidth = 1279; h.resize();
+    assert.equal(h.sidebar.style.getPropertyValue('--freecat-sidebar-scale'), '');
+    h.window.innerWidth = 1280; h.resize();
+    assert.equal(h.scale(), 1, 'desktop scaling resumes at the shared breakpoint');
 });

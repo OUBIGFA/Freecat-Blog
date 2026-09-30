@@ -1908,11 +1908,15 @@ details[open] > summary .freecat-update-chevron { transform: rotate(180deg); }
         width: min(18rem, calc(50vw - 45rem / 2 - 4rem));
         margin-bottom: 0;
         z-index: 20;
+        /* 与首页共享页脚预留空间，切换按钮和当前列表一起等比缩放。 */
+        transform: scale(var(--freecat-sidebar-scale, 1));
+        transform-origin: top left;
     }
     .freecat-post-reading-panel .freecat-post-toc-title { display: none; }
     .freecat-post-reading-panel .freecat-update-chevron { display: none; }
     #toc-container, .freecat-post-latest-update-body {
-        max-height: calc(100dvh - var(--freecat-page-top-offset, 97px) - 12rem);
+        /* 保留内部滚动；高度跟随最大窗口，整体缩放后滚动区域也避开页脚。 */
+        max-height: calc(var(--freecat-sidebar-viewport-height, 100dvh) - var(--freecat-page-top-offset, 97px) - 12rem);
     }
 }
 @media (max-width: 1279px) {

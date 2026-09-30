@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
             applyTheme();
             layoutMetrics.updateContentTopOffset();
             layoutMetrics.scheduleHomeHeroMeasure();
-            layoutMetrics.scheduleHomeSidebarFooterAvoid();
+            layoutMetrics.scheduleSidebarFooterAvoid();
         }
     });
 
