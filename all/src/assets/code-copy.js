@@ -51,29 +51,42 @@
             return codeElement ? (codeElement.textContent || '') : '';
         }
 
-        function resetCheckbox(checkbox) {
-            checkbox.checked = false;
-        }
-
-        doc.addEventListener('change', function (e) {
-            if (!e.target.classList.contains('copy-checkbox')) return;
-            var checkbox = e.target;
-            if (!checkbox.checked) return;
-
-            var text = textFromSource(checkbox) || textFromTarget(checkbox) || textFromCodeBlock(checkbox);
-            if (!text) {
-                resetCheckbox(checkbox);
-                return;
+        // Native buttons preserve Enter/Space activation and show success only after writing.
+        doc.addEventListener('click', function (e) {
+            var button = e.target.closest('[data-copy-button]');
+            if (!button || button.getAttribute('aria-busy') === 'true') return;
+            var label = button.querySelector('[role="status"]');
+            if (!button.hasAttribute('data-copy-label')) {
+                button.setAttribute('data-copy-label', label.textContent);
+                button.setAttribute('data-copy-aria', button.getAttribute('aria-label'));
             }
+            clearTimeout(button.copyResetTimer);
+            var text = textFromSource(button) || textFromTarget(button) || textFromCodeBlock(button);
+            button.dataset.state = 'copying';
+            button.setAttribute('aria-busy', 'true');
 
-            copyText(text).then(function () {
-                setTimeout(function () {
-                    resetCheckbox(checkbox);
-                }, 1000);
-            }).catch(function (err) {
-                console.error('Failed to copy:', err);
-                resetCheckbox(checkbox);
-            });
+            function feedback(state, message) {
+                button.dataset.state = state;
+                button.removeAttribute('aria-busy');
+                button.setAttribute('aria-label', message);
+                label.textContent = message;
+                button.copyResetTimer = setTimeout(function () {
+                    button.dataset.state = 'idle';
+                    button.setAttribute('aria-label', button.getAttribute('data-copy-aria'));
+                    label.textContent = button.getAttribute('data-copy-label');
+                }, 1800);
+            }
+            if (!text) { feedback('error', '没有可复制的内容'); return; }
+            // Keep the clipboard call within the user gesture for browser permission checks.
+            try {
+                copyText(text).then(function () {
+                    feedback('copied', '已复制');
+                }).catch(function () {
+                    feedback('error', '复制失败，请重试');
+                });
+            } catch (err) {
+                feedback('error', '复制失败，请重试');
+            }
         });
     }
 

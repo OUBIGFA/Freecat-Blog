@@ -1,0 +1,88 @@
+/* Ink UI default Tabs and Avatar, adapted to the site's local tokens.
+ * https://ink-ui.com/docs/components/tabs
+ * https://ink-ui.com/docs/components/avatar
+ */
+.freecat-tabs {
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    width: fit-content;
+    max-width: 100%;
+    padding: 4px;
+    border-radius: 999px;
+    background: var(--freecat-ui-hover);
+}
+.freecat-tabs[hidden], [role="tabpanel"][hidden] { display: none; }
+.freecat-tabs::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 4px;
+    bottom: 4px;
+    left: 0;
+    width: var(--tab-width, 0);
+    transform: translateX(var(--tab-left, 4px));
+    border: 1px solid var(--freecat-ui-rule);
+    border-radius: inherit;
+    background: var(--freecat-ui-surface);
+    transition: transform 200ms ease-in-out, width 200ms ease-in-out;
+    pointer-events: none;
+}
+.freecat-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 40px;
+    padding: 0.5rem 1rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--freecat-ui-muted);
+    font: inherit;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 180ms ease-out;
+}
+.freecat-tab:hover, .freecat-tab[aria-selected="true"] { color: var(--freecat-ui-text); }
+.freecat-tab:focus-visible, [role="tabpanel"]:focus-visible {
+    outline: 2px solid var(--freecat-ui-accent);
+    outline-offset: 3px;
+}
+
+.freecat-avatar {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    overflow: hidden;
+    border-radius: 50%;
+    border: 1px solid var(--freecat-ui-rule);
+    background: var(--freecat-ui-hover);
+    color: var(--freecat-ui-muted);
+    font-size: 1rem;
+    font-weight: 500;
+    user-select: none;
+}
+.freecat-avatar img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 180ms ease-out;
+}
+.freecat-avatar img[data-loaded] { opacity: 1; }
+@media (max-width: 767px) {
+    .freecat-tab { min-height: 44px; padding-inline: 0.875rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .freecat-tabs::before, .freecat-tab, .freecat-avatar img { transition: none; }
+}

@@ -46,7 +46,7 @@ test('bundler derives script and style order from the declaring templates', () =
         'post-card-template loads before search-core which consumes it');
 
     assert.deepEqual(bundler.postScripts, ['/assets/code-folding.js', '/assets/post.js'], 'post-only scripts come from template_post.html');
-    assert.deepEqual(bundler.siteStyles, ['/assets/transitions.css', '/assets/tailwind.css', '/assets/typography.css'], 'site css order comes from head-base.html');
+    assert.deepEqual(bundler.siteStyles, ['/assets/transitions.css', '/assets/tailwind.css', '/assets/typography.css', '/assets/ink-ui.css'], 'site css order comes from head-base.html');
     assert.deepEqual(bundler.postStyles, ['/assets/post.css', '/assets/post-code.css'], 'post css order comes from template_post.html');
 });
 
@@ -121,6 +121,7 @@ test('css bundles concatenate stylesheets in cascade order', async (t) => {
     fs.writeFileSync(path.join(outDir, 'transitions.css'), '.a{color:red}', 'utf-8');
     fs.writeFileSync(path.join(outDir, 'tailwind.css'), '.b{color:green}', 'utf-8');
     fs.writeFileSync(path.join(outDir, 'typography.css'), '.c{color:blue}', 'utf-8');
+    fs.writeFileSync(path.join(outDir, 'ink-ui.css'), '.tabs{color:navy}', 'utf-8');
     fs.writeFileSync(path.join(outDir, 'post.css'), '.d{color:black}', 'utf-8');
     fs.writeFileSync(path.join(outDir, 'post-code.css'), '.e{color:white}', 'utf-8');
 
@@ -129,6 +130,7 @@ test('css bundles concatenate stylesheets in cascade order', async (t) => {
     const site = fs.readFileSync(path.join(outDir, path.basename(SITE_CSS_BUNDLE_URL)), 'utf-8');
     assert.ok(site.indexOf('.a{') < site.indexOf('.b{') && site.indexOf('.b{') < site.indexOf('.c{'),
         'site bundle keeps transitions → tailwind → typography cascade order');
+    assert.ok(site.indexOf('.c{') < site.indexOf('.tabs{'), 'local controls follow the site typography');
 
     const post = fs.readFileSync(path.join(outDir, path.basename(POST_CSS_BUNDLE_URL)), 'utf-8');
     assert.ok(post.indexOf('.d{') < post.indexOf('.e{'), 'post bundle keeps post → post-code cascade order');

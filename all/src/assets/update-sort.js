@@ -1,5 +1,5 @@
 /* update-sort.js
- * 「按更新排序」开关：列表就地重排 + URL 参数同步（含外壳历史）。
+ * 列表排序：全部文章使用 Tabs，搜索保留开关；共用排序及 URL 历史。
  * 依赖全局：无（所有依赖经 init 注入）。
  * init() 返回 { initUpdateSortControls }，搜索页渲染结果后会再次调用以绑定新开关。
  */
@@ -31,7 +31,7 @@
             const params = new URLSearchParams(win.location.search);
             const useModifiedSort = Array.from(getSwitches()).some((updateSortSwitch) => {
                 return updateSortSwitch.getAttribute('aria-checked') === 'true';
-            });
+            }) || !!doc.querySelector('[data-sort-mode="modified"][aria-selected="true"]');
 
             if (useModifiedSort) {
                 params.set(updateSortParam, updateSortValue);
@@ -115,9 +115,24 @@
 
         function initUpdateSortControls() {
             const switches = getSwitches();
-            if (!switches.length) return;
+            const tabGroups = doc.querySelectorAll('[data-tabs][data-update-sort-controls]');
+            if (!switches.length && !tabGroups.length) return;
             runtime.setSyncUpdateSortUrl(syncUpdateSortUrl);
             switches.forEach(bindSwitch);
+            tabGroups.forEach(group => {
+                const tabs = win.FreecatTabs.init(group);
+                const mode = isUpdateSortUrlEnabled() ? 'modified' : 'date';
+                const active = group.querySelector('[data-sort-mode="' + mode + '"]');
+                tabs.select(active, false);
+                const list = getListForSwitch(active);
+                if (list) sortListCards(list, mode, { animate: false });
+                if (group.dataset.updateSortReady === 'true') return;
+                group.dataset.updateSortReady = 'true';
+                group.addEventListener('freecat:tab-change', event => {
+                    if (list) sortListCards(list, event.detail.tab.dataset.sortMode);
+                    syncUpdateSortUrl({ replace: true });
+                });
+            });
         }
 
         return { initUpdateSortControls };

@@ -134,45 +134,20 @@ test('reduced-motion users receive an immediate TOC position update', () => {
     assert.equal(h.scrolls.at(-1).behavior, 'instant');
 });
 
-test('mobile TOC reveals complete entries in batches and collapses all in one action', () => {
-    const h = createTocHarness({ wide: false, linkCount: 12 });
-    assert.equal(h.toc.open, false);
-    assert.equal(h.controls.hidden, true);
-    h.open();
-    assert.equal(h.links.filter(link => !link.hidden).length, 4);
-    h.more.fire('click');
-    assert.equal(h.links.filter(link => !link.hidden).length, 9);
-    h.more.fire('click');
-    assert.equal(h.links.filter(link => !link.hidden).length, 12);
-    assert.equal(h.more.hidden, true);
-    h.collapse.fire('click');
-    assert.equal(h.toc.open, false);
-    assert.equal(h.controls.hidden, true);
-    assert.equal(h.document.activeElement, h.summary);
-    h.open();
-    assert.equal(h.links.filter(link => !link.hidden).length, 4);
-});
-
-test('short mobile TOC needs no more button and a chapter selection closes it before jumping', () => {
-    const h = createTocHarness({ wide: false, linkCount: 3 });
-    h.open();
-    assert.equal(h.links.filter(link => !link.hidden).length, 3);
-    assert.equal(h.more.hidden, true);
-    h.links[1].fire('click');
-    assert.equal(h.toc.open, false);
-    assert.equal(h.controls.hidden, true);
-    assert.ok(h.pageScroll.top > 0);
-});
-
-test('desktop TOC remains fully open and switching to mobile resets disclosure', () => {
-    const h = createTocHarness({ wide: false, linkCount: 12 });
-    h.open();
+test('mobile scrolling does not measure hidden headings; desktop resumes the current chapter', () => {
+    const h = createTocHarness({ wide: false });
+    h.scroll(10500);
+    h.flush();
+    assert.equal(h.headingReads, 0);
+    assert.equal(h.scrolls.length, 0);
     h.switchWidth(true);
-    assert.equal(h.toc.open, true);
-    assert.equal(h.controls.hidden, true);
-    assert.equal(h.links.filter(link => !link.hidden).length, 12);
-    h.switchWidth(false);
-    assert.equal(h.toc.open, false);
-    h.open();
-    assert.equal(h.links.filter(link => !link.hidden).length, 4);
+    assert.equal(h.headingReads, 100);
+    assert.equal(h.links[10].getAttribute('aria-current'), 'location');
+});
+
+test('selecting a desktop chapter focuses it and scrolls to the article', () => {
+    const h = createTocHarness({ linkCount: 3 });
+    h.links[1].fire('click');
+    assert.ok(h.pageScroll.top > 0);
+    assert.equal(h.document.activeElement.getAttribute('tabindex'), '-1');
 });

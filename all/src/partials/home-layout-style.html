@@ -67,7 +67,6 @@
         height: 3.5rem;
         flex: 0 0 auto;
         border-radius: 50%;
-        background: #f1f5f9 center / cover no-repeat;
     }
 
     .freecat-sidebar-slogan {
@@ -182,7 +181,7 @@
     @media (max-width: 1279px) {
         .freecat-home-layout {
             grid-template-columns: minmax(0, 1fr);
-            gap: 2rem;
+            gap: 1.25rem;
             max-width: calc(var(--freecat-home-reading-width) + 2.5rem);
             padding: calc(var(--freecat-page-top-offset, 77px) + 1.25rem) 1.25rem 3rem;
         }
@@ -199,17 +198,35 @@
         .freecat-home-sidebar {
             position: static;
             width: 100%;
-            padding: 0 0 1.75rem;
+            padding: 0 0 1rem;
             overflow: visible;
             border-bottom: 1px solid var(--freecat-home-rule);
         }
 
-        .freecat-home-identity { flex-direction: row; align-items: center; gap: 1rem; }
+        .freecat-home-identity { grid-column: 1 / -1; flex-direction: row; align-items: center; gap: 1rem; }
         .freecat-home-avatar { width: 3.5rem; height: 3.5rem; }
         .freecat-sidebar-slogan { font-size: 1.5rem; }
+        .freecat-home-sidebar-recent { display: none; }
+        .freecat-home-post-list { border-top: 0; }
+        .freecat-home-tools { display: none; }
+        .freecat-home-post-list .home-post-entry:first-child { padding-top: 0.75rem; }
+        .freecat-home-sidebar-top { display: grid; grid-template-columns: minmax(0, 1fr); }
+        .freecat-sidebar-description { margin-top: 0.625rem; }
+        .freecat-home-about { display: none; }
         body:not([data-page="home"]) .freecat-home-sidebar { display: none; }
     }
 
+    @media (max-width: 767px) {
+        /* 简介和文章之间只留一道分隔，顶部导航提供 About 入口。 */
+        .freecat-home-layout {
+            row-gap: 0.875rem;
+            padding-top: calc(var(--freecat-page-top-offset, 77px) + 0.75rem);
+        }
+        .freecat-home-identity { gap: 0.75rem; }
+        .freecat-home-avatar { width: 2.75rem; height: 2.75rem; }
+        .freecat-sidebar-slogan { font-size: 1.3125rem; line-height: 1.45; }
+        .freecat-sidebar-description { margin-top: 0.875rem; line-height: 1.65; }
+    }
     @media (prefers-reduced-motion: reduce) {
         .freecat-home-recent-chevron { transition: none; }
     }

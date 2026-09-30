@@ -10,6 +10,16 @@
         const doc = deps.document;
         const platform = deps.platform;
 
+        // Ink UI Avatar fallback: empty or failed images leave a readable local identity.
+        doc.querySelectorAll('.freecat-avatar img').forEach(image => {
+            function updateImage() {
+                image.toggleAttribute('data-loaded', image.complete && image.naturalWidth > 0);
+            }
+            image.addEventListener('load', updateImage);
+            image.addEventListener('error', updateImage);
+            updateImage();
+        });
+
         const heroAvatar = doc.getElementById('hero-avatar');
         const avatarTriggerArea = doc.getElementById('avatar-trigger-area');
         if (!heroAvatar || !avatarTriggerArea) return;

@@ -356,6 +356,6 @@ test('main delegates copy and floating navigation to focused assets', () => {
     assert.doesNotMatch(mainJs, /function touchesVisibleContentEdge/, 'floating nav 实现不再出现在 main.js');
     assert.match(codeCopyJs, /checkbox\.getAttribute\('data-copy-source'\)/);
     assert.match(codeCopyJs, /checkbox\.getAttribute\('data-copy-target'\)/);
-    assert.match(codeCopyJs, /textFromSource\(checkbox\) \|\| textFromTarget\(checkbox\) \|\| textFromCodeBlock\(checkbox\)/);
+    assert.match(codeCopyJs, /textFromSource\(button\) \|\| textFromTarget\(button\) \|\| textFromCodeBlock\(button\)/);
     assert.match(floatingNavJs, /function touchesVisibleContentEdge\(\)/);
 });

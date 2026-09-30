@@ -39,15 +39,6 @@ function hasYamlFrontmatter(raw) {
     return /^---(?:\r?\n|$)/.test(String(raw || ''));
 }
 
-function removeEmptyTocAside(html, toc) {
-    if (String(toc || '').trim()) return html;
-
-    return html.replace(
-        /\s*<aside\b[^>]*\bgroup\/toc\b[\s\S]*?<\/aside>/,
-        ''
-    );
-}
-
 function versionedAssetUrl(href, assetVersion) {
     if (!assetVersion) return href;
     const separator = href.includes('?') ? '&' : '?';
@@ -353,13 +344,28 @@ function renderLatestUpdatePanel(post) {
         })
         .join('\n                                            ');
 
-    // 宽屏时显示在正文左侧，窄屏随正文排列；默认收起，避免抢占阅读空间。
-    return `<details class="freecat-post-latest-update-shell">
-                <summary class="freecat-post-toc-title">查看最后更新${renderIcon('chevron-down', 'freecat-update-chevron')}</summary>
-                <div id="latest-update-container" class="freecat-post-latest-update-body">
-                    ${itemsHtml}
-                </div>
-            </details>`;
+    return '<details class="freecat-post-latest-update-shell">' +
+        '<summary class="freecat-post-toc-title">最近更新' + renderIcon('chevron-down', 'freecat-update-chevron') + '</summary>' +
+        '<div id="latest-update-container" class="freecat-post-latest-update-body">' + itemsHtml + '</div></details>';
+}
+
+function renderReadingPanel(post, toc) {
+    const updates = renderLatestUpdatePanel(post);
+    if (!toc && !updates) return '';
+    const tabs = [];
+    const panels = [];
+    if (toc) {
+        tabs.push('<button type="button" id="reading-toc" class="freecat-tab" role="tab" aria-selected="true" aria-controls="reading-toc-panel">目录</button>');
+        panels.push('<div id="reading-toc-panel" class="freecat-post-toc-panel" role="tabpanel" tabindex="0" data-desktop-only>' +
+            '<div class="freecat-post-toc"><h2 class="freecat-post-toc-title">目录</h2><div id="toc-container"><nav aria-label="章节">' + toc + '</nav></div></div></div>');
+    }
+    if (updates) {
+        tabs.push('<button type="button" id="reading-updates" class="freecat-tab" role="tab" aria-selected="' + !toc + '" aria-controls="reading-updates-panel"' + (toc ? ' tabindex="-1"' : '') + '>最近更新</button>');
+        panels.push('<div id="reading-updates-panel" role="tabpanel" tabindex="0"' + (toc ? ' hidden' : '') + '>' + updates + '</div>');
+    }
+    // One sidebar owns both panels; below the breakpoint only the update disclosure remains.
+    return '<aside class="freecat-post-reading-panel" aria-label="阅读导航" data-tabs data-tabs-desktop data-tabs-count="' + tabs.length + '">' +
+        '<div class="freecat-tabs" role="tablist" aria-label="阅读导航">' + tabs.join('') + '</div>' + panels.join('') + '</aside>';
 }
 
 /**
@@ -486,7 +492,6 @@ function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = 
     const copyContentSource = post.allowCopyContent
         ? `<script type="application/json" id="freecat-article-copy-source">${JSON.stringify(String(post.content || ''))}</script>`
         : '';
-    const latestUpdatePanel = renderLatestUpdatePanel({ ...post, latestUpdate: annotatedLatestUpdate.latestUpdate });
 
     const canonical = seo.pageUrl(siteConfig, post.link);
     const rawCover = String(post.cover || '');
@@ -561,9 +566,8 @@ function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = 
         ['<!-- MODIFIED_PLACEHOLDER -->', post.modifiedDate.tz('Asia/Shanghai').format('YYYY-MM-DD HH:mm')],
         ['<!-- POST_COPY_BUTTON_PLACEHOLDER -->', copyContentButton],
         ['<!-- POST_COPY_SOURCE_PLACEHOLDER -->', copyContentSource],
-        ['<!-- LATEST_UPDATE_PLACEHOLDER -->', latestUpdatePanel],
         ['<!-- CONTENT_PLACEHOLDER -->', finalContentHtml],
-        ['<!-- TOC_PLACEHOLDER -->', toc],
+        ['<!-- POST_READING_PANEL -->', renderReadingPanel({ ...post, latestUpdate: annotatedLatestUpdate.latestUpdate }, toc)],
         ['<!-- POST_SEO_HEAD -->', seoHead],
         ['<!-- POST_HIGHLIGHT_CSS -->', /<code\b[^>]*\bhljs\b/.test(finalContentHtml)
             ? `<link rel="stylesheet" href="${versionedAssetUrl('/assets/code-highlight.css', assetVersion)}" />` : ''],
@@ -580,7 +584,7 @@ function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = 
         ['<!-- POST_JSONLD -->', jsonLd]
     ]);
 
-    return removeEmptyTocAside(html, toc);
+    return html;
 }
 
 function generateAll({ posts, template, siteConfig, seoConfig, outputDir, assetVersion = '' }) {

@@ -701,51 +701,9 @@
         var scrollFrame = 0;
         var layoutDirty = true;
         var headerOffset = 0;
-        var summary = document.getElementById('toc-summary');
-        var controls = document.getElementById('toc-controls');
-        var more = document.getElementById('toc-more');
-        var collapse = document.getElementById('toc-collapse');
-        var revealPages = 1;
-
-        function renderTocDisclosure() {
-            controls.hidden = wideScreen.matches || !toc.open;
-            summary.tabIndex = wideScreen.matches ? -1 : 0;
-            links.forEach(function (link) { link.hidden = false; });
-            if (wideScreen.matches) {
-                toc.open = true;
-                return;
-            }
-            if (!toc.open) { revealPages = 1; return; }
-
-            // 每批约占三分之一屏，扣除触控按钮；只显示完整条目，隐藏项不能获得焦点。
-            var pageHeight = Math.max(44, window.innerHeight * 0.35 - summary.offsetHeight - controls.offsetHeight - 12);
-            var bottoms = links.map(function (link) { return link.offsetTop + link.offsetHeight; });
-            var visibleCount = 1;
-            while (visibleCount < links.length && bottoms[visibleCount] <= pageHeight * revealPages) visibleCount++;
-            links.forEach(function (link, index) { link.hidden = index >= visibleCount; });
-            more.hidden = visibleCount >= links.length;
-            if (more.hidden && document.activeElement === more) collapse.focus({ preventScroll: true });
-        }
-
-        function closeMobileToc(returnToSummary) {
-            if (wideScreen.matches) return;
-            toc.open = false;
-            revealPages = 1;
-            renderTocDisclosure();
-            if (returnToSummary) {
-                summary.focus({ preventScroll: true });
-                if (toc.getBoundingClientRect().top < getTocHeaderOffset()) {
-                    window.scrollTo({ top: Math.max(0, getElementPageTop(toc) - getTocHeaderOffset()), behavior: 'instant' });
-                }
-            }
-            scheduleTocMeasure();
-        }
-
-        toc.addEventListener('toggle', function () { renderTocDisclosure(); scheduleTocMeasure(); });
-        more.addEventListener('click', function () { revealPages++; renderTocDisclosure(); scheduleTocMeasure(); });
-        collapse.addEventListener('click', function () { closeMobileToc(true); });
-        toc.open = wideScreen.matches;
-        renderTocDisclosure();
+        // The TOC is desktop-only; Tabs owns disclosure and panel visibility.
+        var readingPanel = document.querySelector('.freecat-post-reading-panel');
+        if (readingPanel) readingPanel.addEventListener('freecat:tabs-layout', scheduleTocMeasure);
 
         function scheduleTocMeasure() {
             layoutDirty = true;
@@ -754,6 +712,7 @@
 
         function updateCurrentSection() {
             scrollFrame = 0;
+            if (!wideScreen.matches || (readingPanel && container.closest("[hidden]"))) return;
             var measured = layoutDirty;
             // 章节位置仅在布局变化时测量；滚动帧用缓存查找，避免长文反复触发布局读取。
             if (layoutDirty) {
@@ -784,10 +743,6 @@
                 activeLink = current.link;
                 activeLink.setAttribute('aria-current', 'location');
             }
-            if (!wideScreen.matches && current.link.hidden) {
-                nav.style.setProperty('--toc-active-height', '0px');
-                return;
-            }
             // 复用同一根指示条，由 CSS 连续过渡位置，不在各链接间销毁、重建。
             nav.style.setProperty('--toc-active-top', (linkTop + 8) + 'px');
             nav.style.setProperty('--toc-active-height', Math.max(0, linkHeight - 16) + 'px');
@@ -807,21 +762,16 @@
             if (!scrollFrame) scrollFrame = window.requestAnimationFrame(updateCurrentSection);
         }
 
-        wideScreen.addEventListener('change', function () {
-            toc.open = wideScreen.matches;
-            revealPages = 1;
-            renderTocDisclosure();
-            scheduleTocMeasure();
-        });
+        wideScreen.addEventListener('change', scheduleTocMeasure);
         window.addEventListener('scroll', scheduleCurrentSection, { passive: true });
-        window.addEventListener('resize', function () { renderTocDisclosure(); scheduleTocMeasure(); });
+        window.addEventListener('resize', scheduleTocMeasure);
         // 图片、字体、表格及代码块展开会改变章节位置，统一让缓存失效。
         if (typeof ResizeObserver === 'function' && article) {
             var layoutObserver = new ResizeObserver(scheduleTocMeasure);
             layoutObserver.observe(article);
             layoutObserver.observe(nav);
         }
-        if (document.fonts) document.fonts.ready.then(function () { renderTocDisclosure(); scheduleTocMeasure(); });
+        if (document.fonts) document.fonts.ready.then(scheduleTocMeasure);
         scheduleTocMeasure();
 
         links.forEach(function (anchor) {
@@ -834,8 +784,6 @@
                 var article = document.querySelector('article');
 
                 if (targetElement && article) {
-                    // 先收起再计算正文位置，避免目录高度变化把章节推到顶栏下方。
-                    closeMobileToc(false);
                     targetElement.setAttribute('tabindex', '-1');
                     targetElement.focus({ preventScroll: true });
                     window.scrollTo({

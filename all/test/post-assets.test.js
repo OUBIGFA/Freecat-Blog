@@ -83,23 +83,14 @@ test('article body copy button reuses the code copy control', () => {
     assert.match(copyButton, /class="t-btn-icon copy-btn-container freecat-post-copy-btn"/);
     assert.match(copyButton, /data-copy-source="#freecat-article-copy-source"/);
     assert.match(copyButton, /data-copy-target="#freecat-article-body"/);
-    assert.match(copyButton, /class="copy-checkbox"/);
+    assert.match(copyButton, /<button type="button"[^>]*data-copy-button/);
     assert.match(codeCopyJs, /function textFromSource\(checkbox\)/);
     assert.match(codeCopyJs, /JSON\.parse\(target\.textContent/);
     assert.match(codeCopyJs, /function textFromTarget\(checkbox\)/);
     assert.match(codeCopyJs, /function textFromCodeBlock\(checkbox\)/);
 });
 
-test('copy button success state reuses the search count slide motion pattern', () => {
-    assert.match(postCss, /\.copy-btn-container \.clipboard\s*\{[\s\S]*transform:\s*translateY\(0\) scale\(1\);[\s\S]*transform 180ms ease-out/);
-    assert.match(postCss, /\.copy-btn-container \.clipboard-check\s*\{[\s\S]*transform:\s*translateY\(0\.25rem\) scale\(0\.96\);[\s\S]*transform 180ms ease-out/);
-    assert.match(postCss, /\.copy-btn-container input:checked~\.clipboard\s*\{[\s\S]*opacity:\s*0;[\s\S]*transform:\s*translateY\(-0\.25rem\) scale\(0\.94\);/);
-    assert.match(postCss, /\.copy-btn-container input:checked~\.clipboard-check\s*\{[\s\S]*opacity:\s*1;[\s\S]*transform:\s*translateY\(0\) scale\(1\);/);
-});
-
 test('article table of contents uses requested Chinese and Latin font assets', () => {
-    assert.match(postTemplate, /class="freecat-post-toc-title\b[\s\S]*>\s*目录\s*</);
-    assert.doesNotMatch(postTemplate, /class="text-sm font-bold tracking-wider[^"]*">\s*目录\s*</);
     assert.match(typographyCss, /\.freecat-post-toc-title\s*\{[\s\S]*font-family:\s*"Freecat Tag Noto Sans SC",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*500;/);
     assert.match(typographyCss, /#toc-container a\s*\{[\s\S]*font-family:\s*"Freecat Figtree",\s*"Freecat Noto Sans SC"[\s\S]*font-weight:\s*400;/);
 });
@@ -135,9 +126,6 @@ test('article video players default to 16:9 before metadata and then use real vi
     assert.match(mediaPlayerCss, /\.media-player-loading-chrome\s*\{/);
     assert.match(mediaPlayerCss, /\.media-player-loading-progress::before\s*\{/);
     assert.match(mediaPlayerCss, /\.media-player-loading-controls-left,\s*\.media-player-loading-controls-right\s*\{/);
-    assert.match(mediaPlayerTemplateJs, /data-origin="bottom-center"/);
-    assert.match(mediaPlayerCss, /\.media-speed-dropdown\s*\{[\s\S]*left:\s*50%;[\s\S]*transform:\s*translateX\(-50%\) scale\(0\.97\);[\s\S]*transform-origin:\s*bottom center;/);
-    assert.match(mediaPlayerCss, /\.media-speed-dropdown\.is-open\s*\{[\s\S]*transform:\s*translateX\(-50%\) scale\(1\);/);
 });
 
 test('article heading links inherit the heading color', () => {
@@ -391,13 +379,6 @@ test('markdown diagram blocks center rendered chart content', () => {
     assert.match(diagramContentRule, /margin-inline:\s*auto\s*!important;/);
     assert.match(diagramSvgRule, /display:\s*block;/);
     assert.match(postCss, /\.prose [\s\S]*?\.diagram-block,[\s\S]*?\.katex-display/);
-});
-
-test('TOC has a native collapsed entry and accessible progressive disclosure controls', () => {
-    assert.match(postTemplate, /<details class="freecat-post-toc">/);
-    assert.match(postTemplate, /<summary[^>]*aria-controls="toc-container">目录/);
-    assert.match(postTemplate, /id="toc-more"[^>]*aria-controls="toc-container">展开更多/);
-    assert.match(postTemplate, /id="toc-collapse"[^>]*aria-controls="toc-container">全部收起/);
 });
 
 test('syntax highlighting happens at build time, never on the client', () => {

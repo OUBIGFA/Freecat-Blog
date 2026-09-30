@@ -64,6 +64,13 @@
             padding-block: 0.75rem 1.5rem;
         }
 
+        .freecat-all-count {
+            margin-left: auto;
+            color: var(--freecat-home-muted);
+            font-size: 0.875rem;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
         @media (min-width: 760px) {
             .freecat-all-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -106,12 +113,18 @@
                 </div>
 
                 <div class="freecat-home-list-heading">
-                    <h1>All posts <span class="freecat-home-count"><!-- ALL_POST_COUNT --></span></h1>
-                    <!-- INCLUDE:update-sort-control -->
+                    <h1 class="sr-only">All posts</h1>
+                    <div data-tabs data-update-sort-controls>
+                        <div class="freecat-tabs" role="tablist" aria-label="文章排序">
+                            <button class="freecat-tab" id="sort-date" type="button" role="tab" data-sort-mode="date" aria-selected="true" aria-controls="posts-list">All posts</button>
+                            <button class="freecat-tab" id="sort-modified" type="button" role="tab" data-sort-mode="modified" aria-selected="false" aria-controls="posts-list" tabindex="-1">按更新排序</button>
+                        </div>
+                    </div>
+                    <span class="freecat-all-count"><!-- ALL_POST_COUNT --> 篇</span>
                 </div>
 
                 <!-- === 动态文章注入区（显示所有文章，无分页） === -->
-                <div id="posts-list" class="freecat-all-grid">
+                <div id="posts-list" class="freecat-all-grid" role="tabpanel" aria-labelledby="sort-date" tabindex="0">
                     <!-- ALL_POSTS_LIST_PLACEHOLDER -->
                 </div>
                 <!-- ===================== -->

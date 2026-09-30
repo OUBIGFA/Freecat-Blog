@@ -227,7 +227,7 @@ test('markdown image syntax renders direct audio URLs as complete audio players'
     assert.equal(html.includes('class="media-player-loading-chrome"'), false);
     assert.equal(html.includes('data-audio-src="https://example.com/audio.ogg"'), true);
     assert.equal(html.includes('data-audio-title="Audio"'), true);
-    assert.equal(html.includes('<audio preload="auto">'), true);
+    assert.equal(html.includes('<audio preload="metadata">'), true);
 });
 
 test('audio emoji forces image-link syntax to render as an audio player', () => {
@@ -471,7 +471,7 @@ test('long single-line prompts and JSON fold after estimated wrapping without lo
         assert.match(html, /code-fold collapsed-code/);
         assert.match(html, /aria-label="展开内容" aria-expanded="false"/);
         assert.match(html, /class="fold-toggle-label">展开内容/);
-        assert.match(html, /class="copy-btn-text">复制/);
+        assert.match(html, /class="copy-btn-text"[^>]*>复制/);
         assert.ok(html.includes(language ? 'readable '.repeat(100) : '保持阅读清晰。'.repeat(100)));
     }
 });

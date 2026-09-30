@@ -82,8 +82,8 @@
 
         const controls = mediaPlayer.hydrateMediaControls(container, video, {
             kind: 'video',
-            onPlay: function () { container.classList.add('is-playing'); },
-            onPause: function () { container.classList.remove('is-playing'); },
+            onPlay: function () { container.classList.add('is-playing'); overlay.inert = true; },
+            onPause: function () { container.classList.remove('is-playing'); overlay.inert = false; },
             onLoadedMetadata: updateVideoAspectRatio
         });
 

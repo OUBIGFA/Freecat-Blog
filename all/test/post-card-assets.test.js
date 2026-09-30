@@ -228,7 +228,7 @@ test('go back and update sort labels use requested font assets', () => {
     }
 
     assert.match(updateSortControl, /class="freecat-update-sort-label">按更新排序<\/span>/);
-    assert.match(allTemplate, /<!-- INCLUDE:update-sort-control -->/);
+    assert.match(allTemplate, /role="tab"[^>]*data-sort-mode="modified"/);
     assert.match(searchTemplate, /<!-- INCLUDE:update-sort-control -->/);
     assert.match(allTemplate, /class="[^"]*\bfreecat-list-toolbar\b/);
     assert.match(searchTemplate, /class="[^"]*\bfreecat-list-toolbar\b/);

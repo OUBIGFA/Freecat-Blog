@@ -9,16 +9,17 @@
     font-size: var(--size);
     user-select: none;
     fill: var(--color);
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     opacity: 1;
-    border-radius: 6px;
-    border: 1px solid transparent;
+    border-radius: 8px;
+    border: 1px solid var(--code-border, var(--freecat-ui-rule));
+    background: var(--code-surface, var(--freecat-ui-surface));
     color: var(--color);
     transition:
-        color var(--t-btn-dur, 280ms) var(--t-btn-ease, ease-out),
-        opacity var(--t-btn-dur, 280ms) var(--t-btn-ease, ease-out),
-        background-color var(--t-btn-dur, 280ms) var(--t-btn-ease, ease-out);
+        color 180ms ease-out,
+        opacity 180ms ease-out,
+        background-color 180ms ease-out;
 }
 
 .dark .copy-btn-container {
@@ -34,12 +35,12 @@
 .copy-btn-container:hover {
     --color: var(--code-text, #263241);
     opacity: 1;
-    background-color: transparent;
+    background-color: var(--freecat-ui-hover);
 }
 
 .dark .copy-btn-container:hover {
     --color: var(--code-text, #e2e8f0);
-    background-color: transparent;
+    background-color: var(--freecat-ui-hover);
 }
 
 .copy-btn-container .clipboard {
@@ -54,7 +55,7 @@
 
 .copy-btn-container .clipboard-check {
     position: absolute;
-    fill: #2f9e6d;
+    color: #23835b;
     opacity: 0;
     transform: translateY(0.25rem) scale(0.96);
     transition:
@@ -62,25 +63,22 @@
         transform 180ms ease-out;
 }
 
-/* ------ On check event ------ */
-.copy-btn-container input:checked~.clipboard {
+/* Success appears after the clipboard write completes. */
+.copy-btn-container[data-state="copied"] .clipboard {
     opacity: 0;
     transform: translateY(-0.25rem) scale(0.94);
 }
 
-.copy-btn-container input:checked~.clipboard-check {
+.copy-btn-container[data-state="copied"] .clipboard-check {
     opacity: 1;
     transform: translateY(0) scale(1);
 }
 
-/* ------ Hide the default checkbox ------ */
-.copy-btn-container input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-    height: 0;
-    width: 0;
-}
+.copy-btn-container svg { width: 1rem; height: 1rem; }
+.copy-btn-container:focus-visible { outline: 2px solid var(--freecat-ui-accent); outline-offset: 3px; }
+.copy-btn-container[aria-busy="true"] { cursor: wait; opacity: 0.65; }
+.copy-btn-container[data-state="error"] { color: #b33c39; }
+.dark .copy-btn-container[data-state="error"] { color: #f3a5a1; }
 
 @media (prefers-reduced-motion: reduce) {
     .copy-btn-container,
@@ -223,8 +221,7 @@
     padding-top: 1.5rem;
 }
 
-.freecat-post-article :is(a, button, summary):focus-visible,
-.copy-btn-container:has(input:focus-visible) {
+.freecat-post-article :is(a, button, summary):focus-visible {
     outline: 2px solid var(--post-accent);
     outline-offset: 4px;
     border-radius: 3px;
@@ -1823,29 +1820,27 @@ article {
     color: #94a3b8 !important;
 }
 
-/* 宽屏目录常驻，窄屏使用原生折叠与分批显示，避免挡住正文。 */
-.freecat-post-toc-panel,
-.freecat-post-latest-update-shell {
-    margin-bottom: 2rem;
+/* Reading navigation shares one rail; small screens reserve space for the article. */
+.freecat-post-reading-panel {
+    margin-bottom: 1.5rem;
     color: var(--post-muted);
     font-size: 0.9375rem;
 }
-
+.freecat-post-reading-panel .freecat-tabs { margin-bottom: 1rem; }
+.freecat-post-reading-panel .freecat-tab { padding-inline: 0.75rem; }
 .freecat-post-toc-title {
     min-height: 44px;
     padding-block: 0.625rem;
     line-height: 1.6;
+    font-weight: 500;
 }
-
 summary.freecat-post-toc-title {
     cursor: pointer;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
     gap: 0.5rem;
     list-style: none;
 }
-
 summary.freecat-post-toc-title::-webkit-details-marker { display: none; }
 .freecat-update-chevron {
     flex: 0 0 auto;
@@ -1855,55 +1850,20 @@ summary.freecat-post-toc-title::-webkit-details-marker { display: none; }
     transition: transform 180ms ease-out;
 }
 details[open] > summary .freecat-update-chevron { transform: rotate(180deg); }
-
-@media (prefers-reduced-motion: reduce) {
-    .freecat-update-chevron { transition: none; }
-}
-
-#toc-container,
-.freecat-post-latest-update-body {
-    max-height: 50vh;
+#toc-container, .freecat-post-latest-update-body {
+    max-height: 40dvh;
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-width: thin;
     scrollbar-color: #94a3b8 transparent;
-    /* 两侧列表共用滚动条留白，不让文字贴住滚动轨道。 */
-    padding-right: 1rem;
+    padding-right: 0.75rem;
     scrollbar-gutter: stable;
 }
-
-#toc-container {
-    height: auto;
-    max-height: none;
-    overflow: visible;
-    padding-right: 0;
-    scrollbar-gutter: auto;
-}
-
-.freecat-toc-controls { gap: 0.5rem; margin-top: 0.75rem; }
-.freecat-toc-controls:not([hidden]) { display: flex; }
-.freecat-toc-controls button {
-    flex: 1;
-    min-height: 44px;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--post-rule);
-    border-radius: 6px;
-    color: var(--post-accent);
-    background: transparent;
-    font-size: 0.9375rem;
-}
-
-@media (max-width: 1279px) {
-    #toc-container a { min-height: 44px; }
-    #toc-container a[hidden] { display: none; }
-}
-
 #toc-container nav {
     position: relative;
     border-left: 1px solid var(--post-rule);
     padding-block: 0.25rem;
 }
-
 #toc-container a {
     position: relative;
     max-width: 100%;
@@ -1914,12 +1874,7 @@ details[open] > summary .freecat-update-chevron { transform: rotate(180deg); }
     overflow-wrap: anywhere;
     text-decoration: none;
 }
-
-#toc-container a:hover,
-#toc-container a[aria-current="location"] {
-    color: var(--post-accent);
-}
-
+#toc-container a:hover, #toc-container a[aria-current="location"] { color: var(--post-accent); }
 #toc-container nav::before {
     content: "";
     position: absolute;
@@ -1932,60 +1887,46 @@ details[open] > summary .freecat-update-chevron { transform: rotate(180deg); }
     transition: transform 200ms ease-out, height 200ms ease-out;
     pointer-events: none;
 }
-
-@media (prefers-reduced-motion: reduce) {
-    #toc-container nav::before {
-        transition: none;
-    }
-}
-
-.freecat-post-latest-update-body {
-    padding-block: 0.25rem;
-    border-left: 1px solid var(--post-rule);
-}
-
+.freecat-post-latest-update-body { padding-block: 0.25rem; border-left: 1px solid var(--post-rule); }
 .freecat-post-latest-update-body p { margin: 0; }
-
 .freecat-post-latest-update-link {
     display: block;
-    padding: 0.4rem 0 0.4rem 1rem;
+    padding: 0.5rem 0 0.5rem 1rem;
     color: var(--post-muted);
     font-size: 0.9375rem;
     line-height: 1.65;
     overflow-wrap: anywhere;
     text-decoration: none;
 }
-
 .freecat-post-latest-update-link:hover { color: var(--post-accent); }
-
 @media (min-width: 1280px) {
-    .freecat-post-toc-panel,
-    .freecat-post-latest-update-shell {
+    .freecat-post-reading-panel {
         position: fixed;
         top: calc(var(--freecat-page-top-offset, 97px) + 3rem);
+        left: calc(50% + 45rem / 2 + 2.5rem);
         width: min(18rem, calc(50vw - 45rem / 2 - 4rem));
         margin-bottom: 0;
         z-index: 20;
     }
-
-    .freecat-post-toc-panel {
-        left: calc(50% + 45rem / 2 + 2.5rem);
-    }
-    .freecat-post-latest-update-shell {
-        left: var(--freecat-side-content-left);
-    }
-
-    .freecat-post-toc > summary { cursor: default; pointer-events: none; }
-    .freecat-post-toc > summary .freecat-update-chevron { display: none; }
-    #toc-container {
-        height: 65dvh;
-        overflow-y: auto;
-        padding-right: 1rem;
-        scrollbar-gutter: stable;
-    }
-
-    #toc-container,
-    .freecat-post-latest-update-body {
+    .freecat-post-reading-panel[data-tabs-count="2"] .freecat-post-toc-title { display: none; }
+    .freecat-post-reading-panel .freecat-update-chevron { display: none; }
+    #toc-container, .freecat-post-latest-update-body {
         max-height: calc(100dvh - var(--freecat-page-top-offset, 97px) - 12rem);
     }
+}
+@media (max-width: 1279px) {
+    .freecat-post-toc-panel, .freecat-post-reading-panel .freecat-tabs { display: none; }
+    .freecat-post-reading-panel:not(:has(.freecat-post-latest-update-shell)) { display: none; }
+    .freecat-post-latest-update-link { min-height: 44px; }
+}
+@media (max-width: 767px) {
+    .freecat-post-meta { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.25rem 0.75rem; }
+    .freecat-post-meta > span { grid-column: 1; }
+    .freecat-post-copy-btn { grid-column: 2; grid-row: 1 / 3; }
+    .freecat-post-tags { grid-column: 1 / -1; margin-top: 0.5rem; }
+    .freecat-post-header { padding-bottom: 1.25rem; margin-bottom: 1.25rem; }
+    .freecat-post-reading-panel { margin-bottom: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .freecat-update-chevron, #toc-container nav::before { transition: none; }
 }
