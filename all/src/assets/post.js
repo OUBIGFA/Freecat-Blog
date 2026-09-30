@@ -44,7 +44,7 @@
 
     var echartsCharts = [];
     var echartsResizeBound = false;
-    var diagramFontFamily = '"Freecat Figtree", "Freecat Noto Sans SC", Inter, ui-sans-serif, system-ui, sans-serif';
+    var diagramFontFamily = '"Freecat Figtree", "Freecat Noto Sans SC", sans-serif';
 
     function initMermaidBlocks() {
         renderMermaidBlocks();
@@ -358,6 +358,8 @@
         Array.prototype.forEach.call(svg.querySelectorAll('text.sequenceNumber'), function (text) {
             if (!text.textContent || !text.textContent.trim() || typeof text.getBBox !== 'function') return;
             try {
+                // Mermaid hardcodes sans-serif here; measure the badge with the bundled font.
+                text.setAttribute('font-family', diagramFontFamily);
                 var box = text.getBBox();
                 var padX = 4;
                 var padY = 2;
@@ -483,13 +485,22 @@
                 : ['#557fa3', '#668e7d', '#8e7da7', '#ac8c56', '#ad776f', '#568f97'],
             backgroundColor: 'transparent',
             textStyle: { color: text, fontFamily: diagramFontFamily, fontSize: 15 },
-            title: { textStyle: { color: text, fontSize: 18, fontWeight: 500 }, subtextStyle: { color: muted } },
+            title: { textStyle: { color: text, fontFamily: diagramFontFamily, fontSize: 18, fontWeight: 500 }, subtextStyle: { color: muted, fontFamily: diagramFontFamily } },
             legend: { textStyle: { color: muted }, inactiveColor: rule },
             tooltip: { backgroundColor: isDark ? '#182232' : '#ffffff', borderColor: rule, textStyle: { color: text } },
             categoryAxis: axis, valueAxis: axis, timeAxis: axis, logAxis: axis,
             line: { lineStyle: { width: 2 }, symbolSize: 6 },
             bar: { itemStyle: { borderWidth: 0 } }
         };
+    }
+
+    // Chart options may contain nested labels; the site font policy applies at every level.
+    function useBundledChartFonts(options) {
+        if (!options || typeof options !== 'object') return;
+        Object.keys(options).forEach(function (key) {
+            if (key === 'fontFamily') options[key] = diagramFontFamily;
+            else useBundledChartFonts(options[key]);
+        });
     }
 
     function initEchartsBlocks() {
@@ -527,7 +538,8 @@
                 var isDark = document.documentElement.classList.contains('dark');
                 var theme = getEchartsTheme(isDark);
                 var chart = window.echarts.init(canvas, theme, { renderer: 'svg' });
-                // 作者指定的图表字体优先；未指定时使用与文章一致的可读默认值。
+                // Keep authored data, colors and sizes while enforcing the bundled font set.
+                useBundledChartFonts(options);
                 chart.setOption(Object.assign({ backgroundColor: 'transparent', animation: false }, options, {
                     textStyle: Object.assign({}, theme.textStyle, options.textStyle)
                 }));

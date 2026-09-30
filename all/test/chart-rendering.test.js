@@ -67,11 +67,11 @@ test('diagrams wait for their fonts and use native layout with readable Gantt ca
     assert.notEqual(config.themeVariables.critBkgColor, config.themeVariables.taskBkgColor);
 });
 
-test('chart theme follows dark mode while authored colors, data and fonts remain intact', async () => {
+test('chart theme keeps authored data and sizing while using bundled fonts', async () => {
     const authorOptions = {
         color: ['#123456'], animation: true,
         textStyle: { fontSize: 22, fontFamily: 'serif' },
-        series: [{ type: 'bar', data: [1, 2, 3] }]
+        series: [{ type: 'bar', data: [1, 2, 3], label: { fontFamily: 'Arial' } }]
     };
     const h = harness({ dark: true, authorOptions });
     h.resolveFonts(); await h.flush();
@@ -80,7 +80,9 @@ test('chart theme follows dark mode while authored colors, data and fonts remain
     assert.equal(chart.theme.textStyle.color, '#dbe4f0');
     assert.equal(chart.renderOptions.renderer, 'svg');
     assert.equal(chart.options.color[0], '#123456');
-    assert.equal(chart.options.textStyle.fontFamily, 'serif');
+    assert.equal(chart.options.textStyle.fontFamily, '"Freecat Figtree", "Freecat Noto Sans SC", sans-serif');
+    assert.equal(chart.options.series[0].label.fontFamily, chart.options.textStyle.fontFamily);
+    assert.equal(chart.theme.title.textStyle.fontFamily, chart.options.textStyle.fontFamily);
     assert.equal(chart.options.textStyle.fontSize, 22);
     assert.equal(chart.options.animation, true);
     assert.deepEqual(Array.from(chart.options.series[0].data), [1, 2, 3]);

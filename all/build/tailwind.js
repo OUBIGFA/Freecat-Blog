@@ -32,8 +32,12 @@ async function buildTailwindCss({ contentGlobs, outputPath, minify = true }) {
                     'background-dark': '#101622',
                     'card-dark': '#1A2332',
                 },
+                // Base elements and utilities share the bundled font set.
                 fontFamily: {
-                    'display': ["'Freecat Figtree'", "'Freecat Noto Sans SC'", 'Inter', '-apple-system', 'BlinkMacSystemFont', "'Segoe UI'", 'Roboto', "'PingFang SC'", "'Hiragino Sans GB'", "'Microsoft YaHei'", "'微软雅黑'", 'sans-serif']
+                    sans: ['"Freecat Figtree"', '"Freecat Noto Sans SC"', 'sans-serif'],
+                    'display': ["'Freecat Figtree'", "'Freecat Noto Sans SC'", 'sans-serif'],
+                    serif: ['"Freecat Figtree"', '"Freecat Noto Sans SC"', 'sans-serif'],
+                    mono: ['"Freecat JetBrains Mono"', '"Freecat Noto Sans SC"', 'monospace']
                 },
                 borderRadius: {
                     'none': '0px',

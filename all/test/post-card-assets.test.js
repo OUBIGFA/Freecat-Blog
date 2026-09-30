@@ -475,13 +475,13 @@ test('only pages that render post cards preload post-card font assets', () => {
     assert.deepEqual(preloadFontHrefs(notFoundTemplate), []);
 });
 
-test('post font preloads and font faces use the same versioned urls', () => {
+test('post text fonts preload matching versioned faces while code fonts load on demand', () => {
     const postId = '2026053115300001';
     const preloads = new Set(preloadFontHrefs(renderPostFontPreloads(postId, 'test-version')));
     const fontFaces = new Set(fontFaceSrcUrls(renderPostFontFaceCss(postId, 'test-version')));
 
-    assert.deepEqual(preloads, fontFaces);
-    assert.equal([...preloads].every(href => href.endsWith('?v=test-version')), true);
+    assert.deepEqual(preloads, new Set([...fontFaces].filter(href => !href.includes('freecat-jetbrains-mono-'))));
+    assert.equal([...fontFaces].every(href => href.endsWith('?v=test-version')), true);
 });
 
 test('all-page compact cards use shared native excerpt ellipsis by cover state', () => {

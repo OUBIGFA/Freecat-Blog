@@ -40,6 +40,15 @@ function autoLineBreak(text) {
     return text.replace(/([\.。])\s*(?=[^ \.。\n\r\t<])/g, '$1<br />');
 }
 
+function renderHomeHeroText(value) {
+    const formatted = autoLineBreak(escapeText(autoSpacing(value)));
+    const lines = formatted.split('<br />');
+    // Keep configurable monolingual or multi-sentence copy unchanged; split only Latin + Chinese pairs.
+    if (lines.length !== 2 || !/[㐀-鿿]/.test(lines[1]) || /[㐀-鿿]/.test(lines[0])) return formatted;
+    return '<span class="freecat-hero-line-first">' + lines[0] + '</span>' +
+        '<br class="freecat-hero-break" /><span class="freecat-hero-line-second">' + lines[1] + '</span>';
+}
+
 function generateThemeScript(siteConfig) {
     // 初始滚动守卫，内联进每个页面（含外壳）的 <head>：
     //   - 内容页/独立页：全新访问（navigate/reload）时把初始滚动钉在顶部，
@@ -466,8 +475,8 @@ function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, s
         out = replacePlaceholder(out, /<!-- SITE_TITLE -->/g, escapeText(autoSpacing(siteConfig.site_title)));
         out = replacePlaceholder(out, /<!-- SITE_NAME -->/g, escapeText(autoSpacing(siteConfig.site_name)));
         out = replacePlaceholder(out, /<!-- FOOTER_COPYRIGHT -->/g, escapeText(autoSpacing(siteConfig.footer_copyright)));
-        out = replacePlaceholder(out, /<!-- HERO_TITLE -->/g, autoLineBreak(escapeText(autoSpacing(siteConfig.hero_title))));
-        out = replacePlaceholder(out, /<!-- HERO_SUBTITLE -->/g, autoLineBreak(escapeText(autoSpacing(siteConfig.hero_subtitle))));
+        out = replacePlaceholder(out, /<!-- HERO_TITLE -->/g, renderHomeHeroText(siteConfig.hero_title));
+        out = replacePlaceholder(out, /<!-- HERO_SUBTITLE -->/g, renderHomeHeroText(siteConfig.hero_subtitle));
         out = replacePlaceholder(out, /<!-- HERO_AVATAR -->/g, safeAvatar);
         out = replacePlaceholder(out, /<!-- SITE_FAVICON -->/g, safeFavicon);
         out = replacePlaceholder(out, /<!-- SITE_LOGO_ICON -->/g, logoIcon);

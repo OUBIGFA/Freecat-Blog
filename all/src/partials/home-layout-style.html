@@ -222,10 +222,51 @@
             row-gap: 0.875rem;
             padding-top: calc(var(--freecat-page-top-offset, 77px) + 0.75rem);
         }
-        .freecat-home-identity { gap: 0.75rem; }
-        .freecat-home-avatar { width: 2.75rem; height: 2.75rem; }
-        .freecat-sidebar-slogan { font-size: 1.3125rem; line-height: 1.45; }
-        .freecat-sidebar-description { margin-top: 0.875rem; line-height: 1.65; }
+        /* Identity is a small signature; the Chinese headline owns the full reading width. */
+        .freecat-home-identity { display: block; }
+        .freecat-home-avatar { float: right; width: 2.75rem; height: 2.75rem; margin-left: 0.75rem; }
+        .freecat-sidebar-slogan { font-size: 1.5rem; line-height: 1.35; }
+        .freecat-sidebar-slogan .freecat-hero-line-first {
+            display: flex;
+            align-items: center;
+            min-height: 2.75rem;
+            padding-right: 3.5rem;
+            color: var(--freecat-home-muted);
+            font-size: 0.9375rem;
+            font-weight: 500;
+            line-height: 1.4;
+            letter-spacing: 0;
+        }
+        .freecat-hero-break { display: none; }
+        .freecat-sidebar-slogan .freecat-hero-line-second {
+            clear: both;
+            display: block;
+            margin-top: 0.5rem;
+            font-size: clamp(1.5rem, 7vw, 1.75rem);
+            font-weight: 600;
+            line-height: 1.35;
+            letter-spacing: -0.025em;
+            text-wrap: balance;
+        }
+        /* Chinese is the lead; English remains available as secondary copy. */
+        .freecat-sidebar-description {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            line-height: 1.6;
+        }
+        .freecat-sidebar-description .freecat-hero-line-second {
+            order: 1;
+            color: var(--freecat-home-text);
+            font-size: 0.9375rem;
+            line-height: 1.65;
+        }
+        .freecat-sidebar-description .freecat-hero-line-first {
+            order: 2;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
     }
     @media (prefers-reduced-motion: reduce) {
         .freecat-home-recent-chevron { transition: none; }

@@ -283,6 +283,13 @@ buildArticleFontSubset({ rootDir: __dirname, refresh: true });
 console.log('📦 Moving assets and configs...');
 if (fs.existsSync(DIRS.assets)) copyDir(DIRS.assets, path.join(DIRS.output, 'assets'), { ignore: ['posts'] });
 writeCodeThemeAssets(path.join(DIRS.output, 'assets'), siteConfig);
+// Formula fonts must ship with the site; keep KaTeX's relative font URLs intact.
+const katexPackageDir = path.dirname(require.resolve('katex/package.json'));
+const katexOutputDir = path.join(DIRS.output, 'assets', 'katex');
+copyDir(path.join(katexPackageDir, 'dist', 'fonts'), path.join(katexOutputDir, 'fonts'));
+const katexCss = fs.readFileSync(path.join(katexPackageDir, 'dist', 'katex.min.css'), 'utf-8');
+fs.writeFileSync(path.join(katexOutputDir, 'katex.min.css'), katexCss.replace(',Times New Roman,', ','), 'utf-8');
+fs.copyFileSync(path.join(katexPackageDir, 'LICENSE'), path.join(katexOutputDir, 'LICENSE'));
 if (fs.existsSync(DIRS.shared)) copyDir(DIRS.shared, path.join(DIRS.output, 'assets'));
 if (fs.existsSync(DIRS.images)) copyDir(DIRS.images, path.join(DIRS.output, 'image'));
 

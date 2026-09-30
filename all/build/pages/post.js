@@ -97,7 +97,9 @@ function renderPostFontFaceCss(postId, assetVersion = '') {
         fontFace('Freecat Noto Sans SC', medium, '450 549'),
         fontFace('Freecat Noto Sans SC', semiBold, '600'),
         fontFace('Freecat Noto Sans SC', extraBold, '750 849'),
-        fontFace('Freecat Tag Noto Sans SC', medium, '500')
+        fontFace('Freecat Tag Noto Sans SC', medium, '500'),
+        fontFace('Freecat JetBrains Mono', versionedAssetUrl('/assets/fonts/freecat-jetbrains-mono-regular.woff2', assetVersion), '400'),
+        fontFace('Freecat JetBrains Mono', versionedAssetUrl('/assets/fonts/freecat-jetbrains-mono-semi-bold.woff2', assetVersion), '600')
     ].join('\n\n    ');
 }
 
@@ -512,7 +514,7 @@ function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = 
         needsEcharts ? '<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>' : ''
     ].filter(Boolean).join('\n    ');
     const katexCss = needsKatex
-        ? '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" />'
+        ? `<link rel="stylesheet" href="${versionedAssetUrl('/assets/katex/katex.min.css', assetVersion)}" />`
         : '';
     const mediaCss = needsMediaPlayer
         ? '<link rel="stylesheet" href="/assets/media-player.css" />'
