@@ -471,7 +471,8 @@ test('long single-line prompts and JSON fold after estimated wrapping without lo
         assert.match(html, /code-fold collapsed-code/);
         assert.match(html, /aria-label="展开内容" aria-expanded="false"/);
         assert.match(html, /class="fold-toggle-label">展开内容/);
-        assert.match(html, /class="copy-btn-text"[^>]*>复制/);
+        assert.match(html, /aria-label="复制代码" title="复制代码"/);
+        assert.match(html, /class="copy-btn-text sr-only"[^>]*><\/span>/);
         assert.ok(html.includes(language ? 'readable '.repeat(100) : '保持阅读清晰。'.repeat(100)));
     }
 });

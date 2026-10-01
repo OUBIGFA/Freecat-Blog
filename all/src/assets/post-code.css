@@ -387,14 +387,13 @@
     display: flex !important;
 }
 
-/* 代码工具与语法配色统一在本地定义，深浅主题使用同一层级。 */
+/* 复制按钮只显示居中图标，状态文字沿用共享按钮的读屏提示。 */
 .code-copy-btn {
-    width: auto;
+    width: 32px;
     min-width: 0;
     height: 32px;
-    padding: 0 0.5rem;
+    padding: 0;
     border-radius: 6px;
-    white-space: nowrap;
 }
 
 /* 视觉外框缩小，但保留工具栏内完整的触屏点击范围。 */
@@ -404,14 +403,4 @@
     inset: -6px -4px;
 }
 
-.code-copy-btn :is(.clipboard, .clipboard-check) {
-    left: 0.5rem;
-}
-
 .code-copy-btn svg { width: 0.875rem; height: 0.875rem; }
-
-.code-copy-btn .copy-btn-text {
-    padding-left: 1.125rem;
-    font-size: 0.875rem;
-    line-height: 1.5;
-}

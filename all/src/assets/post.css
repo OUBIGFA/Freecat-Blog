@@ -1857,15 +1857,14 @@ details[open] > summary .freecat-update-chevron { transform: rotate(180deg); }
     overscroll-behavior: contain;
     scrollbar-width: thin;
     scrollbar-color: #94a3b8 transparent;
-    padding-right: 0.75rem;
+    padding: 0.25rem 0.75rem 0.25rem 0;
+    border-left: 1px solid var(--post-rule);
     scrollbar-gutter: stable;
 }
 #toc-container nav {
     position: relative;
-    border-left: 1px solid var(--post-rule);
-    padding-block: 0.25rem;
 }
-#toc-container a {
+#toc-container a, .freecat-post-latest-update-link {
     position: relative;
     max-width: 100%;
     padding-block: 0.4rem;
@@ -1875,12 +1874,13 @@ details[open] > summary .freecat-update-chevron { transform: rotate(180deg); }
     overflow-wrap: anywhere;
     text-decoration: none;
 }
-#toc-container a:hover, #toc-container a[aria-current="location"] { color: var(--post-accent); }
+#toc-container a:hover, #toc-container a[aria-current="location"],
+.freecat-post-latest-update-link:hover { color: var(--post-accent); }
 #toc-container nav::before {
     content: "";
     position: absolute;
     top: 0;
-    left: -1px;
+    left: 0;
     width: 2px;
     height: var(--toc-active-height, 0px);
     background: var(--post-accent);
@@ -1888,18 +1888,11 @@ details[open] > summary .freecat-update-chevron { transform: rotate(180deg); }
     transition: transform 200ms ease-out, height 200ms ease-out;
     pointer-events: none;
 }
-.freecat-post-latest-update-body { padding-block: 0.25rem; border-left: 1px solid var(--post-rule); }
 .freecat-post-latest-update-body p { margin: 0; }
 .freecat-post-latest-update-link {
     display: block;
-    padding: 0.5rem 0 0.5rem 1rem;
-    color: var(--post-muted);
-    font-size: 0.9375rem;
-    line-height: 1.65;
-    overflow-wrap: anywhere;
-    text-decoration: none;
+    padding-left: 1rem;
 }
-.freecat-post-latest-update-link:hover { color: var(--post-accent); }
 @media (min-width: 1280px) {
     .freecat-post-reading-panel {
         position: fixed;
@@ -1915,8 +1908,9 @@ details[open] > summary .freecat-update-chevron { transform: rotate(180deg); }
     .freecat-post-reading-panel .freecat-post-toc-title { display: none; }
     .freecat-post-reading-panel .freecat-update-chevron { display: none; }
     #toc-container, .freecat-post-latest-update-body {
-        /* 保留内部滚动；高度跟随最大窗口，整体缩放后滚动区域也避开页脚。 */
-        max-height: calc(var(--freecat-sidebar-viewport-height, 100dvh) - var(--freecat-page-top-offset, 97px) - 12rem);
+        /* 两个标签共用固定可视高度，切换内容不改变侧栏比例；长列表仍在内部滚动。 */
+        height: calc(var(--freecat-sidebar-viewport-height, 100dvh) - var(--freecat-page-top-offset, 97px) - 12rem);
+        max-height: none;
     }
 }
 @media (max-width: 1279px) {

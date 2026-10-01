@@ -849,7 +849,7 @@ function buildRenderer() {
     <div class="${containerClass}" style="contain-intrinsic-size: auto ${intrinsicHeightPx}px">
         <div class="flex items-center justify-between">
             ${langLabel}
-            ${renderCopyButton({ className: 'code-copy-btn', ariaLabel: '复制代码', title: '复制代码', text: '复制' })}
+            ${renderCopyButton({ className: 'code-copy-btn', ariaLabel: '复制代码', title: '复制代码' })}
         </div>
         <div class="code-wrapper relative">
             <div class="code-content"${contentStyle}>

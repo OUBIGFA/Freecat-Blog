@@ -102,7 +102,7 @@ test('sort tabs reorder the real list and restore the URL choice without duplica
 });
 
 test('copy confirms success only after the clipboard resolves', async () => {
-    const h = browser('<div class="code-block-container">' + renderCopyButton({ className: 'code-copy-btn', ariaLabel: '复制代码', text: '复制' }) + '<pre><code>const x = 1;</code></pre></div>');
+    const h = browser('<div class="code-block-container">' + renderCopyButton({ className: 'code-copy-btn', ariaLabel: '复制代码' }) + '<pre><code>const x = 1;</code></pre></div>');
     let resolveCopy;
     const copied = [];
     h.run('code-copy.js');
@@ -118,7 +118,7 @@ test('copy confirms success only after the clipboard resolves', async () => {
 });
 
 test('copy failure never reports success and allows another attempt', async () => {
-    const h = browser('<div class="code-block-container">' + renderCopyButton({ text: '复制' }) + '<pre><code>retry me</code></pre></div>');
+    const h = browser('<div class="code-block-container">' + renderCopyButton({ className: 'code-copy-btn', ariaLabel: '复制代码' }) + '<pre><code>retry me</code></pre></div>');
     h.run('code-copy.js');
     let reject = true;
     h.window.FreecatCodeCopy.init({ document: h.document, copyText: () => reject ? Promise.reject(new Error('denied')) : Promise.resolve() });
