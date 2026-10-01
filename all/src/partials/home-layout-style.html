@@ -6,7 +6,7 @@
 
     .freecat-home-stage {
         background: var(--freecat-canvas);
-        isolation: isolate;
+        /* 顶栏与搜索浮层需和站内导航的 iframe 共用层叠上下文，否则会被正文遮住。 */
     }
 
     /* 两侧轨道等宽，使文章独立居中；简介只使用左侧轨道，不挤偏正文。 */
