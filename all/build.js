@@ -264,7 +264,7 @@ fs.mkdirSync(path.join(DIRS.output, 'posts'));
 postPage.generateAll({ posts: allPosts, template: tplPost, siteConfig, seoConfig, outputDir: DIRS.output, assetVersion: ASSET_VERSION });
 indexPage.generateAll({ posts: allPosts, template: tplIndex, postsPerPage: POSTS_PER_PAGE, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarHomeWrapperHtml });
 // 首页内容直出到 /（index.html）与 /home（iframe 默认内容）两个地址；
-// 外壳输出到 /shell（noindex）；仅在用户点击播放音乐时启用，继承文章收录信息。
+// 外壳输出到 /shell（noindex）；普通页面仅在站内导航时启用内容 iframe，保留播放器与文章收录信息。
 shellPage.generate({ template: tplShell, siteConfig, seoConfig, outputDir: DIRS.output });
 allPage.generate({ posts: allPosts, template: tplIndexAll, siteConfig, seoConfig, outputDir: DIRS.output });
 searchPage.generate({ posts: allPosts, template: tplSearch, siteConfig, seoConfig, outputDir: DIRS.output, recentPostsSidebarHtml: recentPostsSidebarHomeWrapperHtml });

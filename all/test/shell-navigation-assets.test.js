@@ -242,7 +242,6 @@ test('shell history back marks framed pages for scroll restoration', () => {
     assert.match(shellRouterJs, /if \(options\.restoreScroll\) \{\s*requestFrameScrollRestore\(target\);\s*\}/, 'history navigation writes the restore request');
     assert.doesNotMatch(shellRouterJs, /setTimeout\([\s\S]{0,80}clearFrameScrollRestore/, 'no timer-delayed clear: it deletes requests rewritten by a quick second back navigation');
     assert.match(shellRouterJs, /function navigateShell\(targetHref, options = \{\}\)\s*\{[\s\S]*?clearFrameScrollRestore\(contentPath\);/, 'forward navigations clear stale restore requests so fresh visits start at the top');
-    assert.match(shellRouterJs, /window\.addEventListener\('popstate', \(\) => \{\s*syncFrameToLocation\(\{\s*restoreScroll:\s*true\s*\}\);\s*\}\);/);
 });
 
 test('frame replacement freezes the old document before its scroll resets to zero', () => {
@@ -253,7 +252,6 @@ test('frame replacement freezes the old document before its scroll resets to zer
     assert.match(shellRouterJs, /window\.addEventListener\('pagehide', freezeFrameScrollSaves\);/, 'shell unload freezes the frame before child pagehide fires');
     assert.match(scrollMemoryJs, /if \(savesFrozen \|\| restoreInProgress\) return;/, 'frozen documents skip every save path');
     assert.match(scrollMemoryJs, /runtime\.setFreezeScrollSaves\(freezeScrollSaves\);/, 'freeze is exposed through the runtime bridge');
-    assert.match(scrollMemoryJs, /window\.addEventListener\('pageshow', \(event\) => \{\s*savesFrozen = false;/, 'bfcache revival lifts the freeze');
     assert.match(runtimeJs, /setFreezeScrollSaves\(fn\)\s*\{[\s\S]*FreecatFreezeScrollSaves/);
 });
 

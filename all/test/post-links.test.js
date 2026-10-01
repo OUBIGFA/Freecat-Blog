@@ -443,6 +443,30 @@ test('post page binds latest update heading to exact title text', () => {
     assert.doesNotMatch(updateLink, /href="#灵感必去网站"/);
 });
 
+test('latest update heading links resolve to exact linked headings instead of missing fallback anchors', () => {
+    const { parseHTML } = require('linkedom');
+    for (const title of ['WindowsDeveloperConfig', '**工具** `Config`', '工具 & 配置']) {
+        const targetText = `#### [${title}](https://example.com/tool)`;
+        const html = renderPostPage({
+            post: {
+                title: 'Linked heading', tag: [], link: '/posts/linked-heading', cover: '',
+                content: `#### [${title} Extended](https://example.com/other)\n\n${targetText}`,
+                date: dayjs(PUBLISHED_AT), modifiedDate: dayjs(MODIFIED_AT),
+                postId: '2026050209000008',
+                latestUpdate: { items: [{ text: title, targetText }] }
+            },
+            template: '<html><body><!-- POST_READING_PANEL --><article><!-- CONTENT_PLACEHOLDER --></article></body></html>',
+            siteConfig: { site_name: 'Example', site_url: 'https://example.com' },
+            seoConfig: {}
+        });
+        const { document } = parseHTML(html);
+        const link = document.querySelector('.freecat-post-latest-update-link');
+        const target = document.getElementById(link.getAttribute('href').slice(1));
+        assert.ok(target, `${title}: update link must resolve to an existing element`);
+        assert.equal(target, document.querySelectorAll('article h5')[1]);
+    }
+});
+
 test('post page binds latest update links to rendered code block targets', () => {
     const post = {
         title: 'Latest Update Code Post',

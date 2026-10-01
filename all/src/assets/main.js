@@ -59,9 +59,9 @@ document.addEventListener('DOMContentLoaded', () => {
     //              这里要跳过音频初始化与自身上边距测量（上边距由外壳喂入）。
     //   IS_SHELL —— 当前是常驻外壳文档（顶层且含内容 iframe），由它承载顶栏音频并驱动 iframe 路由。
     const FRAMED = window.self !== window.top;
-    const contentFrame = document.getElementById('freecat-content-frame');
-    const IS_SHELL = !FRAMED && !!contentFrame;
-    if (!FRAMED && !IS_SHELL) shellRouter.initStandaloneHistory({ window, runtime });
+    const existingFrame = document.getElementById('freecat-content-frame');
+    const IS_SHELL = !FRAMED && !!existingFrame;
+    const contentFrame = existingFrame || (!FRAMED ? shellRouter.createContentFrame(document) : null);
 
     function syncParentFrameHistory(options = {}) {
         if (!FRAMED) {
@@ -212,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
         getCssDurationMs,
         fitTagRows,
         navigateWithinSite,
-        isShell: IS_SHELL,
+        isShell: !!contentFrame,
         contentFrame
     });
     const { closeHeaderSearch, closeTagMenu } = headerSearch;
@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
             platform,
             navAudioToggle: document.getElementById('nav-audio-toggle'),
             navAudio: document.getElementById('nav-audio'),
-            isShell: IS_SHELL,
+            isShell: !!contentFrame,
             contentFrame,
             closeTagMenu,
             closeHeaderSearch
@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
         shellRouter.initFramedNavigationBridge({ window, document, runtime });
     }
     if (FRAMED) initFramedNavigationBridge();
-    if (IS_SHELL) {
+    if (!FRAMED) {
         shellRouter.initShellRouter({
             window,
             document,
@@ -254,7 +254,8 @@ document.addEventListener('DOMContentLoaded', () => {
             closeHeaderSearch,
             closeTagMenu,
             resolveThemeIsDark,
-            syncFrameTheme
+            syncFrameTheme,
+            initialContent: !IS_SHELL
         });
     }
 

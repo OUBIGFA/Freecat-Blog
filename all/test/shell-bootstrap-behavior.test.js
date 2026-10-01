@@ -56,17 +56,14 @@ test('legacy shared hash URLs open the matching article without requiring audio 
     assert.deepEqual(external.redirects, []);
 });
 
-test('trusted audio playback activates a shell carrying the article metadata', async () => {
+test('the first playback click reaches the original player without rewriting the document', async () => {
     const result = await runBootstrap({ action: 'play' });
-    assert.deepEqual(result.fetch, ['/shell']);
-    assert.equal(result.prevented, 1);
-    assert.equal(result.writes.length, 1);
-    const { document } = parseHTML(result.writes[0]);
-    assert.equal(document.title, 'Article');
-    assert.equal(document.querySelector('link[rel=canonical]').getAttribute('href'), 'https://example.com/posts/1/');
-    assert.equal(document.querySelector('meta[name=robots]'), null);
-    assert.equal(JSON.parse(document.querySelector('script[type="application/ld+json"]').textContent)['@type'], 'BlogPosting');
-    assert.equal(result.window.__FREECAT_START_NAV_AUDIO__, true);
+    assert.deepEqual(result.fetch, []);
+    assert.equal(result.prevented, 0);
+    assert.deepEqual(result.writes, []);
+    assert.equal(result.document.querySelector('article').textContent, 'ArticleFull article text');
+    assert.equal(result.document.querySelector('link[rel=canonical]').getAttribute('href'), 'https://example.com/posts/1/');
+    assert.equal(JSON.parse(result.document.querySelector('script[type="application/ld+json"]').textContent)['@type'], 'BlogPosting');
 });
 
 test('synthetic clicks and embedded article documents cannot replace the document', async () => {
@@ -77,11 +74,12 @@ test('synthetic clicks and embedded article documents cannot replace the documen
     }
 });
 
-test('a failed or unexpected shell response keeps the article and reports the failure', async () => {
+test('playback does not depend on fetching a shell document', async () => {
     for (const options of [{ ok: false }, { response: ARTICLE }]) {
         const result = await runBootstrap({ action: 'play', ...options });
         assert.equal(result.writes.length, 0);
-        assert.equal(result.warnings.length, 1);
+        assert.equal(result.fetch.length, 0);
+        assert.equal(result.warnings.length, 0);
         assert.ok(result.document.querySelector('article'));
     }
 });

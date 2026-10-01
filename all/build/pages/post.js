@@ -303,7 +303,11 @@ function annotateLatestUpdateHtml(html, latestUpdate) {
             if (matched) break;
             annotatedHtml = annotatedHtml.replace(pattern, (match, openingTag, rest) => {
                 if (matched) return match;
-                const haystack = htmlToLatestUpdateMatchText(match);
+                // Heading snapshots contain the visible label, not the link URL;
+                // supplemental URLs would make an otherwise exact title mismatch.
+                const haystack = isHtmlHeadingOpeningTag(openingTag) && isMarkdownHeadingText(targetText)
+                    ? htmlToPlainText(match)
+                    : htmlToLatestUpdateMatchText(match);
                 const compactHaystack = compactLatestUpdateMatchText(haystack);
                 const normalizedMatched = needle && (
                     haystack.indexOf(needle) !== -1

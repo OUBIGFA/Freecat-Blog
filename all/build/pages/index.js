@@ -100,7 +100,7 @@ function generateAll({ posts, template, postsPerPage, siteConfig, seoConfig, out
             // 首页内容同一份 HTML 落两个地址：
             //   /     (index.html) —— 站点规范首页，内容直出，爬虫与无 JS 访客直接读到文章列表；
             //   /home (home.html)  —— 外壳 iframe 的默认内容页，canonical 归并到 /。
-            // 首次访问保留完整正文；点击播放音乐才启用连续播放外壳。
+            // 首次访问与播放保留完整正文；站内导航时保留顶栏和播放器。
             fs.writeFileSync(path.join(outputDir, 'index.html'), outputHtml, 'utf-8');
             fs.writeFileSync(path.join(outputDir, 'home.html'), outputHtml, 'utf-8');
         } else {

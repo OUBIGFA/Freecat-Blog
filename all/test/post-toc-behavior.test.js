@@ -2,6 +2,25 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const vm = require('node:vm');
 const { postJs } = require('../test-support/assets.js');
+const { parseHTML } = require('linkedom');
+
+test('latest update fallback searches the body rather than its own sidebar entry', () => {
+    const { window, document } = parseHTML('<html><body><article><aside><p><a class="freecat-post-latest-update-link" href="#missing" data-latest-update-text="WindowsDeveloperConfig">WindowsDeveloperConfig</a></p></aside><div id="freecat-article-body"><h5 id="windowsdeveloperconfig">WindowsDeveloperConfig</h5></div></article></body></html>');
+    let focused;
+    let hash;
+    window.HTMLElement.prototype.focus = function () { focused = this; };
+    window.HTMLElement.prototype.getBoundingClientRect = () => ({ top: 900, bottom: 2000 });
+    Object.assign(window, {
+        FreecatShared: {}, FreecatCodeFolding: { init() {} },
+        matchMedia: () => ({ matches: true }),
+        getComputedStyle: () => ({ getPropertyValue: () => '' }),
+        scrollTo() {}, scrollY: 0, innerHeight: 800
+    });
+    vm.runInNewContext(postJs, { window, document, history: { replaceState(_state, _title, url) { hash = url; } } });
+    document.querySelector('.freecat-post-latest-update-link').click();
+    assert.equal(focused?.tagName, 'H5');
+    assert.equal(hash, '#windowsdeveloperconfig');
+});
 
 // 驱动真实文章模块，验证长目录的跟随行为及滚动帧中的布局读取次数。
 function createTocHarness({ reducedMotion = false, wide = true, linkCount = 100 } = {}) {

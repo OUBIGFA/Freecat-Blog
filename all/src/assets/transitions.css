@@ -1053,7 +1053,29 @@ header.fixed {
     color: var(--freecat-ui-text);
 }
 
-body[data-freecat-shell-root] > header.fixed {
+/* 同一份布局同时服务直达外壳与首个站内导航；播放按钮不启用此布局。 */
+html.freecat-shell-active,
+html.freecat-shell-active body {
+    height: 100%;
+    scrollbar-gutter: auto;
+}
+
+body[data-freecat-shell-root] {
+    overflow: hidden;
+}
+
+#freecat-content-frame {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+    background: transparent;
+    color-scheme: normal;
+}
+
+body[data-freecat-shell-root] header.fixed {
     width: calc(100% - var(--freecat-frame-scrollbar-width, 0px));
 }
 

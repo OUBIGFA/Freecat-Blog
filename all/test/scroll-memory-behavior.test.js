@@ -114,6 +114,19 @@ test('init switches browser scroll restoration to manual', () => {
     assert.equal(harness.window.history.scrollRestoration, 'manual');
 });
 
+test('a page upgraded to the persistent shell never overwrites the article position on pageshow', () => {
+    const h = createHarness();
+    h.init();
+    h.window.scrollY = 1600;
+    h.runtime.saveScrollPosition();
+    h.runtime.freezeScrollSaves();
+    h.window.__FREECAT_SHELL_DOCUMENT__ = true;
+    h.window.scrollY = 0;
+    h.fireWindow('pageshow', {});
+    h.fireWindow('pagehide');
+    assert.equal(h.readStore(POSITIONS_KEY)['/posts/foo'].y, 1600);
+});
+
 test('pagehide saves the current position under the normalized page key', () => {
     const harness = createHarness({ pathname: '/posts/foo.html' });
     harness.init();

@@ -7,13 +7,31 @@
 }(typeof self !== 'undefined' ? self : this, function () {
     // Independent pages also use soft pagination/sorting. Back/forward must restore
     // their HTML and metadata; hash-only article navigation remains native.
-    function initStandaloneHistory({ window, runtime }) {
+    function initStandaloneHistory({ window, runtime, isActive = () => true, onRestore = () => window.location.reload() }) {
         const pageKey = () => window.location.pathname + window.location.search;
         let renderedPage = pageKey();
-        runtime.setSyncFrameHistory(() => { renderedPage = pageKey(); });
+        const sync = () => { renderedPage = pageKey(); };
+        runtime.setSyncFrameHistory(sync);
         window.addEventListener('popstate', () => {
-            if (pageKey() !== renderedPage) window.location.reload();
+            if (isActive() && pageKey() !== renderedPage) onRestore();
         });
+        return sync;
+    }
+
+    // Keep this frame detached until a navigation actually needs it. Playback and
+    // the first render must leave the original article DOM completely untouched.
+    function createContentFrame(document) {
+        const frame = document.createElement('iframe');
+        frame.id = 'freecat-content-frame';
+        frame.title = '页面内容';
+        frame.setAttribute('allow', 'autoplay; fullscreen; clipboard-write');
+        frame.style.visibility = 'hidden';
+        return frame;
+    }
+
+    // Keep feeds, downloads and external links outside the persistent HTML reader.
+    function isContentPath(pathname) {
+        return /^\/(?:$|(?:index|home|shell|about|all|search)(?:\.html)?\/?$|posts\/[^/.]+(?:\.html|\/(?:index\.html)?)?$|page\/\d+\/(?:index\.html)?$)/.test(pathname);
     }
 
     function initFramedNavigationBridge({ window, document, runtime }) {
@@ -26,7 +44,7 @@
 
             const rawHref = link.getAttribute('href') || '';
             const url = new URL(link.href, window.location.href);
-            if (url.origin !== window.location.origin) return;
+            if (url.origin !== window.location.origin || !isContentPath(url.pathname)) return;
             if (rawHref.charAt(0) === '#' && url.pathname === window.location.pathname && url.search === window.location.search) return;
 
             event.preventDefault();
@@ -45,10 +63,18 @@
         closeHeaderSearch,
         closeTagMenu,
         resolveThemeIsDark,
-        syncFrameTheme
+        syncFrameTheme,
+        initialContent = false
     }) {
         const frame = contentFrame;
         if (!frame) return;
+        let showingInitialContent = initialContent;
+        let initialNavigation = null;
+        const syncStandalone = initialContent ? initStandaloneHistory({
+            window, runtime,
+            isActive: () => showingInitialContent,
+            onRestore: () => navigateShell(getPublicLocation(), { replace: true, restoreScroll: true })
+        }) : null;
 
         const HOME_CONTENT = '/home';
         const SCROLL_RESTORE_REQUEST_KEY = 'freecat-scroll-restore-requests-v1';
@@ -89,6 +115,10 @@
         function publicPathToContentPath(raw) {
             const path = parseSameOriginPath(raw, '/');
             const url = new URL(path, window.location.origin);
+            url.pathname = shared.normalizeScrollPageKey(url.pathname, '');
+            // Request the generated directory URL directly, so a hosting redirect
+            // cannot make the first loaded article look like an obsolete response.
+            if (/^\/posts\/[^/]+$/.test(url.pathname)) url.pathname += '/';
             if (isHomePathname(url.pathname)) {
                 return HOME_CONTENT + url.search + url.hash;
             }
@@ -207,6 +237,10 @@
         }
 
         function syncHistoryToFrame(options = {}) {
+            if (showingInitialContent) {
+                syncStandalone();
+                return;
+            }
             const framePath = getFramePath();
             if (!framePath) return;
             shared.syncPageMetadata(document, frame.contentDocument);
@@ -217,8 +251,29 @@
         }
 
         function navigateShell(targetHref, options = {}) {
+            const targetUrl = new URL(targetHref, window.location.href);
+            if (targetUrl.origin !== window.location.origin || !isContentPath(targetUrl.pathname)) {
+                window.location.href = targetUrl.href;
+                return;
+            }
+            if (showingInitialContent && targetUrl.pathname === window.location.pathname && targetUrl.search === window.location.search && targetUrl.hash) {
+                window.location.hash = targetUrl.hash;
+                return;
+            }
             const contentPath = publicPathToContentPath(targetHref);
             const publicPath = contentPathToPublicPath(contentPath);
+            if (showingInitialContent) {
+                // The current article and address stay in place until the new page
+                // has loaded. The original header and audio node are never replaced.
+                initialNavigation = { contentPath, publicPath, options, sourcePath: getPublicLocation() };
+                if (options.restoreScroll) {
+                    requestFrameScrollRestore(contentPath);
+                    runtime.freezeScrollSaves();
+                } else clearFrameScrollRestore(contentPath);
+                setFrameLocation(contentPath);
+                if (!frame.isConnected) document.body.appendChild(frame);
+                return;
+            }
             // 前进导航 = 全新访问，必须从顶部开始：清掉同 key 残留的恢复请求
             // （返回导航被中断、加载被放弃时会遗留），避免新访问被错误恢复。
             clearFrameScrollRestore(contentPath);
@@ -232,6 +287,7 @@
         }
 
         function syncFrameToLocation(options = {}) {
+            if (showingInitialContent) return;
             const framePath = getFramePath();
             if (!framePath) return;
             const target = publicPathToContentPath(getPublicLocation());
@@ -269,6 +325,45 @@
 
         function onFrameLoad() {
             if (!getFramePath()) return;
+            if (showingInitialContent) {
+                if (!initialNavigation || publicPathToContentPath(getFramePath()) !== initialNavigation.contentPath) return;
+                if (getPublicLocation() !== initialNavigation.sourcePath) {
+                    initialNavigation = null;
+                    frame.remove();
+                    return;
+                }
+                if (!initialNavigation.options.restoreScroll) {
+                    runtime.saveScrollPosition();
+                    runtime.freezeScrollSaves();
+                }
+                showingInitialContent = false;
+                window.__FREECAT_SHELL_DOCUMENT__ = true;
+                document.documentElement.classList.add('freecat-shell-active');
+                document.body.setAttribute('data-freecat-shell-root', 'true');
+                // Remove only the page being left; retain the initialized player,
+                // header controls and their event handlers for all future pages.
+                const overlay = document.getElementById('search-results-overlay');
+                function removePageContent(parent) {
+                    for (const child of Array.from(parent.children)) {
+                        if (child === headerEl || child === overlay || child === frame || ['SCRIPT', 'STYLE', 'LINK'].includes(child.tagName)) continue;
+                        // Content templates wrap header and main together. Keep the
+                        // ancestor chain connected: even reparenting media can pause it.
+                        if ((headerEl && child.contains(headerEl)) || (overlay && child.contains(overlay))) removePageContent(child);
+                        else {
+                            child.querySelectorAll('audio,video').forEach(media => media.pause());
+                            child.remove();
+                        }
+                    }
+                }
+                removePageContent(document.body);
+                const method = initialNavigation.options.replace ? 'replaceState' : 'pushState';
+                if (initialNavigation.publicPath !== getPublicLocation()) {
+                    window.history[method](nextShellHistoryState(method), '', initialNavigation.publicPath);
+                }
+                initialNavigation = null;
+                window.scrollTo(0, 0);
+                frame.style.visibility = '';
+            }
             try {
                 const t = frame.contentDocument && frame.contentDocument.title;
                 if (t) document.title = t;
@@ -276,11 +371,6 @@
             syncFrameTheme(resolveThemeIsDark());
             syncFrameOffset();
             syncHistoryToFrame();
-            // Enabling music must not jump the reader back to the article heading.
-            if (Number.isFinite(window.__FREECAT_SHELL_INITIAL_SCROLL__)) {
-                frame.contentWindow.scrollTo(0, window.__FREECAT_SHELL_INITIAL_SCROLL__);
-                delete window.__FREECAT_SHELL_INITIAL_SCROLL__;
-            }
         }
 
         function onShellLinkClick(event) {
@@ -290,7 +380,8 @@
             if (link.target && link.target.toLowerCase() !== '_self') return;
             if (link.hasAttribute('download')) return;
             const url = new URL(link.href, window.location.href);
-            if (url.origin !== window.location.origin) return;
+            if (url.origin !== window.location.origin || !isContentPath(url.pathname)) return;
+            if (url.pathname === window.location.pathname && url.search === window.location.search && url.hash) return;
             event.preventDefault();
             if (typeof closeHeaderSearch === 'function') closeHeaderSearch(true);
             if (typeof closeTagMenu === 'function') closeTagMenu();
@@ -300,6 +391,7 @@
         frame.addEventListener('load', onFrameLoad);
         ensureShellHistoryState();
         window.addEventListener('popstate', () => {
+            if (showingInitialContent) return;
             syncFrameToLocation({ restoreScroll: true });
         });
         // 外壳整页卸载（关标签/跳出站外）连带销毁 iframe 文档，同样进入
@@ -328,5 +420,5 @@
         } catch (err) {}
     }
 
-    return { initStandaloneHistory, initFramedNavigationBridge, initShellRouter };
+    return { createContentFrame, initStandaloneHistory, initFramedNavigationBridge, initShellRouter };
 }));

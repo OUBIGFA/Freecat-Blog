@@ -388,10 +388,7 @@
         syncNavAudioVolumeUi(currentVolume);
         syncNavAudioState();
 
-        // The first real playback click may have upgraded a static article into the shell.
-        const startFromPage = window.__FREECAT_START_NAV_AUDIO__ === true;
-        delete window.__FREECAT_START_NAV_AUDIO__;
-        if (startFromPage || requestedPlayback || (!savedState && navAudioToggle.dataset.audioAutoplay === 'true')) {
+        if (requestedPlayback || (!savedState && navAudioToggle.dataset.audioAutoplay === 'true')) {
             window.setTimeout(playNavAudio, 0);
         }
     }

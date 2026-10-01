@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="<!-- SITE_LANGUAGE -->">
+<html class="freecat-shell-active" lang="<!-- SITE_LANGUAGE -->">
 
 <head>
     <!-- 安全网：外壳一旦被误嵌进 iframe（例如 iframe 内点了指向 / 的链接），
@@ -9,31 +9,7 @@
     <title><!-- SITE_TITLE --></title>
     <!-- SHELL_SEO_HEAD -->
     <!-- SHELL_JSONLD -->
-    <style>
-        /* 外壳：顶栏常驻，正文放进满视口 iframe（iframe 内部自己滚动）。
-           外壳自身不滚动，所以音频所在的这份文档永不被导航销毁 → 真正无缝。 */
-        html,
-        body {
-            height: 100%;
-            /* 滚动条由正文 iframe 提供，外壳不再重复预留一条空白。 */
-            scrollbar-gutter: auto;
-        }
 
-        body {
-            overflow: hidden;
-        }
-
-        #freecat-content-frame {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-            display: block;
-            background: transparent;
-            color-scheme: normal;
-        }
-    </style>
 </head>
 
 <body data-freecat-shell-root="true"

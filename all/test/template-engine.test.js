@@ -96,7 +96,7 @@ test('content templates keep their first render passive until playback', () => {
 
     for (const html of [indexHtml, postHtml]) {
         const { document } = require('linkedom').parseHTML(html);
-        const scripts = [...document.querySelectorAll('script')].filter(node => node.textContent.includes('document.write'));
+        const scripts = [...document.querySelectorAll('script')].filter(node => node.textContent.includes('legacy.startsWith'));
         assert.equal(scripts.length, 1);
         const listeners = [];
         const window = { location: new URL('https://example.com/') };
@@ -105,7 +105,7 @@ test('content templates keep their first render passive until playback', () => {
             addEventListener(type) { listeners.push(type); },
             write() { assert.fail('The first render must not replace the article'); }
         });
-        assert.deepEqual(listeners, ['click']);
+        assert.deepEqual(listeners, []);
     }
 });
 

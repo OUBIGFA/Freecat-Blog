@@ -151,8 +151,8 @@ function generateThemeScript(siteConfig) {
 }
 
 function generateShellBootstrapScript() {
-    // Keep the initial document identical for visitors and renderers. Only a real
-    // playback click opts into the persistent shell; no user-agent sniffing.
+    // Initial pages and playback keep their original DOM. This bootstrap only
+    // resolves old hash links; persistent navigation is initialized in main.js.
     return `(function () {
         if (window.self !== window.top || window.__FREECAT_SHELL_DOCUMENT__) return;
         // Keep old shared hash links working after removing the automatic shell upgrade.
@@ -165,45 +165,6 @@ function generateShellBootstrapScript() {
                 return;
             }
         }
-        var loading = false;
-        document.addEventListener("click", function (event) {
-            var toggle = event.target.closest && event.target.closest("#nav-audio-toggle");
-            if (!toggle || !event.isTrusted || event.button !== 0) return;
-            // Already playing in an independent page (autoplay): keep pause usable.
-            if (toggle.getAttribute("aria-pressed") === "true") return;
-            if (!window.FreecatShared) return;
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            if (loading) return;
-            loading = true;
-            var originalUrl = window.location.href;
-            fetch("/shell", { credentials: "same-origin", signal: AbortSignal.timeout(8000) })
-                .then(function (response) {
-                    if (!response.ok) throw new Error("HTTP " + response.status);
-                    return response.text();
-                })
-                .then(function (htmlText) {
-                    if (window.location.href !== originalUrl) return;
-                    var shell = new DOMParser().parseFromString(htmlText, "text/html");
-                    if (!shell.body || shell.body.getAttribute("data-freecat-shell-root") !== "true") {
-                        throw new Error("Invalid shell response");
-                    }
-                    window.FreecatShared.syncPageMetadata(shell, document);
-                    // Preserve the article reading position when enabling background music.
-                    if (window.FreecatRuntime) window.FreecatRuntime.saveScrollPosition();
-                    window.__FREECAT_START_NAV_AUDIO__ = true;
-                    window.__FREECAT_SHELL_INITIAL_SCROLL__ = window.scrollY || 0;
-                    document.open();
-                    document.write("<!DOCTYPE html>" + shell.documentElement.outerHTML);
-                    document.close();
-                })
-                .catch(function (error) {
-                    console.warn("Continuous audio unavailable; using the page player.", error);
-                    // A synthetic click reaches the existing page player without re-entering here.
-                    toggle.click();
-                })
-                .finally(function () { loading = false; });
-        }, true);
     })();`;
 }
 

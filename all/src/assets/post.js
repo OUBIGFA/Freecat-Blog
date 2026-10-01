@@ -855,7 +855,8 @@
 
     function findLatestUpdateTarget(text) {
         var needle = normalizeLatestUpdateText(text);
-        var article = document.querySelector('article');
+        // The article also contains the update panel; only search actual body content.
+        var article = document.getElementById('freecat-article-body');
         if (!needle || !article) return null;
 
         var fallbackNeedle = needle.length > 40 ? needle.slice(0, 40) : needle;

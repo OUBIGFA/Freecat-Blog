@@ -86,6 +86,9 @@
 
         function saveScrollPosition() {
             saveFrame = 0;
+            // A retained page can become the shell after its first navigation.
+            // From then on, only the frame owns the article's scroll position.
+            if (window.__FREECAT_SHELL_DOCUMENT__) return;
             if (savesFrozen || restoreInProgress) return;
             const positions = readPositions();
             positions[getPageKey()] = {
@@ -160,6 +163,7 @@
 
             function attemptRestore() {
                 restoreTimer = 0;
+                if (window.__FREECAT_SHELL_DOCUMENT__) return;
                 if (cancelled) return;
                 restoreInProgress = true;
                 window.scrollTo(targetX, clampTargetY());
@@ -196,6 +200,7 @@
             if (document.visibilityState === 'hidden') saveScrollPosition();
         });
         window.addEventListener('pageshow', (event) => {
+            if (window.__FREECAT_SHELL_DOCUMENT__) return;
             savesFrozen = false;
             if (isHistoryRestore(event) || hasShellRestoreRequest()) restoreScrollPosition();
         });
