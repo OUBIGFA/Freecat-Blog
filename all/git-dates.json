@@ -8,7 +8,7 @@
     "这是一篇空白内容的模板文章.md": "2026-06-18T22:37:41+08:00",
     "中国彩礼的算计.md": "2026-06-18T22:37:41+08:00",
     "ChatGPT image 2.0 视觉指南.md": "2026-09-29T11:09:02+08:00",
-    "Freecat Blog 免费博客构建指南.md": "2026-06-18T22:37:41+08:00",
+    "Freecat Blog 免费博客构建指南.md": "2026-10-01T10:50:20+08:00",
     "Markdown语法文档.md": "2026-06-18T22:37:41+08:00"
   },
   "published": {
@@ -449,116 +449,306 @@
     },
     "Freecat Blog 免费博客构建指南.md": {
       "items": [
-        "提示： 如遇构建相关问题，只需前往主仓库复制最新的 sync-upstream 或 update-git-dates.yml 工作流文件到你的仓库并手动运行一次。该工作流仅同步构建文件，不会覆盖你的自定义设置和 writing/ 写作文件夹。如需使用新增功能，请从主仓库 Control 文件夹 复制对应控制参数到你仓库的 Control/ 文件夹。",
-        "all/ 构建资源 部署平台从这里构建网站",
-        "所有内容存在本地，换平台不丢数据。 GitHub 管备份，同时通知部署平台更新。 部署平台只负责把仓库渲染成网站。",
-        "免费 稳定 配置清晰 静态网站托管成熟 绑自定义域名方便",
-        "上手快 界面清爽 和 GitHub 联动顺 个人博客完全够用",
-        "下载地址 Obsidian",
-        "Owner 选你自己的 GitHub 账户 Repository name 起一个名字，比如 my-freecat-blog Privacy 选 Private",
-        "Cloudflare Pages：按下表手动填写构建参数。 Vercel：只需要把 Root Directory 选成 all 文件夹，其余全部保持默认（详见方案二）。",
-        "免费域名申请指南 DNSHE 自动续期项目",
-        "在弹窗里勾选 all 文件夹，点 Continue",
-        "所有参数都写在文件顶部 --- 包起来的 Frontmatter 区块里 格式是 键: 值，冒号后留一个空格 留空字段保留 键: 即可，别删整行 01、02 这类是说明文字，构建时会忽略，别改名",
-        "theme_system theme_light theme_dark",
-        "about_hero_avatar About 页面的头像，留空则用首页头像",
-        "网盘直链获取工具 网盘分享链接转直链工具 小飞机云盘",
-        "会同步：all/、README.md、README.en.md 会保留：all/git-dates.json、all/build/font-subsets-manifest.json、all/src/assets/fonts/ 不会动：Control/、writing/、.github/、.gitignore",
-        "上游模板没变化时，工作流会跳过提交。 GitHub Actions 定时触发可能延迟几分钟，属正常现象。 改过 all/ 里的模板、样式或构建脚本的话，自动同步可能覆盖这些改动。新手通常别动 all/。",
-        "润色文章 生成标题 改写摘要 拆分长文结构 优化排版 想选题 做专题策划",
-        "临时草稿 测试日志 系统自动生成的文件 自己电脑上的私人配置",
-        "忽略某个文件夹：写 文件夹名/，例如 drafts/ 忽略某个具体文件：写完整文件名，例如 Thumbs.db 忽略某一类文件：用 表示任意名字，例如 .log",
-        "Root Directory / Base Directory 没填 all Output Directory / Publish Directory 错填成 all/dist",
-        "根目录：all 输出目录：dist"
+        "文章原稿存在你的电脑和 GitHub 仓库里，不被单个平台锁住，随时可以备份、迁移或重新发布。不需要服务器，不需要编程基础，日常只要记住三个文件夹。",
+        "你会得到：",
+        "文章支持标签、封面、摘要、置顶、隐藏；不写元数据也能直接发文 Markdown 渲染数学公式、图表、流程图、甘特图；文章可嵌音频、视频和外部网页 中英混排间距自动优化，超长代码块自动折叠 改网站名、头像、社交链接、主题，全程零代码 内置搜索优化：可生成 Sitemap、RSS、llms.txt，配有 Google、Bing 收录提交教程，设置见 Control/SEO搜索优化.md 无多余动效与视觉干扰，为可阅读性设计的极简阅读体验",
+        "部署平台选哪个",
+        "完全新手选 Cloudflare Pages（免费、稳定、配置清晰）；已经在用 Vercel 的直接选 Vercel。内容都在本地和 GitHub 上，以后想换随时换。",
+        "准备",
+        "GitHub 账户 必需 保存你的博客仓库",
+        "Cloudflare 账户 推荐 自动构建和发布网站",
+        "登录 GitHub，打开 https://github.com/new/import，按下表填写：",
+        "点 Begin import，等几十秒到几分钟，看到 Your new repository ... is ready 就成功了。点进新仓库，确认能看到 all/、Control/、writing/ 文件夹。 打开 GitHub Desktop，点 File → Clone repository，选刚导入的仓库，选一个好找的本地位置，点 Clone。",
+        "第二步：部署上线",
+        "方案一：Cloudflare Pages（推荐）",
+        "登录 Cloudflare Dashboard，点「创建应用程序」。",
+        "选「Pages」。",
+        "选「导入现有 Git 储存库」，选你自己的博客仓库。",
+        "项目名称随意起，关键参数按下表填：",
+        "点 Save and Deploy，等 1-3 分钟。打开默认网址（形如 xxx.pages.dev），能看到博客页面就成功了。",
+        "建议在项目设置里启用 Build cache（构建缓存）：依赖缓存命中后安装只需几秒；文章新增字符后，字体子集只需几秒到几十秒即可增量扩充，无需 Python 环境。",
+        "绑定域名：在 Cloudflare Pages 项目里绑定自定义域名，按平台提示改 DNS 解析。免费域名可参考免费域名申请指南和 DNSHE 自动续期项目。",
+        "常见坑：",
+        "根目录没填 all：项目实际在 all/ 里，不填的话平台从仓库根目录找 package.json，多半构建失败 输出目录填成 all/dist：根目录已经是 all，直接写 dist 随便选了框架预设：本项目不属于 Next.js、Nuxt、Astro 这类框架，预设选 None / 无 网站没更新：先看后台最新构建是否成功，再 Ctrl + F5 强刷，多半只是浏览器缓存",
+        "方案二：Vercel",
+        "登录 Vercel，点 Add New... → Project，连接 GitHub 并授权，选你自己的博客仓库。 在导入页面找到 Root Directory，点右侧 Edit。",
+        "在弹窗里勾选 all 文件夹，点 Continue。",
+        "其余设置全部保持默认，点 Deploy，等 1-3 分钟，打开 Vercel 给的默认网址。",
+        "最容易踩的坑：Root Directory 没选 all，或手动展开 Build and Output Settings 覆盖了构建设置——Vercel 读不到仓库自带的 all/vercel.json，部署出来全站 404。构建命令、输出目录、页面地址规则都由它自动接管，都不用填。",
+        "Vercel 会自动恢复构建缓存（含字体子集）：文章没新增字符时，后续部署跳过字体生成。别在项目设置里主动清空 Build Cache，除非想强制重新生成。",
+        "绑定域名：进项目设置里的 Domains，按提示改解析。",
+        "writing/ 里一个 .md 文件就是一篇文章。可以打开示例文章看格式、复制一篇当模板，不要的直接删掉。用 Obsidian 或 VS Code 打开仓库写都行。",
+        "一篇文章通常长这样：",
+        "参数写在文件顶部 --- 包起来的 Frontmatter 区块里，格式是 键: 值，冒号后留一个空格 留空的字段保留 键: 即可，别删整行 01、02 这类是说明文字，构建时会忽略，别改名",
+        "site网站属性.md 常改的几项：网站名称、网站描述、首页标题、头像、网站图标、默认主题、每页显示文章数量、底部版权文字。主题的三个字段 theme_system / theme_light / theme_dark 只能有一个为 true；三个都为 false 时自动回退跟随系统，别三个一起写 true。",
+        "social社交媒体.md 每个平台一般有三类字段：启用开关（github_enabled: true）、自定义图标（github_icon_url:，留空走默认图标）、主页链接（github_url: https://github.com）。用不到的平台，把对应的 enabled 改成 false。",
+        "about关于页面.md 的 about_hero_title、about_hero_subtitle、about_hero_avatar 分别是 About 页的标题、介绍、头像，留空则用首页对应内容。想让 About 和首页保持一致，三个都留空即可。",
+        "日常更新（5 步）",
+        "在 writing/ 写文章，或在 Control/ 改配置。 保存文件。 打开 GitHub Desktop，写一句提交说明，点 Commit to main。 点 Push origin。 等平台自动构建（一般 1-3 分钟），打开网站检查结果。",
+        "文章内音视频播放器",
+        "文章里写「文件直链」（不是普通网盘分享页），会自动生成播放器：",
+        "链接没有明显音视频后缀时，在标题里加 🎵 或 🎬 强制识别：",
+        "![🎵这是示例音频|129](https://xxx.xxx/example)",
+        "支持格式：",
+        "音频：.mp3、.m4a、.wav、.ogg、.aac、.flac、.opus 视频：.mp4、.webm、.mov、.m4v、.ogv、.m3u8",
+        "判断链接能不能用：粘到浏览器地址栏，能直接播放或下载就可以用；打开是网盘页、登录页、提取码页就不行，可先用网盘直链获取工具、分享链接转直链工具或小飞机云盘转换。直链可能失效，播放器突然不能播时，重新转换一次链接即可。",
+        "仓库自带工作流 .github/workflows/sync-upstream.yml，每周二北京时间凌晨 02:17 自动从主仓库 OUBIGFA/Freecat-Blog 同步模板文件，提交到你的仓库，部署平台收到新提交后自动重建。",
+        "你写的文章和网站配置不会被模板更新覆盖；改过 all/ 里的模板、样式或构建脚本则可能被覆盖，新手通常别动 all/。",
+        "想马上手动触发：仓库 → Actions → Sync upstream template files → Run workflow 确认。上游没变化时跳过提交；Actions 定时触发延迟几分钟属正常。",
+        "如遇构建相关问题，只需前往主仓库复制最新的 sync-upstream 或 update-git-dates.yml 工作流文件到你的仓库并手动运行一次。该工作流仅同步构建文件，不会覆盖你的自定义设置和 writing/ 写作文件夹。如需使用新增功能，请从主仓库 Control 文件夹 复制对应控制参数到你仓库的 Control/ 文件夹。",
+        "进阶",
+        "本地预览：只写文章和部署的话，不用本地构建，平台会自动处理。想在本机提前预览：装 Node.js 20+，在项目里运行 cd all → npm install → npm run preview，会先完整构建再打开 http://127.0.0.1:4173/。构建产物在 all/dist/，不用手动改，也不用提交到 GitHub。",
+        "先用好皮肤，再考虑改皮肤：先把部署跑通，能稳定写文章、形成更新节奏之后，再考虑改外观和功能。上线才有反馈，写了内容才知道缺什么。",
+        "搭配 AI：Markdown 是纯文本，适合让 AI 润色文章、生成标题、改写摘要、拆分长文结构、想选题。建议先自己写出内容，再让 AI 补强——这样文章更像你写的，没有模板味。智能体软件参考：用户体验拉满的智能体软件汇总。",
+        "必须会编程吗？ 不用，按这篇教程一步步来就够。",
+        "必须先买域名吗？ 不用，两个平台都先给默认网址，以后想换自己的域名再说。",
+        "最容易填错什么？ 根目录 / Root Directory 填 all，输出目录填 dist，别写成 all/dist。",
+        "本地改完了网站没变？ 依次检查：文件已保存 → GitHub Desktop 已提交并同步 → 部署平台已开始构建 → 浏览器 Ctrl + F5 强刷。",
+        "能从 Vercel 换到 Cloudflare Pages 吗？ 能，文章和配置都在本地和 GitHub 上，换平台重新导入仓库就行。",
+        ".gitignore 怎么用？ 一份「不要同步到 GitHub 的文件清单」：忽略文件夹写 drafts/，忽略具体文件写 Thumbs.db，忽略一类文件写 .log。只对没提交过的新文件生效，已提交的不会自动消失。",
+        "可以删除示例文章吗？ 可以，示例都在 writing/ 里，删掉后提交并同步即可。",
+        "可以直接改 all/ 吗？ 新手不建议，all/ 是模板工程目录，自动同步上游时这里的改动可能被覆盖。"
       ],
       "targets": [
         {
-          "text": "> **提示：** 如遇构建相关问题，只需前往主仓库复制最新的 [sync-upstream](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/sync-upstream.yml) 或 [update-git-dates.yml](https://github.com/OUBIGFA/FreeBlog_BIGFA/blob/main/.github/workflows/update-git-dates.yml) 工作流文件到你的仓库并手动运行一次。该工作流仅同步构建文件，不会覆盖你的自定义设置和 writing/ 写作文件夹。如需使用新增功能，请从主仓库 [Control 文件夹](https://github.com/OUBIGFA/Freecat-Blog/tree/main/Control) 复制对应控制参数到你仓库的 `Control/` 文件夹。",
+          "text": "文章原稿存在你的电脑和 GitHub 仓库里，不被单个平台锁住，随时可以备份、迁移或重新发布。不需要服务器，不需要编程基础，日常只要记住三个文件夹。",
+          "line": 32
+        },
+        {
+          "text": "你会得到：",
+          "line": 42
+        },
+        {
+          "text": "* 文章支持标签、封面、摘要、置顶、隐藏；不写元数据也能直接发文",
+          "line": 44
+        },
+        {
+          "text": "## 部署平台选哪个",
+          "line": 55
+        },
+        {
+          "text": "完全新手选 Cloudflare Pages（免费、稳定、配置清晰）；已经在用 Vercel 的直接选 Vercel。内容都在本地和 GitHub 上，以后想换随时换。",
+          "line": 53
+        },
+        {
+          "text": "## 准备",
           "line": 56
         },
         {
-          "text": "| `all/` | 构建资源 | 部署平台从这里构建网站 |",
-          "line": 64
+          "text": "| GitHub 账户 | 必需 | 保存你的博客仓库 |",
+          "line": 59
         },
         {
-          "text": "- 所有内容存在本地，换平台不丢数据。",
-          "line": 94
+          "text": "| Cloudflare 账户 | 推荐 | 自动构建和发布网站 |",
+          "line": 62
         },
         {
-          "text": "- 免费",
-          "line": 106
+          "text": "1. 登录 GitHub，打开 <https://github.com/new/import>，按下表填写：",
+          "line": 67
         },
         {
-          "text": "- 上手快",
-          "line": 116
+          "text": "2. 点 `Begin import`，等几十秒到几分钟，看到 `Your new repository ... is ready` 就成功了。点进新仓库，确认能看到 `all/`、`Control/`、`writing/` 文件夹。",
+          "line": 77
         },
         {
-          "text": "| 项目 | 是否必需 | 说明 |",
+          "text": "## 第二步：部署上线",
+          "line": 79
+        },
+        {
+          "text": "### 方案一：Cloudflare Pages（推荐）",
+          "line": 82
+        },
+        {
+          "text": "1. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)，点「创建应用程序」。",
+          "line": 83
+        },
+        {
+          "text": "2. 选「Pages」。",
+          "line": 87
+        },
+        {
+          "text": "3. 选「导入现有 Git 储存库」，选你自己的博客仓库。",
+          "line": 91
+        },
+        {
+          "text": "4. 项目名称随意起，关键参数按下表填：",
+          "line": 97
+        },
+        {
+          "text": "5. 点 `Save and Deploy`，等 1-3 分钟。打开默认网址（形如 `xxx.pages.dev`），能看到博客页面就成功了。",
+          "line": 109
+        },
+        {
+          "text": "> 建议在项目设置里启用 `Build cache（构建缓存）`：依赖缓存命中后安装只需几秒；文章新增字符后，字体子集只需几秒到几十秒即可增量扩充，无需 Python 环境。",
+          "line": 113
+        },
+        {
+          "text": "**绑定域名**：在 Cloudflare Pages 项目里绑定自定义域名，按平台提示改 DNS 解析。免费域名可参考[免费域名申请指南](https://blog.freeorg.dpdns.org/posts/2026053112195526)和 [DNSHE 自动续期项目](https://github.com/OUBIGFA/dnshe-auto-renew)。",
+          "line": 115
+        },
+        {
+          "text": "**常见坑**：",
+          "line": 117
+        },
+        {
+          "text": "* 根目录没填 `all`：项目实际在 `all/` 里，不填的话平台从仓库根目录找 `package.json`，多半构建失败",
+          "line": 119
+        },
+        {
+          "text": "### 方案二：Vercel",
+          "line": 124
+        },
+        {
+          "text": "1. 登录 [Vercel](https://vercel.com/)，点 `Add New...` → `Project`，连接 GitHub 并授权，选你自己的博客仓库。",
           "line": 127
         },
         {
-          "text": "| `Owner` | 选你自己的 GitHub 账户 |",
-          "line": 154
+          "text": "3. 在弹窗里勾选 `all` 文件夹，点 `Continue`。",
+          "line": 131
         },
         {
-          "text": "- **Cloudflare Pages**：按下表手动填写构建参数。",
-          "line": 181
+          "text": "4. 其余设置全部保持默认，点 `Deploy`，等 1-3 分钟，打开 Vercel 给的默认网址。",
+          "line": 135
         },
         {
-          "text": "- [免费域名申请指南](https://blog.freeorg.dpdns.org/posts/2026053112195526)",
-          "line": 258
+          "text": "> 最容易踩的坑：Root Directory 没选 `all`，或手动展开 `Build and Output Settings` 覆盖了构建设置——Vercel 读不到仓库自带的 `all/vercel.json`，部署出来全站 404。构建命令、输出目录、页面地址规则都由它自动接管，都不用填。",
+          "line": 137
         },
         {
-          "text": "1. 在弹窗里勾选 `all` 文件夹，点 `Continue`",
-          "line": 302
+          "text": "Vercel 会自动恢复构建缓存（含字体子集）：文章没新增字符时，后续部署跳过字体生成。别在项目设置里主动清空 Build Cache，除非想强制重新生成。",
+          "line": 139
         },
         {
-          "text": "- 所有参数都写在文件顶部 `---` 包起来的 Frontmatter 区块里",
-          "line": 376
+          "text": "**绑定域名**：进项目设置里的 `Domains`，按提示改解析。",
+          "line": 142
         },
         {
-          "text": "- `theme_system`",
-          "line": 387
+          "text": "`writing/` 里一个 `.md` 文件就是一篇文章。可以打开示例文章看格式、复制一篇当模板，不要的直接删掉。用 Obsidian 或 VS Code 打开仓库写都行。",
+          "line": 145
         },
         {
-          "text": "| `about_hero_avatar` | About 页面的头像，留空则用首页头像 |",
-          "line": 413
+          "text": "一篇文章通常长这样：",
+          "line": 147
         },
         {
-          "text": "- [网盘直链获取工具](https://link.gimhoy.com/)",
-          "line": 485
+          "text": "* 参数写在文件顶部 `---` 包起来的 Frontmatter 区块里，格式是 `键: 值`，冒号后留一个空格",
+          "line": 193
         },
         {
-          "text": "- 会同步：`all/`、`README.md`、`README.en.md`",
-          "line": 526
+          "text": "`site_网站属性.md` 常改的几项：网站名称、网站描述、首页标题、头像、网站图标、默认主题、每页显示文章数量、底部版权文字。主题的三个字段 `theme_system` / `theme_light` / `theme_dark` 只能有一个为 `true`；三个都为 `false` 时自动回退跟随系统，别三个一起写 `true`。",
+          "line": 197
         },
         {
-          "text": "- 上游模板没变化时，工作流会跳过提交。",
-          "line": 542
+          "text": "`social_社交媒体.md` 每个平台一般有三类字段：启用开关（`github_enabled: true`）、自定义图标（`github_icon_url:`，留空走默认图标）、主页链接（`github_url: https://github.com`）。用不到的平台，把对应的 `*_enabled` 改成 `false`。",
+          "line": 201
         },
         {
-          "text": "- 润色文章",
-          "line": 594
+          "text": "`about_关于页面.md` 的 `about_hero_title`、`about_hero_subtitle`、`about_hero_avatar` 分别是 About 页的标题、介绍、头像，留空则用首页对应内容。想让 About 和首页保持一致，三个都留空即可。",
+          "line": 201
         },
         {
-          "text": "- 临时草稿",
-          "line": 626
+          "text": "## 日常更新（5 步）",
+          "line": 203
         },
         {
-          "text": "- 忽略某个文件夹：写 `文件夹名/`，例如 `drafts/`",
-          "line": 649
+          "text": "1. 在 `writing/` 写文章，或在 `Control/` 改配置。",
+          "line": 205
         },
         {
-          "text": "- Root Directory / Base Directory 没填 `all`",
-          "line": 675
+          "text": "## 文章内音视频播放器",
+          "line": 211
         },
         {
-          "text": "- 根目录：`all`",
-          "line": 680
+          "text": "文章里写「文件直链」（不是普通网盘分享页），会自动生成播放器：",
+          "line": 213
+        },
+        {
+          "text": "链接没有明显音视频后缀时，在标题里加 🎵 或 🎬 强制识别：",
+          "line": 220
+        },
+        {
+          "text": "![🎵这是示例音频|129](https://xxx.xxx/example)",
+          "line": 223
+        },
+        {
+          "text": "支持格式：",
+          "line": 227
+        },
+        {
+          "text": "* 音频：`.mp3`、`.m4a`、`.wav`、`.ogg`、`.aac`、`.flac`、`.opus`",
+          "line": 229
+        },
+        {
+          "text": "判断链接能不能用：粘到浏览器地址栏，能直接播放或下载就可以用；打开是网盘页、登录页、提取码页就不行，可先用[网盘直链获取工具](https://link.gimhoy.com/)、[分享链接转直链工具](https://lz.qaiu.top/)或[小飞机云盘](https://www.feijipan.com)转换。直链可能失效，播放器突然不能播时，重新转换一次链接即可。",
+          "line": 233
+        },
+        {
+          "text": "仓库自带工作流 `.github/workflows/sync-upstream.yml`，每周二北京时间凌晨 02:17 自动从主仓库 [OUBIGFA/Freecat-Blog](https://github.com/OUBIGFA/Freecat-Blog) 同步模板文件，提交到你的仓库，部署平台收到新提交后自动重建。",
+          "line": 239
+        },
+        {
+          "text": "你写的文章和网站配置不会被模板更新覆盖；改过 `all/` 里的模板、样式或构建脚本则可能被覆盖，新手通常别动 `all/`。",
+          "line": 244
+        },
+        {
+          "text": "想马上手动触发：仓库 → `Actions` → `Sync upstream template files` → `Run workflow` 确认。上游没变化时跳过提交；Actions 定时触发延迟几分钟属正常。",
+          "line": 246
+        },
+        {
+          "text": "> 如遇构建相关问题，只需前往主仓库复制最新的 [sync-upstream](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/sync-upstream.yml) 或 [update-git-dates.yml](https://github.com/OUBIGFA/FreeBlog_BIGFA/blob/main/.github/workflows/update-git-dates.yml) 工作流文件到你的仓库并手动运行一次。该工作流仅同步构建文件，不会覆盖你的自定义设置和 writing/ 写作文件夹。如需使用新增功能，请从主仓库 [Control 文件夹](https://github.com/OUBIGFA/Freecat-Blog/tree/main/Control) 复制对应控制参数到你仓库的 `Control/` 文件夹。",
+          "line": 248
+        },
+        {
+          "text": "## 进阶",
+          "line": 250
+        },
+        {
+          "text": "**本地预览**：只写文章和部署的话，不用本地构建，平台会自动处理。想在本机提前预览：装 [Node.js 20+](https://nodejs.org/)，在项目里运行 `cd all` → `npm install` → `npm run preview`，会先完整构建再打开 `http://127.0.0.1:4173/`。构建产物在 `all/dist/`，不用手动改，也不用提交到 GitHub。",
+          "line": 252
+        },
+        {
+          "text": "**先用好皮肤，再考虑改皮肤**：先把部署跑通，能稳定写文章、形成更新节奏之后，再考虑改外观和功能。上线才有反馈，写了内容才知道缺什么。",
+          "line": 254
+        },
+        {
+          "text": "**搭配 AI**：Markdown 是纯文本，适合让 AI 润色文章、生成标题、改写摘要、拆分长文结构、想选题。建议先自己写出内容，再让 AI 补强——这样文章更像你写的，没有模板味。智能体软件参考：[用户体验拉满的智能体软件汇总](https://blog.freeorg.dpdns.org/posts/2026053112195550)。",
+          "line": 257
+        },
+        {
+          "text": "**必须会编程吗？** 不用，按这篇教程一步步来就够。",
+          "line": 260
+        },
+        {
+          "text": "**必须先买域名吗？** 不用，两个平台都先给默认网址，以后想换自己的域名再说。",
+          "line": 262
+        },
+        {
+          "text": "**最容易填错什么？** 根目录 / Root Directory 填 `all`，输出目录填 `dist`，别写成 `all/dist`。",
+          "line": 264
+        },
+        {
+          "text": "**本地改完了网站没变？** 依次检查：文件已保存 → GitHub Desktop 已提交并同步 → 部署平台已开始构建 → 浏览器 `Ctrl + F5` 强刷。",
+          "line": 266
+        },
+        {
+          "text": "**能从 Vercel 换到 Cloudflare Pages 吗？** 能，文章和配置都在本地和 GitHub 上，换平台重新导入仓库就行。",
+          "line": 268
+        },
+        {
+          "text": "**`.gitignore` 怎么用？** 一份「不要同步到 GitHub 的文件清单」：忽略文件夹写 `drafts/`，忽略具体文件写 `Thumbs.db`，忽略一类文件写 `*.log`。只对没提交过的新文件生效，已提交的不会自动消失。",
+          "line": 270
+        },
+        {
+          "text": "**可以删除示例文章吗？** 可以，示例都在 `writing/` 里，删掉后提交并同步即可。",
+          "line": 272
+        },
+        {
+          "text": "**可以直接改 `all/` 吗？** 新手不建议，`all/` 是模板工程目录，自动同步上游时这里的改动可能被覆盖。",
+          "line": 274
         }
       ],
       "source": "commit",
-      "commit": "a6fb57a324e3"
+      "commit": "dcbb9dc81bc7"
     },
     "Markdown语法文档.md": {
       "items": [
