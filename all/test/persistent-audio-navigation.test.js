@@ -39,16 +39,57 @@ function harness() {
     document.querySelector('header').getBoundingClientRect = () => ({ height: 73 });
     navAudio.init({ window, document, platform, navAudioToggle: document.getElementById('nav-audio-toggle'), navAudio: audio, isShell: true, contentFrame: frame, closeTagMenu() {}, closeHeaderSearch() {} });
     router.initShellRouter({ window, document, platform, runtime, shared, contentFrame: frame, initialContent: true, resolveThemeIsDark: () => false, syncFrameTheme() {} });
-    function complete(route, noindex = false) {
+    function prepare(route, noindex = false) {
         const { document: child } = parseHTML('<html lang="zh-CN"><head><title>' + route + '</title><link rel="canonical" href="https://example.com' + route + '"/><meta name="robots" content="' + (noindex ? 'noindex,follow' : 'index,follow') + '"/></head><body><article><h1>Next</h1></article></body></html>');
         child.documentElement.getBoundingClientRect = () => ({ width: 1265 });
         frame.contentDocument = child;
         frame.contentWindow = { innerWidth: 1280, location: new URL('https://example.com' + route), scrollTo() {} };
         frame.contentWindow.location.replace = url => calls.frames.push(url);
+        return child;
+    }
+    function complete(route, noindex = false) {
+        prepare(route, noindex);
         frame.dispatchEvent(new document.defaultView.Event('load'));
     }
-    return { document, original, audio, window, frame, calls, runtime, complete, events, storage };
+    return { document, original, audio, window, frame, calls, runtime, complete, prepare, events, storage };
 }
+
+test('the first page commits when its DOM is ready without waiting for media load', () => {
+    const h = harness();
+    h.runtime.navigate('/posts/two/');
+    const child = h.prepare('/posts/two/');
+    h.runtime.sync({ readyDocument: child });
+    assert.equal(h.window.location.pathname, '/posts/two/');
+    assert.equal(h.frame.style.visibility, '');
+    assert.equal(h.document.getElementById('nav-audio') === h.audio, true);
+});
+
+test('repeated first clicks do not restart a pending frame navigation', () => {
+    const h = harness();
+    h.runtime.navigate('/posts/two/');
+    h.prepare('/posts/two/');
+    h.runtime.navigate('/posts/two/');
+    h.runtime.navigate('/posts/two/');
+    assert.deepEqual(h.calls.frames, []);
+});
+
+test('outdated ready notifications and late load events cannot replace the latest destination', () => {
+    const h = harness();
+    h.runtime.navigate('/posts/two/');
+    const oldDocument = h.prepare('/posts/two/');
+    h.runtime.navigate('/posts/three/');
+    h.runtime.sync({ readyDocument: oldDocument });
+    assert.equal(h.original.isConnected, true);
+    const nextDocument = h.prepare('/posts/three/');
+    h.runtime.sync({ readyDocument: oldDocument });
+    assert.equal(h.original.isConnected, true);
+    h.runtime.sync({ readyDocument: nextDocument });
+    assert.equal(h.window.location.pathname, '/posts/three/');
+    h.runtime.navigate('/posts/four/');
+    h.frame.dispatchEvent(new h.document.defaultView.Event('load'));
+    assert.equal(h.window.location.pathname, '/posts/four/');
+    assert.equal(h.calls.history.filter(entry => entry.method === 'pushState').length, 2);
+});
 
 test('first play and pause keep the article, reading position, player and metadata intact', () => {
     const h = harness();

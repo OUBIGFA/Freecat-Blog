@@ -70,6 +70,7 @@
         if (!frame) return;
         let showingInitialContent = initialContent;
         let initialNavigation = null;
+        let requestedContentPath = '';
         const syncStandalone = initialContent ? initStandaloneHistory({
             window, runtime,
             isActive: () => showingInitialContent,
@@ -187,6 +188,7 @@
 
         function setFrameLocation(path) {
             const target = publicPathToContentPath(path);
+            requestedContentPath = target;
             freezeFrameScrollSaves();
             try {
                 frame.contentWindow.location.replace(target);
@@ -263,6 +265,7 @@
             const contentPath = publicPathToContentPath(targetHref);
             const publicPath = contentPathToPublicPath(contentPath);
             if (showingInitialContent) {
+                if (initialNavigation && initialNavigation.contentPath === contentPath && initialNavigation.sourcePath === getPublicLocation()) return;
                 // The current article and address stay in place until the new page
                 // has loaded. The original header and audio node are never replaced.
                 initialNavigation = { contentPath, publicPath, options, sourcePath: getPublicLocation() };
@@ -323,12 +326,16 @@
             rs.setProperty('--freecat-page-top-offset', `${h + gap}px`);
         }
 
-        function onFrameLoad() {
-            if (!getFramePath()) return;
+        function onFrameReady() {
+            const framePath = getFramePath();
+            if (!framePath || frame.contentDocument.readyState === 'loading') return;
+            // A late load event from the page being left must not undo a newer click.
+            if (requestedContentPath && publicPathToContentPath(framePath) !== requestedContentPath) return;
             if (showingInitialContent) {
                 if (!initialNavigation || publicPathToContentPath(getFramePath()) !== initialNavigation.contentPath) return;
                 if (getPublicLocation() !== initialNavigation.sourcePath) {
                     initialNavigation = null;
+                    requestedContentPath = '';
                     frame.remove();
                     return;
                 }
@@ -364,6 +371,7 @@
                 window.scrollTo(0, 0);
                 frame.style.visibility = '';
             }
+            requestedContentPath = '';
             try {
                 const t = frame.contentDocument && frame.contentDocument.title;
                 if (t) document.title = t;
@@ -388,7 +396,7 @@
             navigateShell(url.pathname + url.search + url.hash);
         }
 
-        frame.addEventListener('load', onFrameLoad);
+        frame.addEventListener('load', onFrameReady);
         ensureShellHistoryState();
         window.addEventListener('popstate', () => {
             if (showingInitialContent) return;
@@ -408,11 +416,17 @@
             navigateShell(targetHref, options);
         });
         runtime.setSyncFrameHistory(function (options = {}) {
+            // Child main.js announces interactive content before images/media finish.
+            // Use document identity as well as the requested URL to reject stale pages.
+            if (options.readyDocument) {
+                if (options.readyDocument === frame.contentDocument) onFrameReady();
+                return;
+            }
             syncHistoryToFrame(options);
         });
 
         try {
-            if (frame.contentDocument && frame.contentDocument.readyState === 'complete') onFrameLoad();
+            if (frame.contentDocument && frame.contentDocument.readyState === 'complete') onFrameReady();
             else {
                 syncFrameToLocation();
                 syncFrameOffset();

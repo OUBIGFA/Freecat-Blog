@@ -59,6 +59,16 @@ document.addEventListener('DOMContentLoaded', () => {
     //              这里要跳过音频初始化与自身上边距测量（上边距由外壳喂入）。
     //   IS_SHELL —— 当前是常驻外壳文档（顶层且含内容 iframe），由它承载顶栏音频并驱动 iframe 路由。
     const FRAMED = window.self !== window.top;
+    if (FRAMED) {
+        // Only the retained parent player plays music. Cancel the hidden copy's
+        // automatic preload so a slow music host cannot hold up article loading.
+        const framedAudio = document.getElementById('nav-audio');
+        if (framedAudio) {
+            framedAudio.preload = 'none';
+            framedAudio.removeAttribute('src');
+            framedAudio.load();
+        }
+    }
     const existingFrame = document.getElementById('freecat-content-frame');
     const IS_SHELL = !FRAMED && !!existingFrame;
     const contentFrame = existingFrame || (!FRAMED ? shellRouter.createContentFrame(document) : null);
@@ -307,4 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
             applyTheme({ animate: true });
         }
     });
+
+    // Navigation needs usable content, not the load event of every image or embed.
+    if (FRAMED) syncParentFrameHistory({ readyDocument: document });
 });
