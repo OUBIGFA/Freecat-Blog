@@ -20,154 +20,174 @@
   </p>
 </div>
 
-## What Is Freecat Blog
+## What is Freecat Blog?
 
-A personal blog template that turns local Markdown articles into a website automatically — no server to buy, no backend to maintain, no code to write. Your original articles stay on your computer and in your GitHub repository, ready to back up, migrate, or switch platforms anytime.
+Freecat Blog builds a static website from Markdown articles. Edit the files locally, then push your commits to GitHub. Cloudflare Pages or Vercel builds and publishes the website. Daily writing does not require code changes or server maintenance.
+
+Your source files stay on your computer. After you push a commit, GitHub also stores that version.
 
 ```text
-Your computer: write in writing/ and edit site settings in Control/
-        ↓
-GitHub Desktop syncs changes to GitHub (automatic backup)
-        ↓
-Cloudflare Pages / Vercel builds automatically
-        ↓
-Your blog website updates automatically
+Local computer: write in writing/ and edit site settings in Control/
+        ↓ Save, commit, and push
+GitHub: store the pushed version
+        ↓ The deployment platform detects a new commit
+Cloudflare Pages / Vercel: build and publish
+        ↓ Deployment succeeds
+Website: show the new content
 ```
 
-![01](all/image/Tutorial/00a.png)
+![Example blog home page](all/image/Tutorial/00a.png)
 
-![02](all/image/Tutorial/00b.png)
+![Example blog page 2](all/image/Tutorial/00b.png)
 
-![03](all/image/Tutorial/00c.png)
+![Example blog page 3](all/image/Tutorial/00c.png)
 
-![04](all/image/Tutorial/00d.png)
+![Example blog page 4](all/image/Tutorial/00d.png)
 
-What you get:
+Main features:
 
-- Auto-generated home page, article pages, archive, search page, and About page
-- Articles support tags, covers, summaries, pinning, and show/hide; publish with no metadata at all
-- Markdown renders math formulas, diagrams, flowcharts, and Gantt charts; embed audio, video, and external pages in articles
-- Automatic spacing for mixed Chinese/English text; long code blocks auto-collapse
-- Built-in SEO and AI discovery support: Sitemap, RSS, and llms.txt — see `Control/SEO_搜索优化.md`
-- Site name, avatar, social links, and theme customization without writing a single line of code
-- No unnecessary animations or visual noise — a minimal reading experience built for readability
+- Generate the home page, article pages, archive, search page, and About page.
+- Set article tags, cover images, summaries, pinned status, and visibility.
+- Render math formulas, charts, flowcharts, and Gantt charts.
+- Embed audio, video, and external pages that permit embedding.
+- Adjust spacing between Chinese and English text, and collapse long code blocks.
+- Generate a Sitemap (page list), RSS (subscription feed), and llms.txt (site information for AI tools). See `Control/SEO_搜索优化.md` for settings.
+- Set the site name, avatar, social links, and theme in configuration files.
 
-## The Three Folders You Need to Know
+## Folder purposes
 
-| Folder | Edit often? | Purpose |
+| Folder | Purpose | When to edit |
 | --- | --- | --- |
-| `writing/` | Yes | Blog articles. One Markdown file is one article |
-| `Control/` | Yes | Site name, avatar, home intro, social links |
-| `all/` | No | Build project directory; deployment platforms build from here — leave it alone |
+| `writing/` | Article source files | To add or change articles |
+| `Control/` | Site configuration | To change site information |
+| `all/` | Templates, assets, and build scripts | To change template features; not required for daily writing |
 
-**Write articles in** `writing/`, edit site information in `Control/`, and set the deployment root directory to `all`.
+Set the deployment root directory to `all`. A detailed [Freecat Blog setup guide](<writing/Freecat Blog 免费博客构建指南.md>) is also available in Chinese.
 
-## Deployment
+## Prepare for deployment
 
-Two things only: copy the template into your own GitHub repository → connect it to a deployment platform. Free, about 10 minutes.
+This guide uses GitHub Desktop to commit and push files. A push uploads local commits to GitHub. If you know Git, you can use another Git tool.
 
-### Preparation
-
-| Tool / Account | Required? | Purpose | Link |
+| Tool or account | When needed | Purpose | Link |
 | --- | --- | --- | --- |
-| GitHub account | Required | Stores your blog repository | <https://github.com/signup> |
-| GitHub Desktop | Required | Syncs local changes to GitHub | <https://desktop.github.com/download> |
-| Markdown editor | Required | Writes articles and edits settings; Obsidian is recommended | <https://obsidian.md/> |
-| Cloudflare account | Recommended | Free blog deployment | <https://dash.cloudflare.com/sign-up> |
-| Vercel account | Optional | Another free deployment option | <https://vercel.com/signup> |
+| GitHub account | Required | Store the blog repository | <https://github.com/signup> |
+| GitHub Desktop | To follow this guide | Commit and push local files | <https://desktop.github.com/download> |
+| Markdown editor | Required | Edit articles and settings; use Obsidian or VS Code | <https://obsidian.md/> |
+| Cloudflare account | If you choose Cloudflare Pages | Build and publish the website | <https://dash.cloudflare.com/sign-up> |
+| Vercel account | If you choose Vercel | Build and publish the website | <https://vercel.com/signup> |
 
-Choose either Cloudflare Pages or Vercel. Complete beginners should start with Cloudflare Pages.
+Choose one deployment platform. Cloudflare Pages is recommended for a first deployment. If you already use Vercel, you can continue with Vercel. Free plans are subject to each platform's limits and terms.
 
-### Step 1: Create Your Own GitHub Repository
+## Step 1: Create the blog repository
 
-1. Sign in to GitHub and open <https://github.com/new/import>. Fill in the form:
+1. Sign in to GitHub.
+2. Open [Import a repository](https://github.com/new/import).
+3. Complete the form as shown below.
 
-| Field | Value |
-| --- | --- |
-| `Your old repository's clone URL` | `https://github.com/OUBIGFA/Freecat-Blog` |
-| `Owner` | Your GitHub account |
-| `Repository name` | Choose a name, such as `my-freecat-blog` |
-| `Privacy` | Use `Private` |
+   | Field | Value |
+   | --- | --- |
+   | `Your old repository's clone URL` | `https://github.com/OUBIGFA/Freecat-Blog` |
+   | `Owner` | Your GitHub account |
+   | `Repository name` | A name you choose, such as `my-freecat-blog` |
+   | `Privacy` | `Private` |
 
-2. Click `Begin import` and wait a few seconds to a few minutes. When you see `Your new repository ... is ready`, it succeeded. Open the new repository and confirm you can see the `all/`, `Control/`, and `writing/` folders.
-3. Open GitHub Desktop, click `File` -> `Clone repository`, select the imported repository, pick an easy-to-find local location, and click `Clone`.
+4. Click `Begin import`.
+5. Wait for `Your new repository ... is ready`.
+6. Open the new repository.
+7. Make sure it contains `all/`, `Control/`, and `writing/`.
 
-![GitHub Desktop clone](all/image/Tutorial/10.png)
+Then download a local copy of the repository:
 
-### Step 2: Deploy to Cloudflare Pages (Recommended)
+1. Open GitHub Desktop.
+2. Select `File` → `Clone repository`.
+3. Select the repository you imported.
+4. Select a local folder for the repository.
+5. Click `Clone`.
 
-1. Sign in to the [Cloudflare Dashboard](https://dash.cloudflare.com/) and create an application.
+![Clone the repository in GitHub Desktop](all/image/Tutorial/10.png)
 
-![Cloudflare step 1](all/image/Tutorial/01.png)
+## Step 2: Deploy the website
 
-2. Select Pages.
+### Cloudflare Pages (recommended)
 
-![Cloudflare step 2](all/image/Tutorial/02.png)
+Platform labels can change. Use the screenshots to locate the controls. Use the table for the build settings.
 
-3. Choose "Import an existing Git repository".
+1. Sign in to the [Cloudflare Dashboard](https://dash.cloudflare.com/).
+2. Click the control to create an application.
 
-![Cloudflare step 3](all/image/Tutorial/03.png)
+   ![Create a Cloudflare application](all/image/Tutorial/01.png)
 
-4. Select your own blog repository.
+3. Select `Pages`.
 
-![Cloudflare step 4](all/image/Tutorial/04.png)
+   ![Select Pages](all/image/Tutorial/02.png)
 
-5. The project name is up to you; the key settings are in the table below:
+4. Select the option to import an existing Git repository.
 
-| Cloudflare Chinese UI | Cloudflare English UI | Value |
-| --- | --- | --- |
-| 框架预设 | Framework preset | `None` / leave unset |
-| 根目录（高级） | Root directory (advanced) > Path | `all` |
-| 构建命令 | Build command | `npm run build` |
-| 构建输出目录 | Build output directory | `dist` |
-| 环境变量（建议填写） | Environment variables | `NODE_VERSION` = `20` |
+   ![Import a Git repository](all/image/Tutorial/03.png)
 
-![Cloudflare step 5](all/image/Tutorial/05.png)
+5. If GitHub is not connected, follow the prompts to let Cloudflare access your blog repository.
+6. Select your blog repository.
 
-6. Click `Save and Deploy` and wait 1-3 minutes.
+   ![Select the blog repository](all/image/Tutorial/04.png)
 
-> Enable `Build cache` in the project settings: installs finish in seconds once the dependency cache warms up, and expanding the font subsets after articles add new characters only takes seconds — no Python environment required.
+7. Enter a project name.
+8. Set the build parameters as shown below.
 
-7. When the build finishes, open the default URL from Cloudflare (something like `xxx.pages.dev`) and verify.
+   | Chinese UI | English UI | Value |
+   | --- | --- | --- |
+   | 框架预设 | Framework preset | `None` |
+   | 根目录（高级） | Root directory (advanced) > Path | `all` |
+   | 构建命令 | Build command | `npm run build` |
+   | 构建输出目录 | Build output directory | `dist` |
+   | 环境变量（建议填写） | Environment variables | `NODE_VERSION` = `20` (recommended) |
 
-![Cloudflare step 6](all/image/Tutorial/06.png)
+   ![Cloudflare Pages build settings](all/image/Tutorial/05.png)
 
-**Common mistakes**:
+9. Click `Save and Deploy`.
+10. Wait for a successful deployment status.
+11. Open the URL from Cloudflare, such as `https://your-project.pages.dev`.
+12. Make sure the home page and one article open correctly.
 
-- Root directory left empty: the platform looks for `package.json` in the repository root, and the build usually fails
-- Output directory set to `all/dist`: the root directory is already `all` — just write `dist`
-- A random framework preset: this project is not Next.js, Nuxt, or Astro — leave the preset as `None`
-- Site not updating: check whether the latest build succeeded in the dashboard first, then force refresh with `Ctrl + F5` — it is usually just browser cache
+![Cloudflare Pages deployment result](all/image/Tutorial/06.png)
 
-To use your own domain, bind a custom domain in the Cloudflare Pages project. For free domains, see the [free domain guide](https://blog.freeorg.dpdns.org/posts/%E5%85%8D%E8%B4%B9%E5%9F%9F%E5%90%8D%E7%94%B3%E8%AF%B7%E6%8C%87%E5%8D%97.html) and the [DNSHE auto-renew project](https://github.com/OUBIGFA/dnshe-auto-renew).
+Build time depends on the files, cache, and platform queue. If deployment fails, read the build log for that deployment.
 
-### Alternative: Deploy to Vercel
+Enable `Build cache` in the project settings to reuse cached dependencies. Font generation does not require Python. Cloudflare Pages does not retain this project's custom font subset cache. Later builds may still need to generate fonts.
 
-If you already use Vercel, choose it directly. You only change one setting: the Root Directory.
+If you have a domain, add it in the Pages project's custom domain settings. Then configure DNS as instructed. DNS records point the domain to the website. Related resources: [free domain guide](https://blog.freeorg.dpdns.org/posts/2026053112195526) and [DNSHE auto-renew project](https://github.com/OUBIGFA/dnshe-auto-renew).
 
-1. Sign in to [Vercel](https://vercel.com/) and click `Add New...` -> `Project`.
-2. Connect GitHub and choose your blog repository.
-3. On the import page, find `Root Directory` and click `Edit` on the right.
+### Vercel
 
-![Vercel root directory edit](all/image/Tutorial/11.png)
+1. Sign in to [Vercel](https://vercel.com/).
+2. Select `Add New...` → `Project`.
+3. If GitHub is not connected, follow the prompts to let Vercel access your blog repository.
+4. Select your blog repository.
+5. Click `Edit` next to `Root Directory`.
 
-4. In the dialog, select the `all` folder and click `Continue`.
+   ![Edit the Vercel root directory](all/image/Tutorial/11.png)
 
-![Vercel root directory select all](all/image/Tutorial/12.png)
+6. Select the `all` folder in the dialog.
+7. Click `Continue`.
 
-5. Keep every other setting at its default and click `Deploy`.
+   ![Set the Vercel root directory to all](all/image/Tutorial/12.png)
 
-> The most common mistake: not selecting `all` as the Root Directory, or manually overriding the build settings in `Build and Output Settings`. Either one prevents Vercel from reading `all/vercel.json` in the repository, and every page of the deployed site returns 404. The build command, output directory, and URL rules are all handled by `all/vercel.json` automatically.
+8. Keep the default `Build and Output Settings`.
+9. Click `Deploy`.
+10. Wait for a successful deployment status.
+11. Open the default URL from Vercel.
+12. Make sure the home page and one article open correctly.
 
-Vercel restores its build cache automatically (including font subsets): when articles add no new characters, later deployments skip font generation. Do not clear the Build Cache in project settings unless you intentionally want to force regeneration.
+`all/vercel.json` specifies the build command, output directory, and page URL rules. Set the root directory to `all`. If the build fails or a page returns 404, check the root directory and build log first.
 
-To bind a custom domain, open project settings -> `Domains` and follow the DNS instructions.
+Vercel can reuse font subsets from its build cache. Font generation is skipped only when the cache is valid, covers the required characters, and matches the font configuration.
 
-## Write Articles: `writing/`
+If you have a domain, add it under `Domains` in the project settings. Then configure DNS as instructed.
 
-Each `.md` file is one article. The bundled sample articles can be opened to learn the format, copied as templates, or deleted. Opening the repository in Obsidian or VS Code and writing directly works too.
+## Step 3: Write articles
 
-A new article usually starts like this:
+Each `.md` file in `writing/` is one article. Open the repository in a Markdown editor. Create a file or copy a sample article as a template.
+
+The section between the two `---` lines is called Frontmatter. It sets article properties such as title and date. Put the article text below the second `---`. Frontmatter is optional; omitted properties use project defaults.
 
 ```md
 ---
@@ -186,125 +206,202 @@ copy_content: false
 Article content starts here.
 ```
 
-| Field | Purpose | Example |
+| Field | Purpose or value |
+| --- | --- |
+| `title` | Article title. If empty, use the filename |
+| `date` | Displayed publication date, such as `2026-01-01` |
+| `tag` | One tag per line, in the format shown above |
+| `cover` | Cover image URL. If empty, show no cover |
+| `show_image_captions` | `true` shows image captions; `false` hides them |
+| `description` | Article summary. If empty, extract a summary from the article |
+| `pinned` | `true` pins the article; `false` does not |
+| `show` | `true` publishes the article; `false` hides it from the website |
+| `copy_content` | `true` shows the copy-content button; `false` hides the button |
+
+`date` does not schedule publication. `copy_content` does not prevent readers from copying text through the browser.
+
+## Step 4: Set site information
+
+Edit the configuration files in `Control/`.
+
+| File | Settings |
+| --- | --- |
+| `site_网站属性.md` | Site title, site name, home introduction, avatar, theme |
+| `SEO_搜索优化.md` | Canonical domain, search summary, author information, AI crawler rules, llms.txt |
+| `social_社交媒体.md` | Social icons, profile links, contact methods, promotion links |
+| `about_关于页面.md` | About page title, introduction, and avatar |
+
+Use these rules when editing:
+
+- Edit parameters in the Frontmatter at the top of the file.
+- Put one space after the colon when a field has a value, for example `site_name: FreeCat`.
+- If a field permits an empty value, keep `key:`. Read the description next to the field for its requirements.
+- Keep the field names unchanged. Fields such as `_01` and `_02` contain descriptions; the build ignores them.
+
+Common settings:
+
+| Setting | Action | Result |
 | --- | --- | --- |
-| `title` | Article title; filename is used if empty | `My First Article` |
-| `date` | Publish date | `2026-01-01` |
-| `tag` | Article tags; multiple allowed | `- notes` |
-| `cover` | Cover image URL; empty means no cover | `https://...` |
-| `show_image_captions` | Show image captions | `true` / `false` |
-| `description` | Article summary; empty means auto excerpt | `A short intro` |
-| `pinned` | Pin to top | `true` / `false` |
-| `show` | Show on the website | `true` / `false` |
-| `copy_content` | Show the copy-content button on the article page | `true` / `false` |
+| Default theme | Set one of `theme_system`, `theme_light`, and `theme_dark` to `true`. Set the others to `false` | Select system, light, or dark mode. If all are `false`, use system mode |
+| Social link | Set the matching `*_enabled` to `true` and enter `*_url` | Show that platform's link, for example `github_enabled: true` with `github_url: https://github.com/your-account` |
+| Social icon | Enter an image URL in the matching `*_icon_url` | Use that icon. If empty, use the default icon |
+| Hide a social platform | Set the matching `*_enabled` to `false` | Hide that platform |
+| About page | Edit `about_hero_title`, `about_hero_subtitle`, and `about_hero_avatar` | Set the title, introduction, and avatar. An empty field uses the corresponding home page value |
 
-## Customize the Site: `Control/`
+## Publish daily updates
 
-| File | Purpose |
-| --- | --- |
-| `site_网站属性.md` | Site title, site name, home intro, avatar, theme |
-| `SEO_搜索优化.md` | Canonical domain, SEO summary, author info, AI crawlers, llms.txt |
-| `social_社交媒体.md` | Social icons, profile links, contact methods, promo links |
-| `about_关于页面.md` | About page title, intro, and avatar |
+After you edit articles or settings, use these steps to publish the changes. The default branch is `main`. If you renamed it, the commit button shows the new branch name.
 
-Four rules while editing:
+1. Save the changed files.
+2. Open GitHub Desktop.
+3. Select your blog repository.
+4. Check the file list for the changes you want to publish.
+5. Enter a commit message in `Summary`.
+6. Click `Commit to main`.
 
-- Keep one space after the colon, such as `site_name: FreeCat`
-- Leave unused fields empty, but do not delete the whole line
-- Lines starting with `_01`, `_02`, etc. are descriptions; do not rename them
-- Commit and push with GitHub Desktop after editing, otherwise the live site will not update
+   ![Commit local changes](all/image/Tutorial/08.png)
 
-What the three common files configure:
+7. Click `Push origin`.
 
-- `site_网站属性.md`: site name, description, home title, avatar, favicon, default theme, posts per page, footer copyright. For the theme, only one of `theme_system` / `theme_light` / `theme_dark` may be `true`; if all three are `false`, it falls back to following the system
-- `social_社交媒体.md`: each platform has three fields — an enable switch (`github_enabled: true`), a custom icon (`github_icon_url:`, empty means the default icon), and a profile link (`github_url: https://github.com`). Set `*_enabled` to `false` for platforms you do not use
-- `about_关于页面.md`: `about_hero_title`, `about_hero_subtitle`, and `about_hero_avatar` set the About page title, intro, and avatar; leaving them empty reuses the corresponding home page content
+   ![Push the commit to GitHub](all/image/Tutorial/09.png)
 
-## Daily Updates (5 Steps)
+8. Wait for the deployment platform to deploy the new commit successfully.
+9. Open the website to check the changed content.
 
-1. Add or edit articles in `writing/`.
-2. Edit site settings in `Control/` if needed.
-3. Save the files.
-4. Open GitHub Desktop, write a short commit message, and click `Commit to main`.
-5. Click `Push origin`.
+If the content did not change, follow the checks under "Common questions" below.
 
-![GitHub Desktop commit](all/image/Tutorial/08.png)
+## Audio and video players
 
-![GitHub Desktop push](all/image/Tutorial/09.png)
-
-The platform rebuilds automatically after syncing. Refresh the site after 1-3 minutes to see the new content.
-
-## Audio and Video Players
-
-Put a direct file link (not a cloud-drive sharing page) in an article and a player appears automatically:
+Put a direct media URL in Markdown image syntax. The build creates a player. A direct URL returns the media file, not a sharing page. Replace the example URLs with your file URLs.
 
 ```md
-![I Still Believe](https://xxxx.mp3)
-![Demo video](https://example.com/video.mp4)
+![Example audio](https://example.com/audio.mp3)
+![Example video](https://example.com/video.mp4)
 ```
 
-If the link has no obvious audio or video extension, add 🎵 or 🎬 in the title to force detection:
+If the URL has no media extension, add `🎵` for audio or `🎬` for video before the text in brackets.
 
 ```md
-![🎵I Still Believe](https://xxxx)
-![🎬Demo video](https://example.com/video)
+![🎵Example audio](https://example.com/audio)
+![🎬Example video](https://example.com/video)
 ```
 
-Supported formats:
+The build recognizes these extensions:
 
-- Audio: `.mp3`, `.m4a`, `.wav`, `.ogg`, `.aac`, `.flac`, `.opus`
-- Video: `.mp4`, `.webm`, `.mov`, `.m4v`, `.ogv`, `.m3u8`
+- Audio: `.mp3`, `.m4a`, `.wav`, `.ogg`, `.aac`, `.flac`, `.opus`.
+- Video: `.mp4`, `.webm`, `.mov`, `.m4v`, `.ogv`, `.m3u8`.
 
-To check whether a link works, paste it into the browser address bar. If the browser plays or downloads the file directly, it works. If it opens a cloud-drive page, login page, or extraction-code page, convert it first with the [cloud-drive direct link tool](https://link.gimhoy.com/), the [sharing-link-to-direct-link tool](https://lz.qaiu.top/), or [Feijipan cloud drive](https://www.feijipan.com). Direct links may expire — if a player stops working, convert the link again.
+A recognized extension does not guarantee playback. Playback also depends on the encoding, browser support, and media server access rules.
 
-## Template Update Sync
+To check a media URL:
 
-The repository includes a workflow, `.github/workflows/sync-upstream.yml`, that syncs template files from the main repository [OUBIGFA/Freecat-Blog](https://github.com/OUBIGFA/Freecat-Blog) every Tuesday at 02:17 Beijing time and commits them to your `main` branch. The deployment platform rebuilds automatically afterwards.
+1. Open the URL in a browser window where you are not signed in to the media website.
+2. Make sure it returns the media file, not a sharing, sign-in, or access-code page.
+3. Put the URL in the article.
+4. Test the player in the local preview or on the published website.
 
-**Before first use**: open the `Actions` tab in your own repository, enable workflows as GitHub prompts, and make sure the repository Actions permission allows write access — otherwise the sync cannot commit automatically.
+If you only have a sharing link, you can try the [direct link tool](https://link.gimhoy.com/), [sharing link converter](https://lz.qaiu.top/), or [Feijipan](https://www.feijipan.com). A usable direct URL depends on service support.
 
-| Scope | Content |
+If a player stops working, open the direct URL to check it. If the URL expired, get a new one. Replace the article URL, then commit and push. If the URL works but the player fails, check the encoding and server access rules.
+
+## Update the template
+
+GitHub Actions runs automated tasks in a repository. The `.github/workflows/sync-upstream.yml` workflow copies template files from [OUBIGFA/Freecat-Blog](https://github.com/OUBIGFA/Freecat-Blog).
+
+The default schedule is Tuesday at 02:17 Beijing time (UTC+8). Scheduled runs can be delayed; use the `Actions` records to check the actual run time. The workflow skips synchronization when it runs in the upstream repository itself.
+
+Before first use:
+
+1. Open `Actions` in your repository.
+2. If GitHub prompts you to enable workflows, enable them.
+3. Make sure repository or organization policies permit the workflow to write to the repository.
+
+The workflow uses the scope below. Preserved files are excluded from template replacement.
+
+| Scope | Files or folders |
 | --- | --- |
-| Synced | `all/`, `README.md`, `README.en.md` |
-| Preserved | `all/git-dates.json`, `all/build/font-subsets-manifest.json`, `all/src/assets/fonts/` |
-| Not touched | `Control/`, `writing/`, `.github/`, `.gitignore` |
+| Synchronized | `all/`, `README.md`, `README.en.md` |
+| Local versions preserved | `all/git-dates.json`, `all/build/font-subsets-manifest.json`, `all/src/assets/fonts/` |
+| Unchanged | `Control/`, `writing/`, `.github/`, `.gitignore` |
 
-Your own articles and site settings will not be overwritten; edits to templates, styles, or build scripts inside `all/` may be. Beginners should leave `all/` alone.
+If you changed templates, styles, scripts, or READMEs in the synchronized scope, save a copy of your changes first. Synchronization can overwrite them.
 
-To trigger a sync immediately: repository -> `Actions` -> `Sync upstream template files` -> `Run workflow`. The workflow skips the commit when upstream has not changed; scheduled runs may lag a few minutes, which is normal.
+To run synchronization manually:
 
-> If you run into build issues: go to the main repository, copy the latest [sync-upstream](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/sync-upstream.yml) or [update-git-dates.yml](https://github.com/OUBIGFA/FreeBlog_BIGFA/blob/main/.github/workflows/update-git-dates.yml) workflow file into your repo, and run it manually. It only syncs build files and will not overwrite your settings or articles. To use new features, copy the relevant settings from the main repository's [Control folder](https://github.com/OUBIGFA/Freecat-Blog/tree/main/Control) into your own `Control/`.
+1. Open `Actions` in your repository.
+2. Select `Sync upstream template files`.
+3. Click `Run workflow`.
+4. Select the `main` branch in the run form.
+5. Click `Run workflow` in that form.
+6. Wait for the run to succeed.
+7. If the run created a commit, make sure the deployment platform deployed it.
 
-## FAQ
+The first run can create a baseline commit. Later runs skip file updates if there are no template changes to copy.
 
-**Do I need to know how to code?** No. Day to day, you only write Markdown and edit config files.
+### Correct workflow problems
 
-**Cloudflare or Vercel?** Complete beginners should choose Cloudflare Pages. If you already use Vercel, Vercel is fine. Your content is on GitHub, so you can migrate anytime.
+Read the failed task's log before you decide to update a workflow. The two workflows have different purposes:
 
-**Do I have to buy a domain?** No. Both platforms provide a default URL first.
+| Workflow | Purpose |
+| --- | --- |
+| [sync-upstream.yml](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/sync-upstream.yml) | Synchronize template files in the scope above |
+| [update-git-dates.yml](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/update-git-dates.yml) | Update article snapshots, including dates, stable article IDs, and recent changes |
 
-**What is the easiest setting to get wrong?** Root Directory must be `all` and the output directory must be `dist`. Do not write `all/dist`.
+If the log identifies a missing workflow fix, copy the corresponding upstream file into the same file in your repository. Then commit and push. Workflow files are in `.github/workflows/`; template synchronization does not update them. After the update, run the corresponding workflow manually in `Actions` and check its result.
 
-**I changed files locally but the site did not update. What now?** Check in order: files are saved -> GitHub Desktop has pushed -> the platform started a new build -> force refresh the browser.
+If a new feature needs additional settings, read its parameters in the upstream [Control folder](https://github.com/OUBIGFA/Freecat-Blog/tree/main/Control). Add the required parameters to the corresponding local file. Keep your existing configuration values.
 
-**How do I use `.gitignore`?** It is a "do-not-upload list": add a line like `drafts/` and GitHub Desktop ignores it. It only affects new files that have not been committed yet.
+## Common questions
 
-**Can I delete the sample articles?** Yes. Delete them, then commit and push.
+| Question | Answer |
+| --- | --- |
+| Do I need coding knowledge? | Daily use requires Markdown and configuration edits. Template feature changes require relevant coding knowledge |
+| Must I buy a domain? | No. Cloudflare Pages and Vercel both provide a default URL |
+| Which build settings should I check? | Use root directory `all` and output directory `dist`. The output path is relative to the root directory; do not enter `all/dist` |
+| Can I change deployment platforms? | Yes. Import the same GitHub repository into the new platform. Follow this guide's configuration steps. For a custom domain, also update the domain connection and DNS |
+| Can I delete sample articles? | Yes. Delete their files from `writing/`, then commit and push |
+| Can I edit `all/`? | Yes, but template synchronization can overwrite your changes. Use `writing/` and `Control/` for daily content and site settings |
 
-**Can I edit `all/` directly?** Not recommended for beginners — `all/` is the template project directory, and automatic upstream sync may overwrite changes there.
+### Local files changed, but the website did not
 
-## Local Preview (Optional)
+Check the following items in order. Correct each failed item before you continue.
 
-If you only write articles, you do not need to build locally — the platform handles it. To preview on your computer: install [Node.js 20+](https://nodejs.org/), then run:
+1. Make sure the editor saved the files.
+2. Make sure GitHub Desktop committed and pushed the changes.
+3. Make sure the changed files appear in the GitHub repository.
+4. Make sure the deployment platform successfully deployed the commit that contains the changes.
+5. Press `Ctrl + F5` on the website page to force a refresh.
 
-```bash
-cd all
-npm install
-npm run preview
+If deployment failed, read the build log. A browser refresh cannot correct a failed build.
+
+### Use .gitignore
+
+`.gitignore` specifies untracked files that Git must ignore. Put one rule on each line, for example:
+
+```gitignore
+drafts/
+Thumbs.db
+*.log
 ```
 
-This runs a full build first, then starts the local preview at `http://127.0.0.1:4173/`. The output is in `all/dist/`. Do not edit it manually and do not commit it to GitHub.
+New ignore rules do not affect tracked files. They do not remove files from the repository or erase file history.
+
+## Local preview (optional)
+
+Use local preview to check content before publication. A local build is not required for platform deployment; the platform builds the website itself.
+
+1. Install [Node.js](https://nodejs.org/) (this project's deployment examples use Node.js 20).
+2. Open a terminal in the repository root.
+3. Run `cd all` to enter the build directory.
+4. Before first use, or after dependencies change, run `npm install`.
+5. Run `npm run preview`.
+6. Wait for `Preview ready: http://127.0.0.1:4173/` in the terminal.
+7. Open <http://127.0.0.1:4173/> in a browser.
+
+`npm run preview` runs a full build, then starts the preview server. It does not open a browser or watch for later file changes. After you edit files, press `Ctrl + C` in the preview terminal to stop the server. Then run `npm run preview` again.
+
+The build output is in `all/dist/`. Do not edit or commit that directory.
 
 ## License
 
-This project is released under the MIT License.
+This project uses the MIT License.

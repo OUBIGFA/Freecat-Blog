@@ -22,152 +22,172 @@
 
 ## Freecat Blog 是什么
 
-一个把本地 Markdown 文章自动发布成网站的个人博客模板：不买服务器、不维护后台、不写代码。文章原稿存在你的电脑和 GitHub 仓库里，随时可以备份、迁移、换平台。
+Freecat Blog 将 Markdown 文章构建为静态网站。你在本地编辑文章，将提交推送到 GitHub 后，由 Cloudflare Pages 或 Vercel 构建并发布。日常写作不需要编写代码或维护服务器。
+
+原稿保存在电脑中；推送后，GitHub 仓库也会保存对应版本。
 
 ```text
-本地电脑：在 writing/ 写文章，在 Control/ 改网站信息
-        ↓
-GitHub Desktop 同步到 GitHub（自动备份）
-        ↓
-Cloudflare Pages / Vercel 自动构建
-        ↓
-博客网站自动更新
+本地：在 writing/ 写文章，在 Control/ 设置网站信息
+        ↓ 保存、提交并推送
+GitHub：保存已推送的版本
+        ↓ 部署平台检测到新提交
+Cloudflare Pages / Vercel：构建并发布
+        ↓ 部署成功
+网站：显示新内容
 ```
 
-![01](all/image/Tutorial/00a.png)
+![博客首页示例](all/image/Tutorial/00a.png)
 
-![02](all/image/Tutorial/00b.png)
+![博客页面示例 2](all/image/Tutorial/00b.png)
 
-![03](all/image/Tutorial/00c.png)
+![博客页面示例 3](all/image/Tutorial/00c.png)
 
-![04](all/image/Tutorial/00d.png)
+![博客页面示例 4](all/image/Tutorial/00d.png)
 
-你会得到：
+主要功能：
 
-* 自动生成首页、文章页、归档页、搜索页、About 页
-* 文章支持标签、封面、摘要、置顶、显示/隐藏；不写元数据也能直接发文
-* Markdown 渲染数学公式、图表、流程图、甘特图；文章可嵌音频、视频和外部网页
-* 中英混排间距自动优化，超长代码块自动折叠
-* 内置 SEO 与 AI 检索支持，可生成 Sitemap、RSS、llms.txt，详见 `Control/SEO_搜索优化.md`
-* 改网站名、头像、社交链接、主题，全程零代码
-* 无多余动效与视觉干扰，为可阅读性设计的极简阅读体验
+- 生成首页、文章页、归档页、搜索页和 About 页面。
+- 设置文章标签、封面、摘要、置顶和显示状态。
+- 渲染数学公式、图表、流程图和甘特图。
+- 在文章中嵌入音频、视频和允许嵌入的外部网页。
+- 调整中英文混排间距，折叠超长代码块。
+- 生成 Sitemap（站点地图）、RSS（订阅源）和 llms.txt（供 AI 工具读取的站点说明）。相关设置见 `Control/SEO_搜索优化.md`。
+- 通过配置文件设置网站名称、头像、社交链接和主题。
 
-## 记住三个文件夹
+## 目录用途
 
-| 文件夹 | 是否经常改 | 作用 |
+| 目录 | 用途 | 何时修改 |
 | --- | --- | --- |
-| `writing/` | 要 | 放文章，一个 Markdown 文件就是一篇 |
-| `Control/` | 要 | 改网站名称、头像、首页介绍、社交链接 |
-| `all/` | 不要 | 构建工程目录，部署平台从这里构建，别动它 |
+| `writing/` | 文章原稿 | 新增或修改文章时 |
+| `Control/` | 网站配置 | 修改网站信息时 |
+| `all/` | 模板、资源和构建程序 | 修改模板功能时；日常写作不需要修改 |
 
-**写文章去 `writing/`，改网站信息去 `Control/`，部署根目录填 `all`。**
+部署平台的根目录填 `all`。完整教程也可在[《Freecat Blog 免费博客构建指南》](<writing/Freecat Blog 免费博客构建指南.md>)中查看。
 
-## 部署
+## 部署前准备
 
-全程两件事：把模板复制成自己的 GitHub 仓库 → 连接到部署平台。免费，约 10 分钟。
+本指南使用 GitHub Desktop 提交并推送文件。推送是把本地提交上传到 GitHub 的操作。熟悉 Git 的用户也可以使用其他 Git 工具。
 
-### 准备
-
-| 工具 / 账号 | 是否必需 | 用途 | 地址 |
+| 工具或账号 | 何时需要 | 用途 | 地址 |
 | --- | --- | --- | --- |
 | GitHub 账号 | 必需 | 保存博客仓库 | <https://github.com/signup> |
-| GitHub Desktop | 必需 | 把本地改动同步到 GitHub | <https://desktop.github.com/download> |
-| Markdown 编辑器 | 必需 | 写文章、改配置，推荐 Obsidian | <https://obsidian.md/zh> |
-| Cloudflare 账号 | 推荐 | 免费部署博客网站 | <https://dash.cloudflare.com/sign-up> |
-| Vercel 账号 | 可选 | 另一种免费部署方式 | <https://vercel.com/signup> |
+| GitHub Desktop | 按本指南操作时 | 提交并推送本地文件 | <https://desktop.github.com/download> |
+| Markdown 编辑器 | 必需 | 编辑文章和配置文件，可选 Obsidian 或 VS Code | <https://obsidian.md/zh> |
+| Cloudflare 账号 | 选择 Cloudflare Pages 时 | 构建并发布网站 | <https://dash.cloudflare.com/sign-up> |
+| Vercel 账号 | 选择 Vercel 时 | 构建并发布网站 | <https://vercel.com/signup> |
 
-Cloudflare Pages 和 Vercel 二选一，完全新手用 Cloudflare Pages。
+选择一个部署平台即可。首次部署建议使用 Cloudflare Pages；已有 Vercel 项目的用户可继续使用 Vercel。免费方案受平台的额度和使用条款限制。
 
-### 第 1 步：创建自己的 GitHub 仓库
+## 第 1 步：创建博客仓库
 
-1. 登录 GitHub，打开 <https://github.com/new/import>，按下表填写：
+1. 登录 GitHub。
+2. 打开 [Import a repository](https://github.com/new/import)。
+3. 按下表填写导入信息。
 
-| 字段 | 填写值 |
-| --- | --- |
-| `Your old repository's clone URL` | `https://github.com/OUBIGFA/Freecat-Blog` |
-| `Owner` | 你的 GitHub 账号 |
-| `Repository name` | 自己起一个，例如 `my-freecat-blog` |
-| `Privacy` | 选 `Private` |
+   | 字段 | 填写值 |
+   | --- | --- |
+   | `Your old repository's clone URL` | `https://github.com/OUBIGFA/Freecat-Blog` |
+   | `Owner` | 你的 GitHub 账号 |
+   | `Repository name` | 自定名称，例如 `my-freecat-blog` |
+   | `Privacy` | `Private` |
 
-2. 点 `Begin import`，等几十秒到几分钟，看到 `Your new repository ... is ready` 就成功了。点进新仓库，确认能看到 `all/`、`Control/`、`writing/` 文件夹。
-3. 打开 GitHub Desktop，点 `File` → `Clone repository`，选刚导入的仓库，选一个好找的本地位置，点 `Clone`。
+4. 点击 `Begin import`。
+5. 等待页面显示 `Your new repository ... is ready`。
+6. 打开新仓库。
+7. 确认仓库中有 `all/`、`Control/` 和 `writing/`。
 
-![GitHub Desktop clone](all/image/Tutorial/10.png)
+然后将仓库下载到电脑：
 
-### 第 2 步：部署到 Cloudflare Pages（推荐）
+1. 打开 GitHub Desktop。
+2. 选择 `File` → `Clone repository`。
+3. 选择刚导入的仓库。
+4. 选择保存仓库的本地文件夹。
+5. 点击 `Clone`。
 
-1. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)，点创建应用程序。
+![在 GitHub Desktop 中克隆仓库](all/image/Tutorial/10.png)
 
-![Cloudflare step 1](all/image/Tutorial/01.png)
+## 第 2 步：部署网站
 
-2. 选 Pages。
+### Cloudflare Pages（推荐）
 
-![Cloudflare step 2](all/image/Tutorial/02.png)
+平台界面的名称可能随版本变化。以下截图用于定位入口；构建参数以表格为准。
 
-3. 选「导入现有 Git 仓库」。
+1. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)。
+2. 点击「创建应用程序」。
 
-![Cloudflare step 3](all/image/Tutorial/03.png)
+   ![创建 Cloudflare 应用程序](all/image/Tutorial/01.png)
 
-4. 选你自己的博客仓库。
+3. 选择 `Pages`。
 
-![Cloudflare step 4](all/image/Tutorial/04.png)
+   ![选择 Pages](all/image/Tutorial/02.png)
 
-5. 项目名称随意起，关键参数按下表填：
+4. 选择「导入现有 Git 仓库」。
 
-| Cloudflare 中文界面 | English UI | 填写值 |
-| --- | --- | --- |
-| 框架预设 | Framework preset | `None` / 不选预设 |
-| 根目录（高级） | Root directory (advanced) > Path | `all` |
-| 构建命令 | Build command | `npm run build` |
-| 构建输出目录 | Build output directory | `dist` |
-| 环境变量（建议填写） | Environment variables | `NODE_VERSION` = `20` |
+   ![导入 Git 仓库](all/image/Tutorial/03.png)
 
-![Cloudflare step 5](all/image/Tutorial/05.png)
+5. 如果尚未连接 GitHub，按页面提示授权 Cloudflare 访问你的博客仓库。
+6. 选择你的博客仓库。
 
-6. 点 `Save and Deploy`，等 1-3 分钟。
+   ![选择博客仓库](all/image/Tutorial/04.png)
 
-> 建议在项目设置里启用 `Build cache（构建缓存）`：依赖缓存命中后安装只要几秒；文章新增字符后，字体子集也只要几秒到几十秒就能增量扩充，无需 Python 环境。
+7. 输入项目名称。
+8. 按下表设置构建参数。
 
-7. 构建完成后，打开 Cloudflare 给的默认网址（形如 `xxx.pages.dev`）确认。
+   | 中文界面 | English UI | 填写值 |
+   | --- | --- | --- |
+   | 框架预设 | Framework preset | `None`（无） |
+   | 根目录（高级） | Root directory (advanced) > Path | `all` |
+   | 构建命令 | Build command | `npm run build` |
+   | 构建输出目录 | Build output directory | `dist` |
+   | 环境变量（建议填写） | Environment variables | `NODE_VERSION` = `20` |
 
-![Cloudflare step 6](all/image/Tutorial/06.png)
+   ![Cloudflare Pages 构建参数](all/image/Tutorial/05.png)
 
-**常见坑**：
+9. 点击 `Save and Deploy`。
+10. 等待部署状态显示成功。
+11. 打开平台提供的网址，例如 `https://你的项目名.pages.dev`。
+12. 确认首页和任意一篇文章均可打开。
 
-* 根目录没填 `all`：平台从仓库根目录找 `package.json`，多半构建失败
-* 输出目录填成 `all/dist`：根目录已经是 `all`，直接写 `dist`
-* 随便选了框架预设：本项目不属于 Next.js、Nuxt、Astro 这类框架，预设选 `None / 无`
-* 网站没更新：先看后台最新构建是否成功，再 `Ctrl + F5` 强刷，多半只是浏览器缓存
+![Cloudflare Pages 部署结果](all/image/Tutorial/06.png)
 
-想用自己的域名：在 Cloudflare Pages 项目里绑定自定义域名即可。免费域名可参考[免费域名申请指南](https://blog.freeorg.dpdns.org/posts/%E5%85%8D%E8%B4%B9%E5%9F%9F%E5%90%8D%E7%94%B3%E8%AF%B7%E6%8C%87%E5%8D%97.html)，DNSHE 自动续期项目：<https://github.com/OUBIGFA/dnshe-auto-renew>。
+构建时间取决于文件数量、缓存和平台排队情况。若部署失败，查看本次部署的构建日志。
 
-### 备选：部署到 Vercel
+建议在项目设置中启用 `Build cache`（构建缓存），以复用依赖缓存。字体生成不需要 Python。Cloudflare Pages 不会保留本项目的自定义字体子集缓存；不要据此假定后续构建会跳过字体生成。
 
-已经在用 Vercel 的直接选它，只需要改一处 Root Directory。
+如果已有域名，在 Pages 项目的自定义域名设置中添加域名，再按提示配置 DNS。DNS 记录用于把域名指向网站。相关资料：[免费域名申请指南](https://blog.freeorg.dpdns.org/posts/2026053112195526)、[DNSHE 自动续期项目](https://github.com/OUBIGFA/dnshe-auto-renew)。
 
-1. 登录 [Vercel](https://vercel.com/)，点 `Add New...` → `Project`。
-2. 连接 GitHub，选你的博客仓库。
-3. 在导入页面找到 `Root Directory`，点右侧 `Edit`。
+### Vercel
 
-![Vercel root directory edit](all/image/Tutorial/11.png)
+1. 登录 [Vercel](https://vercel.com/)。
+2. 选择 `Add New...` → `Project`。
+3. 如果尚未连接 GitHub，按页面提示授权 Vercel 访问你的博客仓库。
+4. 选择你的博客仓库。
+5. 点击 `Root Directory` 右侧的 `Edit`。
 
-4. 在弹窗里勾选 `all` 文件夹，点 `Continue`。
+   ![编辑 Vercel 根目录](all/image/Tutorial/11.png)
 
-![Vercel root directory select all](all/image/Tutorial/12.png)
+6. 在弹窗中选择 `all` 文件夹。
+7. 点击 `Continue`。
 
-5. 其余设置全部保持默认，直接点 `Deploy`。
+   ![将 Vercel 根目录设为 all](all/image/Tutorial/12.png)
 
-> 最常踩的坑：Root Directory 没选 `all`，或手动展开 `Build and Output Settings` 覆盖了构建设置——Vercel 读不到仓库里的 `all/vercel.json`，部署出来全站 404。构建命令、输出目录、页面地址规则都由 `all/vercel.json` 自动接管。
+8. 保留 `Build and Output Settings` 的默认设置。
+9. 点击 `Deploy`。
+10. 等待部署状态显示成功。
+11. 打开平台提供的默认网址。
+12. 确认首页和任意一篇文章均可打开。
 
-Vercel 会自动复用构建缓存（含字体子集）：文章没新增字符时，后续部署直接跳过字体生成。别在项目设置里清空 Build Cache，除非确实想强制重新生成。
+`all/vercel.json` 已配置构建命令、输出目录和页面地址规则。根目录必须是 `all`，Vercel 才能按本项目的目录结构构建。若出现构建失败或 404，先核对根目录和构建日志。
 
-绑定自定义域名：项目设置 → `Domains`，按提示改解析。
+Vercel 可复用构建缓存中的字体子集。只有缓存有效、已覆盖所需字符且字体配置未变化时，构建才会跳过字体生成。
 
-## 写文章：`writing/`
+如果已有域名，在项目设置的 `Domains` 中添加域名，再按提示配置 DNS。
 
-一个 `.md` 文件就是一篇文章。自带的示例文章可以打开看格式、复制当模板，也可以删掉。用 Obsidian 或 VS Code 打开仓库直接写都行。
+## 第 3 步：写文章
 
-新文章开头通常长这样：
+在 `writing/` 中，每个 `.md` 文件对应一篇文章。用 Markdown 编辑器打开仓库后，可以新建文章，也可以复制示例文章作为模板。
+
+文章顶部两个 `---` 之间的区域叫 Frontmatter，用于设置标题、日期等文章属性。正文写在第二个 `---` 下方。Frontmatter 可以省略；未填写的属性使用项目默认值。
 
 ```md
 ---
@@ -186,124 +206,201 @@ copy_content: false
 这里开始写正文。
 ```
 
-| 字段 | 作用 | 例子 |
-| --- | --- | --- |
-| `title` | 文章标题，留空则用文件名 | `我的第一篇文章` |
-| `date` | 发布日期 | `2026-01-01` |
-| `tag` | 标签，可写多个 | `- 随笔` |
-| `cover` | 封面图链接，留空则无封面 | `https://...` |
-| `show_image_captions` | 是否显示图片说明文字 | `true` / `false` |
-| `description` | 摘要，留空会自动截取 | `一段简短介绍` |
-| `pinned` | 是否置顶 | `true` / `false` |
-| `show` | 是否在网站上展示 | `true` / `false` |
-| `copy_content` | 是否在文章页显示复制正文按钮 | `true` / `false` |
+| 字段 | 作用或填写方法 |
+| --- | --- |
+| `title` | 文章标题。留空时使用文件名 |
+| `date` | 文章显示的发布日期，例如 `2026-01-01` |
+| `tag` | 标签。每个标签单独一行，格式见上方示例 |
+| `cover` | 封面图片链接。留空时不显示封面 |
+| `show_image_captions` | `true` 显示图片说明；`false` 不显示 |
+| `description` | 文章摘要。留空时从正文中自动截取 |
+| `pinned` | `true` 置顶文章；`false` 不置顶 |
+| `show` | `true` 发布文章；`false` 不在网站上展示 |
+| `copy_content` | `true` 显示复制正文按钮；`false` 不显示按钮 |
 
-## 改网站：`Control/`
+`date` 不是定时发布开关。`copy_content` 不限制读者通过浏览器复制文字。
 
-| 文件 | 负责什么 |
+## 第 4 步：设置网站信息
+
+编辑 `Control/` 中的配置文件。
+
+| 文件 | 设置内容 |
 | --- | --- |
 | `site_网站属性.md` | 网站标题、站点名、首页介绍、头像、主题 |
-| `SEO_搜索优化.md` | 正式域名、SEO 摘要、作者信息、AI 爬虫和 llms.txt |
+| `SEO_搜索优化.md` | 正式域名、搜索摘要、作者信息、AI 爬虫规则和 llms.txt |
 | `social_社交媒体.md` | 社交媒体图标、主页链接、联系方式、推广链接 |
-| `about_关于页面.md` | About 页面的标题、介绍和头像 |
+| `about_关于页面.md` | About 页面（关于页面）的标题、介绍和头像 |
 
-编辑时记住四点：
+编辑时遵循以下规则：
 
-* 冒号后面留一个空格，如 `site_name: FreeCat`
-* 不想填的字段可以留空，但别删整行
-* `_01`、`_02` 这类下划线开头的行是说明文字，别改字段名
-* 改完必须用 GitHub Desktop 提交并同步，线上网站才会更新
+- 在文件顶部的 Frontmatter 中修改参数。
+- 字段有值时，在冒号后保留一个空格，例如 `site_name: FreeCat`。
+- 允许留空的字段保留 `键:`，具体要求见字段旁的说明。
+- 保留字段名。`_01`、`_02` 等字段是说明文字，构建时会忽略。
 
-三个常用文件的具体配置：
+常用设置如下。
 
-* `site_网站属性.md`：常改网站名称、描述、首页标题、头像、网站图标、默认主题、每页文章数、底部版权。主题的 `theme_system` / `theme_light` / `theme_dark` 只能有一个为 `true`，全为 `false` 时回退跟随系统
-* `social_社交媒体.md`：每个平台三类字段——启用开关（`github_enabled: true`）、自定义图标（`github_icon_url:`，留空走默认）、主页链接（`github_url: https://github.com`）；用不到的平台把 `*_enabled` 改成 `false`
-* `about_关于页面.md`：`about_hero_title`、`about_hero_subtitle`、`about_hero_avatar` 分别是 About 页的标题、介绍、头像，留空则用首页对应内容
+| 设置 | 操作 | 结果 |
+| --- | --- | --- |
+| 默认主题 | 在 `theme_system`、`theme_light`、`theme_dark` 中，将一个设为 `true`，其余设为 `false` | 分别对应跟随系统、浅色、深色。全部为 `false` 时跟随系统 |
+| 社交链接 | 将对应的 `*_enabled` 设为 `true`，并填写 `*_url` | 显示该平台的链接，例如 `github_enabled: true` 和 `github_url: https://github.com/你的账号` |
+| 社交图标 | 在对应的 `*_icon_url` 中填写图片链接 | 使用自定义图标。留空时使用默认图标 |
+| 隐藏社交平台 | 将对应的 `*_enabled` 设为 `false` | 不显示该平台 |
+| About 页面 | 编辑 `about_hero_title`、`about_hero_subtitle`、`about_hero_avatar` | 分别设置标题、介绍、头像。各字段留空时使用首页对应内容 |
 
-## 日常更新（5 步）
+## 发布日常更新
 
-1. 在 `writing/` 新增或修改文章。
-2. 需要的话，在 `Control/` 改网站信息。
-3. 保存文件。
-4. 打开 GitHub Desktop，写一句提交说明，点 `Commit to main`。
-5. 点 `Push origin`。
+完成文章或配置修改后，按以下步骤发布。仓库默认分支为 `main`；如果你改过分支名，提交按钮会显示对应名称。
 
-![GitHub Desktop commit](all/image/Tutorial/08.png)
+1. 保存修改的文件。
+2. 打开 GitHub Desktop。
+3. 选择你的博客仓库。
+4. 在改动列表中确认本次要发布的文件。
+5. 在 `Summary` 中填写提交说明。
+6. 点击 `Commit to main`。
 
-![GitHub Desktop push](all/image/Tutorial/09.png)
+   ![提交本地改动](all/image/Tutorial/08.png)
 
-同步后平台自动重新构建，1-3 分钟后刷新网站即可看到新内容。
+7. 点击 `Push origin`。
 
-## 音视频播放器
+   ![将提交推送到 GitHub](all/image/Tutorial/09.png)
 
-文章里写「文件直链」（不是网盘分享页），自动生成播放器：
+8. 等待部署平台将新提交部署成功。
+9. 打开网站检查修改后的内容。
+
+若内容未更新，按下方「常见问题」中的顺序检查。
+
+## 文章内音视频播放器
+
+在 Markdown 图片语法中填入音视频直链，构建时会生成播放器。直链是直接返回媒体文件的地址，不是网盘分享页。将示例地址替换为你的文件地址。
 
 ```md
-![I Still Believe](https://xxxx.mp3)
-![这是示例视频](https://example.com/video.mp4)
+![示例音频](https://example.com/audio.mp3)
+![示例视频](https://example.com/video.mp4)
 ```
 
-链接没有音视频后缀时，在标题里加 🎵 或 🎬 强制识别：
+如果地址没有音视频扩展名，在方括号中的说明文字前添加 `🎵`（音频）或 `🎬`（视频）。
 
 ```md
-![🎵I Still Believe](https://xxxx)
-![🎬这是示例视频](https://example.com/video)
+![🎵示例音频](https://example.com/audio)
+![🎬示例视频](https://example.com/video)
 ```
 
-支持格式：
+构建时可识别以下扩展名：
 
-* 音频：`.mp3`、`.m4a`、`.wav`、`.ogg`、`.aac`、`.flac`、`.opus`
-* 视频：`.mp4`、`.webm`、`.mov`、`.m4v`、`.ogv`、`.m3u8`
+- 音频：`.mp3`、`.m4a`、`.wav`、`.ogg`、`.aac`、`.flac`、`.opus`。
+- 视频：`.mp4`、`.webm`、`.mov`、`.m4v`、`.ogv`、`.m3u8`。
 
-判断链接能不能用：粘到浏览器地址栏，能直接播放或下载就可以用；打开是网盘页、登录页、提取码页就不行，可先用[网盘直链获取工具](https://link.gimhoy.com/)、[分享链接转直链工具](https://lz.qaiu.top/)或[小飞机云盘](https://www.feijipan.com)转换。直链可能失效，播放器突然不能播时，重新转换一次链接即可。
+识别出扩展名不等于浏览器一定能播放。播放还取决于文件编码、浏览器支持和媒体服务器的访问限制。
 
-## 模板更新同步
+检查媒体链接：
 
-仓库自带工作流 `.github/workflows/sync-upstream.yml`，每周二北京时间凌晨 02:17 自动从主仓库 [OUBIGFA/Freecat-Blog](https://github.com/OUBIGFA/Freecat-Blog) 同步模板文件，提交到你的 `main` 分支，平台随后自动重建。
+1. 在未登录媒体网站的浏览器窗口中打开链接。
+2. 确认链接直接返回媒体文件，而不是分享页、登录页或提取码页。
+3. 将链接写入文章。
+4. 在本地预览或发布后点击播放器，确认可以播放。
 
-**第一次用之前**：打开你仓库的 `Actions` 标签，按 GitHub 提示启用 workflows，并确认 Actions 权限允许写入，否则同步完成后无法自动提交。
+如果只有分享链接，可尝试 [网盘直链获取工具](https://link.gimhoy.com/)、[分享链接转直链工具](https://lz.qaiu.top/)或[小飞机云盘](https://www.feijipan.com)。是否能生成可用直链取决于服务支持。
 
-| 范围 | 内容 |
+如果原来可播放的链接失效，先重新打开直链检查。确认链接过期后，获取新直链并替换文章中的地址，再提交并推送。若直链有效但播放器仍失败，检查文件编码和服务器访问限制。
+
+## 更新模板
+
+GitHub Actions 是仓库内运行自动任务的功能。本项目的 `.github/workflows/sync-upstream.yml` 工作流从主仓库 [OUBIGFA/Freecat-Blog](https://github.com/OUBIGFA/Freecat-Blog) 同步模板文件。
+
+默认计划时间为每周二北京时间 02:17（UTC+8）。定时任务可能延迟，实际执行时间以 `Actions` 记录为准。工作流在主仓库自身运行时会跳过同步。
+
+首次使用前：
+
+1. 打开你的仓库的 `Actions` 页面。
+2. 如果 GitHub 提示启用工作流，按提示启用。
+3. 确认仓库或组织的权限策略允许工作流写入仓库。
+
+同步范围如下。表中的保留项不随模板替换。
+
+| 范围 | 文件或目录 |
 | --- | --- |
-| 会同步 | `all/`、`README.md`、`README.en.md` |
-| 会保留 | `all/git-dates.json`、`all/build/font-subsets-manifest.json`、`all/src/assets/fonts/` |
-| 不会动 | `Control/`、`writing/`、`.github/`、`.gitignore` |
+| 同步 | `all/`、`README.md`、`README.en.md` |
+| 保留本仓库版本 | `all/git-dates.json`、`all/build/font-subsets-manifest.json`、`all/src/assets/fonts/` |
+| 不修改 | `Control/`、`writing/`、`.github/`、`.gitignore` |
 
-你写的文章和网站配置不会被模板更新覆盖；改过 `all/` 里的模板、样式或构建脚本则可能被覆盖，新手别动 `all/`。
+如果修改过同步范围内的模板、样式、脚本或 README，先保存这些自定义改动的副本；同步可能覆盖它们。
 
-想立刻手动同步：仓库 → `Actions` → `Sync upstream template files` → `Run workflow`。上游没变化时会跳过提交；Actions 定时触发延迟几分钟属正常。
+手动运行同步：
 
-> 构建出问题时：去主仓库复制最新的 [sync-upstream](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/sync-upstream.yml) 或 [update-git-dates.yml](https://github.com/OUBIGFA/FreeBlog_BIGFA/blob/main/.github/workflows/update-git-dates.yml) 工作流文件到你的仓库，手动运行一次。它只同步构建文件，不会覆盖你的设置和文章。想用新功能时，从主仓库 [Control 文件夹](https://github.com/OUBIGFA/Freecat-Blog/tree/main/Control) 复制对应控制参数到你仓库的 `Control/`。
+1. 打开仓库的 `Actions` 页面。
+2. 选择 `Sync upstream template files`。
+3. 点击 `Run workflow`。
+4. 在运行表单中选择 `main` 分支。
+5. 点击表单中的 `Run workflow`。
+6. 等待运行记录显示成功。
+7. 如果产生了新提交，确认部署平台已部署该提交。
+
+首次运行可能创建同步基准提交。之后若没有待同步的模板变更，工作流会跳过文件更新。
+
+### 处理工作流问题
+
+先查看失败任务的日志，再判断是否需要更新工作流。两个工作流用途不同：
+
+| 工作流 | 用途 |
+| --- | --- |
+| [sync-upstream.yml](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/sync-upstream.yml) | 同步上表范围内的模板文件 |
+| [update-git-dates.yml](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/update-git-dates.yml) | 更新文章日期、固定文章 ID 和最新改动等快照数据 |
+
+如果日志表明你的工作流版本缺少所需修复，将主仓库中对应文件的内容复制到本仓库的同名文件，再提交并推送。工作流文件位于 `.github/workflows/`，不会随模板自动同步。更新文件后，在 `Actions` 中手动运行对应工作流，并检查结果。
+
+如果新功能需要新增配置，从主仓库的 [Control 文件夹](https://github.com/OUBIGFA/Freecat-Blog/tree/main/Control) 查看参数说明，再把需要的参数添加到本仓库对应文件中。保留已有配置值。
 
 ## 常见问题
 
-**要会编程吗？** 不用，日常只写 Markdown、改配置文件。
+| 问题 | 处理方法 |
+| --- | --- |
+| 需要会编程吗？ | 日常使用只需编辑 Markdown 和配置文件。修改模板功能时需要相关代码知识 |
+| 必须购买域名吗？ | 不需要。Cloudflare Pages 和 Vercel 都提供默认网址 |
+| 构建参数怎么检查？ | 根目录为 `all`，输出目录为 `dist`。输出目录相对于根目录，不要填 `all/dist` |
+| 可以换部署平台吗？ | 可以。将同一个 GitHub 仓库导入新平台，按本指南配置。如果使用自定义域名，还需修改域名绑定和 DNS |
+| 可以删除示例文章吗？ | 可以。删除 `writing/` 中对应文件后，提交并推送 |
+| 可以修改 `all/` 吗？ | 可以，但模板同步可能覆盖你的改动。日常写作和网站设置使用 `writing/` 和 `Control/` |
 
-**Cloudflare 和 Vercel 选哪个？** 完全新手选 Cloudflare Pages，已在用 Vercel 的选 Vercel。内容都在 GitHub，随时能换。
+### 本地改了文件，网站没有更新
 
-**必须买域名吗？** 不用，两个平台都先给默认网址。
+按以下顺序检查。某项未通过时，先处理该项。
 
-**部署最容易填错哪里？** 根目录填 `all`，输出目录填 `dist`，别写成 `all/dist`。
+1. 确认编辑器已保存文件。
+2. 确认 GitHub Desktop 已提交并推送改动。
+3. 确认 GitHub 仓库中能看到修改后的文件。
+4. 确认部署平台已部署包含该修改的提交，且部署状态为成功。
+5. 在网站页面按 `Ctrl + F5` 强制刷新。
 
-**本地改完网站没变化？** 依次检查：文件已保存 → GitHub Desktop 已 Push → 平台已触发新构建 → 浏览器强制刷新。
+若部署失败，查看构建日志；刷新浏览器不能修复构建失败。
 
-**`.gitignore` 怎么用？** 一份「不上传清单」：加一行如 `drafts/`，GitHub Desktop 就会自动忽略它。只对没提交过的新文件生效，已提交的文件隐藏不了。
+### 使用 .gitignore
 
-**示例文章能删吗？** 能，删掉后提交同步即可。
+`.gitignore` 用于指定 Git 忽略的未跟踪文件。每行写一个规则，例如：
 
-**能直接改 `all/` 吗？** 新手不建议，`all/` 是模板工程目录，自动同步上游时这里的改动可能被覆盖。
+```gitignore
+drafts/
+Thumbs.db
+*.log
+```
+
+已被 Git 跟踪的文件不受新规则影响。添加规则不会移除仓库中的文件，也不会清除历史记录。
 
 ## 本地预览（可选）
 
-只写文章不需要本地构建，平台会自动处理。想在本机提前预览：装 [Node.js 20+](https://nodejs.org/)，然后：
+本地预览用于发布前检查内容。部署平台会自行构建网站，因此只在平台部署时不需要本地构建。
 
-```bash
-cd all
-npm install
-npm run preview
-```
+1. 安装 [Node.js](https://nodejs.org/)（本项目部署示例使用 Node.js 20）。
+2. 在仓库根目录打开终端。
+3. 运行 `cd all`，进入构建目录。
+4. 首次使用或依赖变化后，运行 `npm install`。
+5. 运行 `npm run preview`。
+6. 等待终端显示 `Preview ready: http://127.0.0.1:4173/`。
+7. 在浏览器中打开 <http://127.0.0.1:4173/>。
 
-会先完整构建，再打开 `http://127.0.0.1:4173/`。构建产物在 `all/dist/`，不用手动改，也不用提交到 GitHub。
+`npm run preview` 会先执行完整构建，再启动预览服务。它不会自动打开浏览器，也不会监视后续文件修改。修改内容后，在运行预览的终端按 `Ctrl + C` 停止服务，再运行 `npm run preview`。
+
+构建产物保存在 `all/dist/`。不要手动修改或提交该目录。
 
 ## 许可证
 
