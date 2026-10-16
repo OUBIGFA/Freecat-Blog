@@ -31,6 +31,11 @@
             align-content: start;
         }
 
+        /* 每个断点按实际最后一行收尾；末行不满时也不保留底部分隔线。 */
+        .freecat-all-grid > .home-post-entry:last-child {
+            border-bottom: 0;
+        }
+
         .freecat-all-grid .home-post-cover {
             grid-row: 1;
             width: 100%;
@@ -72,15 +77,24 @@
             font-variant-numeric: normal;
             white-space: nowrap;
         }
-        @media (min-width: 760px) {
+        @media (760px <= width < 1120px) {
             .freecat-all-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .freecat-all-grid > .home-post-entry:nth-child(2n + 1):nth-last-child(2) {
+                border-bottom: 0;
             }
         }
 
         @media (min-width: 1120px) {
             .freecat-all-grid {
                 grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .freecat-all-grid > .home-post-entry:nth-child(3n + 1):nth-last-child(-n + 3),
+            .freecat-all-grid > .home-post-entry:nth-child(3n + 1):nth-last-child(-n + 3) ~ .home-post-entry {
+                border-bottom: 0;
             }
         }
 

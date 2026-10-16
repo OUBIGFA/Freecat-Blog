@@ -221,7 +221,16 @@ function generateNavAudioButton(siteConfig) {
     const safeTitle = escapeText(audio.title);
     const safePlaylist = escapeText(JSON.stringify(playlist));
     const autoplay = parseBooleanControl(siteConfig.nav_audio_autoplay) ? 'true' : 'false';
-    return `<div id="nav-audio-control" class="nav-audio-control" data-playing="false">
+    // 曲目清单与播放器数据同源；静态渲染保留歌名转义和本地字体子集采集。
+    const tracksHtml = playlist.map((track, index) => `<li>
+                    <button type="button" class="nav-audio-track" data-audio-track-index="${index}"
+                        aria-current="${index === 0}" title="${escapeText(track.title)}">
+                        <span class="nav-audio-track-number" aria-hidden="true">${index + 1}</span>
+                        <span class="nav-audio-track-title">${escapeText(track.title)}</span>
+                        <span class="nav-audio-track-status">${index === 0 ? '已暂停' : ''}</span>
+                    </button>
+                </li>`).join('');
+    return `<div id="nav-audio-control" class="nav-audio-control" data-playing="false" data-playlist-open="false">
                 <button type="button" aria-label="Play audio" aria-pressed="false"
                     class="freecat-header-action"
                     id="nav-audio-toggle"
@@ -232,8 +241,18 @@ function generateNavAudioButton(siteConfig) {
                     <span class="nav-audio-icon nav-audio-icon-idle" aria-hidden="true">${NAV_AUDIO_IDLE_ICON}</span>
                     <span class="nav-audio-icon nav-audio-icon-playing hidden" aria-hidden="true">${NAV_AUDIO_PLAYING_ICON}</span>
                 </button>
+                <button type="button" id="nav-audio-playlist-toggle" class="freecat-header-action nav-audio-playlist-toggle"
+                    aria-label="歌曲清单" title="歌曲清单" aria-expanded="false" aria-controls="nav-audio-playlist">
+                    ${renderIcon('chevron-down')}
+                </button>
                 <div class="nav-audio-volume-slider-wrapper">
-                    <input type="range" id="nav-audio-volume" class="nav-audio-volume-slider" min="0" max="1" step="0.01" value="0.5" aria-label="Audio volume">
+                    <input type="range" id="nav-audio-volume" class="nav-audio-volume-slider" min="0" max="1" step="0.01" value="0.5" tabindex="-1" aria-label="Audio volume">
+                </div>
+                <div id="nav-audio-playlist" class="nav-audio-playlist" hidden>
+                    <div class="nav-audio-playlist-heading">
+                        <h2 id="nav-audio-playlist-title">歌曲清单</h2><span>${playlist.length} 首</span>
+                    </div>
+                    <ol class="nav-audio-track-list" aria-labelledby="nav-audio-playlist-title">${tracksHtml}</ol>
                 </div>
                 <audio id="nav-audio" preload="auto" src="${safeSrc}" data-audio-title="${safeTitle}" data-audio-index="0"></audio>
             </div>`;

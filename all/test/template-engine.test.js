@@ -421,6 +421,26 @@ test('nav audio button renders comma-separated audio playlist', () => {
     assert.equal(html.includes('&quot;src&quot;:&quot;https://example.com/listen?id=1&quot;'), true);
     assert.equal(html.includes('&quot;src&quot;:&quot;https://example.com/listen?id=2&quot;'), true);
     assert.equal(html.includes('&quot;title&quot;:&quot;Second&quot;'), true);
+    const { document } = require('linkedom').parseHTML(html);
+    const toggle = document.getElementById('nav-audio-playlist-toggle');
+    const panel = document.getElementById(toggle.getAttribute('aria-controls'));
+    assert.equal(toggle.getAttribute('aria-expanded'), 'false');
+    assert.equal(panel.hidden, true);
+    assert.deepEqual([...panel.querySelectorAll('.nav-audio-track-title')].map(node => node.textContent), ['First', 'Second']);
+    assert.deepEqual([...panel.querySelectorAll('[data-audio-track-index]')].map(node => node.dataset.audioTrackIndex), ['0', '1']);
+    assert.equal(panel.querySelector('[aria-current="true"]').dataset.audioTrackIndex, '0');
+});
+
+test('playlist titles remain plain text in both the list and tooltip', () => {
+    const title = '<b>曲目</b> & "quoted"';
+    const html = createTestEngine('https://example.com', {
+        siteConfig: { nav_audio: `![${title}](https://example.com/audio.mp3)` }
+    }).loadTemplate('template_index.html');
+    const { document } = require('linkedom').parseHTML(html);
+    const track = document.querySelector('.nav-audio-track');
+    assert.equal(track.querySelector('.nav-audio-track-title').textContent, title);
+    assert.equal(track.getAttribute('title'), title);
+    assert.equal(track.querySelector('b'), null);
 });
 
 test('nav audio normalizes feijipan share pages to playable parser urls', () => {

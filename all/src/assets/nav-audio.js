@@ -28,6 +28,9 @@
         const navAudioVolumeWrapper = navAudioVolume
             ? navAudioVolume.closest('.nav-audio-volume-slider-wrapper')
             : null;
+        const navAudioPlaylistToggle = document.getElementById('nav-audio-playlist-toggle');
+        const navAudioPlaylist = document.getElementById('nav-audio-playlist');
+        const trackButtons = navAudioPlaylist ? Array.from(navAudioPlaylist.querySelectorAll('[data-audio-track-index]')) : [];
         const idleIcon = navAudioToggle.querySelector('.nav-audio-icon-idle');
         const playingIcon = navAudioToggle.querySelector('.nav-audio-icon-playing');
         const playlist = readNavAudioPlaylist();
@@ -35,6 +38,8 @@
         let currentIndex = 0;
         let pendingSeekTime = null;
         let requestedPlayback = false;
+        let playbackRequestId = 0;
+        let playlistOpen = false;
         let lastStateSave = 0;
         let currentVolume = readSavedNavAudioVolume();
         let errorSkipTimer = 0;
@@ -111,14 +116,33 @@
             }
         }
 
+        // Disclosure buttons keep native Tab/Enter/Space behavior; this is not an ARIA menu.
+        function setNavAudioPlaylistOpen(open) {
+            if (!navAudioPlaylistToggle || !navAudioPlaylist) return;
+            playlistOpen = open;
+            navAudioPlaylistToggle.setAttribute('aria-expanded', String(open));
+            navAudioPlaylist.hidden = !open;
+            if (navAudioControl) navAudioControl.dataset.playlistOpen = String(open);
+            if (open) {
+                // The shell reveals interactive content before its load event; bind the current document now.
+                bindNavAudioFramePointerDown();
+                setNavAudioVolumeOpen(false);
+                const list = navAudioPlaylist.querySelector('.nav-audio-track-list');
+                const active = trackButtons[currentIndex];
+                // Scroll only the song list, never the article behind the fixed header.
+                if (list && active) list.scrollTop = Math.max(0, active.offsetTop - list.offsetTop);
+            }
+        }
+
         function setNavAudioVolumeOpen(open) {
             if (!navAudioControl) return;
             if (volumeHideTimer) {
                 window.clearTimeout(volumeHideTimer);
                 volumeHideTimer = 0;
             }
-            const shouldOpen = open && requestedPlayback && !navAudio.ended;
+            const shouldOpen = open && requestedPlayback && !navAudio.ended && !playlistOpen;
             navAudioControl.dataset.volumeOpen = shouldOpen ? 'true' : 'false';
+            if (navAudioVolume) navAudioVolume.tabIndex = shouldOpen ? 0 : -1;
         }
 
         function shouldKeepNavAudioVolumeOpen() {
@@ -140,8 +164,8 @@
             }, NAV_AUDIO_VOLUME_HIDE_DELAY_MS);
         }
 
-        function isNavAudioVolumeEventTarget(target) {
-            return target instanceof Node
+        function isNavAudioEventTarget(target) {
+            return target instanceof document.defaultView.Node
                 && (
                     navAudioControl.contains(target)
                     || (navAudioVolumeWrapper && navAudioVolumeWrapper.contains(target))
@@ -151,15 +175,15 @@
         function closeNavAudioVolumeNow() {
             if (!navAudioControl || navAudioControl.dataset.volumeOpen !== 'true') return;
             navAudioVolumePointerInside = false;
-            if (document.activeElement instanceof HTMLElement && navAudioControl.contains(document.activeElement)) {
+            if (document.activeElement instanceof document.defaultView.HTMLElement && navAudioControl.contains(document.activeElement)) {
                 document.activeElement.blur();
             }
             setNavAudioVolumeOpen(false);
         }
 
-        function closeNavAudioVolumeOnOutsidePointerDown(event) {
-            if (!navAudioControl || navAudioControl.dataset.volumeOpen !== 'true') return;
-            if (isNavAudioVolumeEventTarget(event.target)) return;
+        function closeNavAudioOnOutsideInteraction(event) {
+            if (!navAudioControl || isNavAudioEventTarget(event.target)) return;
+            setNavAudioPlaylistOpen(false);
             closeNavAudioVolumeNow();
         }
 
@@ -175,10 +199,12 @@
             }
             if (!frameDocument || frameDocument === navAudioFramePointerDownDocument) return;
             if (navAudioFramePointerDownDocument) {
-                navAudioFramePointerDownDocument.removeEventListener('pointerdown', closeNavAudioVolumeNow, true);
+                navAudioFramePointerDownDocument.removeEventListener('pointerdown', closeNavAudioOnOutsideInteraction, true);
+                navAudioFramePointerDownDocument.removeEventListener('focusin', closeNavAudioOnOutsideInteraction);
             }
             navAudioFramePointerDownDocument = frameDocument;
-            navAudioFramePointerDownDocument.addEventListener('pointerdown', closeNavAudioVolumeNow, true);
+            navAudioFramePointerDownDocument.addEventListener('pointerdown', closeNavAudioOnOutsideInteraction, true);
+            navAudioFramePointerDownDocument.addEventListener('focusin', closeNavAudioOnOutsideInteraction);
         }
 
         function getContinuousTime(state) {
@@ -217,6 +243,8 @@
         }
 
         function setNavAudioTrack(index, options = {}) {
+            // Loading another source invalidates any pending play() promise for the old one.
+            playbackRequestId++;
             currentIndex = clampTrackIndex(index);
             const track = playlist[currentIndex];
             if (!track) return;
@@ -250,27 +278,44 @@
             navAudioToggle.dataset.playing = isPlaying ? 'true' : 'false';
             navAudioToggle.setAttribute('aria-pressed', isPlaying ? 'true' : 'false');
             navAudioToggle.setAttribute('aria-label', isPlaying ? 'Pause audio' : 'Play audio');
+            navAudioToggle.title = `${isPlaying ? '暂停' : '播放'}：${playlist[currentIndex].title}`;
+            trackButtons.forEach(button => {
+                const isCurrent = Number(button.dataset.audioTrackIndex) === currentIndex;
+                button.setAttribute('aria-current', String(isCurrent));
+                const status = button.querySelector('.nav-audio-track-status');
+                if (status) status.textContent = isCurrent ? (isPlaying ? '播放中' : '已暂停') : '';
+            });
             if (idleIcon) idleIcon.classList.toggle('hidden', isPlaying);
             if (playingIcon) playingIcon.classList.toggle('hidden', !isPlaying);
         }
 
         function playNavAudio() {
+            const requestId = ++playbackRequestId;
+            if (errorSkipTimer) {
+                window.clearTimeout(errorSkipTimer);
+                errorSkipTimer = 0;
+            }
             requestedPlayback = true;
             syncNavAudioState();
             saveNavAudioState(true);
             const playResult = navAudio.play();
             if (playResult && typeof playResult.catch === 'function') {
-                playResult.catch(handleNavAudioPlaybackFailure);
+                playResult.catch(error => {
+                    // Rapid selection can reject an older play() with AbortError; it must not skip the new song.
+                    if (requestId === playbackRequestId) handleNavAudioPlaybackFailure(error);
+                });
             }
         }
 
         function stopNavAudioRequest() {
+            playbackRequestId++;
             requestedPlayback = false;
             syncNavAudioState();
             saveNavAudioState(true);
         }
 
         function pauseNavAudio() {
+            playbackRequestId++;
             requestedPlayback = false;
             navAudio.pause();
             syncNavAudioState();
@@ -292,8 +337,10 @@
                 return;
             }
             if (errorSkipTimer) return;
+            const failedRequestId = playbackRequestId;
             errorSkipTimer = window.setTimeout(() => {
                 errorSkipTimer = 0;
+                if (!requestedPlayback || failedRequestId !== playbackRequestId) return;
                 failedTrackIndexes.add(currentIndex);
                 if (failedTrackIndexes.size >= playlist.length) {
                     stopNavAudioRequest();
@@ -322,6 +369,24 @@
             }
         });
 
+        if (navAudioPlaylistToggle) {
+            navAudioPlaylistToggle.addEventListener('click', () => {
+                closeTagMenu();
+                closeHeaderSearch(true);
+                setNavAudioPlaylistOpen(!playlistOpen);
+            });
+        }
+        trackButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const index = Number(button.dataset.audioTrackIndex);
+                if (index === currentIndex && requestedPlayback) return;
+                failedTrackIndexes.clear();
+                // Selecting the paused current song resumes it; selecting another starts it from zero.
+                if (index !== currentIndex) setNavAudioTrack(index, { currentTime: 0 });
+                playNavAudio();
+            });
+        });
+
         if (navAudioVolume) {
             navAudioVolume.addEventListener('click', (event) => {
                 event.stopPropagation();
@@ -340,6 +405,13 @@
             navAudioControl.addEventListener('pointerleave', scheduleNavAudioVolumeClose);
             navAudioControl.addEventListener('focusin', () => setNavAudioVolumeOpen(true));
             navAudioControl.addEventListener('focusout', scheduleNavAudioVolumeClose);
+            navAudioControl.addEventListener('keydown', event => {
+                if (event.key !== 'Escape' || !playlistOpen) return;
+                event.preventDefault();
+                event.stopPropagation();
+                setNavAudioPlaylistOpen(false);
+                navAudioPlaylistToggle.focus({ preventScroll: true });
+            });
         }
 
         if (navAudioVolumeWrapper) {
@@ -353,7 +425,8 @@
             });
         }
 
-        document.addEventListener('pointerdown', closeNavAudioVolumeOnOutsidePointerDown, true);
+        document.addEventListener('pointerdown', closeNavAudioOnOutsideInteraction, true);
+        document.addEventListener('focusin', closeNavAudioOnOutsideInteraction);
         if (isShell && contentFrame) {
             contentFrame.addEventListener('load', bindNavAudioFramePointerDown);
             bindNavAudioFramePointerDown();

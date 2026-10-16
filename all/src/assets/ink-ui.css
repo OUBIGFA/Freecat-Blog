@@ -3,6 +3,10 @@
  * https://ink-ui.com/docs/components/avatar
  */
 .freecat-tabs {
+    /* 阅读导航和文章排序共用外圈、选中边框及按钮尺寸；页面只负责容器布局。 */
+    --tab-inset: 2px;
+    --tab-track: #f1f1f1;
+    --tab-border: #dedede;
     position: relative;
     isolation: isolate;
     display: inline-flex;
@@ -10,21 +14,25 @@
     gap: 2px;
     width: fit-content;
     max-width: 100%;
-    padding: 4px;
+    padding: var(--tab-inset);
     border-radius: 999px;
-    background: var(--freecat-ui-hover);
+    background: var(--tab-track);
+}
+.dark .freecat-tabs {
+    --tab-track: #20252d;
+    --tab-border: #3b414b;
 }
 .freecat-tabs[hidden], [role="tabpanel"][hidden] { display: none; }
 .freecat-tabs::before {
     content: '';
     position: absolute;
     z-index: -1;
-    top: 4px;
-    bottom: 4px;
+    top: var(--tab-inset);
+    bottom: var(--tab-inset);
     left: 0;
     width: var(--tab-width, 0);
-    transform: translateX(var(--tab-left, 4px));
-    border: 1px solid var(--freecat-ui-rule);
+    transform: translateX(var(--tab-left, var(--tab-inset)));
+    border: 1px solid var(--tab-border);
     border-radius: inherit;
     background: var(--freecat-ui-surface);
     transition: transform 200ms ease-in-out, width 200ms ease-in-out;
@@ -36,7 +44,7 @@
     justify-content: center;
     gap: 0.4rem;
     min-height: 40px;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0.875rem;
     border: 0;
     border-radius: 999px;
     background: transparent;
@@ -81,7 +89,7 @@
 }
 .freecat-avatar img[data-loaded] { opacity: 1; }
 @media (max-width: 767px) {
-    .freecat-tab { min-height: 44px; padding-inline: 0.875rem; }
+    .freecat-tab { min-height: 44px; }
 }
 @media (prefers-reduced-motion: reduce) {
     .freecat-tabs::before, .freecat-tab, .freecat-avatar img { transition: none; }

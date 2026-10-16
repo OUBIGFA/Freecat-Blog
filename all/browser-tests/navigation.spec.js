@@ -8,7 +8,7 @@ function gate() {
 
 test.beforeEach(async ({ page }) => {
     // External services must not determine whether the local navigation tests pass.
-    await page.route('https://**', route => route.abort());
+    await page.route(/^https:\/\//, route => route.abort());
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('#posts-list a.post-card').first()).toBeVisible();
 });

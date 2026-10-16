@@ -1826,9 +1826,9 @@ article {
     color: var(--post-muted);
     font-size: 0.9375rem;
 }
-/* One or two tabs share the full sidebar width; labels keep the shared centered alignment. */
+/* Only sidebar layout differs; all tab appearance and sizing live in ink-ui.css. */
 .freecat-post-reading-panel .freecat-tabs { width: 100%; margin-bottom: 1rem; }
-.freecat-post-reading-panel .freecat-tab { flex: 1; padding-inline: 0.75rem; }
+.freecat-post-reading-panel .freecat-tab { flex: 1; }
 .freecat-post-toc-title {
     min-height: 44px;
     padding-block: 0.625rem;
