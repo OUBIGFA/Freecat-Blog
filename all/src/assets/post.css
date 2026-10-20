@@ -1092,6 +1092,7 @@ article {
 }
 
 .prose .diagram-block > .mermaid,
+.prose .diagram-block > .pele-diagram,
 .prose .diagram-block svg,
 .prose .diagram-block .echarts-canvas {
     margin-inline: auto !important;
@@ -1455,6 +1456,55 @@ article {
     border-color: transparent !important;
 }
 
+/* Pele 继承正文的本地字体；颜色只映射语义变量，不改写引擎的布局几何。 */
+.pele-block {
+    --pele-bg: var(--freecat-ui-surface);
+    --pele-fg: var(--diagram-text);
+    --pele-muted: var(--diagram-muted);
+    --pele-line: var(--diagram-line);
+    --pele-surface: var(--diagram-surface);
+    --pele-surface-alt: color-mix(in srgb, var(--diagram-surface) 70%, var(--diagram-border));
+    --pele-border: var(--diagram-border);
+    --pele-accent: var(--post-accent);
+    --pele-critical: #b85452;
+    --pele-error: var(--pele-critical);
+    --pele-font-mono: "Freecat JetBrains Mono", "Freecat Noto Sans SC", "Freecat Noto Emoji", "Freecat Noto Symbols", monospace;
+    --pele-series-1: #557fa3;
+    --pele-series-2: #668e7d;
+    --pele-series-3: #8e7da7;
+    --pele-series-4: #ac8c56;
+    --pele-series-5: #ad776f;
+    --pele-series-6: #568f97;
+    --pele-series-7: #887b65;
+    --pele-series-8: #7a859b;
+}
+
+.dark .pele-block {
+    --pele-critical: #e6a09d;
+    --pele-series-1: #91b4d4;
+    --pele-series-2: #93b9aa;
+    --pele-series-3: #b3a2c8;
+    --pele-series-4: #cfb587;
+    --pele-series-5: #cd9d96;
+    --pele-series-6: #8dbec4;
+    --pele-series-7: #baad98;
+    --pele-series-8: #a6b1c7;
+}
+
+.pele-diagram {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    /* 未挂载的源码也不能撑宽正文；mount 自行管理缩放时的裁切和拖动。 */
+    overflow-wrap: anywhere;
+}
+
+/* 预留放大后的阅读区；Pele 会在 zoom 时填满容器，不能只留下缩略图的高度。 */
+.pele-block[data-diagram-kind="gantt"] .pele-diagram {
+    min-height: 18rem;
+}
+
+/* 旧引擎仅作显式回退；回退窗口结束后按用途移除，勿连带删除下方共享样式。 */
 .mermaid-block[data-mermaid-kind="flowchart"],
 .mermaid-block[data-mermaid-kind="class"],
 .mermaid-block[data-mermaid-kind="state"],
@@ -1491,7 +1541,8 @@ article {
 .diagram-block svg {
     flex: 0 0 auto;
     display: block;
-    height: auto !important;
+    /* 保留比例作为默认值，但允许 Pele zoom 的内联高度扩展阅读区。 */
+    height: auto;
     max-width: 100%;
 }
 

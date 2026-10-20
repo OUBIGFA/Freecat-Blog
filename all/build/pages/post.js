@@ -507,7 +507,9 @@ function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = 
 
     // 按需加载：扫描渲染后的 HTML，只为真正用到的特性引入对应 CSS/JS
     const needsKatex = /class="katex/i.test(finalContentHtml);
-    const needsMermaid = /data-diagram-type="mermaid"|class="(?:[^"]*\s)?mermaid-block(?:\s[^"]*)?"/i.test(finalContentHtml);
+    // 不按源码方言加载：Pele 和回退 Mermaid 共用 mermaid 围栏，但只能加载选中的引擎。
+    const needsMermaid = /class="(?:[^"]*\s)?mermaid-block(?:\s[^"]*)?"/i.test(finalContentHtml);
+    const needsPele = /data-diagram-engine="pele"/i.test(finalContentHtml);
     const needsEcharts = /class="(?:[^"]*\s)?echarts-block(?:\s[^"]*)?"|data-chart-options=/i.test(finalContentHtml);
     const needsTwitterEmbed = /data-embed-provider="twitter"/i.test(finalContentHtml);
     const needsAudioPlayer = /class="[^"]*\baudio-player\b/i.test(finalContentHtml);
@@ -516,6 +518,7 @@ function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = 
     const needsMediaPlayer = needsAudioPlayer || needsVideoPlayer;
 
     const chartJs = [
+        needsPele ? `<script src="${versionedAssetUrl('/assets/pele/pele.global.min.js', assetVersion)}" defer></script>` : '',
         needsMermaid ? '<script src="https://cdn.jsdelivr.net/npm/mermaid@11.15.0/dist/mermaid.min.js"></script>' : '',
         needsEcharts ? '<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>' : ''
     ].filter(Boolean).join('\n    ');

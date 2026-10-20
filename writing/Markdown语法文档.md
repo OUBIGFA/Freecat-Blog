@@ -89,6 +89,8 @@ $$
 
 ### 4. 高效绘制[流程图](https://github.com/knsv/mermaid#flowchart)
 
+本站的 `mermaid` 围栏由本地 Pele 引擎渲染，写作语法不变。图表使用站内字体并跟随浅深色主题；宽图可用缩放按钮放大后拖动查看。支持 `<br/>` 换行和 URL 链接，不支持任意 HTML 标签或 JavaScript 点击回调。
+
 ```mermaid
 graph TD
     A[用户请求] --> B[语义解析]
@@ -884,7 +886,7 @@ greet('World')
 - [x] 支持基础 Markdown 语法
 - [x] 支持 GFM 扩展语法
 - [x] 支持数学公式渲染
-- [ ] 支持 Mermaid 图表（计划中）
+- [x] 支持 Mermaid 语法图表（Pele 渲染）
 
 #### 自动链接
 

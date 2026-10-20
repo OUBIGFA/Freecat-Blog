@@ -353,7 +353,7 @@ test('nested article blockquotes stay quiet and aligned', () => {
     assert.doesNotMatch(nestedQuoteRule, /background(?:-color)?:\s*#(?:f1f5f9|e2e8f0|0f172a|0b1220)/);
 });
 
-test('mermaid diagrams use the official renderer and broad diagram styling', () => {
+test('explicit Mermaid rollback retains the official renderer and its diagram styling', () => {
     const postPageJs = fs.readFileSync(path.join(__dirname, '../build/pages/post.js'), 'utf-8');
 
     assert.match(postPageJs, /cdn\.jsdelivr\.net\/npm\/mermaid@11\.15\.0\/dist\/mermaid\.min\.js/);

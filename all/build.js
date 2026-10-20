@@ -283,6 +283,12 @@ buildArticleFontSubset({ rootDir: __dirname, refresh: true });
 console.log('📦 Moving assets and configs...');
 if (fs.existsSync(DIRS.assets)) copyDir(DIRS.assets, path.join(DIRS.output, 'assets'), { ignore: ['posts'] });
 writeCodeThemeAssets(path.join(DIRS.output, 'assets'), siteConfig);
+// 固定 npm 版本的已压缩浏览器包随站托管；.min.js 避免再改写第三方产物，许可证一并分发。
+const pelePackageDir = path.dirname(require.resolve('pele/package.json'));
+const peleOutputDir = path.join(DIRS.output, 'assets', 'pele');
+fs.mkdirSync(peleOutputDir, { recursive: true });
+fs.copyFileSync(path.join(pelePackageDir, 'dist', 'pele.global.js'), path.join(peleOutputDir, 'pele.global.min.js'));
+fs.copyFileSync(path.join(pelePackageDir, 'LICENSE'), path.join(peleOutputDir, 'LICENSE'));
 // Formula fonts must ship with the site; keep KaTeX's relative font URLs intact.
 const katexPackageDir = path.dirname(require.resolve('katex/package.json'));
 const katexOutputDir = path.join(DIRS.output, 'assets', 'katex');

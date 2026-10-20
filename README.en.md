@@ -54,6 +54,20 @@ Main features:
 - Generate a Sitemap (page list), RSS (subscription feed), and llms.txt (site information for AI tools). See `Control/SEO_搜索优化.md` for settings.
 - Set the site name, avatar, social links, and theme in configuration files.
 
+## Diagram engine and rollback
+
+Keep writing `mermaid` code fences. A pinned [Pele](https://pele.run) package renders them using the site's local fonts; the build ships the engine and MIT license under `/assets/pele/` and loads it only on diagram pages. `echarts` / `chart` fences continue to use ECharts.
+
+Gantt charts retain their timeline canvas width so narrow containers do not push short task names outside their bars. Small screens initially show the overview, with zoom and pan for reading; other diagram types keep adapting their layout to the container.
+
+Theme changes do not rerender Pele diagrams. Wide diagrams support zoom buttons, pinch, or `Ctrl` / `⌘` + wheel, followed by dragging to pan; ordinary wheel input still scrolls the page. `<br/>` line breaks and URL links are supported; arbitrary HTML labels and JavaScript `click` callbacks are not. Layout is not pixel-identical to Mermaid.
+
+For rollback, set the build environment variable `DIAGRAM_ENGINE=mermaid` and rebuild. Remove it or set `pele` to restore the default. Unknown values fail explicitly. The retained Mermaid path still uses its original CDN and is not an offline fallback. Keep the legacy implementation until the rollback window closes.
+
+Build-time SVG is not enabled yet: local font measurement works, but a single static layout makes text too small on phones. It needs responsive-layout and reading-interaction validation first; no Ondine dependency or source migration is required.
+
+From `all/`, run `npm test` and `npm run build`. Preview uses `http://127.0.0.1:4173`; run browser checks with `npm run test:browser`.
+
 ## Folder purposes
 
 | Folder | Purpose | When to edit |

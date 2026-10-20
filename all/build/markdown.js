@@ -777,9 +777,16 @@ function buildRenderer() {
         const escapedCode = escapeHtml(code);
 
         if (normalizedLanguage === 'mermaid') {
+            // 围栏表示源码方言；渲染器由构建选择，不改写文章，也不在失败时静默切换。
+            if (activePostOptions.diagramEngine === 'pele') {
+                return `
+    <div class="diagram-block pele-block my-6" data-diagram-type="mermaid" data-diagram-engine="pele">
+        <div class="pele-diagram" data-diagram-source="${base64EncodeUtf8(code)}" role="group" aria-label="可缩放图表">${escapedCode}</div>
+    </div>`;
+            }
             const kind = getMermaidDiagramKind(code);
             return `
-    <div class="diagram-block mermaid-block my-6" data-diagram-type="mermaid" data-mermaid-kind="${kind}">
+    <div class="diagram-block mermaid-block my-6" data-diagram-type="mermaid" data-diagram-engine="mermaid" data-mermaid-kind="${kind}">
         <div class="mermaid" data-mermaid-source="${base64EncodeUtf8(code)}" role="img" aria-label="Mermaid ${kind} diagram">${escapedCode}</div>
     </div>`;
         }
@@ -880,7 +887,10 @@ function setup() {
 // previous-restore 保护「同步嵌套调用」（如 callout 内嵌 markdown），但若未来
 // 引入 worker / 并行渲染多篇文章，这两个全局会被串扰。
 // 真要并行的话，需要把 ctx 塞进 marked 扩展的 tokenizer/renderer 闭包参数里。
-function parseMarkdown(content, { includeFootnotesSection = true, enableImageCaptions = false, getHighlightHtml, markMarkdownHeadings = false } = {}) {
+function parseMarkdown(content, { includeFootnotesSection = true, enableImageCaptions = false, getHighlightHtml, markMarkdownHeadings = false, diagramEngine = process.env.DIAGRAM_ENGINE || 'pele' } = {}) {
+    if (diagramEngine !== 'pele' && diagramEngine !== 'mermaid') {
+        throw new Error('DIAGRAM_ENGINE 必须是 pele 或 mermaid。');
+    }
     setup();
     const normalizedContent = normalizeMultilineVideoImages(content || '');
     const tableColumnWidths = collectMarkdownTableColumnWidths(normalizedContent);
@@ -888,7 +898,7 @@ function parseMarkdown(content, { includeFootnotesSection = true, enableImageCap
     const { markdown, defs } = extractFootnoteDefinitions(prepared);
     const previousContext = activeFootnoteContext;
     const previousPostOptions = activePostOptions;
-    activePostOptions = { enableImageCaptions, getHighlightHtml, markMarkdownHeadings };
+    activePostOptions = { enableImageCaptions, getHighlightHtml, markMarkdownHeadings, diagramEngine };
     activeFootnoteContext = createFootnoteContext(defs);
 
     try {

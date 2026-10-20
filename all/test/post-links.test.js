@@ -256,6 +256,45 @@ test('generateAll writes only the fixed post id page', (t) => {
     assert.equal(writes.size, 1);
 });
 
+test('only diagram pages load the selected versioned engine; ECharts stays independent', () => {
+    const { parseHTML } = require('linkedom');
+    const render = content => parseHTML(renderPostPage({
+        post: {
+            title: 'Diagrams', content, tag: [], link: '/posts/diagram-test', postId: 'diagram-test',
+            date: dayjs('2026-06-01'), modifiedDate: dayjs('2026-06-01')
+        },
+        template: '<!doctype html><html><head><!-- POST_CHART_JS --></head><body><!-- CONTENT_PLACEHOLDER --></body></html>',
+        siteConfig: { site_name: 'Example', site_url: 'https://example.com' },
+        seoConfig: {}, assetVersion: 'diagram-release'
+    })).document;
+    const previous = process.env.DIAGRAM_ENGINE;
+    try {
+        delete process.env.DIAGRAM_ENGINE;
+        assert.equal(render('正文').querySelectorAll('script[src]').length, 0);
+        const chart = '```echarts\n{"series":[{"type":"bar","data":[1,2]}]}\n```';
+        const echartsOnly = render(chart);
+        assert.equal(echartsOnly.querySelectorAll('script[src]').length, 1);
+        assert.match(echartsOnly.querySelector('script').src, /echarts@5/);
+        const mermaid = '```mermaid\nflowchart LR\n A[中文] --> B[结束]\n```';
+        const normal = render(mermaid + '\n\n' + chart);
+        assert.deepEqual([...normal.querySelectorAll('script[src]')].map(s => s.src), [
+            '/assets/pele/pele.global.min.js?v=diagram-release',
+            'https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js'
+        ]);
+        assert.ok(normal.querySelector('script[src*="pele"]').hasAttribute('defer'));
+        assert.equal(normal.querySelector('.diagram-block').getAttribute('data-diagram-type'), 'mermaid');
+        assert.equal(normal.querySelector('.diagram-block').getAttribute('data-diagram-engine'), 'pele');
+        process.env.DIAGRAM_ENGINE = 'mermaid';
+        const rollback = render(mermaid);
+        assert.ok(rollback.querySelector('.mermaid-block .mermaid'));
+        assert.match(rollback.querySelector('script').src, /mermaid@11\.15\.0/);
+        assert.equal(rollback.querySelectorAll('script[src]').length, 1);
+    } finally {
+        if (previous === undefined) delete process.env.DIAGRAM_ENGINE;
+        else process.env.DIAGRAM_ENGINE = previous;
+    }
+});
+
 test('post share metadata uses dotted publish date for preview display', () => {
     const post = {
         title: 'Share Date Post',

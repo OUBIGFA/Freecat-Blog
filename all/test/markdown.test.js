@@ -498,26 +498,59 @@ test('markdown image dimensions and visible captions are retained', () => {
     }
 });
 
-test('mermaid code blocks render as diagram containers with detected kinds', () => {
+test('mermaid fences keep their source while Pele is the default renderer', () => {
+    const source = 'sequenceDiagram\n    Alice->>Bob: 中文 <br/>第二行 & 123';
+    const html = parseMarkdown('```mermaid\n' + source + '\n```', { diagramEngine: 'pele' });
+    assert.match(html, /class="diagram-block pele-block my-6"/);
+    assert.match(html, /data-diagram-type="mermaid" data-diagram-engine="pele"/);
+    assert.doesNotMatch(html, /class="mermaid"|<pre><code/);
+    const encoded = html.match(/data-diagram-source="([^"]+)"/)[1];
+    assert.equal(Buffer.from(encoded, 'base64').toString('utf8'), source);
+    assert.match(html, /&lt;br\/&gt;/);
+});
+
+test('pinned Pele renders Chinese labels and HTML breaks without injecting callbacks', async () => {
+    const { render, PeleError } = await import('pele');
+    const { parseHTML } = require('linkedom');
+    const sequence = render('sequenceDiagram\n Alice->>Bob: 中文<br/>第二行');
+    assert.equal(sequence.type, 'sequence');
+    const { document } = parseHTML(sequence.svg);
+    assert.ok(document.querySelectorAll('text').length > 1);
+    assert.match(document.documentElement.textContent, /中文/);
+    assert.match(document.documentElement.textContent, /第二行/);
+    assert.doesNotMatch(sequence.svg, /foreignObject|&lt;br/);
+    const links = render('flowchart LR\n A[安全] --> B[链接]\n click A callback\n click B "https://example.com"');
+    assert.equal(links.links.length, 1);
+    assert.equal(links.links[0].href, 'https://example.com/');
+    assert.doesNotMatch(links.svg, /onclick=|<script/);
+    assert.throws(() => render('flowchart LR\n A -->'), PeleError);
+});
+
+test('unknown diagram engines fail explicitly and do not leak Markdown options', () => {
+    assert.throws(() => parseMarkdown('Text', { diagramEngine: 'unknown' }), /DIAGRAM_ENGINE/);
+    assert.match(parseMarkdown('```mermaid\ngraph TD; A-->B\n```', { diagramEngine: 'pele' }), /pele-block/);
+});
+
+test('explicit Mermaid rollback keeps diagram containers and detected kinds', () => {
     const sequenceHtml = parseMarkdown([
         '```mermaid',
         'sequenceDiagram',
         '    Alice->>Bob: Hello',
         '```'
-    ].join('\n'));
+    ].join('\n'), { diagramEngine: 'mermaid' });
     const ganttHtml = parseMarkdown([
         '```mermaid',
         'gantt',
         '    title Release',
         '    Build :2026-06-01, 2d',
         '```'
-    ].join('\n'));
+    ].join('\n'), { diagramEngine: 'mermaid' });
     const classHtml = parseMarkdown([
         '```mermaid',
         'classDiagram',
         '    Animal <|-- Cat',
         '```'
-    ].join('\n'));
+    ].join('\n'), { diagramEngine: 'mermaid' });
 
     assert.match(sequenceHtml, /class="diagram-block mermaid-block my-6"/);
     assert.match(sequenceHtml, /data-mermaid-kind="sequence"/);

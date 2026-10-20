@@ -32,23 +32,56 @@
 
     function renderChartError(container, message) {
         container.classList.add('diagram-error');
-        container.innerHTML = '<p>Chart render failed. Please check the chart syntax.</p>';
+        container.innerHTML = '<p role="alert">图表渲染失败，请检查图表语法或刷新重试。</p>';
         if (message) container.setAttribute('title', message);
     }
 
+    // 仅供 DIAGRAM_ENGINE=mermaid 的显式回退；回退验收结束前保留旧布局与修补逻辑。
     var mermaidRenderState = {
         rendering: false,
-        pending: false,
-        observed: false
+        pending: false
     };
+    var diagramThemeObserved = false;
 
     var echartsCharts = [];
     var echartsResizeBound = false;
     var diagramFontFamily = '"Freecat Figtree", "Freecat Noto Sans SC", "Freecat Noto Emoji", "Freecat Noto Symbols", sans-serif';
 
+    function initPeleBlocks() {
+        var blocks = Array.prototype.slice.call(document.querySelectorAll('.pele-block .pele-diagram'));
+        blocks.forEach(function (block) {
+            var container = block.closest('.diagram-block') || block;
+            if (!window.pele || typeof window.pele.mount !== 'function') {
+                renderChartError(container, 'Pele library was not loaded.');
+                return;
+            }
+            try {
+                var source = decodeBase64Utf8(block.getAttribute('data-diagram-source'));
+                // 用引擎识别图类型，兼容前置注释、init 指令与 YAML 配置。
+                var isGantt = window.pele.detectType(source) === 'gantt';
+                // 甘特图保留时间轴宽度，避免短任务因窄屏重排而把名称挤到色块外。
+                // maxWidth=0 只关闭甘特图的布局收窄；原生 zoom 仍负责适配、缩放和拖动。
+                // 其他图随正文/iframe 自适应；所有图的明暗切换均不重新挂载。
+                window.pele.mount(block, source, {
+                    fontSize: 16,
+                    maxWidth: isGantt ? 0 : undefined,
+                    config: { gantt: { useWidth: 1200 } },
+                    zoom: { labels: { zoomIn: '放大图表', zoomOut: '缩小图表', reset: '重置图表缩放' } },
+                    onRender: function (result) {
+                        container.setAttribute('data-diagram-kind', result.type);
+                    },
+                    onError: function (error) {
+                        renderChartError(container, error && error.message);
+                    }
+                });
+            } catch (error) {
+                renderChartError(container, error && error.message);
+            }
+        });
+    }
+
     function initMermaidBlocks() {
         renderMermaidBlocks();
-        observeDiagramThemeChanges();
     }
 
     // 把 base64 源码还原进各 mermaid 块，并给容器标注图类型；返回待渲染块列表。
@@ -386,8 +419,8 @@
 
     function observeDiagramThemeChanges() {
         if (typeof MutationObserver === 'undefined' || !document.documentElement) return;
-        if (mermaidRenderState.observed) return;
-        mermaidRenderState.observed = true;
+        if (diagramThemeObserved) return;
+        diagramThemeObserved = true;
         // 只在深/浅状态真正翻转时重渲染：主题切换过程中 html 上还会增删
         // theme-transitioning / theme-instant 等辅助类，不能每次 class 变化都
         // 触发一轮 mermaid 全量重渲染。
@@ -561,8 +594,10 @@
         var blocks = Array.prototype.slice.call(document.querySelectorAll('.diagram-block'));
         if (!blocks.length) return;
         var render = function () {
+            initPeleBlocks();
             initMermaidBlocks();
             initEchartsBlocks();
+            observeDiagramThemeChanges();
         };
         // SVG 创建前字体可能尚未被使用；显式加载图表所需字形，避免 ready 提前完成。
         var fonts = document.fonts;
@@ -570,10 +605,19 @@
         var labels = blocks.map(function (block) {
             return block.textContent || decodeBase64Utf8(block.getAttribute('data-chart-options'));
         }).join('');
-        Promise.all([
-            fonts.load('15px "Freecat Figtree"', labels),
-            fonts.load('15px "Freecat Noto Sans SC"', labels)
-        ]).then(render, function (error) {
+        var fontRequests = [
+            '15px "Freecat Figtree"',
+            '15px "Freecat Noto Sans SC"'
+        ];
+        if (document.querySelector('.pele-diagram')) {
+            // Pele 以 bold / monospace 测量富文本，首帧前也要加载这些字面及本地符号字体。
+            fontRequests = fontRequests.concat([
+                '700 16px "Freecat Figtree"', '700 16px "Freecat Noto Sans SC"',
+                '16px "Freecat JetBrains Mono"', '700 16px "Freecat JetBrains Mono"',
+                '16px "Freecat Noto Emoji"', '16px "Freecat Noto Symbols"'
+            ]);
+        }
+        Promise.all(fontRequests.map(function (font) { return fonts.load(font, labels); })).then(render, function (error) {
             // 字体请求失败时沿用浏览器字体回退，图表数据仍须可用。
             console.warn('Chart font loading failed; using browser fallback fonts.', error);
             render();

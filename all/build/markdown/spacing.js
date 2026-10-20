@@ -106,7 +106,7 @@ function isStandaloneVisualBlockLine(line) {
     if (!trimmed) return false;
     if (/^!\[[^\]]*\]\([^)]+\)\s*$/.test(trimmed)) return true;
     if (/^<(?:figure|picture|img|video|iframe|table|center)\b/i.test(trimmed)) return true;
-    if (/^<div\b[^>]*\b(?:mermaid|post-image|markdown-media)\b/i.test(trimmed)) return true;
+    if (/^<div\b[^>]*\b(?:mermaid|pele-diagram|post-image|markdown-media)\b/i.test(trimmed)) return true;
     return false;
 }
 
