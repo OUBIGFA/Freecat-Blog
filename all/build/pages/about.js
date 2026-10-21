@@ -17,9 +17,11 @@ function generate({ template, siteConfig, seoConfig, aboutConfig, outputDir }) {
     const finalSubtitle = aboutConfig.about_hero_subtitle || siteConfig.hero_subtitle;
     const finalAvatar = aboutConfig.about_hero_avatar || siteConfig.hero_avatar;
 
-    const title = `About - ${siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog'}`;
-    // 无后缀 = Cloudflare Pages 对 *.html 的规范地址（/about.html 会被 308 到 /about）
-    const canonicalPath = '/about';
+    const isHomepage = siteConfig.home_page === 'about';
+    const siteTitle = siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog';
+    const title = isHomepage ? siteTitle : `About - ${siteTitle}`;
+    // 保留 /about 旧链接；作为首页时统一 canonical 到 /，不制造两个可收录副本。
+    const canonicalPath = isHomepage ? '/' : '/about';
     const canonical = seo.pageUrl(siteConfig, canonicalPath);
     const seoHead = seo.renderHeadTags({
         title,
@@ -29,9 +31,11 @@ function generate({ template, siteConfig, seoConfig, aboutConfig, outputDir }) {
         seoConfig,
         image: finalAvatar || seo.defaultImage(siteConfig, seoConfig)
     });
-    const jsonLd = seo.renderAboutJsonLd({ siteConfig, seoConfig, aboutConfig, canonical });
+    const jsonLd = seo.renderAboutJsonLd({ siteConfig, seoConfig, aboutConfig, canonical }) +
+        (isHomepage ? seo.renderWebsiteJsonLd({ siteConfig, seoConfig }) : '');
 
     const html = replacePlaceholders(template, [
+        [/<title>[\s\S]*?<\/title>/, `<title>${shared.escapeHtml(title)}</title>`],
         ['<!-- ABOUT_SEO_HEAD -->', seoHead],
         ['<!-- ABOUT_JSONLD -->', jsonLd],
         [/<!-- ABOUT_HERO_TITLE -->/g, autoLineBreak(shared.escapeHtml(autoSpacing(finalTitle)))],
@@ -40,7 +44,11 @@ function generate({ template, siteConfig, seoConfig, aboutConfig, outputDir }) {
     ]);
 
     fs.writeFileSync(path.join(outputDir, 'about.html'), html, 'utf-8');
-    console.log('  Generated: about.html');
+    if (isHomepage) {
+        fs.writeFileSync(path.join(outputDir, 'index.html'), html, 'utf-8');
+        fs.writeFileSync(path.join(outputDir, 'home.html'), html, 'utf-8');
+    }
+    console.log('  Generated: about.html' + (isHomepage ? ', index.html, home.html' : ''));
 }
 
 module.exports = { generate };

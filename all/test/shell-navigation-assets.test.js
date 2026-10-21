@@ -36,7 +36,7 @@ test('theme switching uses one page-cover transition and syncs the shell iframe'
     assert.doesNotMatch(themeSystemJs, /startViewTransition/);
     assert.match(themeSystemJs, /function syncFrameTheme\(isDark, options = \{\}\)\s*\{/);
     assert.match(themeSystemJs, /contentFrame\.contentWindow\.FreecatRuntime/);
-    assert.match(themeSystemJs, /frameRuntime\.applyTheme\(\{\s*animate:\s*!!options\.animate,\s*suppressTransitions:\s*!!options\.suppressTransitions\s*\}\);/);
+    assert.match(themeSystemJs, /frameRuntime\.applyTheme\(\{\s*animate:\s*!!options\.animate,\s*suppressTransitions:\s*!!options\.suppressTransitions,\s*transientTheme:\s*transientTheme \? transientTheme\.value : null\s*\}\);/);
     assert.match(themeSystemJs, /contentFrame\.contentWindow\.FreecatApplyTheme/);
     assert.match(themeSystemJs, /syncFrameTheme\(isDark,\s*\{\s*animate:\s*false,\s*suppressTransitions:\s*true\s*\}\);/);
     assert.match(themeSystemJs, /frameDoc\.documentElement\.classList\.toggle\('dark', isDark\);/);
@@ -179,11 +179,21 @@ test('fixed header has a stable css height before runtime measurement', () => {
 });
 
 test('header has one navigation and one control for each action across screen sizes', () => {
-    for (const id of ['nav-links', 'search-toggle', 'search-input', 'search-close', 'tag-menu-toggle', 'theme-toggle']) {
-        assert.equal((header.match(new RegExp(`id="${id}"`, 'g')) || []).length, 1);
+    const { createEngine } = require('../build/template-engine.js');
+    const { parseHTML } = require('linkedom');
+    for (const home_page of ['posts', 'about']) {
+        const engine = createEngine({
+            templatesDir: path.join(__dirname, '../src'), partialsDir: path.join(__dirname, '../src/partials'),
+            siteConfig: { home_page }, socialConfig: {}
+        });
+        const { document } = parseHTML(engine.applySiteConfig(header));
+        for (const id of ['nav-links', 'search-toggle', 'search-input', 'search-close', 'tag-menu-toggle', 'theme-toggle']) {
+            assert.equal(document.querySelectorAll('#' + id).length, 1);
+        }
+        const links = [...document.querySelectorAll('#nav-links a')];
+        assert.deepEqual(links.map(link => link.textContent), ['Home', 'Posts', 'About']);
+        assert.deepEqual(links.map(link => link.getAttribute('href')), ['/', home_page === 'about' ? '/blog' : '/all', '/about']);
     }
-    assert.equal((header.match(/href="\/about"/g) || []).length, 1);
-    assert.equal((header.match(/href="\/all"/g) || []).length, 1);
     assert.doesNotMatch(header, /hover:opacity|group-hover:rotate/);
 });
 

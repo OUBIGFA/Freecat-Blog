@@ -16,14 +16,19 @@ const shellPage = require('../build/pages/shell.js');
 const searchPage = require('../build/pages/search.js');
 const allPage = require('../build/pages/all.js');
 const searchCore = require('../src/assets/search-core.js');
+const aboutPage = require('../build/pages/about.js');
+const { renderPostPage } = require('../build/pages/post.js');
+const { generateSitemap, generateLlmsTxt } = require('../build/pages/sitemap.js');
+const { parseHTML, DOMParser } = require('linkedom');
 
-function createTestEngine() {
+function createTestEngine(overrides = {}) {
     const siteConfig = {
         site_title: 'FreeCat Blog',
         site_name: 'FreeCat',
         site_url: 'https://example.com',
         site_favicon: '/image/freecat.png',
-        hero_avatar: '/image/freecat.png'
+        hero_avatar: '/image/freecat.png',
+        ...overrides
     };
     const seoConfig = {
         site_language: 'zh-CN',
@@ -213,3 +218,70 @@ test('tag indexes preserve labels that match object prototype properties', (t) =
     assert.deepEqual(searchCore.getPostsByTag('__untagged__', index).map(post => post.link), ['/posts/untagged/']);
     assert.deepEqual(searchCore.getPostsByTag('missing', index), []);
 });
+
+for (const home_page of ['posts', 'about']) {
+    for (const count of [0, 1, 3]) {
+        test(`${home_page} homepage retains content, aliases and discoverable pagination with ${count} posts`, t => {
+            const files = new Map();
+            t.mock.method(fs, 'writeFileSync', (file, html) => files.set(path.normalize(file), html));
+            t.mock.method(fs, 'mkdirSync', () => {});
+            t.mock.method(console, 'log', () => {});
+            const config = createTestEngine({ home_page });
+            const posts = Array.from({ length: count }, (_, index) => ({ ...createPost(), link: `/posts/${index + 1}/` }));
+            const common = { ...config, posts, postsPerPage: 1, outputDir: '/virtual',
+                aboutConfig: { about_hero_title: 'About me', about_hero_subtitle: 'Personal introduction' } };
+            indexPage.generateAll({ ...common, template: config.engine.loadTemplate('template_index.html') });
+            aboutPage.generate({ ...common, template: config.engine.loadTemplate('template_index_About.html') });
+            generateSitemap(common);
+            generateLlmsTxt(common);
+            const read = file => files.get(path.normalize('/virtual/' + file));
+            const doc = file => parseHTML(read(file)).document;
+            const about = home_page === 'about';
+            const first = about ? '/blog' : '/';
+            const home = doc('index.html');
+            const list = doc(about ? 'blog.html' : 'index.html');
+            assert.equal(home.title, 'FreeCat Blog');
+            assert.equal(home.querySelector('link[rel=canonical]').href, 'https://example.com/');
+            assert.equal(read('home.html'), read('index.html'));
+            assert.equal(!!home.querySelector('.freecat-about-title'), about);
+            assert.equal(!!home.querySelector('#posts-list'), !about);
+            assert.equal(home.querySelector('#nav-links a:nth-child(2)').getAttribute('href'), about ? '/blog' : '/all');
+            assert.match(read('index.html'), /"@type":"WebSite"/);
+            assert.equal(doc('about.html').querySelector('link[rel=canonical]').href, 'https://example.com' + (about ? '/' : '/about'));
+            assert.equal(list.querySelectorAll('#posts-list .post-card').length, Math.min(1, count));
+            assert.equal(list.querySelector('link[rel=canonical]').href, 'https://example.com' + first);
+            if (about) {
+                assert.equal(read('about.html'), read('index.html'));
+                assert.match(home.querySelector('h1').textContent, /About me/);
+            }
+            if (count > 1) {
+                const second = doc('page/2/index.html');
+                assert.equal(second.querySelector('link[rel=prev]').href, 'https://example.com' + first);
+                assert.equal(second.querySelector('a[aria-label="Prev page"]').getAttribute('href'), first);
+                assert.equal(second.querySelector('input[aria-label="Jump to page"]').getAttribute('data-first-page'), first);
+                assert.equal(list.querySelector('link[rel=next]').href, 'https://example.com/page/2/');
+            }
+            const xml = new DOMParser().parseFromString(read('sitemap.xml'), 'text/xml');
+            const urls = [...xml.querySelectorAll('loc')].map(node => node.textContent);
+            assert.equal(new Set(urls).size, urls.length);
+            assert.ok(urls.includes('https://example.com' + first));
+            assert.equal(urls.includes('https://example.com/about'), !about);
+            assert.equal(urls.includes('https://example.com/page/2/'), count > 1);
+            assert.ok(!urls.includes('https://example.com/home'));
+            assert.match(read('llms.txt'), about ? /About: https:\/\/example.com\/\n/ : /About: https:\/\/example.com\/about/);
+        });
+    }
+}
+
+for (const show_share_button of [undefined, true, false]) {
+    test(`share control is ${show_share_button === false ? 'omitted' : 'present'} when configured as ${show_share_button}`, () => {
+        const config = createTestEngine({ show_share_button });
+        const html = renderPostPage({ ...config, post: createPost(), template: config.engine.loadTemplate('template_post.html') });
+        const { document } = parseHTML(html);
+        assert.equal(document.querySelectorAll('#share-btn').length, show_share_button === false ? 0 : 1);
+        assert.ok(document.querySelector('.freecat-post-end [data-go-back]'));
+        assert.match(document.querySelector('article').textContent, /Demo body content/);
+        assert.equal(document.querySelector('meta[property="og:type"]').content, 'article');
+        assert.doesNotMatch(html, /<!-- POST_SHARE_(START|END) -->/);
+    });
+}

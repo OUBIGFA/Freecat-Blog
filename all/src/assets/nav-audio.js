@@ -30,6 +30,7 @@
             : null;
         const navAudioPlaylistToggle = document.getElementById('nav-audio-playlist-toggle');
         const navAudioPlaylist = document.getElementById('nav-audio-playlist');
+        const navAudioShuffleToggle = document.getElementById('nav-audio-shuffle');
         const trackButtons = navAudioPlaylist ? Array.from(navAudioPlaylist.querySelectorAll('[data-audio-track-index]')) : [];
         const idleIcon = navAudioToggle.querySelector('.nav-audio-icon-idle');
         const playingIcon = navAudioToggle.querySelector('.nav-audio-icon-playing');
@@ -40,6 +41,7 @@
         let requestedPlayback = false;
         let playbackRequestId = 0;
         let playlistOpen = false;
+        let shuffleEnabled = false;
         let lastStateSave = 0;
         let currentVolume = readSavedNavAudioVolume();
         let errorSkipTimer = 0;
@@ -225,6 +227,7 @@
                     index: currentIndex,
                     currentTime: Number(navAudio.currentTime) || 0,
                     paused: !requestedPlayback,
+                    shuffle: shuffleEnabled,
                     updatedAt: now
                 }));
             } catch (err) {}
@@ -279,6 +282,7 @@
             navAudioToggle.setAttribute('aria-pressed', isPlaying ? 'true' : 'false');
             navAudioToggle.setAttribute('aria-label', isPlaying ? 'Pause audio' : 'Play audio');
             navAudioToggle.title = `${isPlaying ? '暂停' : '播放'}：${playlist[currentIndex].title}`;
+            if (navAudioShuffleToggle) navAudioShuffleToggle.setAttribute('aria-pressed', String(shuffleEnabled));
             trackButtons.forEach(button => {
                 const isCurrent = Number(button.dataset.audioTrackIndex) === currentIndex;
                 button.setAttribute('aria-current', String(isCurrent));
@@ -323,7 +327,18 @@
         }
 
         function playNextNavAudioTrack() {
-            setNavAudioTrack((currentIndex + 1) % playlist.length, { currentTime: 0 });
+            // Draw from eligible songs instead of retrying random indexes: even an all-failed list must stop.
+            const candidates = playlist.map((_, offset) => (currentIndex + offset + 1) % playlist.length)
+                .filter(index => !failedTrackIndexes.has(index));
+            if (!candidates.length) {
+                stopNavAudioRequest();
+                return;
+            }
+            const alternatives = candidates.filter(index => index !== currentIndex);
+            const nextIndex = shuffleEnabled && alternatives.length
+                ? alternatives[Math.floor(Math.random() * alternatives.length)]
+                : candidates[0];
+            setNavAudioTrack(nextIndex, { currentTime: 0 });
             playNavAudio();
         }
 
@@ -342,10 +357,6 @@
                 errorSkipTimer = 0;
                 if (!requestedPlayback || failedRequestId !== playbackRequestId) return;
                 failedTrackIndexes.add(currentIndex);
-                if (failedTrackIndexes.size >= playlist.length) {
-                    stopNavAudioRequest();
-                    return;
-                }
                 playNextNavAudioTrack();
             }, 0);
         }
@@ -354,6 +365,7 @@
         if (savedState) {
             currentIndex = clampTrackIndex(savedState.index);
             requestedPlayback = savedState.paused !== true;
+            shuffleEnabled = savedState.shuffle === true;
             setNavAudioTrack(currentIndex, { currentTime: getContinuousTime(savedState) });
         } else {
             setNavAudioTrack(0);
@@ -374,6 +386,19 @@
                 closeTagMenu();
                 closeHeaderSearch(true);
                 setNavAudioPlaylistOpen(!playlistOpen);
+            });
+        }
+        if (navAudioShuffleToggle) {
+            navAudioShuffleToggle.addEventListener('click', () => {
+                shuffleEnabled = !shuffleEnabled;
+                if (shuffleEnabled) {
+                    failedTrackIndexes.clear();
+                    playNextNavAudioTrack();
+                } else {
+                    // Turning shuffle off changes only future selection, never the current playback request.
+                    syncNavAudioState();
+                    saveNavAudioState(true);
+                }
             });
         }
         trackButtons.forEach(button => {

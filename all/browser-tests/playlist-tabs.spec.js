@@ -33,9 +33,17 @@ wav.writeUInt16LE(2, 32); wav.writeUInt16LE(16, 34);
 wav.write('data', 36); wav.writeUInt32LE(wav.length - 44, 40);
 
 test.beforeEach(async ({ page }) => {
-    await page.route(/^https:\/\//, route => route.request().resourceType() === 'media'
-        ? route.fulfill({ contentType: 'audio/wav', body: wav })
-        : route.abort());
+    await page.route(/^https:\/\//, route => {
+        if (route.request().resourceType() !== 'media') return route.abort();
+        // Chromium needs byte-range support to seek this WAV; a plain 200 body reports seekable [0, 0].
+        const range = /^bytes=(\d+)-(\d*)$/.exec(route.request().headers().range || '');
+        const start = range ? Number(range[1]) : 0;
+        const end = range && range[2] ? Math.min(Number(range[2]), wav.length - 1) : wav.length - 1;
+        return route.fulfill({
+            status: range ? 206 : 200, contentType: 'audio/wav', body: wav.subarray(start, end + 1),
+            headers: { 'accept-ranges': 'bytes', ...(range ? { 'content-range': `bytes ${start}-${end}/${wav.length}` } : {}) }
+        });
+    });
     await page.goto('/all');
 });
 
@@ -64,6 +72,8 @@ test('song selection midway through an article preserves reading state and cross
         samePlayer: window.testPlayer === document.getElementById('nav-audio'),
         scroll: scrollY
     }))).toEqual({ sameArticle: true, samePlayer: true, scroll: before });
+    await panel.getByRole('button', { name: '随机播放', exact: true }).click();
+    await expect(page.locator('#nav-audio-shuffle')).toHaveAttribute('aria-pressed', 'true');
     const lastIndex = String(await tracks.count() - 1);
     await tracks.last().click();
     await expect(page.locator('#nav-audio')).toHaveAttribute('data-audio-index', lastIndex);
@@ -97,6 +107,7 @@ test('song selection midway through an article preserves reading state and cross
         events: window.testPlayerEvents
     }))).toEqual({ samePlayer: true, index: lastIndex, events: [] });
     await toggle.click();
+    await expect(page.locator('#nav-audio-shuffle')).toHaveAttribute('aria-pressed', 'true');
     await expect(tracks.last()).toHaveAttribute('aria-current', 'true');
     // Pick an exposed area of the frame; on mobile the list intentionally covers the sort toolbar.
     await page.mouse.click(4, page.viewportSize().height - 100);
@@ -105,12 +116,64 @@ test('song selection midway through an article preserves reading state and cross
     await expect(frame.locator('#sort-modified')).toHaveAttribute('aria-selected', 'true');
 });
 
+test('shuffle continues after ending, turns off without interruption and restores with the session', async ({ page }) => {
+    const audio = page.locator('#nav-audio');
+    const panel = page.locator('#nav-audio-playlist');
+    const shuffle = panel.getByRole('button', { name: '随机播放', exact: true });
+    const count = await panel.locator('[data-audio-track-index]').count();
+    await page.locator('#nav-audio-playlist-toggle').click();
+    await expect(shuffle).toHaveAttribute('aria-pressed', 'false');
+    const initialIndex = await audio.getAttribute('data-audio-index');
+    await shuffle.click();
+    await expect(shuffle).toHaveAttribute('aria-pressed', 'true');
+    await expect(audio).not.toHaveAttribute('data-audio-index', initialIndex);
+    await expect.poll(() => audio.evaluate(el => el.currentTime)).toBeGreaterThan(0);
+    const firstRandomIndex = await audio.getAttribute('data-audio-index');
+    // Seek the real local WAV to its end so the browser, not the test, emits ended.
+    await expect.poll(() => audio.evaluate(el => el.seekable.length ? el.seekable.end(0) : 0)).toBeGreaterThan(59);
+    await audio.evaluate(el => { el.currentTime = el.duration - 0.05; });
+    await expect(audio).not.toHaveAttribute('data-audio-index', firstRandomIndex);
+    await expect.poll(() => audio.evaluate(el => el.currentTime)).toBeGreaterThan(0);
+    const randomIndex = await audio.getAttribute('data-audio-index');
+    const beforeOff = await audio.evaluate(el => {
+        window.shuffleEvents = [];
+        for (const name of ['play', 'pause', 'emptied']) el.addEventListener(name, () => window.shuffleEvents.push(name));
+        return el.currentTime;
+    });
+    await shuffle.click();
+    await expect(shuffle).toHaveAttribute('aria-pressed', 'false');
+    await expect(audio).toHaveAttribute('data-audio-index', randomIndex);
+    expect(await audio.evaluate(el => el.currentTime)).toBeGreaterThanOrEqual(beforeOff);
+    expect(await audio.evaluate(el => el.paused)).toBe(false);
+    expect(await page.evaluate(() => window.shuffleEvents)).toEqual([]);
+    await audio.evaluate(el => { el.currentTime = el.duration - 0.05; });
+    await expect(audio).toHaveAttribute('data-audio-index', String((Number(randomIndex) + 1) % count));
+    await expect.poll(() => audio.evaluate(el => el.currentTime)).toBeGreaterThan(0);
+
+    await shuffle.click();
+    await expect.poll(() => audio.evaluate(el => el.currentTime)).toBeGreaterThan(0);
+    await page.locator('#nav-audio-toggle').click();
+    const savedIndex = await audio.getAttribute('data-audio-index');
+    await page.reload();
+    await expect(audio).toHaveAttribute('data-audio-index', savedIndex);
+    expect(await audio.evaluate(el => el.paused)).toBe(true);
+    await page.locator('#nav-audio-playlist-toggle').click();
+    await expect(shuffle).toHaveAttribute('aria-pressed', 'true');
+    expect(await shuffle.evaluate(el => getComputedStyle(el).fontFamily)).toBe(
+        await panel.locator('.nav-audio-track').first().evaluate(el => getComputedStyle(el).fontFamily));
+});
+
 test('the disclosure works with the keyboard and stays within narrow headers and viewports', async ({ page }) => {
     const toggle = page.locator('#nav-audio-playlist-toggle');
     const panel = page.locator('#nav-audio-playlist');
     await toggle.focus();
     await page.keyboard.press('Enter');
     await expect(panel).toBeVisible();
+    await page.keyboard.press('Tab');
+    const shuffle = panel.getByRole('button', { name: '随机播放', exact: true });
+    await expect(shuffle).toBeFocused();
+    await page.keyboard.press('Space');
+    await expect(shuffle).toHaveAttribute('aria-pressed', 'true');
     await page.keyboard.press('Tab');
     await expect(panel.locator('[data-audio-track-index]').first()).toBeFocused();
     await page.keyboard.press('Enter');
@@ -125,6 +188,7 @@ test('the disclosure works with the keyboard and stays within narrow headers and
         expect(bounds.x).toBeGreaterThanOrEqual(0);
         expect(bounds.x + bounds.width).toBeLessThanOrEqual(width);
         expect(bounds.y + bounds.height).toBeLessThanOrEqual(844);
+        expect(await panel.evaluate(el => el.scrollWidth <= el.clientWidth), `song panel at ${width}px`).toBe(true);
         const headerFits = await page.locator('header').evaluate(header => {
             const brand = header.querySelector('.freecat-header-brand').getBoundingClientRect();
             const nav = header.querySelector('#nav-links').getBoundingClientRect();

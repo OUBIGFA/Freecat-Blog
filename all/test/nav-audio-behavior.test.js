@@ -25,6 +25,7 @@ function harness({ savedState, playlist = tracks } = {}) {
     const control = get('nav-audio-control');
     const panel = get('nav-audio-playlist');
     const toggle = get('nav-audio-playlist-toggle');
+    const shuffle = get('nav-audio-shuffle');
     const buttons = [...panel.querySelectorAll('[data-audio-track-index]')];
     const timers = new Map();
     const session = new Map();
@@ -74,7 +75,7 @@ function harness({ savedState, playlist = tracks } = {}) {
         navAudio: audio, navAudioToggle: get('nav-audio-toggle'), isShell: true, contentFrame: frame,
         closeTagMenu() { calls.closeTags++; }, closeHeaderSearch() { calls.closeSearch++; }
     });
-    return { document, window, get, audio, panel, toggle, buttons, control, calls, frame, emit, playResults, local,
+    return { document, window, get, audio, panel, toggle, shuffle, buttons, control, calls, frame, emit, playResults, local,
         saved: () => JSON.parse(session.get(STATE_KEY)),
         flushTimers() { for (const [id, timer] of [...timers]) if (timer.delay === 0) { timers.delete(id); timer.fn(); } }
     };
@@ -200,6 +201,163 @@ test('unavailable songs advance once each and stop after the whole playlist fail
     for (let i = 0; i < tracks.length; i++) { await Promise.resolve(); h.flushTimers(); }
     assert.equal(h.calls.play, tracks.length);
     assert.equal(h.get('nav-audio-toggle').getAttribute('aria-pressed'), 'false');
+});
+
+test('shuffle is an initially unpressed button inside the existing song panel', () => {
+    const h = harness();
+    assert.ok(h.shuffle);
+    assert.equal(h.shuffle.closest('.nav-audio-playlist'), h.panel);
+    assert.equal(h.shuffle.textContent.trim(), '');
+    assert.equal(h.shuffle.getAttribute('aria-label'), '随机播放');
+    assert.equal(h.shuffle.getAttribute('title'), '随机播放');
+    assert.ok(h.shuffle.querySelector('svg[aria-hidden="true"]'));
+    assert.equal(h.shuffle.getAttribute('aria-pressed'), 'false');
+    assert.equal(h.panel.querySelectorAll('button').length, tracks.length + 1);
+    assert.equal(h.control.querySelectorAll(':scope > button').length, 2, 'no extra header controls');
+    assert.equal(h.calls.play, 0);
+});
+
+test('enabling shuffle immediately plays a different song without changing the reading state', t => {
+    t.mock.method(Math, 'random', () => 0.99);
+    for (const alreadyPlaying of [false, true]) {
+        const h = harness();
+        const article = h.document.querySelector('article');
+        if (alreadyPlaying) h.buttons[0].click();
+        h.audio.currentTime = 24;
+        h.toggle.click();
+        h.shuffle.click();
+        assert.equal(h.shuffle.getAttribute('aria-pressed'), 'true');
+        assert.equal(h.audio.getAttribute('src'), tracks[2].src, 'the draw need not be the sequential next song');
+        assert.equal(h.audio.currentTime, 0);
+        assert.equal(h.audio.paused, false);
+        assert.equal(h.calls.play, alreadyPlaying ? 2 : 1);
+        assert.equal(h.buttons[2].getAttribute('aria-current'), 'true');
+        assert.equal(h.saved().shuffle, true);
+        assert.equal(h.saved().paused, false);
+        assert.equal(h.panel.hidden, false);
+        assert.equal(h.document.querySelector('article'), article);
+        assert.equal(h.document.getElementById('nav-audio'), h.audio);
+        assert.equal(h.window.scrollY, 1600);
+    }
+});
+
+test('disabling shuffle leaves playback untouched and the following song uses the original order', t => {
+    t.mock.method(Math, 'random', () => 0.99);
+    for (const paused of [false, true]) {
+        const h = harness();
+        h.shuffle.click();
+        if (paused) h.get('nav-audio-toggle').click();
+        h.audio.currentTime = 24;
+        const loads = h.calls.loads;
+        h.shuffle.click();
+        assert.equal(h.shuffle.getAttribute('aria-pressed'), 'false');
+        assert.equal(h.audio.getAttribute('src'), tracks[2].src);
+        assert.equal(h.audio.currentTime, 24);
+        assert.equal(h.audio.paused, paused);
+        assert.equal(h.calls.loads, loads);
+        assert.equal(h.calls.play, 1);
+        assert.equal(h.saved().shuffle, false);
+        h.emit(h.audio, 'ended');
+        assert.equal(h.audio.getAttribute('src'), tracks[paused ? 2 : 0].src);
+        assert.equal(h.calls.play, paused ? 1 : 2);
+    }
+});
+
+test('shuffle never immediately repeats a song and manual selection keeps shuffle enabled', t => {
+    t.mock.method(Math, 'random', () => 0.99);
+    for (const playlist of [tracks.slice(0, 2), tracks]) {
+        const h = harness({ playlist });
+        h.shuffle.click();
+        h.buttons[0].click();
+        assert.equal(h.audio.dataset.audioIndex, '0');
+        for (let i = 0; i < 8; i++) {
+            const previous = h.audio.dataset.audioIndex;
+            h.emit(h.audio, 'ended');
+            assert.notEqual(h.audio.dataset.audioIndex, previous);
+            assert.equal(h.shuffle.getAttribute('aria-pressed'), 'true');
+            assert.equal(h.audio.paused, false);
+        }
+        h.get('nav-audio-toggle').click();
+        const plays = h.calls.play;
+        h.emit(h.audio, 'ended');
+        assert.equal(h.calls.play, plays, 'a paused request cannot auto-advance');
+    }
+});
+
+test('shuffle restores with the existing session without randomizing the saved selection', () => {
+    for (const paused of [false, true]) {
+        const h = harness({ savedState: { index: 1, currentTime: 35, paused, shuffle: true } });
+        h.flushTimers();
+        assert.equal(h.shuffle.getAttribute('aria-pressed'), 'true');
+        assert.equal(h.audio.getAttribute('src'), tracks[1].src);
+        assert.ok(h.audio.currentTime >= 35 && h.audio.currentTime < 36);
+        assert.equal(h.calls.play, paused ? 0 : 1);
+        assert.equal(h.audio.paused, paused);
+    }
+    for (const savedState of [{ shuffle: 'true' }, { shuffle: true, playlistKey: 'outdated playlist' }]) {
+        const h = harness({ savedState: { paused: true, ...savedState } });
+        assert.equal(h.shuffle.getAttribute('aria-pressed'), 'false');
+    }
+});
+
+test('a single-song shuffle plays and repeats, but one failed attempt stops it', async () => {
+    const h = harness({ playlist: tracks.slice(0, 1) });
+    h.shuffle.click();
+    assert.equal(h.calls.play, 1);
+    h.audio.currentTime = 90;
+    h.emit(h.audio, 'ended');
+    assert.equal(h.audio.currentTime, 0);
+    assert.equal(h.calls.play, 2);
+    assert.equal(h.calls.loads, 0);
+    h.playResults.push(Promise.reject(new Error('unavailable')));
+    h.emit(h.audio, 'ended');
+    await Promise.resolve();
+    h.flushTimers();
+    h.flushTimers();
+    assert.equal(h.calls.play, 3);
+    assert.equal(h.get('nav-audio-toggle').getAttribute('aria-pressed'), 'false');
+    assert.equal(h.shuffle.getAttribute('aria-pressed'), 'true');
+    assert.equal(h.saved().paused, true);
+});
+
+test('shuffle skips every failed candidate once, even with duplicate media failure notifications', async t => {
+    t.mock.method(Math, 'random', () => 0);
+    const h = harness();
+    const attempts = [];
+    h.audio.play = () => {
+        attempts.push(h.audio.dataset.audioIndex);
+        h.audio.error = new Error('unavailable');
+        h.emit(h.audio, 'error');
+        return Promise.reject(h.audio.error);
+    };
+    h.shuffle.click();
+    for (let i = 0; i < tracks.length + 2; i++) { await Promise.resolve(); h.flushTimers(); }
+    assert.equal(attempts.length, tracks.length);
+    assert.equal(new Set(attempts).size, tracks.length);
+    assert.equal(h.get('nav-audio-toggle').getAttribute('aria-pressed'), 'false');
+    assert.equal(h.saved().shuffle, true);
+});
+
+test('shuffle honors playback-policy rejection and invalidates failures from the old selection', async t => {
+    t.mock.method(Math, 'random', () => 0.99);
+    const blocked = harness();
+    blocked.playResults.push(Promise.reject(Object.assign(new Error('blocked'), { name: 'NotAllowedError' })));
+    blocked.shuffle.click();
+    await Promise.resolve();
+    blocked.flushTimers();
+    assert.equal(blocked.calls.play, 1);
+    assert.equal(blocked.get('nav-audio-toggle').getAttribute('aria-pressed'), 'false');
+    assert.equal(blocked.shuffle.getAttribute('aria-pressed'), 'true');
+
+    const h = harness();
+    h.playResults.push(Promise.reject(new Error('old song unavailable')));
+    h.buttons[0].click();
+    await Promise.resolve();
+    h.shuffle.click();
+    h.flushTimers();
+    assert.equal(h.calls.play, 2);
+    assert.equal(h.audio.getAttribute('src'), tracks[2].src);
+    assert.equal(h.audio.paused, false);
 });
 
 test('outside pointer, outside focus and Escape close the disclosure; Escape restores focus', () => {

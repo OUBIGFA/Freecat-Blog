@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const shared = require('../../shared/shared.js');
 const postCardTemplate = require('../../shared/post-card-template.js');
-const { generatePaginationHtml, getTotalPages } = require('../pagination.js');
+const { generatePaginationHtml, getTotalPages, getPostsIndexPath } = require('../pagination.js');
 const seo = require('../seo.js');
 const { replacePlaceholders } = require('../template-engine.js');
 const { normalizePostTags } = require('../article-model.js');
@@ -55,22 +55,23 @@ function renderPostCardForList(post, index = 0, options = {}) {
 
 function generateAll({ posts, template, postsPerPage, siteConfig, seoConfig, outputDir, recentPostsSidebarHtml }) {
     const totalPages = getTotalPages(posts.length, postsPerPage);
+    const firstPagePath = getPostsIndexPath(siteConfig);
 
     for (let page = 1; page <= totalPages; page++) {
         const start = (page - 1) * postsPerPage;
         const pagePosts = postsPerPage === 0 ? posts : posts.slice(start, start + postsPerPage);
 
         const postsHtml = pagePosts.map((post, index) => renderPostCardForList(post, index, { layout: 'reading-list' })).join('');
-        const paginationBtns = generatePaginationHtml(page, totalPages);
+        const paginationBtns = generatePaginationHtml(page, totalPages, firstPagePath);
         const title = page === 1
             ? (siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog')
             : `${siteConfig.site_title || siteConfig.site_name || 'FreeCat Blog'} - Page ${page}`;
-        const canonicalPath = page === 1 ? '/' : `/page/${page}/`;
+        const canonicalPath = page === 1 ? firstPagePath : `/page/${page}/`;
         // 每页包含不同文章，保留自身 canonical 与可抓取的前后页链接。
         const isPagination = page > 1;
         const pagination = isPagination
             ? {
-                prevUrl: seo.pageUrl(siteConfig, page === 2 ? '/' : `/page/${page - 1}/`),
+                prevUrl: seo.pageUrl(siteConfig, page === 2 ? firstPagePath : `/page/${page - 1}/`),
                 nextUrl: page < totalPages ? seo.pageUrl(siteConfig, `/page/${page + 1}/`) : ''
             }
             : (totalPages > 1 ? { nextUrl: seo.pageUrl(siteConfig, '/page/2/') } : null);
@@ -83,7 +84,7 @@ function generateAll({ posts, template, postsPerPage, siteConfig, seoConfig, out
             image: seo.defaultImage(siteConfig, seoConfig),
             pagination
         });
-        const jsonLd = page === 1 ? seo.renderWebsiteJsonLd({ siteConfig, seoConfig }) : '';
+        const jsonLd = page === 1 && firstPagePath === '/' ? seo.renderWebsiteJsonLd({ siteConfig, seoConfig }) : '';
 
         const outputHtml = replacePlaceholders(template, [
             [/<title>[\s\S]*?<\/title>/, `<title>${shared.escapeHtml(title)}</title>`],
@@ -97,12 +98,14 @@ function generateAll({ posts, template, postsPerPage, siteConfig, seoConfig, out
         ]);
 
         if (page === 1) {
-            // 首页内容同一份 HTML 落两个地址：
-            //   /     (index.html) —— 站点规范首页，内容直出，爬虫与无 JS 访客直接读到文章列表；
-            //   /home (home.html)  —— 外壳 iframe 的默认内容页，canonical 归并到 /。
-            // 首次访问与播放保留完整正文；站内导航时保留顶栏和播放器。
-            fs.writeFileSync(path.join(outputDir, 'index.html'), outputHtml, 'utf-8');
-            fs.writeFileSync(path.join(outputDir, 'home.html'), outputHtml, 'utf-8');
+            // /home 始终是 / 的内容别名，外壳无需感知首页选择。
+            // About 做首页时保留完整的文章列表和分页入口，而不是覆盖后丢弃第一页。
+            if (firstPagePath === '/blog') {
+                fs.writeFileSync(path.join(outputDir, 'blog.html'), outputHtml, 'utf-8');
+            } else {
+                fs.writeFileSync(path.join(outputDir, 'index.html'), outputHtml, 'utf-8');
+                fs.writeFileSync(path.join(outputDir, 'home.html'), outputHtml, 'utf-8');
+            }
         } else {
             const pageDir = path.join(outputDir, 'page', String(page));
             if (!fs.existsSync(pageDir)) fs.mkdirSync(pageDir, { recursive: true });

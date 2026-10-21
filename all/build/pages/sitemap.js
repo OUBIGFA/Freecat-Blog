@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const seo = require('../seo.js');
-const { getTotalPages } = require('../pagination.js');
+const { getTotalPages, getPostsIndexPath } = require('../pagination.js');
 const { renderPostContent } = require('./post-content.js');
 
 // RSS / AI 检索文件的文章数上限。理由：
@@ -95,7 +95,7 @@ function generateSitemap({ posts, siteConfig, outputDir, postsPerPage = 8 }) {
     lines.push('  </url>');
 
     lines.push('  <url>');
-    lines.push(`    <loc>${xmlEscape(baseUrl + '/about')}</loc>`);
+    lines.push(`    <loc>${xmlEscape(baseUrl + (siteConfig.home_page === 'about' ? getPostsIndexPath(siteConfig) : '/about'))}</loc>`);
     lines.push('    <priority>0.8</priority>');
     lines.push('  </url>');
 
@@ -164,7 +164,8 @@ function generateLlmsTxt({ posts, siteConfig, seoConfig = {}, outputDir }) {
         '## Core Pages',
         `- Home: ${baseUrl}/`,
         `- All Articles: ${baseUrl}/all`,
-        `- About: ${baseUrl}/about`,
+        `- About: ${baseUrl}${siteConfig.home_page === 'about' ? '/' : '/about'}`,
+        ...(siteConfig.home_page === 'about' ? [`- Blog: ${baseUrl}${getPostsIndexPath(siteConfig)}`] : []),
         '',
         '## Articles'
     ];

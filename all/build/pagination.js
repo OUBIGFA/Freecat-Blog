@@ -13,9 +13,10 @@
  *
  * @param {number} currentPage  当前页码（1 起）
  * @param {number} totalPages   总页数
+ * @param {string} firstPagePath  文章列表第一页地址（About 首页使用 /blog）
  * @returns {string} 分页器 HTML（仅 1 页时返回空串）
  */
-function generatePaginationHtml(currentPage, totalPages) {
+function generatePaginationHtml(currentPage, totalPages, firstPagePath = '/') {
     if (totalPages <= 1) return '';
 
     // -------- 计算可见页码序列 --------
@@ -37,7 +38,7 @@ function generatePaginationHtml(currentPage, totalPages) {
         if (!pages.includes(totalPages)) pages.push(totalPages);
     }
 
-    const prevLink = currentPage === 1 ? null : (currentPage === 2 ? '/' : `/page/${currentPage - 1}/`);
+    const prevLink = currentPage === 1 ? null : (currentPage === 2 ? firstPagePath : `/page/${currentPage - 1}/`);
     const nextLink = currentPage === totalPages ? null : `/page/${currentPage + 1}/`;
 
     // -------- 复用样式片段 --------
@@ -65,7 +66,7 @@ function generatePaginationHtml(currentPage, totalPages) {
         if (p === '...') {
             html += `<span class="px-1.5 text-gray-300 dark:text-gray-600 tracking-widest cursor-default" aria-hidden="true">…</span>`;
         } else {
-            const link = p === 1 ? '/' : `/page/${p}/`;
+            const link = p === 1 ? firstPagePath : `/page/${p}/`;
             const isActive = p === currentPage;
             if (isActive) {
                 // 当前页：加粗 + 1.5px 短下划线（用 inline span，避免 CSS 改造）
@@ -86,7 +87,7 @@ function generatePaginationHtml(currentPage, totalPages) {
     html += `
         <div class="hidden md:flex items-baseline gap-2 text-xs text-gray-400 dark:text-gray-500 tracking-wide">
             <span>跳至</span>
-            <input type="number" min="1" max="${totalPages}" placeholder="${currentPage}"
+            <input type="number" min="1" max="${totalPages}" placeholder="${currentPage}" data-first-page="${firstPagePath}"
                 class="freecat-pagination-text w-11 h-6 px-1.5 rounded-sm bg-transparent text-[13px] text-slate-700 dark:text-slate-200 text-center border-0 border-b border-slate-200/80 dark:border-slate-700/70 outline-none ring-0 hover:border-slate-300/80 dark:hover:border-slate-600/70 hover:bg-slate-100/45 dark:hover:bg-slate-800/35 focus:border-transparent focus:bg-slate-100/60 dark:focus:bg-slate-800/45 focus:ring-1 focus:ring-slate-300/60 dark:focus:ring-slate-600/60 transition-[background-color,border-color,box-shadow,color] duration-200 ease-out [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 aria-label="Jump to page"
                 onfocus="this.placeholder=''" onblur="this.placeholder='${currentPage}'">
@@ -102,4 +103,9 @@ function getTotalPages(postCount, postsPerPage = 8) {
     return postsPerPage === 0 ? 1 : Math.max(1, Math.ceil(postCount / postsPerPage));
 }
 
-module.exports = { generatePaginationHtml, getTotalPages };
+// Keep list links, pagination metadata and discovery files on the same first-page route.
+function getPostsIndexPath(siteConfig = {}) {
+    return siteConfig.home_page === 'about' ? '/blog' : '/';
+}
+
+module.exports = { generatePaginationHtml, getTotalPages, getPostsIndexPath };

@@ -256,7 +256,10 @@ Common settings:
 
 | Setting | Action | Result |
 | --- | --- | --- |
-| Default theme | Set one of `theme_system`, `theme_light`, and `theme_dark` to `true`. Set the others to `false` | Select system, light, or dark mode. If all are `false`, use system mode |
+| Default theme | Set one of `theme_system`, `theme_light`, and `theme_dark` to `true`. Set the others to `false` | Select system, light, or dark mode. If all are `false`, use system mode. A visitor's saved choice takes precedence |
+| Home page | Set `home_page: posts` (default) or `home_page: about` in `site_网站属性.md` | About mode renders the About content at `/`. Posts links to `/blog`, retaining the article list and pagination; `/all` remains the full archive |
+| Hide the share button | Set `show_share_button: false` in `site_网站属性.md` | Omit the share button at the end of articles; defaults to `true` |
+| Shuffle playback | Open the header song list and click the shuffle icon (tooltip: “随机播放”) | Start a random track and continue randomly without immediately repeating the current track (unless there is only one). Click again to restore sequential playback without interrupting the current track |
 | Social link | Set the matching `*_enabled` to `true` and enter `*_url` | Show that platform's link, for example `github_enabled: true` with `github_url: https://github.com/your-account` |
 | Social icon | Enter an image URL in the matching `*_icon_url` | Use that icon. If empty, use the default icon |
 | Hide a social platform | Set the matching `*_enabled` to `false` | Hide that platform |

@@ -31,7 +31,7 @@
 
     // Keep feeds, downloads and external links outside the persistent HTML reader.
     function isContentPath(pathname) {
-        return /^\/(?:$|(?:index|home|shell|about|all|search)(?:\.html)?\/?$|posts\/[^/.]+(?:\.html|\/(?:index\.html)?)?$|page\/\d+\/(?:index\.html)?$)/.test(pathname);
+        return /^\/(?:$|(?:index|home|shell|about|blog|all|search)(?:\.html)?\/?$|posts\/[^/.]+(?:\.html|\/(?:index\.html)?)?$|page\/\d+\/(?:index\.html)?$)/.test(pathname);
     }
 
     function initFramedNavigationBridge({ window, document, runtime }) {

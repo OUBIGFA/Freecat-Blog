@@ -21,16 +21,32 @@
         const getCssDurationMs = options.getCssDurationMs;
         const html = doc.documentElement;
         const themeToggleBtn = doc.getElementById('theme-toggle');
+        // 与 head 共用构建期默认模式；旧页面未提供时保持跟随系统。
+        const defaultTheme = root.__FREECAT_DEFAULT_THEME__ || 'system';
+        let transientTheme = null;
         let themeTransitionTimer = 0;
 
         function prefersReducedMotion() {
             return platform.mediaQuery('(prefers-reduced-motion: reduce)');
         }
 
-        function resolveThemeIsDark() {
+        function resolveThemeMode() {
             const savedTheme = platform.localStorage.getItem('theme');
-            const systemPrefersDark = platform.mediaQuery('(prefers-color-scheme: dark)');
-            return savedTheme === 'dark' || (!savedTheme && systemPrefersDark);
+            // storage 后续发生变化时让位给新选择，保留原有跨标签页同步语义。
+            if (transientTheme && transientTheme.savedTheme !== savedTheme) transientTheme = null;
+            const theme = transientTheme ? transientTheme.value : savedTheme;
+            return theme === 'dark' || theme === 'light' || theme === 'system' ? theme : defaultTheme;
+        }
+
+        function retainUnsavedTheme(theme) {
+            // storageFacade 会吞掉写入异常，必须读回确认；失败仅在当前文档保留选择。
+            const savedTheme = platform.localStorage.getItem('theme');
+            transientTheme = theme && theme !== savedTheme ? { value: theme, savedTheme } : null;
+        }
+
+        function resolveThemeIsDark() {
+            const theme = resolveThemeMode();
+            return theme === 'dark' || (theme === 'system' && platform.mediaQuery('(prefers-color-scheme: dark)'));
         }
 
         function setThemeState(isDark) {
@@ -47,7 +63,8 @@
                 if (frameRuntime && typeof frameRuntime.applyTheme === 'function') {
                     frameRuntime.applyTheme({
                         animate: !!options.animate,
-                        suppressTransitions: !!options.suppressTransitions
+                        suppressTransitions: !!options.suppressTransitions,
+                        transientTheme: transientTheme ? transientTheme.value : null
                     });
                     return;
                 }
@@ -55,7 +72,8 @@
                 if (typeof applyFrameTheme === 'function') {
                     applyFrameTheme({
                         animate: !!options.animate,
-                        suppressTransitions: !!options.suppressTransitions
+                        suppressTransitions: !!options.suppressTransitions,
+                        transientTheme: transientTheme ? transientTheme.value : null
                     });
                     return;
                 }
@@ -108,6 +126,8 @@
         }
 
         function applyTheme(options = {}) {
+            // 外壳同步不可持久化的选择，iframe 不再依赖一次失败的 storage 写入。
+            if (options.transientTheme !== undefined) retainUnsavedTheme(options.transientTheme);
             const isDark = resolveThemeIsDark();
             // 状态未变时不重启过渡：同一次切换里 iframe 先经 syncFrameTheme 应用主题，
             // 随后又收到外壳写 localStorage 触发的 storage 事件；重复的 animated
@@ -140,9 +160,23 @@
             if (!themeToggleBtn) return;
             themeToggleBtn.addEventListener('click', () => {
                 const willBeDark = !html.classList.contains('dark');
-                platform.localStorage.setItem('theme', willBeDark ? 'dark' : 'light');
+                const theme = willBeDark ? 'dark' : 'light';
+                platform.localStorage.setItem('theme', theme);
+                retainUnsavedTheme(theme);
                 applyTheme({ animate: true });
             });
+        }
+
+        // 始终监听，用户清除已保存选择后也能恢复系统跟随；显式模式不受系统变化影响。
+        if (typeof root.matchMedia === 'function') {
+            const colorScheme = root.matchMedia('(prefers-color-scheme: dark)');
+            const followSystemTheme = () => {
+                if (resolveThemeMode() !== 'system') return;
+                const framed = root.self !== root.top;
+                applyTheme({ animate: !framed, suppressTransitions: framed });
+            };
+            if (typeof colorScheme.addEventListener === 'function') colorScheme.addEventListener('change', followSystemTheme);
+            else if (typeof colorScheme.addListener === 'function') colorScheme.addListener(followSystemTheme);
         }
 
         return {

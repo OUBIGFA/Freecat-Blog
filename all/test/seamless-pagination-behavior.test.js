@@ -83,8 +83,27 @@ function createPaginationHarness({ framed = false } = {}) {
         else request.resolve(new Response(page === 2 ? '<p>Second page</p>' : '<p>Third page</p>'));
         await new Promise(resolve => setImmediate(resolve));
     }
-    return { posts, pagination, history, parentHistory, location, timers, requests, click, respond };
+    return { posts, pagination, history, parentHistory, location, timers, requests, click, respond,
+        jumpToFirst(firstPagePath) {
+            listeners.get('keydown')({ key: 'Enter', target: {
+                tagName: 'INPUT', value: '1',
+                getAttribute: name => name === 'max' ? '3' : name === 'data-first-page' ? firstPagePath : null
+            } });
+        }
+    };
 }
+
+test('jump to page one respects the configured article-list route', async () => {
+    for (const [first, expected] of [['/blog', '/blog'], ['/', '/home'], [null, '/home']]) {
+        const h = createPaginationHarness();
+        h.jumpToFirst(first);
+        assert.equal(h.requests.size, 1);
+        assert.ok(h.requests.has(expected));
+        h.requests.get(expected).resolve(new Response('<p>Second page</p>'));
+        await new Promise(resolve => setImmediate(resolve));
+        assert.deepEqual(h.history, [{ method: 'push', url: first || '/' }]);
+    }
+});
 
 test('rapid pagination keeps the last selected page when responses arrive out of order', async () => {
     const h = createPaginationHarness();

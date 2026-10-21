@@ -2,7 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { parseHTML, DOMParser } = require('linkedom');
 const seo = require('./seo.js');
-const { getTotalPages } = require('./pagination.js');
+const { getTotalPages, getPostsIndexPath } = require('./pagination.js');
 
 /** Check the actual deployable HTML and discovery files, after minification. */
 function auditSeoOutput({ outputDir, siteConfig, posts, postsPerPage = 8 }) {
@@ -20,7 +20,7 @@ function auditSeoOutput({ outputDir, siteConfig, posts, postsPerPage = 8 }) {
         return { html, document };
     }
     const indexed = posts.filter(post => !post.noindex);
-    const routes = ['/', '/about', '/all', ...indexed.map(post => post.link)];
+    const routes = ['/', siteConfig.home_page === 'about' ? getPostsIndexPath(siteConfig) : '/about', '/all', ...indexed.map(post => post.link)];
     for (let n = 2; n <= getTotalPages(posts.length, postsPerPage); n++) routes.push('/page/' + n + '/');
     const expectedUrls = routes.map(route => seo.pageUrl(siteConfig, route));
     const documents = new Map();

@@ -1,4 +1,45 @@
 const { test, expect } = require('@playwright/test');
+const fs = require('node:fs');
+const path = require('node:path');
+const { mock } = require('node:test');
+const dayjs = require('dayjs');
+const { createEngine } = require('../build/template-engine.js');
+const indexPage = require('../build/pages/index.js');
+const aboutPage = require('../build/pages/about.js');
+const { renderPostPage } = require('../build/pages/post.js');
+dayjs.extend(require('dayjs/plugin/utc'));
+dayjs.extend(require('dayjs/plugin/timezone'));
+
+// Render alternate settings through production generators, capturing writes in memory.
+// Do not modify the user's Control files or place fixture pages in dist.
+function configuredPages() {
+    const siteConfig = { site_title: 'Configured Blog', site_name: 'FreeCat', site_url: 'https://example.com',
+        hero_title: 'Blog', hero_subtitle: 'Article list', home_page: 'about', theme_dark: true, show_share_button: false };
+    const engine = createEngine({ templatesDir: path.join(__dirname, '../src'),
+        partialsDir: path.join(__dirname, '../src/partials'), siteConfig, seoConfig: {}, socialConfig: {} });
+    const posts = [1, 2].map(id => ({ title: `Article ${id}`, link: `/posts/option-${id}/`,
+        content: 'Article body', excerpt: 'Article summary', tags: [], date: dayjs('2026-01-01'), modifiedDate: dayjs('2026-01-02') }));
+    const common = { siteConfig, seoConfig: {}, posts, postsPerPage: 1, outputDir: '/virtual',
+        aboutConfig: { about_hero_title: 'About me', about_hero_subtitle: 'Personal introduction' } };
+    const pages = new Map();
+    const writer = mock.method(fs, 'writeFileSync', (file, html) => {
+        const name = path.relative('/virtual', file).replaceAll('\\', '/');
+        pages.set('/' + name.replace(/index\.html$/, '').replace(/\.html$/, ''), html);
+    });
+    const mkdir = mock.method(fs, 'mkdirSync', () => {});
+    try {
+        indexPage.generateAll({ ...common, template: engine.loadTemplate('template_index.html') });
+        aboutPage.generate({ ...common, template: engine.loadTemplate('template_index_About.html') });
+    } finally {
+        writer.mock.restore();
+        mkdir.mock.restore();
+    }
+    for (const post of posts) {
+        pages.set(post.link, renderPostPage({ ...common, post, template: engine.loadTemplate('template_post.html') }));
+    }
+    return pages;
+}
+
 
 function gate() {
     let release;
@@ -109,4 +150,46 @@ test('the first navigation preserves playback and removes the hidden duplicate a
         events: window.testPlayerEvents
     }))).toEqual({ samePlayer: true, playing: true, events: [] });
     await expect(page.frameLocator('#freecat-content-frame').locator('#nav-audio')).not.toHaveAttribute('src');
+});
+
+test('About homepage preserves list pagination, theme and share settings through persistent navigation', async ({ page }, testInfo) => {
+    const pages = configuredPages();
+    await page.route('http://127.0.0.1:4173/**', route => {
+        const html = pages.get(new URL(route.request().url()).pathname);
+        return html ? route.fulfill({ contentType: 'text/html; charset=utf-8', body: html }) : route.continue();
+    });
+    await page.emulateMedia({ colorScheme: 'light' });
+    await page.goto('/');
+    await expect(page.locator('.freecat-about-title')).toHaveText('About me');
+    await expect(page.locator('html')).toHaveClass(/dark/);
+    await expect(page.locator('#posts-list')).toHaveCount(0);
+    await page.locator('#nav-links a[href="/blog"]').click();
+    const frame = page.frameLocator('#freecat-content-frame');
+    await expect(frame.locator('#posts-list .post-card')).toHaveCount(1);
+    await expect(frame.locator('html')).toHaveClass(/dark/);
+    await expect(page).toHaveURL(/\/blog$/);
+    await frame.locator('a[aria-label="Next page"]').click();
+    await expect(page).toHaveURL(/\/page\/2\/$/);
+    await expect(frame.locator('#posts-list')).toContainText('Article 2');
+    if (testInfo.project.name === 'desktop') {
+        await frame.locator('input[aria-label="Jump to page"]').fill('1');
+        await frame.locator('input[aria-label="Jump to page"]').press('Enter');
+    } else {
+        await frame.locator('a[aria-label="Prev page"]').click();
+    }
+    await expect(page).toHaveURL(/\/blog$/);
+    await expect(frame.locator('#posts-list')).toContainText('Article 1');
+    await frame.locator('#posts-list .post-card').click();
+    await expect(frame.locator('article h1')).toHaveText('Article 1');
+    await expect(frame.locator('#share-btn')).toHaveCount(0);
+    await expect(frame.locator('.freecat-post-end [data-go-back]')).toBeVisible();
+    await page.locator('#theme-toggle').click();
+    await expect(page.locator('html')).not.toHaveClass(/\bdark\b/);
+    await expect(frame.locator('html')).not.toHaveClass(/\bdark\b/);
+    await page.locator('.freecat-header-brand').click();
+    await expect(page).toHaveURL('http://127.0.0.1:4173/');
+    await expect(frame.locator('.freecat-about-title')).toHaveText('About me');
+    await page.reload();
+    await expect(page.locator('.freecat-about-title')).toHaveText('About me');
+    await expect(page.locator('html')).not.toHaveClass(/\bdark\b/);
 });

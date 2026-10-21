@@ -175,7 +175,8 @@
                 const val = parseInt(input.value);
                 const max = parseInt(input.getAttribute('max'));
                 if (val >= 1 && val <= max) {
-                    const url = val === 1 ? '/' : `/page/${val}/`;
+                    // 第一页不一定是首页：About 模式下要回到 /blog 而非个人介绍。
+                    const url = val === 1 ? (input.getAttribute('data-first-page') || '/') : `/page/${val}/`;
                     navigateTo(url);
                 }
             }

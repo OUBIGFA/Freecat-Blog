@@ -126,6 +126,8 @@ const siteDefaults = {
     hero_subtitle: 'Always maintain a strong curiosity and be willing to explore a world of freedom, experiencing a life of liberty.',
     hero_avatar: '',
     posts_per_page: DEFAULT_POSTS_PER_PAGE,
+    home_page: 'posts',
+    show_share_button: true,
     default_theme: 'system',
     site_logo_icon: '',
     site_favicon: '/image/freecat.png',
@@ -135,6 +137,10 @@ const siteDefaults = {
     nav_audio_autoplay: false
 };
 const siteConfig = loadConfig(DIRS.control, 'site', 'site.md', siteDefaults);
+// 首页只支持现有的两种模板；错误值直接提示，避免发布成意外的首页。
+if (!['posts', 'about'].includes(siteConfig.home_page)) {
+    throw new Error('home_page 只能填写 posts 或 about（Control/site_网站属性.md）。');
+}
 const hasConfiguredHeroAvatar = String(siteConfig.hero_avatar || '').trim() !== '';
 siteConfig.hero_avatar_configured = hasConfiguredHeroAvatar;
 if (!siteConfig.site_favicon) siteConfig.site_favicon = '/image/freecat.png';

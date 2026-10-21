@@ -254,7 +254,10 @@ copy_content: false
 
 | 设置 | 操作 | 结果 |
 | --- | --- | --- |
-| 默认主题 | 在 `theme_system`、`theme_light`、`theme_dark` 中，将一个设为 `true`，其余设为 `false` | 分别对应跟随系统、浅色、深色。全部为 `false` 时跟随系统 |
+| 默认主题 | 在 `theme_system`、`theme_light`、`theme_dark` 中，将一个设为 `true`，其余设为 `false` | 分别对应跟随系统、浅色、深色。全部为 `false` 时跟随系统；访客手动选择并保存的主题优先于默认值 |
+| 首页内容 | 在 `site_网站属性.md` 设置 `home_page: posts`（默认）或 `home_page: about` | About 模式直接在首页展示关于页面，Posts 导航指向 `/blog`，保留文章列表与分页；`/all` 仍为完整归档 |
+| 隐藏分享按钮 | 在 `site_网站属性.md` 设置 `show_share_button: false` | 不生成文章底部的分享按钮；默认 `true` |
+| 随机播放 | 打开顶部歌曲清单，点击随机播放图标（悬停提示「随机播放」） | 开启后随机选曲并随机接续，不连续重复当前曲目（仅一首时除外）；再次点击恢复顺序播放，不打断当前曲目 |
 | 社交链接 | 将对应的 `*_enabled` 设为 `true`，并填写 `*_url` | 显示该平台的链接，例如 `github_enabled: true` 和 `github_url: https://github.com/你的账号` |
 | 社交图标 | 在对应的 `*_icon_url` 中填写图片链接 | 使用自定义图标。留空时使用默认图标 |
 | 隐藏社交平台 | 将对应的 `*_enabled` 设为 `false` | 不显示该平台 |

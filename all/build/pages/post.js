@@ -568,7 +568,10 @@ function renderPostPage({ post, template, siteConfig, seoConfig, assetVersion = 
     });
     const jsonLd = seo.renderArticleJsonLd({ post, siteConfig, seoConfig, canonical, ogImage, tags, faqItems: post.faq || [] });
 
-    const html = replacePlaceholders(template, [
+    // 构建期移除整个控件，关闭分享后不留下可聚焦的隐藏按钮；正文和 SEO 分享元数据不受影响。
+    const postTemplate = template.replace(/<!-- POST_SHARE_START -->([\s\S]*?)<!-- POST_SHARE_END -->/, (_, button) =>
+        siteConfig.show_share_button === false ? '' : button);
+    const html = replacePlaceholders(postTemplate, [
         [/<!-- TITLE_PLACEHOLDER -->/g, safeTitle],
         [/<!-- TITLE_H1_PLACEHOLDER -->/g, shared.processTitleHtml(safeTitle)],
         ['<!-- TAGS_PLACEHOLDER -->', tagsHtml],

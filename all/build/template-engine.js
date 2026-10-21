@@ -5,6 +5,7 @@ const seo = require('./seo.js');
 const { autoSpacing, parseImageStyleAudioList } = require('./markdown.js');
 const { SOCIAL_PLATFORM_ORDER } = require('./social-defaults.js');
 const { renderIcon } = require('./icons.js');
+const { getPostsIndexPath } = require('./pagination.js');
 
 /**
  * 模板引擎：partial 注入、SITE_* 占位替换、Logo / Theme / Social 渲染。
@@ -117,36 +118,18 @@ function generateThemeScript(siteConfig) {
     if (siteConfig.theme_dark === true) defaultTheme = 'dark';
     else if (siteConfig.theme_light === true) defaultTheme = 'light';
     else if (siteConfig.theme_system === true || siteConfig.default_theme === 'system') defaultTheme = 'system';
-    else if (siteConfig.default_theme) defaultTheme = siteConfig.default_theme;
+    else if (siteConfig.default_theme === 'dark' || siteConfig.default_theme === 'light') defaultTheme = siteConfig.default_theme;
 
-    if (defaultTheme === 'dark') {
-        return `(function () {
-            ${initialScrollGuard}
-            var saved = localStorage.getItem('theme');
-            if (saved === 'light') {
-                // 用户选择了浅色模式
-            } else {
-                document.documentElement.classList.add('dark');
-            }
-        })();`;
-    }
-    if (defaultTheme === 'light') {
-        return `(function () {
-            ${initialScrollGuard}
-            var saved = localStorage.getItem('theme');
-            if (saved === 'dark') {
-                document.documentElement.classList.add('dark');
-            }
-        })();`;
-    }
-    // system 默认
+    // 把默认模式而非当前 dark class 交给运行时，避免把站点默认值误当成系统跟随。
+    // 仅输出已验证的模式；storage 被浏览器拒绝时仍要完成首屏主题初始化。
     return `(function () {
             ${initialScrollGuard}
-            var saved = localStorage.getItem('theme');
-            var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (saved === 'dark' || (!saved && prefersDark)) {
-                document.documentElement.classList.add('dark');
-            }
+            var defaultTheme = window.__FREECAT_DEFAULT_THEME__ = '${defaultTheme}';
+            var saved = null;
+            try { saved = localStorage.getItem('theme'); } catch (e) {}
+            var theme = saved === 'dark' || saved === 'light' || saved === 'system' ? saved : defaultTheme;
+            var prefersDark = theme === 'system' && typeof window.matchMedia === 'function' && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.classList.toggle('dark', theme === 'dark' || !!prefersDark);
         })();`;
 }
 
@@ -251,6 +234,9 @@ function generateNavAudioButton(siteConfig) {
                 <div id="nav-audio-playlist" class="nav-audio-playlist" hidden>
                     <div class="nav-audio-playlist-heading">
                         <h2 id="nav-audio-playlist-title">歌曲清单</h2><span>${playlist.length} 首</span>
+                        <button type="button" id="nav-audio-shuffle" class="nav-audio-shuffle" aria-pressed="false" aria-label="随机播放" title="随机播放">
+                            ${renderIcon('arrows-shuffle')}
+                        </button>
                     </div>
                     <ol class="nav-audio-track-list" aria-labelledby="nav-audio-playlist-title">${tracksHtml}</ol>
                 </div>
@@ -454,6 +440,7 @@ function createEngine({ templatesDir, partialsDir, siteConfig, seoConfig = {}, s
         let out = template;
         out = replacePlaceholder(out, /<!-- SITE_TITLE -->/g, escapeText(autoSpacing(siteConfig.site_title)));
         out = replacePlaceholder(out, /<!-- SITE_NAME -->/g, escapeText(autoSpacing(siteConfig.site_name)));
+        out = replacePlaceholder(out, /<!-- POSTS_NAV_URL -->/g, siteConfig.home_page === 'about' ? getPostsIndexPath(siteConfig) : '/all');
         out = replacePlaceholder(out, /<!-- FOOTER_COPYRIGHT -->/g, escapeText(autoSpacing(siteConfig.footer_copyright)));
         out = replacePlaceholder(out, /<!-- HERO_TITLE -->/g, renderHomeHeroText(siteConfig.hero_title));
         out = replacePlaceholder(out, /<!-- HERO_SUBTITLE -->/g, renderHomeHeroText(siteConfig.hero_subtitle));
