@@ -31,6 +31,7 @@
         let tagMenuBuilt = false;
         const dropdownCloseMs = deps.getCssDurationMs('--dropdown-close-dur', 150);
         const panelCloseMs = deps.getCssDurationMs('--panel-close-dur', 350);
+        let searchCloseTimeout = null;
 
         // ===== overlay 结果展示 =====
 
@@ -117,6 +118,8 @@
 
         function closeHeaderSearch(immediate = false) {
             if (!searchContainer || !searchToggle) return;
+            clearTimeout(searchCloseTimeout);
+            searchCloseTimeout = null;
             searchContainer.dataset.open = 'false';
             searchToggle.dataset.uiState = 'idle';
             doc.body.classList.remove('search-active');
@@ -126,13 +129,14 @@
             }
             closeSearchResults(immediate);
             const finishClose = () => {
+                searchCloseTimeout = null;
                 searchContainer.classList.add('hidden');
                 searchContainer.classList.remove('flex');
             };
             if (immediate) {
                 finishClose();
             } else {
-                setTimeout(finishClose, panelCloseMs);
+                searchCloseTimeout = setTimeout(finishClose, panelCloseMs);
             }
         }
 
@@ -243,6 +247,9 @@
             searchContainer.dataset.open = 'false';
             searchToggle.dataset.uiState = 'idle';
             searchToggle.addEventListener('click', async () => {
+                // 重新打开时取消上次关闭，避免旧定时器隐藏正在使用的输入框。
+                clearTimeout(searchCloseTimeout);
+                searchCloseTimeout = null;
                 closeTagMenu();
                 searchContainer.classList.remove('hidden');
                 searchContainer.classList.add('flex');
@@ -276,7 +283,7 @@
                         const posts = await loadSearchIndex();
                         const searchIsStillOpen = searchContainer.dataset.open === 'true' || searchContainer.classList.contains('flex');
                         if (requestSeq !== searchRequestSeq || searchInput.value !== query || !searchIsStillOpen) return;
-                        const results = searchCore.searchPosts(query, posts);
+                        const results = searchCore.searchPosts(query, posts).slice(0, 20);
                         displaySearchResults(results, query);
                     } else {
                         searchRequestSeq += 1;
@@ -319,19 +326,6 @@
                     if (!resultsContent || !resultsContent.contains(e.target)) {
                         closeHeaderSearch(true);
                         return;
-                    }
-                }
-                if (!clickedInsideSearch && !overlay) {
-                    closeHeaderSearch(true);
-                    return;
-                }
-
-                // 3. 如果显示了 overlay，点击了 overlay 内部但非结果卡片区域
-                if (overlay && overlay.contains(e.target)) {
-                    // 检查是否点击在结果列表容器（居中限制宽度的那个 div）之外
-                    const resultsWrapper = overlay.querySelector('.max-w-\\[1200px\\]');
-                    if (resultsWrapper && !resultsWrapper.contains(e.target)) {
-                        closeHeaderSearch(true);
                     }
                 }
             });

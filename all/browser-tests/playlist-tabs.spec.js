@@ -193,7 +193,13 @@ test('the disclosure works with the keyboard and stays within narrow headers and
             const brand = header.querySelector('.freecat-header-brand').getBoundingClientRect();
             const nav = header.querySelector('#nav-links').getBoundingClientRect();
             const tools = header.querySelector('.freecat-header-tools').getBoundingClientRect();
-            return brand.right <= nav.left && nav.right <= tools.left && tools.right <= innerWidth;
+            const bounds = header.getBoundingClientRect();
+            const boxes = [brand, nav, tools];
+            const contained = boxes.every(box => box.left >= 0 && box.right <= innerWidth && box.top >= bounds.top && box.bottom <= bounds.bottom);
+            // Both one-row and two-row headers must fit without overlapping controls.
+            const overlaps = boxes.some((a, i) => boxes.slice(i + 1).some(b =>
+                a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top));
+            return contained && !overlaps;
         });
         expect(headerFits, `header at ${width}px`).toBe(true);
         await page.keyboard.press('Escape');

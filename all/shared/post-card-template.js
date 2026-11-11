@@ -85,7 +85,9 @@
             const readingTags = Array.isArray(post.tags)
                 ? post.tags.map(tag => shared.renderTagSpan(tag)).join('')
                 : '';
-            return `<a href="${link}" class="post-card home-post-entry ${imageMarkup ? 'has-cover' : 'has-no-cover'}"
+            // CSS only clamps the visual excerpt; do not announce the full hidden preview as the link name.
+            const label = post.title ? ` aria-label="${escapeHtml(post.title)}"` : '';
+            return `<a href="${link}" class="post-card home-post-entry ${imageMarkup ? 'has-cover' : 'has-no-cover'}"${label}
                 data-sort-date="${sortDate}" data-sort-modified="${sortModifiedDate}" data-sort-pinned="${pinned ? '1' : '0'}">
                 <div class="home-post-copy">
                     <div class="home-post-meta">

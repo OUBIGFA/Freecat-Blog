@@ -206,6 +206,19 @@
         }).join('');
     }
 
+    // Keep the retained header in step with standalone and iframe pages.
+    function syncNavigation(target, pathname) {
+        const normalize = path => path.replace(/\/index\.html$|\.html$|\/$/g, '') || '/';
+        const current = normalize(pathname);
+        target.querySelectorAll('#nav-links a').forEach(link => {
+            const href = normalize(link.getAttribute('href'));
+            const isPosts = href === '/all' || href === '/blog';
+            const active = current === href || (isPosts && /^\/(posts|page)(\/|$)/.test(current));
+            if (active) link.setAttribute('aria-current', current === href ? 'page' : 'location');
+            else link.removeAttribute('aria-current');
+        });
+    }
+
     // Replace page-specific metadata together with soft navigation content. Preserve
     // shell assets and ownership markers; in particular never inherit noindex.
     function syncPageMetadata(target, source) {
@@ -216,6 +229,8 @@
         nodes.forEach(node => target.head.appendChild(node));
         target.title = source.title;
         target.documentElement.lang = source.documentElement.lang;
+        const canonical = source.querySelector('link[rel="canonical"]');
+        if (canonical) syncNavigation(target, new URL(canonical.getAttribute('href')).pathname);
     }
 
     function copyText(text) {
@@ -254,6 +269,7 @@
         collectMenuTags,
         renderTagMenuItemsHtml,
         syncPageMetadata,
+        syncNavigation,
         copyText
     };
 }));

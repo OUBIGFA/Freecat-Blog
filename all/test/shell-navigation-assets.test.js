@@ -63,12 +63,12 @@ test('search page result count reserves space before rendering the numeric badge
     assert.match(searchPageJs, /resultsCountDisplay\.dataset\.countReady\s*=\s*'true';/, 'countReady flips after the number is set');
     assert.match(searchPageJs, /setSearchResultsCount\(results\.length\);/, 'badge updates from real result counts');
     assert.doesNotMatch(searchPageJs, /resultsCountDisplay\.textContent\s*=\s*`\(\$\{results\.length\} results\)`;/, 'no legacy "(N results)" text format');
-    assert.match(searchTemplate, /id="search-empty-prompt"[\s\S]*Enter a search term in the search box above\./);
-    assert.match(searchTemplate, /id="search-active-query" class="hidden /);
+    assert.match(searchTemplate, /id="search-empty-prompt"[\s\S]*点击顶部搜索按钮/);
+    assert.match(searchTemplate, /id="search-active-query" class="hidden"/);
     assert.match(searchTemplate, /id="results-count" class="freecat-results-count hidden" data-count-ready="false"/);
     assert.match(searchTemplate, /class="freecat-results-count-icon"[\s\S]*M24 12L18\.3431 17\.6568/);
     assert.match(searchTemplate, /class="freecat-results-count-value"/);
-    assert.match(transitionsCss, /\.freecat-results-count\s*\{[\s\S]*width:\s*1\.25rem;[\s\S]*height:\s*1\.25rem;[\s\S]*background:\s*rgba\(148,\s*163,\s*184,\s*0\.18\);[\s\S]*color:\s*#475569;/);
+    assert.match(transitionsCss, /\.freecat-results-count\s*\{[\s\S]*min-width:\s*1\.5rem;[\s\S]*height:\s*1\.5rem;[\s\S]*background:\s*var\(--freecat-ui-hover\);[\s\S]*color:\s*var\(--freecat-ui-text\);/);
     assert.match(transitionsCss, /\.freecat-results-count\[data-count-ready="true"\]\s+\.freecat-results-count-value\s*\{[\s\S]*opacity:\s*1;/);
 });
 
@@ -173,7 +173,7 @@ test('untagged count badge has a stronger dark theme contrast', () => {
 });
 
 test('fixed header has a stable css height before runtime measurement', () => {
-    assert.match(transitionsCss, /header\.fixed\s*\{[\s\S]*height:\s*var\(--freecat-header-height\);/);
+    assert.match(transitionsCss, /header\.fixed\s*\{[\s\S]*height:\s*var\(--freecat-header-layout-height\);/);
     assert.match(transitionsCss, /header\.fixed\s+\.header-blur-target\s*\{[\s\S]*height:\s*100%;/);
     assert.doesNotMatch(transitionsCss, /(?:^|\n)header\s*\{[\s\S]*height:\s*var\(--freecat-header-height\);/);
 });

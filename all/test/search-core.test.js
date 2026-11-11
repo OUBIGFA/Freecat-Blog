@@ -156,12 +156,12 @@ test('searchPosts keeps the order of build-time presorted indexes', () => {
     );
 });
 
-test('searchPosts caps keyword results at 20 but never caps tag results', () => {
+test('searchPosts returns every matching article for full search pages', () => {
     const many = Array.from({ length: 30 }, (_, i) => ({
         title: `Bulk ${i}`, excerpt: 'bulk', content: '', tags: ['Bulk'],
         date: `2026-03-${String((i % 28) + 1).padStart(2, '0')}`, link: `/posts/bulk-${i}/`
     }));
-    assert.equal(searchCore.searchPosts('bulk', many).length, 20, 'keyword search caps at 20');
+    assert.equal(searchCore.searchPosts('bulk', many).length, 30, 'keyword search returns all');
     assert.equal(searchCore.searchPosts('bulk', many, true).length, 30, 'tag search returns all');
 });
 

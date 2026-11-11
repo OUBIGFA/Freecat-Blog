@@ -50,7 +50,9 @@
        --freecat-page-top-offset 是“header 高度 + 安全间距”的合成值，
        任何主内容容器的 margin-top / padding-top 都应优先使用它，
        避免出现"hardcode 40px / 60px 但 header 实际更高"导致的遮挡。 */
-    --freecat-header-height: 61px;
+    /* Layout owns the header size; measurements must not freeze it across breakpoints. */
+    --freecat-header-layout-height: 61px;
+    --freecat-header-height: var(--freecat-header-layout-height);
     --freecat-header-safe-gap: 16px;
     --freecat-page-top-offset: calc(var(--freecat-header-height) + var(--freecat-header-safe-gap));
 }
@@ -144,15 +146,16 @@
 .freecat-results-count {
     display: inline-grid;
     place-items: center;
-    width: 1.25rem;
-    height: 1.25rem;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding-inline: 0.25rem;
     flex: none;
     overflow: hidden;
     border-radius: 4px;
-    background: rgba(148, 163, 184, 0.18);
-    color: #475569;
-    font-size: 0.6875rem;
-    font-weight: 600;
+    background: var(--freecat-ui-hover);
+    color: var(--freecat-ui-text);
+    font-size: 0.875rem;
+    font-weight: 500;
     line-height: 1;
 }
 
@@ -237,7 +240,7 @@
 
 @media (min-width: 768px) {
     :root {
-        --freecat-header-height: 73px;
+        --freecat-header-layout-height: 73px;
         --freecat-header-safe-gap: 24px;
     }
 }
@@ -1136,8 +1139,8 @@ body.search-active {
 /* 顶栏和页脚与内容使用同一条版心；图标静止，反馈只强调当前操作。 */
 header.fixed {
     box-sizing: border-box;
-    min-height: var(--freecat-header-height);
-    height: var(--freecat-header-height);
+    min-height: var(--freecat-header-layout-height);
+    height: var(--freecat-header-layout-height);
     overflow: visible;
     background: var(--freecat-ui-surface);
     border-bottom: 1px solid var(--freecat-ui-rule);
@@ -1216,6 +1219,13 @@ header.fixed .header-blur-target {
 }
 
 #nav-links a:is(:hover, :focus-visible) { color: var(--freecat-ui-text); }
+#nav-links a[aria-current] {
+    color: var(--freecat-ui-text);
+    text-decoration: underline;
+    text-underline-offset: 0.5rem;
+    text-decoration-thickness: 2px;
+    text-decoration-color: var(--freecat-ui-accent);
+}
 
 .freecat-header-action {
     display: inline-flex;
@@ -1361,9 +1371,18 @@ header.fixed .header-blur-target {
 }
 
 @media (max-width: 480px) {
-    .freecat-header-brand { flex: 0 0 auto; }
-    .freecat-header-actions { gap: 0.5rem; }
-    #nav-links { gap: 0.625rem; }
+    /* Separate navigation from tools so controls remain reachable at 320px. */
+    :root { --freecat-header-layout-height: 104px; }
+    header.fixed .header-blur-target { flex-wrap: wrap; align-content: center; row-gap: 0; }
+    .freecat-header-brand { flex: 1 1 0; }
+    .freecat-header-actions { display: contents; }
+    .freecat-header-tools { gap: 0; }
+    .freecat-header-action { width: 44px; height: 44px; }
+    .freecat-header-action.nav-audio-playlist-toggle { width: 32px; }
+    #nav-links { order: 1; width: 100%; gap: 1.5rem; }
+    #nav-links a { min-height: 44px; min-width: 44px; }
+    #nav-links .freecat-nav-home { display: inline-flex; }
+    .freecat-social-link { width: 44px; height: 44px; }
     .freecat-footer-inner { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
 }
 

@@ -114,10 +114,10 @@
             return words.every(word => searchText.includes(word));
         });
 
-        const sorted = posts && posts.freecatPresorted === true
+        // 搜索页需要完整结果；顶栏预览自行限制展示数量。
+        return posts && posts.freecatPresorted === true
             ? filtered
             : sortPostsForListing(filtered);
-        return isTagSearch ? sorted : sorted.slice(0, 20);
     }
 
     // 从 tag-index.json 结构中取出某标签下的全部文章并排序。
@@ -144,6 +144,7 @@
         const cardOptions = { ...options };
         return {
             link: post.link,
+            title: post.title,
             titleHtml: processTitleHtml(escapeHtml(post.title)),
             excerptHtml: escapeHtmlWithLineBreaks(post.preview || post.excerpt),
             date: post.date,

@@ -193,3 +193,27 @@ test('About homepage preserves list pagination, theme and share settings through
     await expect(page.locator('.freecat-about-title')).toHaveText('About me');
     await expect(page.locator('html')).not.toHaveClass(/\bdark\b/);
 });
+
+test('reading links have concise names and navigation follows the content', async ({ page }) => {
+    await page.route(/^https:\/\//, route => route.abort());
+    await page.goto('http://127.0.0.1:4173/');
+    const entry = page.locator('#posts-list .home-post-entry').first();
+    await expect(entry).toHaveAccessibleName(await entry.locator('.home-post-title').innerText());
+    await expect(page.locator('#nav-links a[href="/"]')).toHaveAttribute('aria-current', 'page');
+    await page.locator('#nav-links a[href="/all"]').click();
+    await expect(page.frameLocator('#freecat-content-frame').locator('#posts-list')).toBeVisible();
+    await expect(page.locator('#nav-links a[href="/all"]')).toHaveAttribute('aria-current', 'page');
+    await page.locator('#nav-links a[href="/about"]').click();
+    await expect(page.locator('#nav-links a[href="/about"]')).toHaveAttribute('aria-current', 'page');
+    await page.goBack();
+    await expect(page.locator('#nav-links a[href="/all"]')).toHaveAttribute('aria-current', 'page');
+});
+
+test('search has a visible heading and an empty-state recovery link', async ({ page }) => {
+    await page.route(/^https:\/\//, route => route.abort());
+    await page.setViewportSize({width:390,height:844});
+    await page.goto('http://127.0.0.1:4173/search?q=zzzz-no-match');
+    await expect(page.getByRole('main')).toBeVisible();
+    await expect(page.getByRole('heading', {name:'Search', exact:true})).toBeVisible();
+    await expect(page.locator('#no-results a[href="/"]')).toBeVisible();
+});

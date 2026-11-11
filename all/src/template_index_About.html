@@ -16,38 +16,39 @@
 
         <!-- 主内容区
              同 all 模板：用 --freecat-page-top-offset 防止首屏渲染被固定顶栏遮挡。 -->
-        <div id="avatar-trigger-area"
+        <main
             class="layout-container page-blur-target mt-[var(--freecat-page-top-offset)] flex h-full grow flex-col px-8 md:px-20 lg:px-40 pt-3 pb-3 md:pt-4">
             <div class="layout-content-container flex flex-col max-w-[1200px] flex-1 mx-auto w-full">
 
                 <!-- About Hero Section - 居中布局 -->
-                <div class="flex flex-col items-center justify-center py-16 md:py-24">
+                <div class="flex flex-col items-center justify-center py-12 md:py-16">
                     <!-- 头像 - 居中且放大 -->
-                    <div id="hero-avatar"
-                        class="animate-fade-in-up w-40 h-40 md:w-56 md:h-56 bg-center bg-no-repeat bg-cover rounded-full shadow-2xl shadow-gray-700/20 mb-10"
-                        style='background-image: url("<!-- ABOUT_HERO_AVATAR -->");'></div>
+                    <div class="freecat-avatar w-28 h-28 md:w-40 md:h-40 mb-8" role="img" aria-label="博客头像">
+                        <span aria-hidden="true">FC</span>
+                        <img src="<!-- ABOUT_HERO_AVATAR -->" alt="" width="160" height="160" decoding="async" />
+                    </div>
 
                     <!-- 标题和副标题 - 居中排版 -->
                     <div class="@container flex flex-col items-center text-center gap-6 w-full">
                         <h1
-                            class="freecat-about-title animate-fade-in-up delay-50 text-[#1e293b] dark:text-slate-200 text-4xl @[480px]:text-5xl leading-tight md:leading-snug tracking-[-0.033em]">
+                            class="freecat-about-title text-[#1e293b] dark:text-slate-200 text-3xl @[480px]:text-4xl leading-snug tracking-[-0.02em]">
                             <!-- ABOUT_HERO_TITLE -->
                         </h1>
                         <p
-                            class="freecat-about-description animate-fade-in-up delay-100 text-[#616f89] dark:text-gray-400 text-lg md:text-xl leading-relaxed max-w-2xl lg:max-w-3xl">
+                            class="freecat-about-description text-[#616f89] dark:text-gray-400 text-base md:text-lg leading-relaxed max-w-2xl lg:max-w-3xl">
                             <!-- ABOUT_HERO_SUBTITLE -->
                         </p>
 
                         <!-- 社交媒体链接 - 克制：小尺寸 + 柔色 + 留白 -->
                         <div
-                            class="freecat-about-social flex flex-wrap justify-center items-center gap-5 md:gap-7 mt-8 md:mt-10 [&_a]:w-6 sm:[&_a]:w-7 [&_a]:h-6 sm:[&_a]:h-7 [&_svg]:w-full [&_svg]:h-full">
+                            class="freecat-about-social flex flex-wrap justify-center items-center gap-3 mt-6">
                             <!-- SOCIAL_LINKS -->
                         </div>
                     </div>
                 </div>
 
             </div>
-        </div>
+        </main>
 
         <!-- INCLUDE:footer-no-social -->
     </div>

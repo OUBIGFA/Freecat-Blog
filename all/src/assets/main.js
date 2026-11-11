@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const shared = requireGlobal('FreecatShared');
+    shared.syncNavigation(document, window.location.pathname);
     const platform = requireGlobal('FreecatPlatform');
     const runtime = requireGlobal('FreecatRuntime');
     const searchCore = requireGlobal('FreecatSearchCore');

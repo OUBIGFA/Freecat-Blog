@@ -18,6 +18,24 @@ function createMemoryStorage() {
     };
 }
 
+test('denied storage getters do not prevent browser features from initializing', async () => {
+    const runtimeRoot = {
+        get localStorage() { throw new Error('Storage access denied'); },
+        get sessionStorage() { throw new Error('Storage access denied'); },
+        fetch: async () => new Response('available'),
+        matchMedia: () => ({ matches: true })
+    };
+    const platform = platformModule.createPlatform(runtimeRoot);
+    for (const storage of [platform.localStorage, platform.sessionStorage]) {
+        assert.equal(storage.getItem('theme'), null);
+        assert.doesNotThrow(() => storage.setItem('theme', 'dark'));
+        assert.doesNotThrow(() => storage.removeItem('theme'));
+        assert.deepEqual(storage.readJson('state', {}), {});
+    }
+    assert.equal(await (await platform.fetch('/search-index.json')).text(), 'available');
+    assert.equal(platform.mediaQuery('(prefers-color-scheme: dark)'), true);
+});
+
 test('browser platform can be built from replaceable storage, fetch, and media query seams', async () => {
     const localStorage = createMemoryStorage();
     const sessionStorage = createMemoryStorage();
