@@ -1,35 +1,16 @@
-# 同步过滤设置 | 直接添加文件夹名称、文件名称（必须包含扩展名称）、具体文件的具体路径
-
-# 以下为格式示例
-.vscode
-测试
-文档测试.txt
-.vscode/文档测试.txt
-测试/文档测试.txt
-
-# 自动排除根目录下的所有点文件夹
+# 本地配置与工具数据；仅保留需要同步的 GitHub 工作流目录
 /.[!.]*/
-
-# --- 白名单：允许同步的点文件夹 ---
-# 如果你想让某个点文件夹同步，请在下方添加：!文件夹名称/
-# 示例：!.obsidian/
 !.github/
-
-# 构建生成的文件
-all/dist/
-all/node_modules/
-
-# Vercel
+.vscode/
 .vercel/
-# BitFun snapshot data - auto managed
 .bitfun/
-
-
-CLAUDE.md
-
 AGENTS.md
-
+CLAUDE.md
 .brooks-lint-history.json
 
-# Ignore temporary work at every depth, after all allow rules.
+# 可重新生成的依赖和构建产物
+all/node_modules/
+all/dist/
+
+# 任意层级的一次性工作目录，必须位于所有白名单规则之后
 **/_temp/

@@ -3,7 +3,8 @@ const path = require('node:path');
 
 module.exports = defineConfig({
     testDir: './browser-tests',
-    outputDir: path.resolve(__dirname, '../.test/browser-tests'),
+    // Keep browser evidence separate from source, permanent tests and build output.
+    outputDir: path.resolve(__dirname, '../_temp/browser-tests'),
     fullyParallel: false,
     workers: 1,
     timeout: 20000,

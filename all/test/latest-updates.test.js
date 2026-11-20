@@ -186,7 +186,8 @@ test('latest update extraction keeps fenced code block content', () => {
 });
 
 test('latest updates skip first publication and metadata changes but retain later body edits', (t) => {
-    const tempRoot = path.resolve(__dirname, '../../.test');
+    // Keep disposable fixture repositories with the other ignored test artifacts.
+    const tempRoot = path.resolve(__dirname, '../../_temp/latest-updates');
     fs.mkdirSync(tempRoot, { recursive: true });
     const repoRoot = fs.mkdtempSync(path.join(tempRoot, 'latest-update-'));
     t.after(() => {

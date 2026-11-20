@@ -2,4 +2,4 @@
 
 测试使用无窗口浏览器，覆盖桌面和手机尺寸。Windows 使用已安装的 Edge；其他平台先运行 npx playwright install chromium。
 
-失败记录保存在仓库根目录的 .test/browser-tests/。
+失败记录保存在仓库根目录的 `_temp/browser-tests/`，不会进入 Git。检查结束后，将不再需要的记录送入系统回收站；本目录中的正式测试须保留。
