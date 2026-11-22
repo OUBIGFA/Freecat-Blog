@@ -1,20 +1,20 @@
 <div align="center">
   <img src="all/image/freecat.png" alt="Freecat Blog Preview" width="120">
 
-  <h1>Freecat Blog</h1>
+<h1>Freecat Blog</h1>
 
-  <p>本地写作、GitHub 备份、免费部署的个人博客模板</p>
+<p>本地写作、GitHub 备份、免费部署的个人博客模板</p>
 
-  <p>简体中文 | <a href="README.en.md">English</a></p>
+<p>简体中文 | <a href="README.en.md">English</a></p>
 
-  <p>
+<p>
     <img src="https://img.shields.io/badge/platform-Web-2563eb" alt="Platform">
     <img src="https://img.shields.io/badge/Node-20-339933" alt="Node">
     <img src="https://img.shields.io/badge/deploy-Cloudflare%20%7C%20Vercel-f97316" alt="Deploy">
     <img src="https://img.shields.io/badge/license-MIT-111827" alt="License">
   </p>
 
-  <p>
+<p>
     <a href="https://freecat-blog.pages.dev">演示站点 01</a> |
     <a href="https://freecat-blog-op.pages.dev">演示站点 02</a>
   </p>
@@ -72,7 +72,7 @@ Cloudflare Pages / Vercel：构建并发布
 | --- | --- | --- |
 | `writing/` | 文章原稿 | 新增或修改文章时 |
 | `Control/` | 网站配置 | 修改网站信息时 |
-| `all/` | 模板、资源和构建程序 | 修改模板功能时；日常写作不需要修改 |
+| `all/` | 模板、资源和构建程序 | 修改模板功能时；日常写作不需要修改 
 
 部署平台的根目录填 `all`。完整教程也可在[《Freecat Blog 免费博客构建指南》](<writing/Freecat Blog 免费博客构建指南.md>)中查看。
 
@@ -84,7 +84,7 @@ Cloudflare Pages / Vercel：构建并发布
 | --- | --- | --- | --- |
 | GitHub 账号 | 必需 | 保存博客仓库 | <https://github.com/signup> |
 | GitHub Desktop | 按本指南操作时 | 提交并推送本地文件 | <https://desktop.github.com/download> |
-| Markdown 编辑器 | 必需 | 编辑文章和配置文件，可选 Obsidian 或 VS Code | <https://obsidian.md/zh> |
+| Markdown 编辑器 | 必需 | 编辑文章和配置文件，推荐 FreeMD | <https://github.com/OUBIGFA/FreeMD> |
 | Cloudflare 账号 | 选择 Cloudflare Pages 时 | 构建并发布网站 | <https://dash.cloudflare.com/sign-up> |
 | Vercel 账号 | 选择 Vercel 时 | 构建并发布网站 | <https://vercel.com/signup> |
 
@@ -228,7 +228,7 @@ copy_content: false
 | `description` | 文章摘要。留空时从正文中自动截取 |
 | `pinned` | `true` 置顶文章；`false` 不置顶 |
 | `show` | `true` 发布文章；`false` 不在网站上展示 |
-| `copy_content` | `true` 显示复制正文按钮；`false` 不显示按钮 |
+| `copy_content` | `true` 显示复制正文按钮；`false` 不显示按钮 
 
 `date` 不是定时发布开关。`copy_content` 不限制读者通过浏览器复制文字。
 
@@ -241,7 +241,7 @@ copy_content: false
 | `site_网站属性.md` | 网站标题、站点名、首页介绍、头像、主题 |
 | `SEO_搜索优化.md` | 正式域名、搜索摘要、作者信息、AI 爬虫规则和 llms.txt |
 | `social_社交媒体.md` | 社交媒体图标、主页链接、联系方式、推广链接 |
-| `about_关于页面.md` | About 页面（关于页面）的标题、介绍和头像 |
+| `about_关于页面.md` | About 页面（关于页面）的标题、介绍和头像 
 
 编辑时遵循以下规则：
 
@@ -261,7 +261,7 @@ copy_content: false
 | 社交链接 | 将对应的 `*_enabled` 设为 `true`，并填写 `*_url` | 显示该平台的链接，例如 `github_enabled: true` 和 `github_url: https://github.com/你的账号` |
 | 社交图标 | 在对应的 `*_icon_url` 中填写图片链接 | 使用自定义图标。留空时使用默认图标 |
 | 隐藏社交平台 | 将对应的 `*_enabled` 设为 `false` | 不显示该平台 |
-| About 页面 | 编辑 `about_hero_title`、`about_hero_subtitle`、`about_hero_avatar` | 分别设置标题、介绍、头像。各字段留空时使用首页对应内容 |
+| About 页面 | 编辑 `about_hero_title`、`about_hero_subtitle`、`about_hero_avatar` | 分别设置标题、介绍、头像。各字段留空时使用首页对应内容 
 
 ## 发布日常更新
 
@@ -337,7 +337,7 @@ GitHub Actions 是仓库内运行自动任务的功能。本项目的 `.github/w
 | --- | --- |
 | 同步 | `all/`、`README.md`、`README.en.md` |
 | 保留本仓库版本 | `all/git-dates.json`、`all/build/font-subsets-manifest.json`、`all/src/assets/fonts/` |
-| 不修改 | `Control/`、`writing/`、`.github/`、`.gitignore` |
+| 不修改 | `Control/`、`writing/`、`.github/`、`.gitignore` 
 
 如果修改过同步范围内的模板、样式、脚本或 README，先保存这些自定义改动的副本；同步可能覆盖它们。
 
@@ -360,7 +360,7 @@ GitHub Actions 是仓库内运行自动任务的功能。本项目的 `.github/w
 | 工作流 | 用途 |
 | --- | --- |
 | [sync-upstream.yml](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/sync-upstream.yml) | 同步上表范围内的模板文件 |
-| [update-git-dates.yml](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/update-git-dates.yml) | 更新文章日期、固定文章 ID 和最新改动等快照数据 |
+| [update-git-dates.yml](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/update-git-dates.yml) | 更新文章日期、固定文章 ID 和最新改动等快照数据 
 
 如果日志表明你的工作流版本缺少所需修复，将主仓库中对应文件的内容复制到本仓库的同名文件，再提交并推送。工作流文件位于 `.github/workflows/`，不会随模板自动同步。更新文件后，在 `Actions` 中手动运行对应工作流，并检查结果。
 
@@ -375,7 +375,7 @@ GitHub Actions 是仓库内运行自动任务的功能。本项目的 `.github/w
 | 构建参数怎么检查？ | 根目录为 `all`，输出目录为 `dist`。输出目录相对于根目录，不要填 `all/dist` |
 | 可以换部署平台吗？ | 可以。将同一个 GitHub 仓库导入新平台，按本指南配置。如果使用自定义域名，还需修改域名绑定和 DNS |
 | 可以删除示例文章吗？ | 可以。删除 `writing/` 中对应文件后，提交并推送 |
-| 可以修改 `all/` 吗？ | 可以，但模板同步可能覆盖你的改动。日常写作和网站设置使用 `writing/` 和 `Control/` |
+| 可以修改 `all/` 吗？ | 可以，但模板同步可能覆盖你的改动。日常写作和网站设置使用 `writing/` 和 `Control/` 
 
 ### 本地改了文件，网站没有更新
 
