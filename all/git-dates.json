@@ -8,7 +8,7 @@
     "这是一篇空白内容的模板文章.md": "2026-06-18T22:37:41+08:00",
     "中国彩礼的算计.md": "2026-11-06T11:54:50+08:00",
     "ChatGPT image 2.0 视觉指南.md": "2026-09-29T11:09:02+08:00",
-    "Freecat Blog 免费博客构建指南.md": "2026-11-22T08:54:58+08:00",
+    "Freecat Blog 免费博客构建指南.md": "2026-11-27T14:55:46+08:00",
     "Markdown语法文档.md": "2026-10-20T20:46:20+08:00"
   },
   "published": {
@@ -389,51 +389,16 @@
     },
     "Freecat Blog 免费博客构建指南.md": {
       "items": [
-        "all/ 模板、资源和构建程序 修改模板功能时；日常写作不需要修改",
-        "Markdown 编辑器 必需 编辑文章和配置文件，推荐 FreeMD https://github.com/OUBIGFA/FreeMD",
-        "copy_content true 显示复制正文按钮；false 不显示按钮",
-        "about关于页面.md About 页面（关于页面）的标题、介绍和头像",
-        "About 页面 编辑 about_hero_title、about_hero_subtitle、about_hero_avatar 分别设置标题、介绍、头像。各字段留空时使用首页对应内容",
-        "不修改 Control/、writing/、.github/、.gitignore",
-        "update-git-dates.yml 更新文章日期、固定文章 ID 和最新改动等快照数据",
-        "可以修改 all/ 吗？ 可以，但模板同步可能覆盖你的改动。日常写作和网站设置使用 writing/ 和 Control/"
+        "Markdown 编辑器 必需 编辑文章和配置文件，推荐 FreeFolio https://github.com/OUBIGFA/FreeFolio"
       ],
       "targets": [
         {
-          "text": "| `all/` | 模板、资源和构建程序 | 修改模板功能时；日常写作不需要修改 ",
-          "line": 39
-        },
-        {
-          "text": "| Markdown 编辑器 | 必需 | 编辑文章和配置文件，推荐 FreeMD | <https://github.com/OUBIGFA/FreeMD> |",
+          "text": "| Markdown 编辑器 | 必需 | 编辑文章和配置文件，推荐 FreeFolio | <https://github.com/OUBIGFA/FreeFolio> |",
           "line": 55
-        },
-        {
-          "text": "| `copy_content` | `true` 显示复制正文按钮；`false` 不显示按钮 ",
-          "line": 199
-        },
-        {
-          "text": "| `about_关于页面.md` | About 页面（关于页面）的标题、介绍和头像 ",
-          "line": 212
-        },
-        {
-          "text": "| About 页面 | 编辑 `about_hero_title`、`about_hero_subtitle`、`about_hero_avatar` | 分别设置标题、介绍、头像。各字段留空时使用首页对应内容 ",
-          "line": 229
-        },
-        {
-          "text": "| 不修改 | `Control/`、`writing/`、`.github/`、`.gitignore` ",
-          "line": 305
-        },
-        {
-          "text": "| [update-git-dates.yml](https://github.com/OUBIGFA/Freecat-Blog/blob/main/.github/workflows/update-git-dates.yml) | 更新文章日期、固定文章 ID 和最新改动等快照数据 ",
-          "line": 328
-        },
-        {
-          "text": "| 可以修改 `all/` 吗？ | 可以，但模板同步可能覆盖你的改动。日常写作和网站设置使用 `writing/` 和 `Control/` ",
-          "line": 363
         }
       ],
       "source": "commit",
-      "commit": "f302cde3e6b5"
+      "commit": "5372291e288b"
     },
     "Markdown语法文档.md": {
       "items": [
