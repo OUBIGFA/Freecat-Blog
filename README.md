@@ -72,7 +72,7 @@ Cloudflare Pages / Vercel：构建并发布
 | --- | --- | --- | --- |
 | GitHub 账号 | 必需 | 保存博客仓库 | <https://github.com/signup> |
 | GitHub Desktop | 按本指南操作时 | 提交并推送本地文件 | <https://desktop.github.com/download> |
-| Markdown 编辑器 | 必需 | 编辑文章和配置文件，推荐 FreeMD | <https://github.com/OUBIGFA/FreeMD> |
+| Markdown 编辑器 | 必需 | 编辑文章和配置文件，推荐 FreeFolio | <https://github.com/OUBIGFA/FreeFolio> |
 | Cloudflare 账号 | 选择 Cloudflare Pages 时 | 构建并发布网站 | <https://dash.cloudflare.com/sign-up> |
 | Vercel 账号 | 选择 Vercel 时 | 构建并发布网站 | <https://vercel.com/signup> |
 
